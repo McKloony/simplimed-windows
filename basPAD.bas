@@ -1588,6 +1588,7 @@ Dim xmlElem As Object
 Dim DiaTe As String
 Dim DiaKa As String
 Dim PosNr As Integer
+Dim GeschPad As String
 
 
 Set xmlFall = PadXmlEl(xmlDoc, "abrechnungsfall")
@@ -1623,10 +1624,15 @@ If Not IsNull(RS.Fields("Geboren").Value) Then
     End If
 End If
 
-' Geschlecht (patient gender)
+' Geschlecht (patient gender) - PADNext v2.12: m, w, u
 If Not IsNull(RS.Fields("Geschlecht").Value) And RS.Fields("Geschlecht").Value <> vbNullString Then
+    Select Case UCase$(Left$(RS.Fields("Geschlecht").Value, 1))
+    Case "M": GeschPad = "m"
+    Case "W": GeschPad = "w"
+    Case Else: GeschPad = "u"
+    End Select
     Set xmlElem = PadXmlEl(xmlDoc, "geschlecht")
-    xmlElem.Text = LCase(Left$(RS.Fields("Geschlecht").Value, 1))
+    xmlElem.Text = GeschPad
     xmlBeh.appendChild xmlElem
 End If
 
@@ -1799,6 +1805,10 @@ Dim KunNrT As String
 Dim TmpTit As String
 Dim TmpVor As String
 Dim TmpFir As String
+Dim xmlBank As Object
+Dim TmpIBA As String
+Dim TmpBIC As String
+Dim TmpBank As String
 
 If GlLog = True Then SLogi "basPAD.S_ReExNAddRErs: Creating rechnungsersteller for ManNr=" & ManNr
 
@@ -1907,6 +1917,28 @@ If TmpStr <> vbNullString Then
     xmlElem.setAttribute "art", "telefonnr"
     xmlElem.Text = Trim$(TmpStr)
     xmlRErs.appendChild xmlElem
+End If
+
+' Bankverbindung - IBAN ist in PADNext v2.12 Pflicht
+TmpIBA = Trim$(S_AdIdx(ManNr, "IBAN"))
+TmpBIC = Trim$(S_AdIdx(ManNr, "BIC"))
+TmpBank = Trim$(S_AdIdx(ManNr, "Bankname"))
+If TmpIBA <> vbNullString Then
+    Set xmlBank = PadXmlEl(xmlDoc, "bankverbindung")
+    Set xmlElem = PadXmlEl(xmlDoc, "iban")
+    xmlElem.Text = TmpIBA
+    xmlBank.appendChild xmlElem
+    If TmpBIC <> vbNullString Then
+        Set xmlElem = PadXmlEl(xmlDoc, "bic")
+        xmlElem.Text = TmpBIC
+        xmlBank.appendChild xmlElem
+    End If
+    If TmpBank <> vbNullString Then
+        Set xmlElem = PadXmlEl(xmlDoc, "kreditinstitut")
+        xmlElem.Text = Left$(TmpBank, 100)
+        xmlBank.appendChild xmlElem
+    End If
+    xmlRErs.appendChild xmlBank
 End If
 
 If GlLog = True Then SLogi "basPAD.S_ReExNAddRErs: rechnungsersteller created successfully"
