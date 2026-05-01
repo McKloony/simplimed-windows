@@ -1253,6 +1253,7 @@ End If
 
 With CoDia
     .CancelError = True
+    .DialogStyle = 1
     .DefaultExt = "*.xml"
     .DialogTitle = "Bitte Name und Ordner der Abrechnungsdatei angeben"
     .Filter = "XML-Dateien (*.xml)|*.xml|Alle Dateien (*.*)|*.*"
