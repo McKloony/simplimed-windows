@@ -41,6 +41,7 @@ Private Const LEDGER_XML_DATA_TEXT As String = "Kopie nur zur Verbuchung berecht
 
 Private Const BELEGLINK_PREFIX As String = "BEDI"
 Private Const BELEGINFO_PATIENT_ART As String = "PATIENTENNR"
+Private Const BELEGINFO_DEBITORNR_ART As String = "DEBITORENNR"
 
 ' Ledger XML extension types for structured document linking
 Private Const XML_EXT_ACCOUNTS_RECEIVABLE As String = "accountsReceivableLedger"  ' Ausgangsrechnungen (Einnahmen)
@@ -1497,11 +1498,12 @@ On Error GoTo ErrHandler
         TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
     End If
     If DebNr > 0 Then
-        TmpSt = TmpSt & Chr$(34) & CStr(DebNr) & Chr$(34) & ExSep 'Beleginfo Art 1: Debitorennr
+        TmpSt = TmpSt & Chr$(34) & BELEGINFO_DEBITORNR_ART & Chr$(34) & ExSep 'Beleginfo Art 1: Debitorennr
+        TmpSt = TmpSt & Chr$(34) & CStr(DebNr) & Chr$(34) & ExSep             'Beleginfo Inhalt 1: Debitorennr
     Else
         TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Beleginfo Art 1 (leer)
+        TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Beleginfo Inhalt 1 (leer)
     End If
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Beleginfo Inhalt 1 (leer)
     TmpSt = TmpSt & Chr$(34) & Beleg & Chr$(34) & ExSep  'Beleginfo2a
     TmpSt = TmpSt & Chr$(34) & DaNam & Chr$(34) & ExSep 'Beleginfo2b
     ' Beleginfo 3: Patientennummer als Debitoren-Referenz
@@ -1528,7 +1530,11 @@ On Error GoTo ErrHandler
     ' BU49 fields
     TmpSt = TmpSt & vbNullString & ExSep & vbNullString & ExSep & vbNullString & ExSep
     ' Info fields 1-20 (mostly empty)
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep & Chr$(34) & Komme & Chr$(34) & ExSep
+    If Len(Komme) > 0 Then
+        TmpSt = TmpSt & Chr$(34) & "KOMMENTAR" & Chr$(34) & ExSep & Chr$(34) & Komme & Chr$(34) & ExSep
+    Else
+        TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep & Chr$(34) & Chr$(34) & ExSep
+    End If
     Dim ii As Integer
     For ii = 2 To 20
         TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep & Chr$(34) & Chr$(34) & ExSep
@@ -4257,11 +4263,12 @@ On Error GoTo ErrHandler
 
     ' Fields 21-36: Beleginfo 1-8 (Art + Inhalt pairs)
     If DebNr > 0 Then
-        Fields(20) = QuoteField(CStr(DebNr))           ' Art 1: Debitorennr
+        Fields(20) = QuoteField(BELEGINFO_DEBITORNR_ART) ' Art 1: Debitorennr
+        Fields(21) = QuoteField(CStr(DebNr))             ' Inhalt 1: Debitorennr
     Else
-        Fields(20) = m_EmptyQuoted                     ' Art 1 (leer)
+        Fields(20) = m_EmptyQuoted                       ' Art 1 (leer)
+        Fields(21) = m_EmptyQuoted                       ' Inhalt 1 (leer)
     End If
-    Fields(21) = m_EmptyQuoted                         ' Inhalt 1 (leer)
     Fields(22) = QuoteField(Beleg)                     ' Art 2
     Fields(23) = QuoteField(BeDaNam)                   ' Inhalt 2 (BEDI-Dateiname)
     BePatArt = vbNullString
@@ -4302,8 +4309,13 @@ On Error GoTo ErrHandler
     Fields(46) = vbNullString
 
     ' Fields 48-87: Zusatzinformation 1-20 (40 fields)
-    Fields(47) = m_EmptyQuoted  ' Art 1
-    Fields(48) = QuoteField(Komme)  ' Inhalt 1 (Kommentar)
+    If Len(Komme) > 0 Then
+        Fields(47) = QuoteField("KOMMENTAR")  ' Art 1
+        Fields(48) = QuoteField(Komme)        ' Inhalt 1 (Kommentar)
+    Else
+        Fields(47) = m_EmptyQuoted            ' Art 1 (leer)
+        Fields(48) = m_EmptyQuoted            ' Inhalt 1 (leer)
+    End If
     For i = 49 To 86
         Fields(i) = m_EmptyQuoted
     Next i
@@ -5125,11 +5137,12 @@ On Error GoTo ErrHandler
 
     ' Fields 21-36: Beleginfo 1-8 (Art + Inhalt pairs)
     If DebNr > 0 Then
-        Line = Line & Q & CStr(DebNr) & Q & Sep          ' Beleginfo-Art 1: Debitorennr
+        Line = Line & Q & BELEGINFO_DEBITORNR_ART & Q & Sep  ' Beleginfo-Art 1: Debitorennr
+        Line = Line & Q & CStr(DebNr) & Q & Sep              ' Beleginfo-Inhalt 1: Debitorennr
     Else
-        Line = Line & Q & Q & Sep                         ' Beleginfo-Art 1 (leer)
+        Line = Line & Q & Q & Sep                            ' Beleginfo-Art 1 (leer)
+        Line = Line & Q & Q & Sep                            ' Beleginfo-Inhalt 1 (leer)
     End If
-    Line = Line & Q & Q & Sep                             ' Beleginfo-Inhalt 1 (leer)
     Line = Line & Q & Beleg & Q & Sep                     ' Beleginfo-Art 2 (Belegnummer)
     Line = Line & Q & BeDaNam & Q & Sep                   ' Beleginfo-Inhalt 2 (BEDI-Dateiname)
     BePatArt = vbNullString
@@ -5179,8 +5192,13 @@ On Error GoTo ErrHandler
     Line = Line & Sep  ' BU 49 Funktionsergaenzung
 
     ' Fields 48-87: Zusatzinformation 1-20 (Art + Inhalt pairs)
-    Line = Line & Q & Q & Sep   ' Art 1
-    Line = Line & Q & Komme & Q & Sep  ' Inhalt 1 (Kommentar)
+    If Len(Komme) > 0 Then
+        Line = Line & Q & "KOMMENTAR" & Q & Sep  ' Art 1
+        Line = Line & Q & Komme & Q & Sep        ' Inhalt 1 (Kommentar)
+    Else
+        Line = Line & Q & Q & Sep                ' Art 1 (leer)
+        Line = Line & Q & Q & Sep                ' Inhalt 1 (leer)
+    End If
     Dim i As Integer
     For i = 2 To 20
         Line = Line & Q & Q & Sep  ' Art
