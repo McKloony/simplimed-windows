@@ -2116,6 +2116,13 @@ On Error GoTo ErrHandler
     ' Determine if we have/need a document
     If Len(DaNam) = 0 Then
         If IsRevenue Then
+            ' Einnahme ohne Datei: nur durchwinken, wenn RechNr vorhanden ODER GuiID-Prefix "R"
+            ' (sonst reine Bank-Gutschrift / Cashflow-Eingang -> kein <document>-Eintrag)
+            If Len(ReStr) = 0 And GuidPrefix <> "R" Then
+                If GlLog = True Then SLogi "  >>> ProcessDocumentForXMLFromRC: Skipped (revenue without RechNr and not invoice, no XML entry)" 'datev xml skip guard rev
+                ProcessDocumentForXMLFromRC = vbNullString
+                Exit Function
+            End If
             ' Revenue without document - generate default filename
             If Len(ReStr) > 0 Then
                 DaNam = "Rechnung_Beleg_" & SanitizeFileName(ReStr) & ".pdf"
@@ -6259,6 +6266,14 @@ On Error GoTo ErrHandler
     If Len(DaNam) = 0 Then
         ' No document filename
         If IsRevenue Then
+            ' Einnahme ohne Datei: nur durchwinken, wenn RechNr vorhanden ODER GuiID-Prefix "R"
+            ' (sonst reine Bank-Gutschrift / Cashflow-Eingang -> kein <document>-Eintrag,
+            '  sonst meldet DATEV "erwartete Datei aus Dokumenteninformation jedoch nicht gesendet")
+            If Len(ReStr) = 0 And GuidPrefix <> "R" Then
+                If GlLog = True Then SLogi "  >>> Skipped (revenue without RechNr and not invoice, no XML entry)" 'datev xml skip guard rev
+                ProcessDocumentForXML = vbNullString
+                Exit Function
+            End If
             ' Revenue without document - generate default filename (like basData.bas)
             If Len(ReStr) > 0 Then
                 DaNam = "Rechnung_Beleg_" & SanitizeFileName(ReStr) & ".pdf"
