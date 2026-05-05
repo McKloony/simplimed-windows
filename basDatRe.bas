@@ -16503,6 +16503,7 @@ If AnzPo > 0 Then
                 PaStr = RpRow.Record(RpCol.ItemIndex).Value
             End Select
 
+            If ReNum > 0 Then 'qrySimAbDo3 guard - never delete with @IdxNr=0
             Set RS121 = New ADODB.Recordset
             RS121.CursorLocation = adUseClient
             Set RS121 = DBCmRe1("qrySimAbDo1", "@IdxNr", ReNum)
@@ -16538,6 +16539,7 @@ If AnzPo > 0 Then
             End If
             RS122.Close
             Set RS122 = Nothing
+            End If
         End If
     Next RpRow
     

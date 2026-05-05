@@ -2705,7 +2705,7 @@ For Each RpRow In RpSel
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         DoEvents
                     Else
-                        DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr
+                        If IdxNr > 0 Then DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr 'qrySimAbLoPa guard - never delete with @IdxNr=0
                         DoEvents
                         DBCmEx1 "qrySimReLP", "@IdxNr", IdxNr
                         DoEvents
@@ -2764,7 +2764,7 @@ For Each RpRow In RpSel
                             DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                             DoEvents
                         Else
-                            DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr
+                            If IdxNr > 0 Then DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr 'qrySimAbLoPa guard - never delete with @IdxNr=0
                             DoEvents
                             DBCmEx1 "qrySimReLP", "@IdxNr", IdxNr
                             DoEvents
@@ -2821,7 +2821,7 @@ For Each RpRow In RpSel
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         DoEvents
                     Else
-                        DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr
+                        If IdxNr > 0 Then DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr 'qrySimAbLoPa guard - never delete with @IdxNr=0
                         DoEvents
                         DBCmEx1 "qrySimReLP", "@IdxNr", IdxNr
                         DoEvents
@@ -2877,7 +2877,7 @@ For Each RpRow In RpSel
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         DoEvents
                     Else
-                        DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr
+                        If IdxNr > 0 Then DBCmEx1 "qrySimAbLoPa", "@IdxNr", IdxNr 'qrySimAbLoPa guard - never delete with @IdxNr=0
                         DoEvents
                         DBCmEx1 "qrySimReLP", "@IdxNr", IdxNr
                         DoEvents
@@ -3879,7 +3879,7 @@ Case "ClientChange":
             RS127.Update
         End If
 Case "ClientDelete":
-        DBCmEx1 "qrySimAbLoPa", "@IdxNr", GlTDx.CSenderInternalIdentification
+        If Val(GlTDx.CSenderInternalIdentification & "") > 0 Then DBCmEx1 "qrySimAbLoPa", "@IdxNr", GlTDx.CSenderInternalIdentification 'qrySimAbLoPa guard - never delete with @IdxNr=0
         DBCmEx1 "qryAdrLoe", "@IdxNr", GlTDx.CSenderInternalIdentification
 End Select
 
