@@ -6266,16 +6266,13 @@ On Error GoTo ErrHandler
                 DaNam = "Rechnung_Beleg_" & SanitizeFileName(FormattedGUID) & ".pdf"
             End If
         Else
-            ' Expense without document filename
-            If Not Config.UseLedgerXML Then
-                ' Option A: Skip XML entry but posting is still in CSV
-                ProcessDocumentForXML = vbNullString
-                Exit Function
-            Else
-                ' Option B: Generate default filename for ledger.xml linking
-                DaNam = "Beleg_" & SanitizeFileName(FormattedGUID) & ".pdf"
-                If GlLog = True Then SLogi "  >>> Option B: Generated default filename for expense: " & DaNam
-            End If
+            ' Expense without document filename - kein <document>-Eintrag ohne physische Datei
+            ' (DATEV-Importer verlangt physische Datei zu jedem <document>-Eintrag - sonst:
+            '  "erwartete Datei aus Dokumenteninformation jedoch nicht gesendet")
+            ' Buchung bleibt in CSV (ohne BEDI-Link) und in ledger.xml (cashLedger ohne docref)
+            If GlLog = True Then SLogi "  >>> Skipped (expense without Datei field, no XML entry)" 'datev xml skip guard
+            ProcessDocumentForXML = vbNullString
+            Exit Function
         End If
     End If
 
@@ -6318,22 +6315,17 @@ On Error GoTo ErrHandler
     End If
 
     ' Skip if document does not exist - ensures XML matches CSV Beleglinks
-    ' Option A: Expenses need existing documents, revenues are generated during export
-    ' Option B: Allow XML entry even without physical files (data is in ledger.xml)
+    ' Sowohl Option A als auch Option B: ohne physische Datei kein <document>-Eintrag,
+    ' sonst meldet DATEV "erwartete Datei aus Dokumenteninformation jedoch nicht gesendet"
     If Not DocExists Then
-        If Not Config.UseLedgerXML Then
-            ' Option A: Require physical documents for EXPENSES only
-            ' Revenues/invoices are generated during export, so allow them to proceed
-            If Not IsRevenue Then
-                If GlLog = True Then SLogi "  >>> Skipped (expense document not found, no XML entry)"
-                ProcessDocumentForXML = vbNullString
-                Exit Function
-            Else
-                If GlLog = True Then SLogi "  >>> Option A: Revenue document will be generated (not yet existing)"
-            End If
+        If Not IsRevenue Then
+            ' Ausgabe ohne physische Datei -> kein XML-Eintrag (Buchung bleibt in CSV / ledger.xml)
+            If GlLog = True Then SLogi "  >>> Skipped (expense document not found, no XML entry)" 'datev xml skip guard
+            ProcessDocumentForXML = vbNullString
+            Exit Function
         Else
-            ' Option B: Continue without physical file (ledger.xml contains the data)
-            If GlLog = True Then SLogi "  >>> Option B: Generating XML entry without physical file (data in ledger.xml)"
+            ' Einnahme: PDF wird waehrend des Exports per Rechnungsdruck erzeugt -> weitermachen
+            If GlLog = True Then SLogi "  >>> Revenue document will be generated (not yet existing)"
         End If
     End If
 
