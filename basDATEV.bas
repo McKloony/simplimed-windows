@@ -471,21 +471,22 @@ On Error GoTo ErrHandler
     Config.CompressOutput = BelEx
 
     ' Set export type based on ExTyp parameter
-    ' Option A: Dokumentenarchivierung - Document-XML (einfaches Archivformat)
-    ' Option B: Ledger-Integration - Document-XML + Ledger-XML (strukturierte Belegsatzdaten)
+    ' Option A "Buchungsstapel":  EXTF-CSV + document.xml (File-only) + PDFs - KEIN ledger.xml
+    ' Option B "Belegverwaltung": ledger.xml + document.xml (cashLedger+File) + PDFs - KEIN CSV
+    ' Hintergrund: DATEV-Importer toleriert keine Doppelung Buchungsstapel+ledger.xml im selben ZIP.
     Select Case UCase$(ExTyp)
     Case "A"
-        ' Option A: Dokumentenarchivierung
+        ' Option A: Buchungsstapel-Export mit BEDI-Belegverknuepfung im CSV
         Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = False
     Case "B"
-        ' Option B: Ledger-Integration mit strukturierten Belegsatzdaten
-        Config.ExportCSV = True
+        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen, kein CSV   'datev mode b no csv
+        Config.ExportCSV = False
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = True
     Case Else
-        ' Default: Option A (Dokumentenarchivierung)
+        ' Default: Option A (Buchungsstapel)
         Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = False
@@ -752,21 +753,22 @@ On Error GoTo ErrHandler
     Config.CompressOutput = BelEx
 
     ' Set export type based on ExTyp parameter
-    ' Option A: Dokumentenarchivierung - Document-XML (einfaches Archivformat)
-    ' Option B: Ledger-Integration - Document-XML + Ledger-XML (strukturierte Belegsatzdaten)
+    ' Option A "Buchungsstapel":  EXTF-CSV + document.xml (File-only) + PDFs - KEIN ledger.xml
+    ' Option B "Belegverwaltung": ledger.xml + document.xml (cashLedger+File) + PDFs - KEIN CSV
+    ' Hintergrund: DATEV-Importer toleriert keine Doppelung Buchungsstapel+ledger.xml im selben ZIP.
     Select Case UCase$(ExTyp)
     Case "A"
-        ' Option A: Dokumentenarchivierung
+        ' Option A: Buchungsstapel-Export mit BEDI-Belegverknuepfung im CSV
         Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments  ' XML nur wenn ExportDocuments = True
         Config.UseLedgerXML = False
     Case "B"
-        ' Option B: Ledger-Integration mit strukturierten Belegsatzdaten
-        Config.ExportCSV = True
+        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen, kein CSV   'datev mode b no csv
+        Config.ExportCSV = False
         Config.ExportXML = Config.ExportDocuments  ' XML nur wenn ExportDocuments = True
         Config.UseLedgerXML = True
     Case Else
-        ' Default: Option A (Dokumentenarchivierung)
+        ' Default: Option A (Buchungsstapel)
         Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = False
@@ -1018,6 +1020,22 @@ On Error GoTo ErrHandler
         AnzKo = 6
     End If
 
+    ' Collect invoice IDs for PDF generation - regardless of CSV/XML export type
+    ' (muss VOR den CSV/XML-Loops laufen, damit m_InvoiceCount fuer GenerateInvoicePDFs gesetzt ist).
+    ' Bugfix: zuvor stand der CollectInvoiceIDFromReportControl-Aufruf im CSV-Loop -
+    ' dadurch fehlten bei Mode B (ExportCSV=False) alle PDFs im ZIP.   'datev rc invoice collect moved
+    If Config.ExportDocuments Then
+        If GlLog = True Then SLogi "=== Collecting Invoice IDs (RC) ==="
+        RST.MoveFirst
+        Do While Not RST.EOF
+            CollectInvoiceIDFromReportControl RST
+            RST.MoveNext
+        Loop
+        RST.MoveFirst
+        If GlLog = True Then SLogi "Total m_InvoiceCount = " & m_InvoiceCount
+        DoEvents
+    End If
+
     ' Build CSV content
     If Config.ExportCSV Then
         ' Phase 2: CSV Buchungsstapel
@@ -1037,10 +1055,8 @@ On Error GoTo ErrHandler
                 RecordCount = RecordCount + 1
             End If
 
-            ' Collect invoice IDs for PDF generation (Einnahmen)
-            If Config.ExportDocuments Then
-                CollectInvoiceIDFromReportControl RST
-            End If
+            ' Invoice IDs werden VOR diesem Loop gesammelt (siehe oben),
+            ' damit Mode B (ExportCSV=False) trotzdem PDFs generiert.   'datev rc invoice collect old slot
 
             ' Update progress (dual mode)
             UpdateDualProgress RecordCount, RST.RecordCount, "Buchung " & RecordCount & " von " & RST.RecordCount
@@ -1917,6 +1933,28 @@ Private Sub CollectInvoiceIDFromReportControl(ByRef RST As ADODB.Recordset)
             End If
         End If
     End If
+
+    ' Mode-B-Fix: RechNr->GuiID Mapping muss unabhaengig vom CSV-Loop gefuellt werden,
+    ' sonst loescht AddGeneratedPDFsToZipList die generierten PDFs (kein GUID gefunden).
+    ' Bisher lief die Registrierung nur in BuildCSVDataLineFromReportControl.   'datev mode b register guid rc
+    Dim BuTypZ As Integer
+    Dim BuGuiZ As String
+    Dim RechNrKeyZ As String
+    If m_InvMod Then
+        BuTypZ = 2  ' Debitoren: immer Einnahme
+    Else
+        BuTypZ = SafeIntField(RST, "IDA")
+    End If
+    If BuTypZ = 2 Then
+        BuGuiZ = SafeString(RST.Fields("GuiID").Value)
+        If Len(BuGuiZ) > 0 Then
+            RechNrKeyZ = SanitizeFileName(SafeString(RST.Fields("RechNr").Value))
+            If Len(RechNrKeyZ) > 0 Then
+                RegisterInvoiceGUID RechNrKeyZ, BuGuiZ
+            End If
+        End If
+    End If
+
     On Error GoTo 0
 End Sub
 
@@ -2054,17 +2092,11 @@ On Error GoTo ErrHandler
         Exit Function
     End If
 
-    ' Skip payment bookings (K prefix) - they don't have document files
-    ' Only process R (invoices), B (expenses), G (other business docs)
-    If Len(BuGui) > 0 Then
-        Dim GuidPrefix As String
-        GuidPrefix = UCase$(Left$(BuGui, 1))
-        If GuidPrefix = "K" Then
-            If GlLog = True Then SLogi "  >>> ProcessDocumentForXMLFromRC: Skipped (payment booking, no document)"
-            ProcessDocumentForXMLFromRC = vbNullString
-            Exit Function
-        End If
-    End If
+    ' GuiID-Prefix fuer spaeteren Einnahmen-Skip auswerten.
+    ' Frueher pauschaler K-Skip entfernt - Bareinnahmen-Quittungen
+    ' (K-Prefix mit RechNr+PDF) brauchen einen <document>-Eintrag.   'datev k skip removed rc
+    Dim GuidPrefix As String
+    GuidPrefix = UCase$(Left$(BuGui, 1))
 
     ' Check if expense document was validated as invalid (skip in invoice mode)
     If Not m_InvMod Then
@@ -2652,6 +2684,27 @@ On Error Resume Next
         ReDim Preserve GloDr(m_InvoiceCount)
         GloDr(m_InvoiceCount) = InvID
         ' PDF-Dateinamen werden NACH LLExDv via AddGeneratedPDFsToZipList hinzugefuegt
+
+        ' Mode-B-Fix: RechNr->GuiID Mapping muss unabhaengig vom CSV-Loop gefuellt werden,
+        ' sonst loescht AddGeneratedPDFsToZipList die generierten PDFs (kein GUID gefunden).
+        ' Bisher lief die Registrierung nur in BuildCSVDataLine[Optimized].   'datev mode b register guid
+        Dim BuTypZ As Integer
+        Dim BuGuiZ As String
+        Dim RechNrKeyZ As String
+        If m_InvMod Then
+            BuTypZ = 2  ' Debitoren: immer Einnahme
+        Else
+            BuTypZ = SafeIntField(RST, "IDA")
+        End If
+        If BuTypZ = 2 Then
+            BuGuiZ = SafeString(RST.Fields("GuiID").Value)
+            If Len(BuGuiZ) > 0 Then
+                RechNrKeyZ = SanitizeFileName(SafeString(RST.Fields("RechNr").Value))
+                If Len(RechNrKeyZ) > 0 Then
+                    RegisterInvoiceGUID RechNrKeyZ, BuGuiZ
+                End If
+            End If
+        End If
     End If
 
     Err.Clear
@@ -6188,17 +6241,11 @@ On Error GoTo ErrHandler
         Exit Function
     End If
 
-    ' Skip payment bookings (K prefix) - they don't have document files
-    ' Only process R (invoices), B (expenses), G (other business docs)
-    If Len(BuGui) > 0 Then
-        Dim GuidPrefix As String
-        GuidPrefix = UCase$(Left$(BuGui, 1))
-        If GuidPrefix = "K" Then
-            If GlLog = True Then SLogi "  >>> ProcessDocumentForXML: Skipped (payment booking, no document)"
-            ProcessDocumentForXML = vbNullString
-            Exit Function
-        End If
-    End If
+    ' GuiID-Prefix fuer spaeteren Einnahmen-Skip auswerten.
+    ' Frueher pauschaler K-Skip entfernt - Bareinnahmen-Quittungen
+    ' (K-Prefix mit RechNr+PDF) brauchen einen <document>-Eintrag.   'datev k skip removed
+    Dim GuidPrefix As String
+    GuidPrefix = UCase$(Left$(BuGui, 1))
 
     ' Check if expense document was validated as invalid (file not found in GlBPf)
     ' Debitoren: keine Validierung noetig (nur generierte PDFs, keine Ausgabebelege)
