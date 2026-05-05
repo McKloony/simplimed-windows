@@ -11896,6 +11896,7 @@ Dim EiTyp As Integer
 Dim AktZa As Integer
 Dim GesZa As Integer
 Dim AryIt() As String
+Dim CopOK As Boolean
 
 Set FM = frmMain
 
@@ -12063,9 +12064,11 @@ If GlAdr > 0 Then
                             .FilLoe
                         End If
                         .DaCop = AryIt(AktZa) & ";" & FiNeu & vbNullChar
+                        CopOK = False
                         If .FilCop(1) = False Then
                             SPopu "Datei schreibgesch?tzt", "Die Datei kann nicht kopiert werden", IC48_Warning
                         Else
+                            CopOK = True
                             If GlRDP = True Then
                                 If GlDoL = False Then 'Dokument nach einf?gen l?schen
                                     SMeFr TeTit, TeMai, TeInh, TeFus, True, 1, False, FM.hwnd, TeFra
@@ -12088,30 +12091,41 @@ If GlAdr > 0 Then
                             End If
                         End If
 
-                        GlNeK = GlKoX
-                        With GlNeK
-                            .PatNr = GlAdr
-                            .IdxNr = 0
-                            .EiDat = Format$(Date, "dd.mm.yyyy")
-                            .EiZei = TimeValue(Now)
-                            .EiTyp = EiTyp
-                            .KoStr = NeuDa
-                            .KoGui = TmGui
-                            .TeStr = TypNa & " - " & NeuNa
-                            .NeuEi = True
-                            .Mitar = GlMiA(GlSmI, 2)
-                        End With
-                        If K_Einf = False Then
-                            'DB-Eintrag fehlgeschlagen - kopierte Datei entfernen um Orphan zu verhindern
-                            On Error Resume Next
-                            If clFil.FilVor(FiNeu) = True Then
-                                clFil.DaLoe = FiNeu & vbNullChar
-                                clFil.FilLoe
+                        If CopOK = True Then
+                            GlNeK = GlKoX
+                            With GlNeK
+                                .PatNr = GlAdr
+                                .IdxNr = 0
+                                .EiDat = Format$(Date, "dd.mm.yyyy")
+                                .EiZei = TimeValue(Now)
+                                .EiTyp = EiTyp
+                                .KoStr = NeuDa
+                                .KoGui = TmGui
+                                .TeStr = TypNa & " - " & NeuNa
+                                .NeuEi = True
+                                .Mitar = GlMiA(GlSmI, 2)
+                            End With
+                            If K_Einf = False Then
+                                'DB-Insert fehlgeschlagen - kopierte Datei entfernen um Orphan zu verhindern
+                                On Error Resume Next
+                                If clFil.FilVor(FiNeu) = True Then
+                                    clFil.DaLoe = FiNeu & vbNullChar
+                                    clFil.FilLoe
+                                End If
+                                On Error GoTo LdErr
+                                SPopu "Datenbankfehler", "Die Datei konnte nicht in der Datenbank gespeichert werden", IC48_Warning
+                            ElseIf K_Veri(TmGui) = False Then
+                                'Verify fehlgeschlagen - DB-Eintrag wurde nicht persistiert, Datei entfernen
+                                On Error Resume Next
+                                If clFil.FilVor(FiNeu) = True Then
+                                    clFil.DaLoe = FiNeu & vbNullChar
+                                    clFil.FilLoe
+                                End If
+                                On Error GoTo LdErr
+                                SPopu "Datenbankfehler", "Der Eintrag wurde nicht gespeichert, die Datei wurde entfernt", IC48_Warning
                             End If
-                            On Error GoTo LdErr
-                            SPopu "Datenbankfehler", "Die Datei konnte nicht in der Datenbank gespeichert werden", IC48_Warning
+                            DoEvents
                         End If
-                        DoEvents
                     End If
                     'KoMain NeuDa
                 End With

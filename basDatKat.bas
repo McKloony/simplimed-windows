@@ -10446,6 +10446,49 @@ Set RpCoK = Nothing
 GlAkt = False
 
 End Function
+Public Function K_Veri(ByVal KoGui As String) As Boolean
+On Error GoTo VeErr
+'Verifiziert per Re-SELECT, ob ein Krankenblatt-Eintrag mit der angegebenen GUID
+'tatsaechlich in der Datenbank gespeichert wurde. Liefert True wenn vorhanden.
+
+Dim SqlVe As String
+Dim RsVe As ADODB.Recordset
+
+If KoGui = vbNullString Then
+    K_Veri = False
+    Exit Function
+End If
+
+If GlTyp < 2 Then
+    SqlVe = "SELECT ID2 FROM dbo.qrySimAbSav WHERE Kommentar2 Like '" & KoGui & "'"
+Else
+    SqlVe = "SELECT [ID2] FROM qrySimAbSav WHERE [Kommentar2] Like '" & KoGui & "';"
+End If
+
+Set RsVe = New ADODB.Recordset
+With RsVe
+    .CursorLocation = adUseClient
+    .Source = SqlVe
+    .ActiveConnection = DB1
+    .CursorType = adOpenForwardOnly
+    .LockType = adLockReadOnly
+    .Open Options:=adCmdText
+End With
+DoEvents
+K_Veri = (RsVe.RecordCount > 0)
+RsVe.Close
+Set RsVe = Nothing
+Exit Function
+
+VeErr:
+K_Veri = False
+If GlDbg = True Then MsgBox Err.Description, 48, "K_Veri " & Err.Number
+On Error Resume Next
+If Not RsVe Is Nothing Then
+    If RsVe.State = adStateOpen Then RsVe.Close
+    Set RsVe = Nothing
+End If
+End Function
 Public Sub K_Eing(ByVal EngTy As Integer, Optional ByVal EiKli As Boolean = False, Optional ByVal EiIdx As Long = 0)
 On Error GoTo LiErr
 'Fügt Daten in das Krankenblatt ein
