@@ -1363,7 +1363,7 @@ ElseIf Rahm2.Visible = True Then
         If GlVar = "PS3" Then
             Unload Me
             DoEvents
-            RetWe = S_ReExN(True)
+            RetWe = S_ReExN()
             DoEvents
             If RetWe = True Then
                 RetWe = S_ReAn(False, ReAbs, Date)

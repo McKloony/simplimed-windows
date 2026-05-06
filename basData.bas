@@ -1574,9 +1574,25 @@ Public Function S_AdIdx(ByVal PatNr As Long, ByVal FelNa As String) As String
 On Error GoTo LoErr
 'Gibt Patientendetails wieder
 
+Dim FldOk As Boolean
+
 Set RS127 = New ADODB.Recordset
 RS127.CursorLocation = adUseClient
 Set RS127 = DBCmRe1("qryAdrIdx", "@IdxNr", PatNr)
+
+' Feld-Existenz pruefen, sonst Resume-Next-Endlosschleife bei unbekanntem FelNa
+FldOk = False
+On Error Resume Next
+If Not RS127.Fields(FelNa) Is Nothing Then FldOk = True
+On Error GoTo LoErr
+If FldOk = False Then
+    If GlLog = True Then SLogi "basData.S_AdIdx: WARNING - Feld '" & FelNa & "' nicht in qryAdrIdx"
+    S_AdIdx = vbNullString
+    RS127.Close
+    Set RS127 = Nothing
+    Exit Function
+End If
+
 If RS127.RecordCount > 0 Then
     If RS127.Fields(FelNa).Value <> vbNullString Then
         S_AdIdx = RS127.Fields(FelNa).Value
@@ -1621,7 +1637,13 @@ Exit Function
 
 LoErr:
 If GlDbg = True Then MsgBox Err.Description, 48, "S_AdIdx " & Err.Number
-Resume Next
+If GlLog = True Then SLogi "basData.S_AdIdx: ERROR " & Err.Number & " - " & Err.Description & " FelNa=" & FelNa
+S_AdIdx = vbNullString
+On Error Resume Next
+If Not RS127 Is Nothing Then
+    RS127.Close
+    Set RS127 = Nothing
+End If
 
 End Function
 Public Sub S_AdIm(ByVal ImTyp As String, ByVal ManNr As Long, Optional ByVal GruKy As String, Optional ByVal IsArz As Boolean = False)
