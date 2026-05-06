@@ -186,7 +186,8 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If GlLog = True Then SLogi "Imp01: HdrRow=" & HdrRow
 
     ' Column Detection
-    Dim IdxDa As Integer, IdxAm As Integer
+    Dim IdxDa As Integer, IdxAm As Integer, IdxAm2 As Integer
+    IdxAm2 = -1
     Dim ColIg As Collection
     Set ColIg = New Collection
 
@@ -304,6 +305,13 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
         MsgBox "Konnte Datum- oder Betragsspalte nicht automatisch erkennen.", vbExclamation
         GoTo Cleanup
     End If
+
+    ' Detect Soll/Haben sister column (e.g. Targobank: separate debit/credit columns)
+    Call FindSister(RowsC, IdxDa, IdxAm, IdxAm2, HdrRow)
+    If IdxAm2 >= 0 Then
+        If Not InCol(ColIg, CInt(IdxAm2)) Then ColIg.Add CInt(IdxAm2), "K" & CStr(IdxAm2)
+        If GlLog = True Then SLogi "Imp01: Soll/Haben sister column at " & IdxAm2
+    End If
     
     ' DEBUG LOG via SLogi
     If GlLog = True Then
@@ -322,7 +330,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     
     Dim i As Long
     Dim RowV As Variant
-    Dim sDat As String, sAmt As String, sTxt As String
+    Dim sDat As String, sAmt As String, sTxt As String, sAmtAlt As String
     Dim dAmt As Double, dtDat As Date
     Dim j As Integer
     Dim sTmp As String
@@ -355,6 +363,18 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
             sDat = ClnTx(CStr(RowV(IdxDa)))
             sAmt = ClnTx(CStr(RowV(IdxAm)))
             sAmt = ClnAm(sAmt)
+
+            ' Soll/Haben sister fallback: if primary amount is empty/zero, take sister value
+            If IdxAm2 >= 0 Then
+                If RowUB >= IdxAm2 Then
+                    If Not IsNumeric(sAmt) Or Val(sAmt) = 0 Then
+                        sAmtAlt = ClnAm(ClnTx(CStr(RowV(IdxAm2))))
+                        If IsNumeric(sAmtAlt) Then
+                            If Val(sAmtAlt) <> 0 Then sAmt = sAmtAlt
+                        End If
+                    End If
+                End If
+            End If
 
             dtDat = ParseDate(sDat)
             
@@ -1752,3 +1772,93 @@ ErrHnd:
     If GlLog = True Then SLogi "ConvUTF8 Error: " & Err.Number & " - " & Err.Description
     ConvUTF8 = RawTxt
 End Function
+
+
+Private Sub FindSister(ByVal Rows As Collection, ByVal IdxDa As Integer, ByVal IdxAm As Integer, ByRef IdxAm2 As Integer, Optional ByVal StartRow As Long = 1)
+    ' Detect a Soll/Haben sister column adjacent to IdxAm.
+    ' Triggers ONLY when ALL of the following hold:
+    '   - sister is direct neighbour of IdxAm (and not the date column)
+    '   - both columns each carry >= 3 non-zero values in the sample window
+    '   - no row has both columns simultaneously non-zero (mutually exclusive)
+    '   - IdxAm is overwhelmingly negative, sister is overwhelmingly positive
+    ' Conservative by design: single-column formats (DKB, Sparkasse, Comdirect,
+    ' StarMoney etc.) cannot satisfy condition 4 because they mix +/- in one column.
+    IdxAm2 = -1
+    If IdxAm < 0 Then Exit Sub
+    If Rows Is Nothing Then Exit Sub
+    If Rows.Count = 0 Then Exit Sub
+    If StartRow < 1 Then StartRow = 1
+    If StartRow > Rows.Count Then Exit Sub
+
+    Dim MaxC As Long
+    On Error Resume Next
+    MaxC = UBound(Rows(StartRow))
+    On Error GoTo 0
+    If MaxC < 1 Then Exit Sub
+
+    Dim Lim As Long
+    Lim = StartRow + 50
+    If Lim > Rows.Count Then Lim = Rows.Count
+
+    Dim Cands(1) As Integer
+    Cands(0) = IdxAm + 1
+    Cands(1) = IdxAm - 1
+
+    Dim k As Integer
+    For k = 0 To 1
+        Dim cs As Integer
+        cs = Cands(k)
+        If cs >= 0 And cs <= MaxC And cs <> IdxDa And cs <> IdxAm Then
+            Dim CntA As Long, CntB As Long, CntBoth As Long
+            Dim NegA As Long, PosB As Long
+            CntA = 0: CntB = 0: CntBoth = 0: NegA = 0: PosB = 0
+
+            Dim r As Long
+            For r = StartRow + 1 To Lim
+                Dim RowV As Variant
+                RowV = Rows(r)
+                Dim Ub As Long
+                Ub = -1
+                On Error Resume Next
+                Ub = UBound(RowV)
+                On Error GoTo 0
+
+                If Ub >= IdxAm And Ub >= cs Then
+                    Dim sA As String, sB As String
+                    sA = ClnAm(ClnTx(CStr(RowV(IdxAm))))
+                    sB = ClnAm(ClnTx(CStr(RowV(cs))))
+
+                    Dim hA As Boolean, hB As Boolean
+                    hA = False: hB = False
+                    If Len(sA) > 0 And IsNumeric(sA) Then
+                        If Val(sA) <> 0 Then hA = True
+                    End If
+                    If Len(sB) > 0 And IsNumeric(sB) Then
+                        If Val(sB) <> 0 Then hB = True
+                    End If
+
+                    If hA And hB Then
+                        CntBoth = CntBoth + 1
+                    ElseIf hA Then
+                        CntA = CntA + 1
+                        If Val(sA) < 0 Then NegA = NegA + 1
+                    ElseIf hB Then
+                        CntB = CntB + 1
+                        If Val(sB) > 0 Then PosB = PosB + 1
+                    End If
+                End If
+            Next r
+
+            If GlLog = True Then SLogi "FindSister: Cand=" & cs & " CntA=" & CntA & " CntB=" & CntB & " Both=" & CntBoth & " NegA=" & NegA & " PosB=" & PosB
+
+            ' Conservative match: 3+ rows in each, none-overlap, sign separation
+            If CntA >= 3 And CntB >= 3 And CntBoth = 0 Then
+                If NegA >= CntA - 1 And PosB >= CntB - 1 Then
+                    IdxAm2 = cs
+                    If GlLog = True Then SLogi "FindSister: Sister column detected -> " & IdxAm2
+                    Exit Sub
+                End If
+            End If
+        End If
+    Next k
+End Sub
