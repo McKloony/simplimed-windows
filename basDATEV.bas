@@ -481,8 +481,8 @@ On Error GoTo ErrHandler
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = False
     Case "B"
-        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen, kein CSV   'datev mode b no csv
-        Config.ExportCSV = False
+        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen + CSV (CSV bei allen Varianten erzwungen)   'datev mode b csv always
+        Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = True
     Case Else
@@ -763,8 +763,8 @@ On Error GoTo ErrHandler
         Config.ExportXML = Config.ExportDocuments  ' XML nur wenn ExportDocuments = True
         Config.UseLedgerXML = False
     Case "B"
-        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen, kein CSV   'datev mode b no csv
-        Config.ExportCSV = False
+        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen + CSV (CSV bei allen Varianten erzwungen)   'datev mode b csv always
+        Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments  ' XML nur wenn ExportDocuments = True
         Config.UseLedgerXML = True
     Case Else
