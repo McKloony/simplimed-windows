@@ -1426,9 +1426,12 @@ On Error GoTo ErrHandler
     If Len(BuStr) > 60 Then BuStr = Left$(BuStr, 60)
     BuStr = Replace(BuStr, ExSep, vbNullString)
 
-    ' Patient number
-    PaNum = vbNullString
-    If Config.IncludePatientNumber Then
+    ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
+    ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
+    Dim NeedPatNr As Boolean
+    NeedPatNr = Config.IncludePatientNumber Or (Config.ReplaceAccountWithDebtor And m_InvMod)
+
+    If NeedPatNr Then
         PidNr = PatNr
         If PidNr <= 0 Then
             Dim TmSt2 As String
@@ -1439,7 +1442,11 @@ On Error GoTo ErrHandler
                 PidNr = CLng(TmSt2)
             End If
         End If
+    End If
 
+    ' Patient number (Diverse Adressnummer / Feld 16)
+    PaNum = vbNullString
+    If Config.IncludePatientNumber Then
         If PidNr > 0 Then
             If Config.FourDigitAccounts Then
                 PaNum = Format$(PidNr, "00000")
@@ -4200,9 +4207,12 @@ On Error GoTo ErrHandler
 
     Komme = SanitizeTextField(SafeString(RST.Fields("Kommentar").Value), 60)
 
-    ' Get patient number if configured
-    PaNum = vbNullString
-    If Config.IncludePatientNumber Then
+    ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
+    ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
+    Dim NeedPatNr As Boolean
+    NeedPatNr = Config.IncludePatientNumber Or (Config.ReplaceAccountWithDebtor And m_InvMod)
+
+    If NeedPatNr Then
         PidNr = PatNr
         If PidNr <= 0 Then
             On Error Resume Next
@@ -4212,7 +4222,11 @@ On Error GoTo ErrHandler
                 PidNr = CLng(TmSt2)
             End If
         End If
+    End If
 
+    ' Get patient number if configured (Diverse Adressnummer / Feld 16)
+    PaNum = vbNullString
+    If Config.IncludePatientNumber Then
         If PidNr > 0 Then
             If Config.FourDigitAccounts Then
                 PaNum = Format$(PidNr, "00000")
@@ -5076,9 +5090,12 @@ On Error GoTo ErrHandler
         Komme = Format$(CLng(Komme), "00000000")
     End If
 
-    ' Get patient number if configured
-    PaNum = vbNullString
-    If Config.IncludePatientNumber Then
+    ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
+    ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
+    Dim NeedPatNr As Boolean
+    NeedPatNr = Config.IncludePatientNumber Or (Config.ReplaceAccountWithDebtor And m_InvMod)
+
+    If NeedPatNr Then
         PidNr = PatNr
         If PidNr <= 0 Then
             TmSt2 = S_AdIdx(IdxNr, "IDP")
@@ -5086,7 +5103,11 @@ On Error GoTo ErrHandler
                 PidNr = CLng(TmSt2)
             End If
         End If
+    End If
 
+    ' Get patient number if configured (Diverse Adressnummer / Feld 16)
+    PaNum = vbNullString
+    If Config.IncludePatientNumber Then
         If PidNr > 0 Then
             If Config.FourDigitAccounts Then
                 PaNum = Format$(PidNr, "00000")
