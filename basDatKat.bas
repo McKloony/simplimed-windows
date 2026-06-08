@@ -20943,6 +20943,130 @@ If GlDbg = True Then MsgBox Err.Description, 48, "K_Such " & Err.Number
 Resume Next
 
 End Sub
+Public Sub K_TxKr()
+On Error GoTo SuErr
+
+Dim PaNum As Long
+Dim AktZa As Long
+Dim GesZa As Long
+Dim TmDat As Date
+Dim TmZei As Date
+Dim SQL1 As String
+Dim TmGui As String
+Dim TeStr As String
+Dim FldIn As String
+Dim DaNam As String
+Dim NeNam As String
+Dim FiNam As String
+Dim FilNa As String
+Dim Mld1, Tit1 As String
+Dim Mld2, Mld3 As String
+Dim StLab As XtremeSuiteControls.Label
+
+Set FM = frmMain
+Set TxCoN = FM.TexCont1
+
+Set clFil = New clsFile
+clFil.hwnd = FM.hwnd
+
+Tit1 = "Dokumentenkonvertierung"
+Mld1 = "Sollen Ihre Textdokumente jetzt als PDF-Dateien exportiert werden?"
+Mld2 = "Bei der Konvertierung der Dokumente werden alle Ihre in SimpliMed erstellen Textdokumente in eine PDF-Datei exportiert"
+Mld3 = "Die konvertierten Dokumente werden im Bilder-Ordner abgelegt und können diesen dann entnommen werden."
+
+SMeFr Tit1, Mld1, Mld2, Mld3, False, 0, False, FM.hwnd
+If GlMes = 33565 Then
+    If GlTyp < 2 Then
+        SQL1 = "SELECT * FROM dbo.qrySimAbKra01 WHERE Typ = 24 ORDER BY ID2"
+    Else
+        SQL1 = "SELECT * FROM qrySimAbKra01 WHERE [Typ] = 24 ORDER BY [ID2];"
+    End If
+
+    frmStatus.Show
+    DoEvents
+    Set PrBr1 = frmStatus.prbStat1
+    Set PrBr2 = frmStatus.prbStat2
+    Set TxDum = frmStatus.txtDummy
+    Set StLab = frmStatus.lblLab01
+
+    Set RS170 = New ADODB.Recordset
+    With RS170
+        .CursorLocation = adUseClient
+        .Source = SQL1
+        .ActiveConnection = DB1
+        .CursorType = adOpenForwardOnly
+        .LockType = adLockReadOnly
+        .Open Options:=adCmdText
+    End With
+    GesZa = RS170.RecordCount
+    DoEvents
+
+    If GesZa > 0 Then
+        PrBr1.Min = 0
+        PrBr1.Max = GesZa
+        frmStatus.Caption = "Dokumentenkonvertierung..."
+
+        STxNe
+        DoEvents
+        
+        With TxCoN
+            If .ViewMode <> GlViT Then
+                .ViewMode = GlViT
+                DoEvents
+            End If
+        End With
+
+        Do
+        PaNum = RS170.Fields("ID0").Value
+        TmDat = RS170.Fields("Datum").Value
+        TmZei = RS170.Fields("Druckdatum").Value
+        FldIn = RS170.Fields("Bezeichnung").Value
+        DaNam = RS170.Fields("Kommentar").Value
+        TmGui = RS170.Fields("Kommentar2").Value
+        NeNam = Left$(DaNam, Len(DaNam) - 3) & "pdf"
+        
+        FiNam = GlDox & DaNam
+        FilNa = GlBPf & NeNam
+
+        If clFil.FilVor(FiNam) = True Then
+            With TxCoN
+                .Load FiNam, 0, 3
+                DoEvents
+                .Save FilNa, 0, 12
+            End With
+        End If
+
+        PrBr1.Value = AktZa
+        StLab.Caption = FldIn
+        If TxDum.Text = "B" Then Exit Do 'Abbrechen
+
+        AktZa = AktZa + 1
+        RS170.MoveNext
+        Loop Until RS170.EOF
+    End If
+    
+    STxNe
+    DoEvents
+
+    RS170.Close
+    Set RS170 = Nothing
+    
+    Unload frmStatus
+    DoEvents
+End If
+
+Set TxCoN = Nothing
+Set clFil = Nothing
+
+Exit Sub
+
+SuErr:
+If GlDbg = True Then MsgBox Err.Description, 48, "K_TxKr " & Err.Number
+Resume Next
+
+End Sub
+
+
 Public Sub M_MaEd(ByVal SuFel As Integer)
 On Error GoTo PoErr
 'Sucheingabe im Maildialog

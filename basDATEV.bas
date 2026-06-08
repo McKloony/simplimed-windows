@@ -58,6 +58,11 @@ Private Const MAX_BOOKING_TEXT_LENGTH As Integer = 60
 Private Const MAX_BELEGFELD1_LENGTH As Integer = 12
 Private Const MAX_FILENAME_LENGTH As Integer = 46
 
+' DATEV CSV field indexes (0-based)
+Private Const DATEV_FIELD_BELEGLINK As Long = 19
+Private Const DATEV_FIELD_BELEGINFO2_ART As Long = 22
+Private Const DATEV_FIELD_BELEGINFO2_INHALT As Long = 23
+
 ' Performance tuning constants
 Private Const PROGRESS_UPDATE_INTERVAL As Integer = 25      ' Update UI every N records
 Private Const INITIAL_BUFFER_SIZE As Long = 65536           ' 64KB initial string buffer estimate
@@ -231,7 +236,7 @@ End Sub
 '              BelEx       - Export documents (Belege) and compress to ZIP
 '
 ' Option A:    PDF Dateien + document.xml (einfaches Archivformat) + CSV
-' Option B:    PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten) + CSV
+' Option B:    PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten)
 '
 ' Usage:       DATEV_Expor "A", EmlVe, BelEx  ' Dokumentenarchivierung
 '              DATEV_Expor "B", EmlVe, BelEx  ' Ledger-Integration
@@ -307,7 +312,7 @@ On Error GoTo ErrHandler
         Exit Sub
     End Select
 
-    ' Debitoren-Modus setzen (Abrechnung/Rechnungen = Rechnungsexport)
+    'Debitoren-Modus setzen (Abrechnung/Rechnungen = Rechnungsexport)
     m_InvMod = (GlBut = RibTab_Abrechnung Or GlBut = RibTab_Rechnungen)
     If GlLog = True Then SLogi "DATEV_Expor: m_InvMod = " & m_InvMod & " (GlBut = " & GlBut & ")"
 
@@ -317,17 +322,34 @@ On Error GoTo ErrHandler
         Exit Sub
     End If
 
-    ' Speichern-Dialog ZUERST anzeigen (vor Fortschrittsdialog)
-    DaExt = "csv"
-    DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".csv"
-
+    'Speichern-Dialog ZUERST anzeigen (vor Fortschrittsdialog)
+    Select Case UCase$(ExTyp)
+    Case "A":
+        DaExt = "csv"
+        DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".csv"
+    Case "B":
+        If BelEx = True Then
+            DaExt = "xlm"
+            DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".xlm"
+        Else
+            DaExt = "csv"
+            DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".csv"
+        End If
+    End Select
     With clFil
         .hwnd = FM.hwnd
         .StaVe = ExOrd
         .DaExt = DaExt
         .DaNam = ExOrd & DaNam
         .DaTit = "Bitte Name und Ordner der Exportdatei angeben"
-        .DaStr = "DATEV 4.0 Dateien (*.csv)" & Chr(0) & "*.csv" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+        If BelEx = True Then
+            .DaStr = "DATEV 6.0 Dateien (*.csv)" & Chr(0) & "*.csv" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+        Else
+            Select Case UCase$(ExTyp)
+            Case "A": .DaStr = "DATEV 6.0 Dateien (*.csv)" & Chr(0) & "*.csv" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+            Case "B": .DaStr = "DATEV 6.0 Dateien (*.xlm)" & Chr(0) & "*.xlm" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+            End Select
+        End If
         FiNam = .FilSav
     End With
 
@@ -365,7 +387,7 @@ On Error GoTo ErrHandler
     ' Phase 1: Daten laden, Phase 2: CSV, Phase 3: XML (optional), Phase 4: PDF (optional), Phase 5: ZIP (optional)
     Dim NumPhases As Integer
     NumPhases = 2  ' Minimum: Daten laden + CSV
-    If BelEx Then NumPhases = NumPhases + 3  ' XML + PDF + ZIP
+    If BelEx = True Then NumPhases = NumPhases + 3         ' XML + PDF + ZIP
 
     ' Initialize dual progress dialog
     InitProgressWithPhases "DATEV Export", NumPhases
@@ -472,19 +494,19 @@ On Error GoTo ErrHandler
 
     ' Set export type based on ExTyp parameter
     ' Option A "Buchungsstapel":  EXTF-CSV + document.xml (File-only) + PDFs - KEIN ledger.xml
-    ' Option B "Belegverwaltung": ledger.xml + document.xml (cashLedger+File) + PDFs - KEIN CSV
+    ' Option B "Belegverwaltung": ledger.xml + document.xml (ledger+File) + PDFs - KEIN CSV
     ' Hintergrund: DATEV-Importer toleriert keine Doppelung Buchungsstapel+ledger.xml im selben ZIP.
     Select Case UCase$(ExTyp)
-    Case "A"
+    Case "A":
         ' Option A: Buchungsstapel-Export mit BEDI-Belegverknuepfung im CSV
         Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments
         Config.UseLedgerXML = False
-    Case "B"
-        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen + CSV (CSV bei allen Varianten erzwungen)   'datev mode b csv always
-        Config.ExportCSV = True
+    Case "B":
+        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen, ohne EXTF-CSV im Beleg-ZIP
+        Config.ExportCSV = Not Config.ExportDocuments
         Config.ExportXML = Config.ExportDocuments
-        Config.UseLedgerXML = True
+        Config.UseLedgerXML = Config.ExportDocuments
     Case Else
         ' Default: Option A (Buchungsstapel)
         Config.ExportCSV = True
@@ -600,7 +622,7 @@ End Sub
 '              BelEx       - Export documents (Belege) and compress to ZIP
 '
 ' Option A:    PDF Dateien + document.xml (einfaches Archivformat) + CSV
-' Option B:    PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten) + CSV
+' Option B:    PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten)
 '
 ' Usage:       DATEV_BuEx "A", EmlVe, Krite, BelEx  ' Dokumentenarchivierung
 '              DATEV_BuEx "B", EmlVe, Krite, BelEx  ' Ledger-Integration
@@ -674,21 +696,38 @@ On Error GoTo ErrHandler
         Exit Sub
     End Select
 
-    ' Debitoren-Modus setzen (Abrechnung/Rechnungen = Rechnungsexport)
+    'Debitoren-Modus setzen (Abrechnung/Rechnungen = Rechnungsexport)
     m_InvMod = (GlBut = RibTab_Abrechnung Or GlBut = RibTab_Rechnungen)
     If GlLog = True Then SLogi "DATEV_BuEx: m_InvMod = " & m_InvMod & " (GlBut = " & GlBut & ")"
 
-    ' Speichern-Dialog ZUERST anzeigen (vor Datenbankabfrage)
-    DaExt = "csv"
-    DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".csv"
-
+    'Speichern-Dialog ZUERST anzeigen (vor Datenbankabfrage)
+    Select Case UCase$(ExTyp)
+    Case "A":
+        DaExt = "csv"
+        DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".csv"
+    Case "B":
+        If BelEx = True Then
+            DaExt = "xlm"
+            DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".xlm"
+        Else
+            DaExt = "csv"
+            DaNam = "EXTF_DATEV_" & Format$(Now, "YYYYMMDD_HHMM") & ".csv"
+        End If
+    End Select
     With clFil
         .hwnd = FM.hwnd
         .StaVe = ExOrd
         .DaExt = DaExt
         .DaNam = ExOrd & DaNam
         .DaTit = "Bitte Name und Ordner der Exportdatei angeben"
-        .DaStr = "DATEV 4.0 Dateien (*.csv)" & Chr(0) & "*.csv" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+        If BelEx = True Then
+            .DaStr = "DATEV 6.0 Dateien (*.csv)" & Chr(0) & "*.csv" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+        Else
+            Select Case UCase$(ExTyp)
+            Case "A": .DaStr = "DATEV 6.0 Dateien (*.csv)" & Chr(0) & "*.csv" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+            Case "B": .DaStr = "DATEV 6.0 Dateien (*.xlm)" & Chr(0) & "*.xlm" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+            End Select
+        End If
         FiNam = .FilSav
     End With
 
@@ -754,19 +793,19 @@ On Error GoTo ErrHandler
 
     ' Set export type based on ExTyp parameter
     ' Option A "Buchungsstapel":  EXTF-CSV + document.xml (File-only) + PDFs - KEIN ledger.xml
-    ' Option B "Belegverwaltung": ledger.xml + document.xml (cashLedger+File) + PDFs - KEIN CSV
+    ' Option B "Belegverwaltung": ledger.xml + document.xml (ledger+File) + PDFs - KEIN CSV
     ' Hintergrund: DATEV-Importer toleriert keine Doppelung Buchungsstapel+ledger.xml im selben ZIP.
     Select Case UCase$(ExTyp)
-    Case "A"
+    Case "A":
         ' Option A: Buchungsstapel-Export mit BEDI-Belegverknuepfung im CSV
         Config.ExportCSV = True
         Config.ExportXML = Config.ExportDocuments  ' XML nur wenn ExportDocuments = True
         Config.UseLedgerXML = False
-    Case "B"
-        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen + CSV (CSV bei allen Varianten erzwungen)   'datev mode b csv always
-        Config.ExportCSV = True
+    Case "B":
+        ' Option B: Belegverwaltung-Export mit ledger.xml-Buchungsempfehlungen, ohne EXTF-CSV im Beleg-ZIP
+        Config.ExportCSV = Not Config.ExportDocuments
         Config.ExportXML = Config.ExportDocuments  ' XML nur wenn ExportDocuments = True
-        Config.UseLedgerXML = True
+        Config.UseLedgerXML = Config.ExportDocuments
     Case Else
         ' Default: Option A (Buchungsstapel)
         Config.ExportCSV = True
@@ -1140,6 +1179,12 @@ On Error GoTo ErrHandler
         CompletePhase
     End If
 
+    If Config.ExportDocuments And Config.ExportXML Then
+        Dim MissingRefCount As Long
+        MissingRefCount = ReconcileDocumentReferencesBeforeZip(Config.ExportPath, Result.CSVFilePath)
+        If GlLog = True And MissingRefCount > 0 Then SLogi "DATEV: " & MissingRefCount & " fehlende Dokumentreferenz(en) vor ZIP bereinigt"
+    End If
+
     ' Create ZIP archive if requested
     If Config.CompressOutput And m_ZipFileCount > 0 Then
         ' Phase 5: ZIP Archiv
@@ -1154,7 +1199,11 @@ On Error GoTo ErrHandler
 
     ' Success
     Result.success = True
-    Result.RecordCount = RecordCount
+    If Config.ExportCSV Then
+        Result.RecordCount = RecordCount
+    Else
+        Result.RecordCount = RST.RecordCount
+    End If
 
 Cleanup:
     ' Hide progress dialog
@@ -1217,6 +1266,7 @@ On Error GoTo ErrHandler
     Dim BuGui As String
     Dim BeGui As String
     Dim DaNam As String
+    Dim BeDaNam As String
     Dim Beleg As String
     Dim Komme As String
     Dim KSoSt As String
@@ -1362,38 +1412,40 @@ On Error GoTo ErrHandler
         End If
     End If
 
+    If Len(BeGui) > 0 And Len(DaNam) > 0 Then
+        BeDaNam = BELEGLINK_PREFIX & UCase$(Replace(BeGui, "-", vbNullString)) & GetFileExtension(DaNam)
+    Else
+        BeDaNam = DaNam
+    End If
+
     ' Get text fields
     ' Debitoren: "Rechnung" Caption statt "Belegzeichen"
     If m_InvMod Then
-        ReStr = SafeStringField(RST, "Rechnung")
-        If Len(ReStr) > 12 Then ReStr = Left$(ReStr, 12)
+        ReStr = SanitizeTextField(SafeStringField(RST, "Rechnung"), MAX_BELEGFELD1_LENGTH)
         ' Beleginfo Art 2: RechNr als Kennung
-        Beleg = SafeStringField(RST, "Rechnung")
-        If Len(Beleg) > 20 Then Beleg = Left$(Beleg, 20)
+        Beleg = SanitizeTextField(SafeStringField(RST, "Rechnung"), 20)
     Else
         ' Column Caption: "Belegzeichen" statt "RechNr"
-        ReStr = SafeStringField(RST, "Belegzeichen")
-        If Len(ReStr) > 12 Then ReStr = Left$(ReStr, 12)
+        ReStr = SanitizeTextField(SafeStringField(RST, "Belegzeichen"), MAX_BELEGFELD1_LENGTH)
 
         ' Column Caption: "Nummer" statt "Beleg"
         ' Beleginfo - Art 2: max 20 Zeichen laut DATEV-Spezifikation
-        Beleg = SafeStringField(RST, "Nummer")
+        Beleg = SanitizeTextField(SafeStringField(RST, "Nummer"), 20)
         If Len(Beleg) > 0 And IsNumeric(Beleg) Then
             Beleg = Format$(CLng(Beleg), "00000000")
         End If
-        If Len(Beleg) > 20 Then Beleg = Left$(Beleg, 20)
     End If
 
     ' DATEV-Regel: Beleginfo - Art 2 und Inhalt 2 muessen beide gefuellt oder beide leer sein
-    ' DaNam = Inhalt 2 (BEDI-Dateiname), Beleg = Art 2
-    If Len(DaNam) = 0 Then
+    ' BeDaNam = Inhalt 2 (BEDI-Dateiname), Beleg = Art 2
+    If Len(BeDaNam) = 0 Then
         Beleg = vbNullString  ' Wenn kein Dokument, auch Art 2 leer
     ElseIf Len(Beleg) = 0 Then
         Beleg = Format$(IdxNr, "00000000")  ' Fallback: ID als Art 2 wenn Dokument vorhanden
         If Len(Beleg) > 20 Then Beleg = Left$(Beleg, 20)
     End If
 
-    Komme = SafeStringField(RST, "Kommentar")
+    Komme = SanitizeTextField(SafeStringField(RST, "Kommentar"), 60)
     If Len(Komme) > 0 And IsNumeric(Komme) Then
         Komme = Format$(CLng(Komme), "00000000")
     End If
@@ -1409,7 +1461,7 @@ On Error GoTo ErrHandler
     ' Debitoren: Patient + Rechnung statt Buchungstext-Caption
     If m_InvMod Then
         Dim PaTxt As String
-        PaTxt = SafeStringField(RST, "Patient")
+        PaTxt = SanitizeTextField(SafeStringField(RST, "Patient"), MAX_BOOKING_TEXT_LENGTH)
         If Len(PaTxt) > 0 And Len(InvStr) > 0 Then
             BuStr = PaTxt & " Rech." & InvStr
         ElseIf Len(PaTxt) > 0 Then
@@ -1423,8 +1475,7 @@ On Error GoTo ErrHandler
         ' Column Caption: "Buchungstext" statt "Buchtext"
         BuStr = SafeStringField(RST, "Buchungstext")
     End If
-    If Len(BuStr) > 60 Then BuStr = Left$(BuStr, 60)
-    BuStr = Replace(BuStr, ExSep, vbNullString)
+    BuStr = SanitizeTextField(BuStr, MAX_BOOKING_TEXT_LENGTH)
 
     ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
     ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
@@ -1516,7 +1567,7 @@ On Error GoTo ErrHandler
     ' Beleglink - use DATEV_CreateBeleglink for correct format
     ' BEDI nur setzen wenn Beleg gueltig (bei Ausgaben: Datei existiert in GlBPf)
     If Len(DaNam) > 0 And Len(BeGui) > 0 And BeVor = False And IsExpenseDocumentValid(BuGui) Then
-        TmpSt = TmpSt & Chr$(34) & DATEV_CreateBeleglink(BeGui) & Chr$(34) & ExSep
+        TmpSt = TmpSt & Chr$(34) & DATEV_CreateBeleglink(BuGui) & Chr$(34) & ExSep
     Else
         TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
     End If
@@ -1528,7 +1579,7 @@ On Error GoTo ErrHandler
         TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Beleginfo Inhalt 1 (leer)
     End If
     TmpSt = TmpSt & Chr$(34) & Beleg & Chr$(34) & ExSep  'Beleginfo2a
-    TmpSt = TmpSt & Chr$(34) & DaNam & Chr$(34) & ExSep 'Beleginfo2b
+    TmpSt = TmpSt & Chr$(34) & BeDaNam & Chr$(34) & ExSep 'Beleginfo2b
     ' Beleginfo 3: Patientennummer als Debitoren-Referenz
     If Len(PaNum) > 0 Then
         TmpSt = TmpSt & Chr$(34) & BELEGINFO_PATIENT_ART & Chr$(34) & ExSep
@@ -1953,9 +2004,15 @@ Private Sub CollectInvoiceIDFromReportControl(ByRef RST As ADODB.Recordset)
         BuTypZ = SafeIntField(RST, "IDA")
     End If
     If BuTypZ = 2 Then
-        BuGuiZ = SafeString(RST.Fields("GuiID").Value)
+        BuGuiZ = SafeStringField(RST, "GuiID")
         If Len(BuGuiZ) > 0 Then
-            RechNrKeyZ = SanitizeFileName(SafeString(RST.Fields("RechNr").Value))
+            If m_InvMod Then
+                RechNrKeyZ = SanitizeFileName(SafeStringField(RST, "Rechnung"))
+                If Len(RechNrKeyZ) = 0 Then RechNrKeyZ = SanitizeFileName(SafeStringField(RST, "RechNr"))
+            Else
+                RechNrKeyZ = SanitizeFileName(SafeStringField(RST, "RechNr"))
+                If Len(RechNrKeyZ) = 0 Then RechNrKeyZ = SanitizeFileName(SafeStringField(RST, "Belegzeichen"))
+            End If
             If Len(RechNrKeyZ) > 0 Then
                 RegisterInvoiceGUID RechNrKeyZ, BuGuiZ
             End If
@@ -2570,6 +2627,12 @@ On Error GoTo ErrHandler
         DoEvents
     End If
 
+    If Config.ExportDocuments And Config.ExportXML Then
+        Dim MissingRefCount As Long
+        MissingRefCount = ReconcileDocumentReferencesBeforeZip(Config.ExportPath, Result.CSVFilePath)
+        If GlLog = True And MissingRefCount > 0 Then SLogi "DATEV: " & MissingRefCount & " fehlende Dokumentreferenz(en) vor ZIP bereinigt"
+    End If
+
     ' Create ZIP archive if requested (AFTER PDF generation so PDFs are included)
     ' Skip ZIP creation if only CSV is exported (no documents) - ZIP makes no sense for single file
     If Config.CompressOutput And Config.ExportDocuments Then
@@ -2957,6 +3020,514 @@ On Error Resume Next
     Set FileList = Nothing
     Err.Clear
 End Sub
+
+'================================================================================
+' ReconcileDocumentReferencesBeforeZip
+'--------------------------------------------------------------------------------
+' Entfernt vor dem ZIP-Lauf document.xml-Eintraege, deren Datei nicht existiert.
+' Entfernt ausserdem ledger.xml-Beleglinks ohne passendes document.xml-Dokument.
+' DATEV meldet sonst: "Erwartete Datei aus Dokumentinformation jedoch nicht gesendet".
+'================================================================================
+Private Function ReconcileDocumentReferencesBeforeZip(ByVal ExportPath As String, _
+                                                      ByVal CSVFilePath As String) As Long
+On Error GoTo ErrHandler
+
+    Dim BasePath As String
+    Dim XMLPath As String
+    Dim xmlDoc As Object
+    Dim DocumentNodes As Object
+    Dim DocNode As Object
+    Dim ExtNodes As Object
+    Dim ExtNode As Object
+    Dim FileNode As Object
+    Dim FileName As String
+    Dim DataFileName As String
+    Dim MissingFiles As Collection
+    Dim ValidDocumentGuids As Object
+    Dim DocGUID As String
+    Dim KeepDocument As Boolean
+    Dim RemovedCount As Long
+    Dim i As Long
+    Dim j As Long
+
+    BasePath = EnsureTrailingBackslash(ExportPath)
+    XMLPath = BasePath & "document.xml"
+
+    If m_clFil Is Nothing Then Set m_clFil = New clsFile
+    If Not m_clFil.FilVor(XMLPath) Then
+        ReconcileDocumentReferencesBeforeZip = 0
+        Exit Function
+    End If
+
+    Set MissingFiles = New Collection
+    Set ValidDocumentGuids = CreateObject("Scripting.Dictionary")
+    ValidDocumentGuids.CompareMode = 1 ' TextCompare
+
+    Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
+    xmlDoc.async = False
+    xmlDoc.validateOnParse = False
+    xmlDoc.resolveExternals = False
+    xmlDoc.setProperty "SelectionLanguage", "XPath"
+    xmlDoc.setProperty "SelectionNamespaces", _
+        "xmlns:d='" & XML_NAMESPACE & "' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
+
+    If Not xmlDoc.Load(XMLPath) Then
+        LogError "ReconcileDocumentReferencesBeforeZip", 3101, xmlDoc.parseError.Reason
+        ReconcileDocumentReferencesBeforeZip = 0
+        Exit Function
+    End If
+
+    Set DocumentNodes = xmlDoc.selectNodes("//d:document")
+    For i = DocumentNodes.length - 1 To 0 Step -1
+        Set DocNode = DocumentNodes.Item(i)
+        KeepDocument = True
+
+        Set ExtNodes = DocNode.selectNodes("d:extension[@datafile]")
+        For j = ExtNodes.length - 1 To 0 Step -1
+            Set ExtNode = ExtNodes.Item(j)
+            DataFileName = ExtNode.getAttribute("datafile")
+            If Len(DataFileName) > 0 Then
+                If Not m_clFil.FilVor(BasePath & DataFileName) Then
+                    ExtNode.parentNode.removeChild ExtNode
+                    RemovedCount = RemovedCount + 1
+                    If GlLog = True Then SLogi "DATEV: Entferne fehlende document.xml-Datendatei: " & DataFileName
+                End If
+            End If
+        Next j
+
+        Set FileNode = DocNode.selectSingleNode("d:extension[@xsi:type='File']")
+
+        If Not FileNode Is Nothing Then
+            FileName = FileNode.getAttribute("name")
+            If Len(FileName) > 0 Then
+                If Not m_clFil.FilVor(BasePath & FileName) Then
+                    MissingFiles.Add FileName
+                    DocNode.parentNode.removeChild DocNode
+                    KeepDocument = False
+                    RemovedCount = RemovedCount + 1
+                    If GlLog = True Then SLogi "DATEV: Entferne fehlende document.xml-Datei: " & FileName
+                End If
+            End If
+        End If
+
+        If KeepDocument Then
+            DocGUID = CleanGuidFromBediFileName(DocNode.getAttribute("guid"))
+            If Len(DocGUID) > 0 Then
+                If Not ValidDocumentGuids.Exists(DocGUID) Then ValidDocumentGuids.Add DocGUID, True
+            End If
+        End If
+    Next i
+
+    If RemovedCount > 0 Then
+        If WriteXMLFile(XMLPath, xmlDoc.XML) Then
+            ReconcileCSVBelegReferences CSVFilePath, MissingFiles
+        Else
+            LogError "ReconcileDocumentReferencesBeforeZip", 3102, "document.xml konnte nach Bereinigung nicht geschrieben werden"
+        End If
+    End If
+
+    ReconcileLedgerBelegReferences BasePath & "ledger.xml", MissingFiles, ValidDocumentGuids
+
+    ReconcileDocumentReferencesBeforeZip = RemovedCount
+
+Cleanup:
+    Set FileNode = Nothing
+    Set ExtNode = Nothing
+    Set ExtNodes = Nothing
+    Set DocNode = Nothing
+    Set DocumentNodes = Nothing
+    Set xmlDoc = Nothing
+    Set ValidDocumentGuids = Nothing
+    Set MissingFiles = Nothing
+    Exit Function
+
+ErrHandler:
+    LogError "ReconcileDocumentReferencesBeforeZip", Err.Number, Err.Description
+    ReconcileDocumentReferencesBeforeZip = 0
+    Resume Cleanup
+End Function
+
+Private Sub ReconcileLedgerBelegReferences(ByVal LedgerXMLPath As String, _
+                                           ByRef MissingFiles As Collection, _
+                                           ByVal ValidDocumentGuids As Object)
+On Error GoTo ErrHandler
+
+    Dim xmlDoc As Object
+    Dim LinkNodes As Object
+    Dim LinkNode As Object
+    Dim i As Long
+    Dim HasMissingFiles As Boolean
+    Dim HasValidGuids As Boolean
+    Dim CleanLinkGUID As String
+    Dim RemoveLink As Boolean
+    Dim Changed As Boolean
+
+    If Not MissingFiles Is Nothing Then HasMissingFiles = (MissingFiles.Count > 0)
+    If Not ValidDocumentGuids Is Nothing Then HasValidGuids = (ValidDocumentGuids.Count > 0)
+    If Not HasMissingFiles And Not HasValidGuids Then Exit Sub
+    If Len(LedgerXMLPath) = 0 Then Exit Sub
+
+    If m_clFil Is Nothing Then Set m_clFil = New clsFile
+    If Not m_clFil.FilVor(LedgerXMLPath) Then Exit Sub
+
+    Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
+    xmlDoc.async = False
+    xmlDoc.validateOnParse = False
+    xmlDoc.resolveExternals = False
+    xmlDoc.setProperty "SelectionLanguage", "XPath"
+
+    If Not xmlDoc.Load(LedgerXMLPath) Then
+        LogError "ReconcileLedgerBelegReferences", 3111, xmlDoc.parseError.Reason
+        Exit Sub
+    End If
+
+    Set LinkNodes = xmlDoc.selectNodes("//*[local-name()='belegLink']")
+    For i = LinkNodes.length - 1 To 0 Step -1
+        Set LinkNode = LinkNodes.Item(i)
+        CleanLinkGUID = CleanGuidFromBediFileName(LinkNode.Text)
+        RemoveLink = False
+
+        If HasMissingFiles Then
+            RemoveLink = TextMatchesMissingFile(LinkNode.Text, MissingFiles)
+        End If
+
+        If Not RemoveLink And HasValidGuids Then
+            If Len(CleanLinkGUID) > 0 Then
+                RemoveLink = Not ValidDocumentGuids.Exists(CleanLinkGUID)
+            End If
+        End If
+
+        If RemoveLink Then
+            LinkNode.parentNode.removeChild LinkNode
+            Changed = True
+        End If
+    Next i
+
+    If Changed Then
+        If WriteLedgerXMLFile(LedgerXMLPath, xmlDoc.XML) Then
+            If GlLog = True Then SLogi "DATEV: ledger.xml-Beleglinks fuer fehlende Dateien bereinigt"
+        End If
+    End If
+
+Cleanup:
+    Set LinkNode = Nothing
+    Set LinkNodes = Nothing
+    Set xmlDoc = Nothing
+    Exit Sub
+
+ErrHandler:
+    LogError "ReconcileLedgerBelegReferences", Err.Number, Err.Description
+    Resume Cleanup
+End Sub
+
+Private Sub ReconcileCSVBelegReferences(ByVal CSVFilePath As String, _
+                                        ByRef MissingFiles As Collection)
+On Error GoTo ErrHandler
+
+    Dim CSVContent As String
+    Dim Lines() As String
+    Dim Fields() As String
+    Dim Quoted() As Boolean
+    Dim FieldCount As Long
+    Dim i As Long
+    Dim j As Long
+    Dim Changed As Boolean
+    Dim ChangedAny As Boolean
+    Dim MissingFile As String
+    Dim CleanGUID As String
+
+    If MissingFiles Is Nothing Then Exit Sub
+    If MissingFiles.Count = 0 Then Exit Sub
+    If Len(CSVFilePath) = 0 Then Exit Sub
+
+    If m_clFil Is Nothing Then Set m_clFil = New clsFile
+    If Not m_clFil.FilVor(CSVFilePath) Then Exit Sub
+
+    CSVContent = ReadAnsiTextFile(CSVFilePath)
+    If Len(CSVContent) = 0 Then Exit Sub
+
+    Lines = Split(CSVContent, vbCrLf)
+    For i = 2 To UBound(Lines)
+        If Len(Lines(i)) > 0 Then
+            If LineContainsMissingReference(Lines(i), MissingFiles) Then
+                FieldCount = ParseDatevCSVLine(Lines(i), Fields, Quoted)
+                If FieldCount > DATEV_FIELD_BELEGINFO2_INHALT Then
+                    Changed = False
+                    For j = 1 To MissingFiles.Count
+                        MissingFile = CStr(MissingFiles.Item(j))
+                        CleanGUID = CleanGuidFromBediFileName(MissingFile)
+
+                        If StrComp(Fields(DATEV_FIELD_BELEGINFO2_INHALT), MissingFile, vbTextCompare) = 0 _
+                           Or (Len(CleanGUID) > 0 And InStr(1, Fields(DATEV_FIELD_BELEGLINK), CleanGUID, vbTextCompare) > 0) _
+                           Or (Len(CleanGUID) > 0 And InStr(1, Fields(DATEV_FIELD_BELEGLINK), DATEV_FormatGUIDForXML(CleanGUID), vbTextCompare) > 0) Then
+
+                            Fields(DATEV_FIELD_BELEGLINK) = vbNullString
+                            Fields(DATEV_FIELD_BELEGINFO2_ART) = vbNullString
+                            Fields(DATEV_FIELD_BELEGINFO2_INHALT) = vbNullString
+                            Quoted(DATEV_FIELD_BELEGLINK) = True
+                            Quoted(DATEV_FIELD_BELEGINFO2_ART) = True
+                            Quoted(DATEV_FIELD_BELEGINFO2_INHALT) = True
+                            Changed = True
+                        End If
+                    Next j
+
+                    If Changed Then
+                        Lines(i) = BuildDatevCSVLine(Fields, Quoted, FieldCount)
+                        ChangedAny = True
+                    End If
+                End If
+            End If
+        End If
+    Next i
+
+    If ChangedAny Then
+        CSVContent = Join(Lines, vbCrLf)
+        If WriteCSVFileAnsi(CSVFilePath, CSVContent) Then
+            If GlLog = True Then SLogi "DATEV: CSV-Beleglinks fuer fehlende Dateien bereinigt"
+        End If
+    End If
+
+    Exit Sub
+
+ErrHandler:
+    LogError "ReconcileCSVBelegReferences", Err.Number, Err.Description
+End Sub
+
+Private Function LineContainsMissingReference(ByVal Line As String, _
+                                              ByRef MissingFiles As Collection) As Boolean
+On Error GoTo ErrHandler
+
+    Dim i As Long
+    Dim MissingFile As String
+    Dim CleanGUID As String
+
+    For i = 1 To MissingFiles.Count
+        MissingFile = CStr(MissingFiles.Item(i))
+        CleanGUID = CleanGuidFromBediFileName(MissingFile)
+
+        If InStr(1, Line, MissingFile, vbTextCompare) > 0 Then
+            LineContainsMissingReference = True
+            Exit Function
+        End If
+        If Len(CleanGUID) > 0 Then
+            If InStr(1, Line, CleanGUID, vbTextCompare) > 0 Then
+                LineContainsMissingReference = True
+                Exit Function
+            End If
+            If InStr(1, Line, DATEV_FormatGUIDForXML(CleanGUID), vbTextCompare) > 0 Then
+                LineContainsMissingReference = True
+                Exit Function
+            End If
+        End If
+    Next i
+
+    LineContainsMissingReference = False
+    Exit Function
+
+ErrHandler:
+    LineContainsMissingReference = False
+End Function
+
+Private Function TextMatchesMissingFile(ByVal textValue As String, _
+                                        ByRef MissingFiles As Collection) As Boolean
+On Error GoTo ErrHandler
+
+    Dim i As Long
+    Dim CleanGUID As String
+
+    For i = 1 To MissingFiles.Count
+        CleanGUID = CleanGuidFromBediFileName(CStr(MissingFiles.Item(i)))
+        If Len(CleanGUID) > 0 Then
+            If InStr(1, textValue, CleanGUID, vbTextCompare) > 0 Then
+                TextMatchesMissingFile = True
+                Exit Function
+            End If
+            If InStr(1, textValue, DATEV_FormatGUIDForXML(CleanGUID), vbTextCompare) > 0 Then
+                TextMatchesMissingFile = True
+                Exit Function
+            End If
+        End If
+    Next i
+
+    TextMatchesMissingFile = False
+    Exit Function
+
+ErrHandler:
+    TextMatchesMissingFile = False
+End Function
+
+Private Function ParseDatevCSVLine(ByVal Line As String, _
+                                   ByRef Fields() As String, _
+                                   ByRef Quoted() As Boolean) As Long
+On Error GoTo ErrHandler
+
+    Dim i As Long
+    Dim ch As String
+    Dim Q As String
+    Dim CurrentValue As String
+    Dim InQuotes As Boolean
+    Dim AtFieldStart As Boolean
+    Dim CurrentQuoted As Boolean
+    Dim FieldCount As Long
+
+    Q = DATEV_TEXT_QUALIFIER
+    AtFieldStart = True
+    FieldCount = 0
+
+    For i = 1 To Len(Line)
+        ch = Mid$(Line, i, 1)
+
+        If InQuotes Then
+            If ch = Q Then
+                If i < Len(Line) And Mid$(Line, i + 1, 1) = Q Then
+                    CurrentValue = CurrentValue & Q
+                    i = i + 1
+                Else
+                    InQuotes = False
+                End If
+            Else
+                CurrentValue = CurrentValue & ch
+            End If
+        Else
+            If ch = Q And AtFieldStart Then
+                InQuotes = True
+                CurrentQuoted = True
+                AtFieldStart = False
+            ElseIf ch = DATEV_SEPARATOR Then
+                AddParsedCSVField Fields, Quoted, FieldCount, CurrentValue, CurrentQuoted
+                CurrentValue = vbNullString
+                CurrentQuoted = False
+                AtFieldStart = True
+            Else
+                CurrentValue = CurrentValue & ch
+                AtFieldStart = False
+            End If
+        End If
+    Next i
+
+    AddParsedCSVField Fields, Quoted, FieldCount, CurrentValue, CurrentQuoted
+    ParseDatevCSVLine = FieldCount
+    Exit Function
+
+ErrHandler:
+    ParseDatevCSVLine = 0
+End Function
+
+Private Sub AddParsedCSVField(ByRef Fields() As String, _
+                              ByRef Quoted() As Boolean, _
+                              ByRef FieldCount As Long, _
+                              ByVal Value As String, _
+                              ByVal WasQuoted As Boolean)
+    If FieldCount = 0 Then
+        ReDim Fields(0 To 0)
+        ReDim Quoted(0 To 0)
+    Else
+        ReDim Preserve Fields(0 To FieldCount)
+        ReDim Preserve Quoted(0 To FieldCount)
+    End If
+
+    Fields(FieldCount) = Value
+    Quoted(FieldCount) = WasQuoted
+    FieldCount = FieldCount + 1
+End Sub
+
+Private Function BuildDatevCSVLine(ByRef Fields() As String, _
+                                   ByRef Quoted() As Boolean, _
+                                   ByVal FieldCount As Long) As String
+    Dim i As Long
+    Dim Value As String
+    Dim Result As String
+    Dim Q As String
+
+    Q = DATEV_TEXT_QUALIFIER
+    Result = vbNullString
+
+    For i = 0 To FieldCount - 1
+        If i > 0 Then Result = Result & DATEV_SEPARATOR
+
+        Value = Fields(i)
+        If Quoted(i) Or CSVValueNeedsQuote(Value) Then
+            Result = Result & Q & Replace(Value, Q, Q & Q) & Q
+        Else
+            Result = Result & Value
+        End If
+    Next i
+
+    BuildDatevCSVLine = Result
+End Function
+
+Private Function CSVValueNeedsQuote(ByVal Value As String) As Boolean
+    CSVValueNeedsQuote = (InStr(1, Value, DATEV_SEPARATOR, vbBinaryCompare) > 0 _
+                       Or InStr(1, Value, DATEV_TEXT_QUALIFIER, vbBinaryCompare) > 0 _
+                       Or InStr(1, Value, vbCr, vbBinaryCompare) > 0 _
+                       Or InStr(1, Value, vbLf, vbBinaryCompare) > 0)
+End Function
+
+Private Function CleanGuidFromBediFileName(ByVal FileName As String) As String
+    Dim NameOnly As String
+    Dim DotPos As Long
+    Dim CleanGUID As String
+
+    NameOnly = FileName
+    If InStrRev(NameOnly, "\") > 0 Then NameOnly = Mid$(NameOnly, InStrRev(NameOnly, "\") + 1)
+
+    If UCase$(Left$(NameOnly, Len(BELEGLINK_PREFIX))) = BELEGLINK_PREFIX Then
+        CleanGUID = Mid$(NameOnly, Len(BELEGLINK_PREFIX) + 1)
+    Else
+        CleanGUID = NameOnly
+    End If
+
+    DotPos = InStrRev(CleanGUID, ".")
+    If DotPos > 0 Then CleanGUID = Left$(CleanGUID, DotPos - 1)
+
+    CleanGUID = UCase$(Replace(CleanGUID, "-", vbNullString))
+    CleanGUID = Replace(CleanGUID, "{", vbNullString)
+    CleanGUID = Replace(CleanGUID, "}", vbNullString)
+
+    If Len(CleanGUID) >= 32 Then
+        CleanGuidFromBediFileName = Left$(CleanGUID, 32)
+    Else
+        CleanGuidFromBediFileName = vbNullString
+    End If
+End Function
+
+Private Function ReadAnsiTextFile(ByVal FilePath As String) As String
+On Error GoTo ErrHandler
+
+    Dim FileNum As Integer
+    Dim Buffer() As Byte
+    Dim FileSize As Long
+
+    FileSize = FileLen(FilePath)
+    If FileSize <= 0 Then
+        ReadAnsiTextFile = vbNullString
+        Exit Function
+    End If
+
+    ReDim Buffer(0 To FileSize - 1)
+    FileNum = FreeFile
+    Open FilePath For Binary Access Read As #FileNum
+    Get #FileNum, , Buffer
+    Close #FileNum
+
+    ReadAnsiTextFile = StrConv(Buffer, vbUnicode)
+    Exit Function
+
+ErrHandler:
+    On Error Resume Next
+    If FileNum > 0 Then Close #FileNum
+    ReadAnsiTextFile = vbNullString
+End Function
+
+Private Function EnsureTrailingBackslash(ByVal PathValue As String) As String
+    If Len(PathValue) = 0 Then
+        EnsureTrailingBackslash = vbNullString
+    ElseIf Right$(PathValue, 1) = "\" Then
+        EnsureTrailingBackslash = PathValue
+    Else
+        EnsureTrailingBackslash = PathValue & "\"
+    End If
+End Function
 
 '================================================================================
 ' ValidateExportConsistency - Prueft Konsistenz zwischen PDF-Dateien und XML-Referenzen
@@ -3907,66 +4478,66 @@ Private Function BuildColumnHeaders() As String
     ' Must match exactly the DATEV specification
     ' Split into multiple assignments to avoid VB6 line continuation limit (max ~25)
 
-    Dim H As String
+    Dim h As String
 
     ' Fields 1-20
-    H = "Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;"
-    H = H & "Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schluessel);"
-    H = H & "BU-Schluessel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;"
-    H = H & "Postensperre;Diverse Adressnummer;Geschaeftspartnerbank;Sachverhalt;"
-    H = H & "Zinssperre;Beleglink;"
+    h = "Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;"
+    h = h & "Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schluessel);"
+    h = h & "BU-Schluessel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;"
+    h = h & "Postensperre;Diverse Adressnummer;Geschaeftspartnerbank;Sachverhalt;"
+    h = h & "Zinssperre;Beleglink;"
 
     ' Fields 21-40 (Beleginfo + KOST)
-    H = H & "Beleginfo - Art 1;Beleginfo - Inhalt 1;"
-    H = H & "Beleginfo - Art 2;Beleginfo - Inhalt 2;Beleginfo - Art 3;Beleginfo - Inhalt 3;"
-    H = H & "Beleginfo - Art 4;Beleginfo - Inhalt 4;Beleginfo - Art 5;Beleginfo - Inhalt 5;"
-    H = H & "Beleginfo - Art 6;Beleginfo - Inhalt 6;Beleginfo - Art 7;Beleginfo - Inhalt 7;"
-    H = H & "Beleginfo - Art 8;Beleginfo - Inhalt 8;KOST1 - Kostenstelle;"
-    H = H & "KOST2 - Kostenstelle;Kost-Menge;EU-Land u. UStID;"
+    h = h & "Beleginfo - Art 1;Beleginfo - Inhalt 1;"
+    h = h & "Beleginfo - Art 2;Beleginfo - Inhalt 2;Beleginfo - Art 3;Beleginfo - Inhalt 3;"
+    h = h & "Beleginfo - Art 4;Beleginfo - Inhalt 4;Beleginfo - Art 5;Beleginfo - Inhalt 5;"
+    h = h & "Beleginfo - Art 6;Beleginfo - Inhalt 6;Beleginfo - Art 7;Beleginfo - Inhalt 7;"
+    h = h & "Beleginfo - Art 8;Beleginfo - Inhalt 8;KOST1 - Kostenstelle;"
+    h = h & "KOST2 - Kostenstelle;Kost-Menge;EU-Land u. UStID;"
 
     ' Fields 41-50
-    H = H & "EU-Steuersatz;Abw. Versteuerungsart;Sachverhalt L+L;Funktionsergaenzung L+L;"
-    H = H & "BU 49 Hauptfunktionstyp;BU 49 Hauptfunktionsnummer;BU 49 Funktionsergaenzung;"
-    H = H & "Zusatzinformation - Art 1;Zusatzinformation- Inhalt 1;Zusatzinformation - Art 2;"
+    h = h & "EU-Steuersatz;Abw. Versteuerungsart;Sachverhalt L+L;Funktionsergaenzung L+L;"
+    h = h & "BU 49 Hauptfunktionstyp;BU 49 Hauptfunktionsnummer;BU 49 Funktionsergaenzung;"
+    h = h & "Zusatzinformation - Art 1;Zusatzinformation- Inhalt 1;Zusatzinformation - Art 2;"
 
     ' Fields 51-70 (Zusatzinformation 2-11)
-    H = H & "Zusatzinformation- Inhalt 2;Zusatzinformation - Art 3;Zusatzinformation- Inhalt 3;"
-    H = H & "Zusatzinformation - Art 4;Zusatzinformation- Inhalt 4;Zusatzinformation - Art 5;"
-    H = H & "Zusatzinformation- Inhalt 5;Zusatzinformation - Art 6;Zusatzinformation- Inhalt 6;"
-    H = H & "Zusatzinformation - Art 7;Zusatzinformation- Inhalt 7;Zusatzinformation - Art 8;"
-    H = H & "Zusatzinformation- Inhalt 8;Zusatzinformation - Art 9;Zusatzinformation- Inhalt 9;"
-    H = H & "Zusatzinformation - Art 10;Zusatzinformation- Inhalt 10;Zusatzinformation - Art 11;"
-    H = H & "Zusatzinformation- Inhalt 11;"
+    h = h & "Zusatzinformation- Inhalt 2;Zusatzinformation - Art 3;Zusatzinformation- Inhalt 3;"
+    h = h & "Zusatzinformation - Art 4;Zusatzinformation- Inhalt 4;Zusatzinformation - Art 5;"
+    h = h & "Zusatzinformation- Inhalt 5;Zusatzinformation - Art 6;Zusatzinformation- Inhalt 6;"
+    h = h & "Zusatzinformation - Art 7;Zusatzinformation- Inhalt 7;Zusatzinformation - Art 8;"
+    h = h & "Zusatzinformation- Inhalt 8;Zusatzinformation - Art 9;Zusatzinformation- Inhalt 9;"
+    h = h & "Zusatzinformation - Art 10;Zusatzinformation- Inhalt 10;Zusatzinformation - Art 11;"
+    h = h & "Zusatzinformation- Inhalt 11;"
 
     ' Fields 71-88 (Zusatzinformation 12-20 + misc)
-    H = H & "Zusatzinformation - Art 12;Zusatzinformation- Inhalt 12;"
-    H = H & "Zusatzinformation - Art 13;Zusatzinformation- Inhalt 13;"
-    H = H & "Zusatzinformation - Art 14;Zusatzinformation- Inhalt 14;"
-    H = H & "Zusatzinformation - Art 15;Zusatzinformation- Inhalt 15;"
-    H = H & "Zusatzinformation - Art 16;Zusatzinformation- Inhalt 16;"
-    H = H & "Zusatzinformation - Art 17;Zusatzinformation- Inhalt 17;"
-    H = H & "Zusatzinformation - Art 18;Zusatzinformation- Inhalt 18;"
-    H = H & "Zusatzinformation - Art 19;Zusatzinformation- Inhalt 19;"
-    H = H & "Zusatzinformation - Art 20;Zusatzinformation- Inhalt 20;"
+    h = h & "Zusatzinformation - Art 12;Zusatzinformation- Inhalt 12;"
+    h = h & "Zusatzinformation - Art 13;Zusatzinformation- Inhalt 13;"
+    h = h & "Zusatzinformation - Art 14;Zusatzinformation- Inhalt 14;"
+    h = h & "Zusatzinformation - Art 15;Zusatzinformation- Inhalt 15;"
+    h = h & "Zusatzinformation - Art 16;Zusatzinformation- Inhalt 16;"
+    h = h & "Zusatzinformation - Art 17;Zusatzinformation- Inhalt 17;"
+    h = h & "Zusatzinformation - Art 18;Zusatzinformation- Inhalt 18;"
+    h = h & "Zusatzinformation - Art 19;Zusatzinformation- Inhalt 19;"
+    h = h & "Zusatzinformation - Art 20;Zusatzinformation- Inhalt 20;"
 
     ' Fields 89-100
-    H = H & "Stueck;Gewicht;Zahlweise;Forderungsart;Veranlagungsjahr;Zugeordnete Faelligkeit;"
-    H = H & "Skontotyp;Auftragsnummer;Buchungstyp;USt-Schluessel (Anzahlungen);"
-    H = H & "EU-Land (Anzahlungen);Sachverhalt L+L (Anzahlungen);"
+    h = h & "Stueck;Gewicht;Zahlweise;Forderungsart;Veranlagungsjahr;Zugeordnete Faelligkeit;"
+    h = h & "Skontotyp;Auftragsnummer;Buchungstyp;USt-Schluessel (Anzahlungen);"
+    h = h & "EU-Land (Anzahlungen);Sachverhalt L+L (Anzahlungen);"
 
     ' Fields 101-116
-    H = H & "EU-Steuersatz (Anzahlungen);Erloeskonto (Anzahlungen);"
-    H = H & "Herkunft-Kz;Buchungs GUID;KOST-Datum;SEPA-Mandatsreferenz;Skontosperre;"
-    H = H & "Gesellschaftername;Beteiligtennummer;Identifikationsnummer;Zeichnernummer;"
-    H = H & "Postensperre bis;Bezeichnung SoBil-Sachverhalt;Kennzeichen SoBil-Buchung;"
-    H = H & "Festschreibung;Leistungsdatum;Datum Zuord. Steuerperiode;"
+    h = h & "EU-Steuersatz (Anzahlungen);Erloeskonto (Anzahlungen);"
+    h = h & "Herkunft-Kz;Buchungs GUID;KOST-Datum;SEPA-Mandatsreferenz;Skontosperre;"
+    h = h & "Gesellschaftername;Beteiligtennummer;Identifikationsnummer;Zeichnernummer;"
+    h = h & "Postensperre bis;Bezeichnung SoBil-Sachverhalt;Kennzeichen SoBil-Buchung;"
+    h = h & "Festschreibung;Leistungsdatum;Datum Zuord. Steuerperiode;"
 
     ' Fields 117-125 (DATEV v700 Format v13)
-    H = H & "Generalumkehr (Storno);Steuersatz;Land;"
-    H = H & "Abrechnungsreferenz;BVV-Position;EU-Land u. UStID (Ursprungsland);"
-    H = H & "EU-USt-IdNr (Ursprung);Sachverhalt Warenbewegung;Steuerschloessel Devisen"
+    h = h & "Generalumkehr (Storno);Steuersatz;Land;"
+    h = h & "Abrechnungsreferenz;BVV-Position;EU-Land u. UStID (Ursprungsland);"
+    h = h & "EU-USt-IdNr (Ursprung);Sachverhalt Warenbewegung;Steuerschloessel Devisen"
 
-    BuildColumnHeaders = H
+    BuildColumnHeaders = h
 End Function
 
 '--------------------------------------------------------------------------------
@@ -5921,6 +6492,20 @@ Private Function SafeCurrency(ByVal Value As Variant) As Currency
 End Function
 
 '--------------------------------------------------------------------------------
+' CalculateDebtorNumber - DATEV debtor account number from patient id
+'--------------------------------------------------------------------------------
+Private Function CalculateDebtorNumber(ByVal PatientID As Long, _
+                                       ByRef Config As DATEV_ExportConfig) As Long
+    If PatientID <= 0 Then
+        CalculateDebtorNumber = 0
+    ElseIf Config.FourDigitAccounts Then
+        CalculateDebtorNumber = 10000 + PatientID
+    Else
+        CalculateDebtorNumber = 1000000 + PatientID
+    End If
+End Function
+
+'--------------------------------------------------------------------------------
 ' GetFieldValue - Get field value with fallback field names
 '--------------------------------------------------------------------------------
 Private Function GetFieldValue(ByRef RST As ADODB.Recordset, _
@@ -5996,6 +6581,10 @@ On Error GoTo ErrHandler
     Dim FileNum As Integer
     Dim Buffer() As Byte
 
+    If m_clFil.FilVor(FilePath) Then
+        Kill FilePath
+    End If
+
     Buffer = StrConv(Content, vbFromUnicode)
     FileNum = FreeFile
     Open FilePath For Binary Access Write As #FileNum
@@ -6018,6 +6607,10 @@ On Error GoTo ErrHandler
     ' StrConv with vbFromUnicode converts to system ANSI codepage (Windows-1252)
     Dim FileNum As Integer
     Dim Buffer() As Byte
+
+    If m_clFil.FilVor(FilePath) Then
+        Kill FilePath
+    End If
 
     Buffer = StrConv(Content, vbFromUnicode)
     FileNum = FreeFile
@@ -6434,7 +7027,7 @@ On Error GoTo ErrHandler
 
     ' Determine if we use the Ledger format based on export option
     ' Option A (UseLedgerXML=False): Simple document.xml with File extensions + BEDI filename for CSV linking
-    ' Option B (UseLedgerXML=True): document.xml with accountsReceivableLedger extension + ledger.xml
+    ' Option B (UseLedgerXML=True): document.xml with cashLedger extension + ledger.xml
     Dim UseLedgerFormat As Boolean
     Dim CleanGUID As String
     Dim LedgerFileName As String
@@ -6486,7 +7079,7 @@ On Error GoTo ErrHandler
 
     ' Build XML document element - choose format based on export option
     If UseLedgerFormat Then
-        ' Option B: Ledger format with accountsReceivableLedger/accountsPayableLedger extension
+        ' Option B: Ledger format with cashLedger extension
         ' This format includes datafile reference for structured data import
         DocXML = BuildLedgerDocumentXMLElement(FormattedGUID, CleanGUID, LedgerFileName, BuDat, IsRevenue)
         If GlLog = True Then
@@ -6566,17 +7159,17 @@ End Function
 '--------------------------------------------------------------------------------
 ' BuildLedgerDocumentXMLElement - Build XML element for structured document linking
 '--------------------------------------------------------------------------------
-' Purpose:     Creates XML document element with cashLedger extension for Option B
+' Purpose:     Creates XML document element with ledger extension for Option B
 '              This format includes datafile reference to ledger.xml for structured data import
-'              Uses cashLedger for mixed Einnahmen/Ausgaben (Kassenbuch format)
+'              Uses accountsReceivableLedger for invoice exports and cashLedger for mixed bookings.
 '
 ' Parameters:  FormattedGUID  - Document GUID with dashes (for guid attribute)
 '              CleanGUID      - Document GUID without dashes (for BEDI filename)
 '              BelegFileName  - Full BEDI filename (e.g., BEDI123...456.pdf)
 '              DocDate        - Document date (for property key="1")
-'              IsRevenue      - (unused, kept for compatibility)
+'              IsRevenue      - True for outgoing invoices/revenue documents
 '
-' Returns:     XML string for one document element with cashLedger extension and datafile
+' Returns:     XML string for one document element with ledger extension and datafile
 '--------------------------------------------------------------------------------
 Private Function BuildLedgerDocumentXMLElement(ByVal FormattedGUID As String, _
                                                ByVal CleanGUID As String, _
@@ -6586,6 +7179,8 @@ Private Function BuildLedgerDocumentXMLElement(ByVal FormattedGUID As String, _
     Dim XML As String
     Dim EscFileName As String
     Dim DateProperty As String
+    Dim LedgerExtType As String
+    Dim LedgerFolder As String
 
     ' Format date as YYYY-MM for property key="1" (Buchungsperiode)
     DateProperty = Format$(DocDate, "yyyy-mm")
@@ -6593,18 +7188,26 @@ Private Function BuildLedgerDocumentXMLElement(ByVal FormattedGUID As String, _
     ' Escape XML special characters for filename
     EscFileName = EscapeXML(BelegFileName)
 
-    ' Build document element with cashLedger extension (Option B format)
+    If m_InvMod And IsRevenue Then
+        LedgerExtType = XML_EXT_ACCOUNTS_RECEIVABLE
+        LedgerFolder = XML_FOLDER_OUTGOING
+    Else
+        LedgerExtType = XML_EXT_CASH_LEDGER
+        LedgerFolder = XML_FOLDER_CASH
+    End If
+
+    ' Build document element with ledger extension (Option B format)
     ' Per DATEV XSD: extension with datafile attribute references the ledger.xml
     ' guid attribute enables document identification
-    ' Using cashLedger for mixed Einnahmen/Ausgaben (xsd:choice only allows ONE type)
+    ' In invoice mode DATEV expects accountsReceivableLedger, mixed bookings stay cashLedger.
     XML = "    <document guid=""" & FormattedGUID & """>" & vbCrLf
 
-    ' cashLedger extension with datafile - links to ledger.xml for structured booking data
+    ' Ledger extension with datafile - links to ledger.xml for structured booking data
     ' property key="1" = Buchungsperiode (YYYY-MM)
-    ' property key="3" = Kassenbezeichnung (e.g. "Kasse")
-    XML = XML & "      <extension xsi:type=""" & XML_EXT_CASH_LEDGER & """ datafile=""ledger.xml"">" & vbCrLf
+    ' property key="3" = Zielordner/Kassenbezeichnung
+    XML = XML & "      <extension xsi:type=""" & LedgerExtType & """ datafile=""ledger.xml"">" & vbCrLf
     XML = XML & "        <property value=""" & DateProperty & """ key=""1""/>" & vbCrLf
-    XML = XML & "        <property value=""" & XML_FOLDER_CASH & """ key=""3""/>" & vbCrLf
+    XML = XML & "        <property value=""" & LedgerFolder & """ key=""3""/>" & vbCrLf
     XML = XML & "      </extension>" & vbCrLf
 
     ' File extension - references the actual document file (PDF)
@@ -6781,6 +7384,9 @@ On Error GoTo ErrHandler
     Dim ConsolidatedDate As Date
     Dim CurrentRecord As Long
     Dim BuDatVal As Variant
+    Dim TotalAmount As Currency
+    Dim TmpAmount As Currency
+    Dim TmpBuTyp As Integer
 
     If GlLog = True Then SLogi "DATEV: GenerateLedgerXMLFromRC gestartet"
     DoEvents
@@ -6813,6 +7419,30 @@ On Error GoTo ErrHandler
 
     ' Build XML header
     XMLContent = BuildLedgerXMLHeader(Config, ConsolidatedDate)
+
+    ' Calculate consolidated amount before writing records
+    TotalAmount = 0
+    RST.MoveFirst
+    Do While Not RST.EOF
+        If m_InvMod Then
+            TmpBuTyp = 2
+        Else
+            TmpBuTyp = SafeIntField(RST, "IDA")
+        End If
+        TmpAmount = DetermineAmountValueFromRC(RST, TmpBuTyp)
+        If TmpAmount >= 0.01 Then
+            If TmpBuTyp = 2 Then
+                TotalAmount = TotalAmount + TmpAmount
+            Else
+                TotalAmount = TotalAmount - TmpAmount
+            End If
+        End If
+        RST.MoveNext
+    Loop
+
+    XMLContent = XMLContent & "  <consolidate consolidatedAmount=""" & FormatLedgerAmount(TotalAmount) & """" & vbCrLf
+    XMLContent = XMLContent & "               consolidatedDate=""" & Format$(ConsolidatedDate, "yyyy-mm-dd") & """" & vbCrLf
+    XMLContent = XMLContent & "               consolidatedCurrencyCode=""" & DATEV_CURRENCY & """>" & vbCrLf
 
     ' Generate booking records
     RST.MoveFirst
@@ -6877,10 +7507,16 @@ On Error GoTo ErrHandler
     Dim BuSchl As String
     Dim RechNr As String
     Dim BuText As String
-    Dim guid As String
     Dim BuDatVal As Variant
     Dim Steue As Single
     Dim Kennz As String
+    Dim IdxNr As Long
+    Dim PatNr As Long
+    Dim PidNr As Long
+    Dim DebNr As Long
+    Dim TmSt2 As String
+    Dim LedgerElementName As String
+    Dim UseAccountsReceivable As Boolean
 
     ' Get booking type (invoice mode: always revenue)
     If m_InvMod Then
@@ -6956,11 +7592,26 @@ On Error GoTo ErrHandler
         End If
     End If
 
-    ' Get GUID - GuiID field exists in both formats
-    guid = SafeStringField(RST, "GuiID")
+    UseAccountsReceivable = (m_InvMod And IsRevenue)
+    If UseAccountsReceivable Then
+        IdxNr = SafeLongField(RST, "ID1")
+        PatNr = SafeLongField(RST, "ID0")
+        If PatNr = 0 Then PatNr = SafeLongField(RST, "Mandant")
+        PidNr = PatNr
+        If PidNr <= 0 Then
+            On Error Resume Next
+            TmSt2 = S_AdIdx(IdxNr, "IDP")
+            On Error GoTo ErrHandler
+            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then PidNr = CLng(TmSt2)
+        End If
+        DebNr = CalculateDebtorNumber(PidNr, Config)
+        LedgerElementName = XML_EXT_ACCOUNTS_RECEIVABLE
+    Else
+        LedgerElementName = XML_EXT_CASH_LEDGER
+    End If
 
-    ' Build XML element - cashLedger format
-    XML = "    <cashLedger>" & vbCrLf
+    ' Build XML element
+    XML = "    <" & LedgerElementName & ">" & vbCrLf
 
     ' Required: date
     XML = XML & "      <date>" & Format$(BuDat, "yyyy-mm-dd") & "</date>" & vbCrLf
@@ -6987,12 +7638,11 @@ On Error GoTo ErrHandler
     ' Required: bookingText
     XML = XML & "      <bookingText>" & EscapeXML(BuText) & "</bookingText>" & vbCrLf
 
-    ' Optional: belegLink (GUID reference)
-    If Len(guid) > 0 Then
-        XML = XML & "      <belegLink>" & DATEV_FormatGUIDForXML(guid) & "</belegLink>" & vbCrLf
+    If UseAccountsReceivable And DebNr > 0 Then
+        XML = XML & "      <bpAccountNo>" & Format$(DebNr, "0") & "</bpAccountNo>" & vbCrLf
     End If
 
-    XML = XML & "    </cashLedger>" & vbCrLf
+    XML = XML & "    </" & LedgerElementName & ">" & vbCrLf
 
     BuildLedgerBookingElementFromRC = XML
     Exit Function
@@ -7069,6 +7719,7 @@ End Function
 ' Uses cashLedger format for all bookings (Kassenbuch).
 ' This allows mixed Einnahmen and Ausgaben in one consolidate element.
 ' Element order per XSD: date, amount, accountNo, buCode, currencyCode, invoiceId, bookingText
+' DATEV ledger.xml v060 erlaubt hier keinen belegLink; die Belegverknuepfung laeuft ueber document.xml.
 ' Note: cashLedger has no bpAccountNo (that's only in accountsReceivable/Payable)
 '--------------------------------------------------------------------------------
 Private Function BuildLedgerBookingElement(ByRef RST As ADODB.Recordset, _
@@ -7084,10 +7735,16 @@ On Error GoTo ErrHandler
     Dim BuSchl As String
     Dim RechNr As String
     Dim BuText As String
-    Dim guid As String
     Dim BuDatVal As Variant
     Dim Steue As Single
     Dim Kennz As String
+    Dim IdxNr As Long
+    Dim PatNr As Long
+    Dim PidNr As Long
+    Dim DebNr As Long
+    Dim TmSt2 As String
+    Dim LedgerElementName As String
+    Dim UseAccountsReceivable As Boolean
 
     ' Get booking type (for determining amount sign)
     ' Debitoren-Modus: immer Einnahme (BuTyp=2)
@@ -7159,12 +7816,26 @@ On Error GoTo ErrHandler
         End If
     End If
 
-    ' Get GUID for belegLink
-    guid = SafeString(RST.Fields("GuiID").Value)
+    UseAccountsReceivable = (m_InvMod And IsRevenue)
+    If UseAccountsReceivable Then
+        IdxNr = SafeLong(RST.Fields("ID1").Value)
+        PatNr = SafeLong(GetFieldValue(RST, "ID0", "IDP"))
+        PidNr = PatNr
+        If PidNr <= 0 Then
+            On Error Resume Next
+            TmSt2 = S_AdIdx(IdxNr, "IDP")
+            On Error GoTo ErrHandler
+            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then PidNr = CLng(TmSt2)
+        End If
+        DebNr = CalculateDebtorNumber(PidNr, Config)
+        LedgerElementName = XML_EXT_ACCOUNTS_RECEIVABLE
+    Else
+        LedgerElementName = XML_EXT_CASH_LEDGER
+    End If
 
-    ' Build XML element - cashLedger format
+    ' Build XML element
     ' Element order per XSD: date, amount, accountNo, buCode, currencyCode, invoiceId, bookingText
-    XML = "    <cashLedger>" & vbCrLf
+    XML = "    <" & LedgerElementName & ">" & vbCrLf
 
     ' Required: date
     XML = XML & "      <date>" & Format$(BuDat, "yyyy-mm-dd") & "</date>" & vbCrLf
@@ -7198,8 +7869,12 @@ On Error GoTo ErrHandler
     ' Required: bookingText (Belegtext)
     XML = XML & "      <bookingText>" & EscapeXML(BuText) & "</bookingText>" & vbCrLf
 
+    If UseAccountsReceivable And DebNr > 0 Then
+        XML = XML & "      <bpAccountNo>" & Format$(DebNr, "0") & "</bpAccountNo>" & vbCrLf
+    End If
+
     ' Close element
-    XML = XML & "    </cashLedger>" & vbCrLf
+    XML = XML & "    </" & LedgerElementName & ">" & vbCrLf
 
     BuildLedgerBookingElement = XML
     Exit Function
@@ -7227,8 +7902,10 @@ On Error GoTo ErrHandler
 
     Dim fso As Object
     Dim TextStream As Object
+    Dim SafeContent As String
 
     Set fso = CreateObject("Scripting.FileSystemObject")
+    SafeContent = EnsureXMLDeclarationEncoding(Content)
 
     ' Create file with UTF-8 encoding (using ADODB.Stream for proper UTF-8)
     Dim ADOStream As Object
@@ -7238,7 +7915,7 @@ On Error GoTo ErrHandler
         .Type = 2  ' adTypeText
         .Charset = "UTF-8"
         .Open
-        .WriteText Content
+        .WriteText SafeContent
         .SaveToFile FilePath, 2  ' adSaveCreateOverWrite
         .Close
     End With
@@ -7252,6 +7929,37 @@ On Error GoTo ErrHandler
 ErrHandler:
     LogError "WriteLedgerXMLFile", Err.Number, Err.Description
     WriteLedgerXMLFile = False
+End Function
+
+Private Function EnsureXMLDeclarationEncoding(ByVal Content As String) As String
+    Dim EndPos As Long
+    Dim Declaration As String
+    Dim Remainder As String
+
+    If Len(Content) = 0 Then
+        EnsureXMLDeclarationEncoding = "<?xml version=""1.0"" encoding=""utf-8""?>"
+        Exit Function
+    End If
+
+    If Left$(Content, 5) <> "<?xml" Then
+        EnsureXMLDeclarationEncoding = "<?xml version=""1.0"" encoding=""utf-8""?>" & vbCrLf & Content
+        Exit Function
+    End If
+
+    EndPos = InStr(1, Content, "?>", vbBinaryCompare)
+    If EndPos = 0 Then
+        EnsureXMLDeclarationEncoding = Content
+        Exit Function
+    End If
+
+    Declaration = Left$(Content, EndPos + 1)
+    If InStr(1, Declaration, "encoding", vbTextCompare) > 0 Then
+        EnsureXMLDeclarationEncoding = Content
+        Exit Function
+    End If
+
+    Remainder = Mid$(Content, EndPos + 2)
+    EnsureXMLDeclarationEncoding = "<?xml version=""1.0"" encoding=""utf-8""?>" & Remainder
 End Function
 
 Private Function EscapeXML(ByVal Text As String) As String
@@ -7372,6 +8080,8 @@ End Function
 Private Function WriteXMLFile(ByVal FilePath As String, ByVal Content As String) As Boolean
 On Error GoTo ErrHandler
 
+    Dim SafeContent As String
+
     ' Delete existing file first to ensure clean overwrite
     If m_clFil.FilVor(FilePath) Then
         On Error Resume Next
@@ -7379,8 +8089,10 @@ On Error GoTo ErrHandler
         On Error GoTo ErrHandler
     End If
 
+    SafeContent = EnsureXMLDeclarationEncoding(Content)
+
     ' Use clFil for UTF-8 file write
-    m_clFil.FilCnWr FilePath, Content
+    m_clFil.FilCnWr FilePath, SafeContent
 
     ' Verify file was created
     WriteXMLFile = m_clFil.FilVor(FilePath)
@@ -7904,7 +8616,7 @@ End Sub
 ' - XML version upgraded: v4.0 -> v6.0 (current DATEV Unternehmen Online)
 ' - CSV format: EXTF v700 with 116 fields (compliant with DATEV Proeftool)
 ' - All file I/O via clsFile (FilCnWr for UTF-8, FilCop for documents)
-' - Two-phase progress: Phase 1 = CSV, Phase 2 = XML + PDF documents
+' - Multi-phase progress: CSV, XML, PDF documents, ZIP archive
 ' - Split posting deduplication via m_DocumentGUIDs collection
 ' - Revenue vs Expense handling: revenues require documents, expenses optional
 ' - Performance: array-based line building, interval-based UI updates
@@ -7934,31 +8646,30 @@ End Sub
 '    - ExTyp = "B"
 '    - Purpose: Automatic document-to-booking linking in DATEV Buchhaltung
 '    - Generated files:
-'      * EXTF_*.csv (DATEV Buchungsstapel)
 '      * document.xml (archive format with datafile reference)
 '      * ledger.xml (structured booking data, namespace: ledger/v060)
 '      * BEDI{GUID}.pdf files (document files)
 '    - document.xml structure (references ledger.xml):
 '      <archive xmlns="http://xml.datev.de/bedi/tps/document/v06.0">
 '        <document guid="{GUID}">
-'          <extension xsi:type="accountsReceivableLedger" datafile="ledger.xml">
+ '          <extension xsi:type="cashLedger|accountsReceivableLedger" datafile="ledger.xml">
 '            <property value="YYYY-MM" key="1"/>
-'            <property value="Ausgangsrechnungen" key="3"/>
+'            <property value="Kasse" key="3"/>
 '          </extension>
 '          <extension xsi:type="File" name="BEDI{GUID}.pdf"/>
 '        </document>
 '      </archive>
 '    - ledger.xml structure (structured booking data):
 '      <LedgerImport xmlns="http://xml.datev.de/bedi/tps/ledger/v060">
-'        <consolidate><accountsReceivableLedger>
+ '        <consolidate><cashLedger|accountsReceivableLedger>
 '          <date>YYYY-MM-DD</date>
 '          <amount>123.45</amount>
 '          <accountNo>10000</accountNo>
-'          <belegLink>BEDI{GUID}</belegLink>
+ '          <bpAccountNo>10000</bpAccountNo>  ' Rechnungen/accountsReceivableLedger
 '          ...
-'        </accountsReceivableLedger></consolidate>
+'        </cashLedger></consolidate>
 '      </LedgerImport>
 '
-' Both options use BEDI{GUID} filename format for CSV "Beleglink" compatibility.
+' Both options use BEDI{GUID} filename format for DATEV document references.
 ' Option B enables DATEV to automatically link documents to their bookings.
 '==================================================================

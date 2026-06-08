@@ -4538,7 +4538,7 @@ If IsMissing(lngEnd) Then lngEnd = UBound(AryNa)
 
 Dim i As Long
 Dim j As Long
-Dim H As Variant
+Dim h As Variant
 Dim x As Variant
 Dim u As Long
 Dim lb_dim As Integer
@@ -4555,9 +4555,9 @@ While (AryNa(i, SpIdx - 1) < x): i = i + 1: Wend
 While (AryNa(j, SpIdx - 1) > x): j = j - 1: Wend
     If (i <= j) Then
         For u = lb_dim To ub_dim
-            H = AryNa(i, u)
+            h = AryNa(i, u)
             AryNa(i, u) = AryNa(j, u)
-            AryNa(j, u) = H
+            AryNa(j, u) = h
         Next u
         i = i + 1: j = j - 1
     End If
@@ -11871,7 +11871,7 @@ Resume Next
 End Sub
 Public Sub SKrDa()
 On Error GoTo LdErr
-'Oeffnet den Dateiauswahldialog, um eine Datei fuer das Krankenblatt auszuwaehlen
+'Öffnet den Dateiauswahldialog, um eine Datei fuer das Krankenblatt auszuwaehlen
 
 Dim FiNam As String
 Dim FiNeu As String

@@ -154,7 +154,6 @@ Class=clsMailing; clsMailing.cls
 Class=clsICS; clsICS.cls
 Form=frmTSEInit.frm
 Module=basTSE; basTSE.bas
-Form=frmZIPStat.frm
 Form=frmPublizieren.frm
 Form=frmKatBV.frm
 Form=frmBuKont.frm

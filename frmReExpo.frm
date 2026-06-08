@@ -785,7 +785,7 @@ With CmFma
     .ItemData(.NewIndex) = 7
     .AddItem "DATEV 6.0 Belegsatzdaten"
     .ItemData(.NewIndex) = 8
-    .AddItem "DATEV 6.0 Belegarchivierung"
+    .AddItem "DATEV 6.0 Buchungsstapel"
     .ItemData(.NewIndex) = 9
     .AddItem "X-Rechnung Dateien (XML)"
     .ItemData(.NewIndex) = 10
@@ -848,6 +848,8 @@ RetWe = SendMessage(CmQua.hwnd, CB_SETCURSEL, AkQua - 1, ByVal 0&)
 
 If CBool(IniGetVal("System", "ReExAb")) = True Then ChReA.Value = xtpChecked
 If CBool(IniGetVal("System", "ReExBe")) = True Then ChReB.Value = xtpChecked
+
+CmFma.ListIndex = CInt(IniGetVal("System", "ReExpo"))
 
 DoEvents
 FTyp
@@ -1638,8 +1640,11 @@ End Sub
 Private Sub cmbForma_Click()
 On Error Resume Next
 
+Set CmFma = Me.cmbForma
+
 If FoLad = False Then
     FTyp
+    IniSetVal "System", "ReExpo", CmFma.ListIndex
 End If
 
 End Sub

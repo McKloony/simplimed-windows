@@ -121,8 +121,14 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If GlLog = True Then SLogi "Imp01: Reading file content..."
     With clFil
         .FilPfa FiNam
-        TmpSt = .FilReSt
     End With
+
+    ' --- Robust multi-encoding read (UTF-16 LE/BE w/ or w/o BOM, UTF-8, ANSI) ---
+    ' Legacy FilReSt truncates UTF-16 files at the first NUL byte; read & decode here.
+    Dim UniDun As Boolean
+    UniDun = False
+    TmpSt = ReadBankFile(FiNam, UniDun)
+    If Len(TmpSt) = 0 And UniDun = False Then TmpSt = clFil.FilReSt
     If GlLog = True Then SLogi "Imp01: File read, length=" & Len(TmpSt)
 
     If TmpSt = vbNullString Then
@@ -132,7 +138,9 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     
     ' UTF-8 to ANSI Conversion
     If GlLog = True Then SLogi "Imp01: Checking encoding..."
-    If IsUTF8(TmpSt) Then
+    If UniDun Then
+        If GlLog = True Then SLogi "Imp01: UTF-16 already decoded, skipping UTF-8 check"
+    ElseIf IsUTF8(TmpSt) Then
         If GlLog = True Then SLogi "Imp01: UTF-8 detected, converting..."
         TmpSt = ConvUTF8(TmpSt)
     Else
@@ -1771,6 +1779,117 @@ Private Function ConvUTF8(ByVal RawTxt As String) As String
 ErrHnd:
     If GlLog = True Then SLogi "ConvUTF8 Error: " & Err.Number & " - " & Err.Description
     ConvUTF8 = RawTxt
+End Function
+
+Private Function ReadBankFile(ByVal Path As String, ByRef DecodedUnicode As Boolean) As String
+    ' Reads a bank-statement file as raw bytes and decodes it with full encoding
+    ' detection: UTF-16 LE/BE (with or without BOM). For ANSI and UTF-8 files it
+    ' returns the legacy "bytes as CP-1252 chars" string so the existing
+    ' IsUTF8/ConvUTF8 pipeline keeps working byte-for-byte unchanged.
+    ' DecodedUnicode is set True ONLY for UTF-16; the caller must then skip ConvUTF8.
+    On Error GoTo ErrHnd
+    DecodedUnicode = False
+    ReadBankFile = ""
+
+    Dim n As Long
+    n = FileLen(Path)
+    If n <= 0 Then Exit Function
+
+    Dim b() As Byte
+    ReDim b(n - 1)
+    Dim fNum As Integer
+    fNum = FreeFile
+    Open Path For Binary Access Read As #fNum
+    Get #fNum, 1, b
+    Close #fNum
+
+    ' BOM-based detection
+    If n >= 2 Then
+        If b(0) = 255 And b(1) = 254 Then
+            ReadBankFile = DecodeUTF16(b, 2, n, False)
+            DecodedUnicode = True
+            Exit Function
+        ElseIf b(0) = 254 And b(1) = 255 Then
+            ReadBankFile = DecodeUTF16(b, 2, n, True)
+            DecodedUnicode = True
+            Exit Function
+        End If
+    End If
+
+    ' BOM-less UTF-16 heuristic: distribution of NUL bytes across even/odd offsets
+    Dim lim As Long, i As Long
+    Dim zEven As Long, zOdd As Long
+    lim = n - 1
+    If lim > 1999 Then lim = 1999
+    For i = 0 To lim
+        If b(i) = 0 Then
+            If (i Mod 2) = 0 Then
+                zEven = zEven + 1
+            Else
+                zOdd = zOdd + 1
+            End If
+        End If
+    Next i
+
+    Dim pairs As Long
+    pairs = (lim + 1) \ 2
+    If pairs > 0 Then
+        If zOdd > zEven And zOdd >= (pairs \ 2) Then
+            ReadBankFile = DecodeUTF16(b, 0, n, False)
+            DecodedUnicode = True
+            Exit Function
+        ElseIf zEven > zOdd And zEven >= (pairs \ 2) Then
+            ReadBankFile = DecodeUTF16(b, 0, n, True)
+            DecodedUnicode = True
+            Exit Function
+        End If
+    End If
+
+    ' ANSI / UTF-8: legacy representation (no NUL-truncation)
+    ReadBankFile = StrConv(b, vbUnicode)
+    Exit Function
+
+ErrHnd:
+    If GlLog = True Then SLogi "ReadBankFile Error: " & Err.Number & " - " & Err.Description
+    DecodedUnicode = False
+    ReadBankFile = ""
+End Function
+
+Private Function DecodeUTF16(ByRef b() As Byte, ByVal StartIx As Long, ByVal nBytes As Long, ByVal BigEndian As Boolean) As String
+    ' Decode UTF-16 bytes b(StartIx .. nBytes-1) into a VB6 Unicode string.
+    On Error GoTo ErrHnd
+    DecodeUTF16 = ""
+
+    Dim cnt As Long
+    cnt = nBytes - StartIx
+    If cnt < 2 Then Exit Function
+    If (cnt Mod 2) <> 0 Then cnt = cnt - 1
+
+    Dim tmp() As Byte
+    ReDim tmp(cnt - 1)
+    Dim i As Long
+    If BigEndian Then
+        For i = 0 To cnt - 2 Step 2
+            tmp(i) = b(StartIx + i + 1)
+            tmp(i + 1) = b(StartIx + i)
+        Next i
+    Else
+        For i = 0 To cnt - 1
+            tmp(i) = b(StartIx + i)
+        Next i
+    End If
+
+    Dim s As String
+    s = tmp
+    If Len(s) > 0 Then
+        If AscW(Left$(s, 1)) = &HFEFF Then s = Mid$(s, 2)
+    End If
+    DecodeUTF16 = s
+    Exit Function
+
+ErrHnd:
+    If GlLog = True Then SLogi "DecodeUTF16 Error: " & Err.Number & " - " & Err.Description
+    DecodeUTF16 = ""
 End Function
 
 

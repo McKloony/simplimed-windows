@@ -5824,7 +5824,7 @@ With RpCls
     With RpCol
         .Alignment = xtpAlignmentIconCenter
         .HeaderAlignment = xtpAlignmentCenter
-        .Icon = IC16_Check
+        .Icon = IC16_Printer_Ink
         .Tag = 1
     End With
     Set RpCol = .Add(Kra_Selekt, "Selekt", 0, False)
@@ -7459,7 +7459,7 @@ With RpCls
     With RpCol
         .Alignment = xtpAlignmentIconCenter
         .HeaderAlignment = xtpAlignmentCenter
-        .Icon = IC16_Check
+        .Icon = IC16_Printer_Ink
         .Tag = 1
     End With
     Set RpCol = .Add(Kra_Selekt, "Selekt", 0, False)

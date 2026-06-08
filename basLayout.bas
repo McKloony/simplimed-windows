@@ -20182,6 +20182,9 @@ With CmCon
     CmCon.IconId = IC16_Earth_Mail
     Set CmCon = .CommandBar.Controls.Add(xtpControlButton, Tex_NweVor, "Newsletter Testmail")
     CmCon.IconId = IC16_Earth_View
+    Set CmCon = .CommandBar.Controls.Add(xtpControlButton, Tex_NweDoc, "Dokumente Exportieren")
+    CmCon.IconId = IC16_Doc_Export
+    CmCon.BeginGroup = True
 End With
 
 '----------------------------------------------------------------------------------------------------
@@ -23779,7 +23782,7 @@ If UBound(InAry) > 0 Then
     If SReSu("BldVie") = vbNullString Then IniSetVal "System", "BldVie", "V1"
     If SReSu("DiaPru") = vbNullString Then IniSetVal "System", "DiaPru", "M6"
     If SReSu("DocKop") = vbNullString Then IniSetVal "System", "DocKop", -1
-    If SReSu("WarZei") = vbNullString Then IniSetVal "System", "WarZei", 0
+    If SReSu("ReExpo") = vbNullString Then IniSetVal "System", "ReExpo", 1
 
     If SReSu("DBaTyp") = vbNullString Then  'verwendeter Datenbanktyp
         If SReSu("DatTyp") <> vbNullString Then

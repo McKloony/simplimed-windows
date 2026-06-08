@@ -21,12 +21,25 @@ Begin VB.Form frmMain
    LockControls    =   -1  'True
    ScaleHeight     =   7590
    ScaleWidth      =   12885
-   Begin XtremeReportControl.ReportControl repContK 
+   Begin XtremeReportControl.ReportControl repCont0 
+      Height          =   1005
+      Left            =   10680
+      TabIndex        =   94
+      Top             =   4700
+      Visible         =   0   'False
+      Width           =   1005
+      _Version        =   1048579
+      _ExtentX        =   1764
+      _ExtentY        =   1764
+      _StockProps     =   64
+      FreezeColumnsAbs=   0   'False
+   End
+   Begin XtremeReportControl.ReportControl repCont1 
       Height          =   1005
       Left            =   6720
-      TabIndex        =   97
+      TabIndex        =   96
       TabStop         =   0   'False
-      Top             =   2520
+      Top             =   1320
       Visible         =   0   'False
       Width           =   1005
       _Version        =   1048579
@@ -36,28 +49,12 @@ Begin VB.Form frmMain
       AutoColumnSizing=   0   'False
       FreezeColumnsAbs=   0   'False
    End
-   Begin XtremeReportControl.ReportControl repCont6 
-      Height          =   1000
-      Left            =   7920
-      TabIndex        =   91
-      TabStop         =   0   'False
-      Top             =   120
-      Visible         =   0   'False
-      Width           =   1000
-      _Version        =   1048579
-      _ExtentX        =   1764
-      _ExtentY        =   1764
-      _StockProps     =   64
-      AutoColumnSizing=   0   'False
-      OLEDropMode     =   1
-      FreezeColumnsAbs=   0   'False
-   End
-   Begin XtremeReportControl.ReportControl repCont8 
+   Begin XtremeReportControl.ReportControl repCont2 
       Height          =   1005
-      Left            =   9120
-      TabIndex        =   92
+      Left            =   7920
+      TabIndex        =   95
       TabStop         =   0   'False
-      Top             =   120
+      Top             =   1320
       Visible         =   0   'False
       Width           =   1000
       _Version        =   1048579
@@ -82,12 +79,12 @@ Begin VB.Form frmMain
       AutoColumnSizing=   0   'False
       FreezeColumnsAbs=   0   'False
    End
-   Begin XtremeReportControl.ReportControl repCont2 
+   Begin XtremeReportControl.ReportControl repCont8 
       Height          =   1005
-      Left            =   7920
-      TabIndex        =   95
+      Left            =   9120
+      TabIndex        =   92
       TabStop         =   0   'False
-      Top             =   1320
+      Top             =   120
       Visible         =   0   'False
       Width           =   1000
       _Version        =   1048579
@@ -97,12 +94,28 @@ Begin VB.Form frmMain
       AutoColumnSizing=   0   'False
       FreezeColumnsAbs=   0   'False
    End
-   Begin XtremeReportControl.ReportControl repCont1 
+   Begin XtremeReportControl.ReportControl repCont6 
+      Height          =   1000
+      Left            =   7920
+      TabIndex        =   91
+      TabStop         =   0   'False
+      Top             =   120
+      Visible         =   0   'False
+      Width           =   1000
+      _Version        =   1048579
+      _ExtentX        =   1764
+      _ExtentY        =   1764
+      _StockProps     =   64
+      AutoColumnSizing=   0   'False
+      OLEDropMode     =   1
+      FreezeColumnsAbs=   0   'False
+   End
+   Begin XtremeReportControl.ReportControl repContK 
       Height          =   1005
       Left            =   6720
-      TabIndex        =   96
+      TabIndex        =   97
       TabStop         =   0   'False
-      Top             =   1320
+      Top             =   2520
       Visible         =   0   'False
       Width           =   1005
       _Version        =   1048579
@@ -110,19 +123,6 @@ Begin VB.Form frmMain
       _ExtentY        =   1764
       _StockProps     =   64
       AutoColumnSizing=   0   'False
-      FreezeColumnsAbs=   0   'False
-   End
-   Begin XtremeReportControl.ReportControl repCont0 
-      Height          =   1005
-      Left            =   10680
-      TabIndex        =   94
-      Top             =   4700
-      Visible         =   0   'False
-      Width           =   1005
-      _Version        =   1048579
-      _ExtentX        =   1764
-      _ExtentY        =   1764
-      _StockProps     =   64
       FreezeColumnsAbs=   0   'False
    End
    Begin VB.PictureBox picRah14 
@@ -684,12 +684,12 @@ Begin VB.Form frmMain
       Top             =   120
       Visible         =   0   'False
       Width           =   1300
-      Begin XtremeReportControl.ReportControl repCont3 
+      Begin XtremeReportControl.ReportControl repCont5 
          Height          =   1005
          Left            =   0
-         TabIndex        =   87
+         TabIndex        =   88
          TabStop         =   0   'False
-         Top             =   0
+         Top             =   1200
          Visible         =   0   'False
          Width           =   1005
          _Version        =   1048579
@@ -699,12 +699,12 @@ Begin VB.Form frmMain
          AutoColumnSizing=   0   'False
          FreezeColumnsAbs=   0   'False
       End
-      Begin XtremeReportControl.ReportControl repCont5 
+      Begin XtremeReportControl.ReportControl repCont3 
          Height          =   1005
          Left            =   0
-         TabIndex        =   88
+         TabIndex        =   87
          TabStop         =   0   'False
-         Top             =   1200
+         Top             =   0
          Visible         =   0   'False
          Width           =   1005
          _Version        =   1048579
@@ -7765,6 +7765,10 @@ Dim TxFnt As New StdFont
 Dim Mld1, Tit1 As String
 Dim Mld2, Tit2 As String
 Dim Mld3, Tit3 As String
+Static KopAkt As Boolean
+Dim AltAkt As Boolean
+Dim KopSet As Boolean
+Dim KopOk As Boolean
 
 Set FM = frmMain
 Set TxCoN = FM.TexCont1
@@ -8252,6 +8256,9 @@ Case Tex_DatLoe:
         End If
     End If
 Case Tex_DatKop:
+    If KopAkt = True Then Exit Sub
+    KopAkt = True
+
     TeTit = "Dokument Kopieren"
     TeMai = "Soll das markierte Dokument wirklich kopiert werden?"
     TeInh = "Bei diesem Vorgang wird ein Duplikat des markierten Dokuments angefertigt und zur Bearbeitung geöffnet."
@@ -8272,7 +8279,6 @@ Case Tex_DatKop:
             For Each LiItm In LiIts
                 If LiItm.Selected = True Then
                     FiNam = GlDox & LiItm.Tag
-                    LiIts.Remove LiItm.Index
                     Exit For
                 End If
             Next LiItm
@@ -8291,8 +8297,10 @@ Case Tex_DatKop:
 
                     clFil.DaCop = FiNam & ";" & NeuNa & vbNullChar
                     If clFil.FilCop(1) = True Then
-                        DoEvents
                         If DaNam <> vbNullString Then
+                            AltAkt = GlAkt
+                            GlAkt = True
+                            KopSet = True
                             GlNeK = GlKoX
                             With GlNeK
                                 .PatNr = GlAdr
@@ -8307,16 +8315,24 @@ Case Tex_DatKop:
                                 .Mitar = GlMiA(GlSmI, 2)
                             End With
                             K_Einf
+                            GlAkt = True
                         End If
                         DoEvents
                         S_KrLa
+                        GlAkt = AltAkt
+                        KopSet = False
+                        KopOk = True
                     End If
                 End If
             End If
             DoEvents
-            GlSav = False
+            If KopOk = True Then
+                GlSav = False
+                GlTSV = False
+            End If
         End If
     End If
+    KopAkt = False
 Case Tex_Eigens:
     If LiIts.Count > 0 Then
         For Each LiItm In LiIts
@@ -8359,6 +8375,10 @@ Set clFil = Nothing
 Exit Sub
 
 PoErr:
+If KopSet = True Then
+    GlAkt = AltAkt
+End If
+KopAkt = False
 If GlDbg = True Then MsgBox Err.Description, 48, "FObje " & Err.Number
 Resume Next
 
@@ -13041,6 +13061,7 @@ Case Tex_FaHin5: FTxCo TolId 'RibTab_Krankenbla
 Case Tex_FaHin6: FObje TolId
 Case Tex_NweSen: FObje TolId
 Case Tex_NweVor: FObje TolId
+Case Tex_NweDoc: K_TxKr
 Case IC16_FarVor: FObje TolId
 Case IC16_FarHin: FObje TolId
 Case Tex_AdrSel: FSeAr False

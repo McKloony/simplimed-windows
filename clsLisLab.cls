@@ -5140,8 +5140,7 @@ If ZipDo = True Then
     ZpDir = ZpDir & "\"
     ExPfa = ZpDir
 Else
-    ExPfa = StVer
-    If ExPfa = vbNullString Then ExPfa = TmPfa
+    ExPfa = LLZielPfad(StVer)
 End If
 If ExPfa <> vbNullString Then
     If Right$(ExPfa, 1) <> "\" Then ExPfa = ExPfa & "\"
@@ -5388,7 +5387,7 @@ If DruOk = True Then
     End If
     DoEvents
     If ZipDo = True Then
-        ZpPfa = StVer
+        ZpPfa = LLZielPfad(StVer)
         If ZpPfa = vbNullString Then ZpPfa = TmPfa
         If Right$(ZpPfa, 1) <> "\" Then ZpPfa = ZpPfa & "\"
         ZipNa = ZpPfa & "Rechnungen_Belege_" & Format$(Now, "YYYYMMDD_HHMM") & ".zip"
@@ -5677,8 +5676,7 @@ If ZipDo = True Then
     ZpDir = ZpDir & "\"
     ExPfa = ZpDir
 Else
-    ExPfa = StVer
-    If ExPfa = vbNullString Then ExPfa = TmPfa
+    ExPfa = LLZielPfad(StVer)
 End If
 If ExPfa <> vbNullString Then
     If Right$(ExPfa, 1) <> "\" Then ExPfa = ExPfa & "\"
@@ -6073,7 +6071,7 @@ Unload FS
 DoEvents
 If DruOk = True Then
     If ZipDo = True Then
-        ZpPfa = StVer
+        ZpPfa = LLZielPfad(StVer)
         If ZpPfa = vbNullString Then ZpPfa = TmPfa
         If Right$(ZpPfa, 1) <> "\" Then ZpPfa = ZpPfa & "\"
         ZipNa = ZpPfa & "Fragebogen_" & Format$(Now, "YYYYMMDD_HHMM") & ".zip"
@@ -6156,8 +6154,7 @@ If ZipDo = True Then
     ZpDir = ZpDir & "\"
     ExPfa = ZpDir
 Else
-    ExPfa = StVer
-    If ExPfa = vbNullString Then ExPfa = TmPfa
+    ExPfa = LLZielPfad(StVer)
 End If
 If ExPfa <> vbNullString Then
     If Right$(ExPfa, 1) <> "\" Then ExPfa = ExPfa & "\"
@@ -6524,7 +6521,7 @@ If DruOk = True Then
     End If
     DoEvents
     If ZipDo = True Then
-        ZpPfa = StVer
+        ZpPfa = LLZielPfad(StVer)
         If ZpPfa = vbNullString Then ZpPfa = TmPfa
         If Right$(ZpPfa, 1) <> "\" Then ZpPfa = ZpPfa & "\"
         ZipNa = ZpPfa & "Rechnungen_Belege_" & Format$(Now, "YYYYMMDD_HHMM") & ".zip"
@@ -6782,7 +6779,7 @@ DoEvents
 
 If DruOk = True Then
     If EmSen > 0 And EmSen < 3 Then 'Emailversand
-        SMaNe 0, EmAdr, , EmTex, EmBet, StVer & DaNam
+        SMaNe 0, EmAdr, , EmTex, EmBet, LLZielPfad(StVer) & DaNam
     End If
 Else
     SPopu "Fehler beim Exportieren", "Beim Exportieren ist ein Fehler aufgetreten!", IC48_Forbidden
@@ -8406,6 +8403,7 @@ If GlRDP = True Then
 Else
     ExpOr = GlEPf
 End If
+ExpOr = LLZielPfad(ExpOr)
 
 Select Case ForNa
 Case "EMRAbr":
@@ -9006,6 +9004,7 @@ If GlRDP = True Then
 Else
     ExpOr = GlEPf
 End If
+ExpOr = LLZielPfad(ExpOr)
 
 Select Case ForNa
 Case "RechKo":
@@ -9579,6 +9578,7 @@ If GlRDP = True Then
 Else
     ExpOr = GlEPf
 End If
+ExpOr = LLZielPfad(ExpOr)
 
 Select Case ForNa
 Case "RechKo":
@@ -10197,16 +10197,33 @@ If GlDbg = True Then MsgBox Err.Description, 48, "LLKoLs " & Err.Number
 Resume Next
 
 End Sub
+Private Function LLNormPfad(ByVal Pfad As String) As String
+If Pfad <> vbNullString Then
+    If Right$(Pfad, 1) <> "\" Then Pfad = Pfad & "\"
+End If
+LLNormPfad = Pfad
+End Function
+
+Private Function LLVersandTemp() As Boolean
+LLVersandTemp = ((EmSen > 0) And (EmSen < 4)) Or (EmSen = 6)
+End Function
+
+Private Function LLZielPfad(ByVal Pfad As String) As String
+If LLVersandTemp = True Then
+    LLZielPfad = LLNormPfad(TmPfa)
+    If LLZielPfad = vbNullString Then LLZielPfad = LLNormPfad(Pfad)
+Else
+    LLZielPfad = LLNormPfad(Pfad)
+    If LLZielPfad = vbNullString Then LLZielPfad = LLNormPfad(TmPfa)
+End If
+End Function
+
 Private Sub LLMail(Optional ByVal VerDo As Boolean, Optional ByVal VerPa As String)
 On Error GoTo DeErr
 
 Dim RetWe As Long
 
-If StVer <> vbNullString Then
-    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Path", StVer)
-Else
-    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Path", TmPfa)
-End If
+RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Path", LLZielPfad(StVer))
 
 RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.FitText", 1)
 RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.Title", ForNa)

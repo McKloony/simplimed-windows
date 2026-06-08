@@ -783,7 +783,7 @@ End With
 With CmFma
     .AddItem "DATEV 6.0 Belegsatzdaten"
     .ItemData(.NewIndex) = 1
-    .AddItem "DATEV 6.0 Belegarchivierung"
+    .AddItem "DATEV 6.0 Buchungsstapel"
     .ItemData(.NewIndex) = 2
     .AddItem "Microsoft Excel (.csv)"
     .ItemData(.NewIndex) = 3

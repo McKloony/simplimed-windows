@@ -20,7 +20,6 @@ Private FM As Form
 Private TxDum As VB.TextBox
 Private PrBr1 As XtremeSuiteControls.ProgressBar
 Private PrBr2 As XtremeSuiteControls.ProgressBar
-Private CoDia As XtremeSuiteControls.CommonDialog
 
 ' --- Module-level Recordsets ---
 Private RS120 As ADODB.Recordset
@@ -137,7 +136,6 @@ Dim RpCls As XtremeReportControl.ReportColumns
 Dim RpRow As XtremeReportControl.ReportRow
 
 Set FM = frmMain
-Set CoDia = FM.comDialo
 Set RpCo4 = FM.repCont4
 Set RpCo3 = FM.repCont3
 
@@ -225,27 +223,23 @@ End If
 
 ComNa = clNet.NetNam
 
-With CoDia
-    .CancelError = True
-    .DialogStyle = 1
-    .DefaultExt = "*.dat"
-    .Filter = "PAD/PVS Dateien (*.dat)|*.dat|Alle Dateien (*.*)|*.*"
-    .FilterIndex = 0
-    .DialogTitle = "Bitte Name und Ordner der Abrechnungsdatei angeben"
-    .FileName = ExOrd & DaNam
-    .InitDir = ExOrd
-    .ShowSave
-    FilNa = .FileName
-    If .FileTitle = vbNullString Then
-        Set CoDia = Nothing
-        Set RpSel = Nothing
-        Set RpCls = Nothing
-        Set RpCo3 = Nothing
-        Set RpCo4 = Nothing
-        Set clFil = Nothing
-        Exit Function
-    End If
+With clFil
+    .hwnd = FM.hwnd
+    .StaVe = ExOrd
+    .DaExt = "*.xml"
+    .DaNam = ExOrd & DaNam
+    .DaTit = "Bitte Name und Ordner der Exportdatei angeben"
+    .DaStr = "PAD/PVS Dateien (*.dat)" & Chr(0) & "*.dat" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+    FilNa = .FilSav
 End With
+
+If FilNa = vbNullString Then
+    Set RpSel = Nothing
+    Set RpCls = Nothing
+    Set RpCo3 = Nothing
+    Set RpCo4 = Nothing
+    Exit Function
+End If
 
 If LCase(Right$(FilNa, 4)) <> ".dat" Then
     FilNa = FilNa & ".dat"
@@ -258,7 +252,6 @@ With clFil
             .DaLoe = FilNa & vbNullChar
             .FilLoe
         Else
-            Set CoDia = Nothing
             Set RpSel = Nothing
             Set RpCls = Nothing
             Set RpCo3 = Nothing
@@ -1097,7 +1090,6 @@ With GlNeK
 End With
 S_Prot
 
-Set CoDia = Nothing
 Set RpSel = Nothing
 Set RpCls = Nothing
 Set RpCo3 = Nothing
@@ -1141,14 +1133,10 @@ Dim xmlFall As Object
 Dim xmlPos As Object
 Dim xmlElem As Object
 
-Dim FilNa As String
-Dim DaNam As String
 Dim AnzRe As Long
 Dim AnzSe As Long
 Dim AktRe As Long
 Dim AktWe As Long
-Dim ReNum As String
-Dim RecSt As String
 Dim IdxNr As Long
 Dim RowNr As Long
 Dim AktPo As Long
@@ -1157,11 +1145,11 @@ Dim ReBet As Currency
 Dim BeBet As Currency
 Dim ReSto As Boolean
 Dim ReStu As Single
-Dim StuRe As String
 Dim RpRow As XtremeReportControl.ReportRow
 Dim RpCo3 As XtremeReportControl.ReportControl
 Dim RpCo4 As XtremeReportControl.ReportControl
 Dim RpCls As XtremeReportControl.ReportColumns
+Dim StuRe As String
 Dim Gebor As String
 Dim ReAnr As String
 Dim ReEmp As String
@@ -1170,20 +1158,24 @@ Dim DiaKa As String
 Dim Anzah As String
 Dim LeDat As String
 Dim LeZif As String
-Dim PosNr As Integer
-Dim Mld1, Mld2, Tit1 As String
+Dim FilNa As String
+Dim DaNam As String
+Dim TmKuV As String
+Dim ReNum As String
+Dim RecSt As String
 Dim TeTit As String
 Dim TeMai As String
 Dim TeInh As String
 Dim TeFus As String
-Dim DbgStg As String
+Dim DbgSt As String
+Dim PosNr As Integer
+Dim Mld1, Mld2, Tit1 As String
 
-DbgStg = "start"
+DbgSt = "start"
 If GlLog = True Then SLogi "basPAD.S_ReExN: START - PADNext XML export"
 
 S_ReExN = False
 Set FM = frmMain
-Set CoDia = FM.comDialo
 Set RpCo4 = FM.repCont4
 Set RpCo3 = FM.repCont3
 
@@ -1216,29 +1208,28 @@ If RpRow.GroupRow = False Then
 End If
 
 ' Validate Kundennummer (required for PADNext rechnungsersteller)
-Dim TmpKuV As String
-TmpKuV = S_AdIdx(ManNr, "Postfach")
+TmKuV = S_AdIdx(ManNr, "Postfach")
 
-If TmpKuV = vbNullString Then
+If TmKuV = vbNullString Then
     If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR - No Kundennummer (Postfach) found"
     MsgBox "Im Mandanteneingabedialog wurde keine gueltige PAD Kundennummer erfasst.", vbExclamation, "PADNext Export"
     S_ReExN = False
     Exit Function
 End If
 
-If TmpKuV = "0" Or TmpKuV = "999999" Then
-    If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR - Invalid Kundennummer: " & TmpKuV
+If TmKuV = "0" Or TmKuV = "999999" Then
+    If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR - Invalid Kundennummer: " & TmKuV
     MsgBox "Im Mandanteneingabedialog wurde keine gueltige PAD Kundennummer erfasst.", vbExclamation, "PADNext Export"
     S_ReExN = False
     Exit Function
 End If
 
-If GlLog = True Then SLogi "basPAD.S_ReExN: Kundennummer validated: " & TmpKuV
-DbgStg = "kundennr_ok"
+If GlLog = True Then SLogi "basPAD.S_ReExN: Kundennummer validated: " & TmKuV
+DbgSt = "kundennr_ok"
 
 ReDim GloRe(AnzSe)
 
-DaNam = Right$("00000000" & TmpKuV, 8) & "_" & Format$(Now, "YYYYMMDD") & "_ADL_" & Format$(Now, "HHMMSS") & "_padx.xml"
+DaNam = Right$("00000000" & TmKuV, 8) & "_" & Format$(Now, "YYYYMMDD") & "_ADL_" & Format$(Now, "HHMMSS") & "_padx.xml"
 
 Dim ExOrd As String
 
@@ -1268,45 +1259,35 @@ If Right$(ExOrd, 1) <> "\" Then
 End If
 
 If GlLog = True Then SLogi "basPAD.S_ReExN: Path resolved = " & ExOrd
-DbgStg = "path_resolved"
+DbgSt = "path_resolved"
 
-With CoDia
-    .CancelError = True
-    .DialogStyle = 1
-    .DefaultExt = "*.xml"
-    .DialogTitle = "Bitte Name und Ordner der Abrechnungsdatei angeben"
-    .Filter = "XML-Dateien (*.xml)|*.xml|Alle Dateien (*.*)|*.*"
-    .FilterIndex = 0
-    .FileName = ExOrd & DaNam
-    .InitDir = ExOrd
-    .ShowSave
-    FilNa = .FileName
-    If .FileTitle = vbNullString Then
-        Set CoDia = Nothing
-        Set RpSel = Nothing
-        Set RpCls = Nothing
-        Set RpCo3 = Nothing
-        Set RpCo4 = Nothing
-        Exit Function
-    End If
+With clFil
+    .hwnd = FM.hwnd
+    .StaVe = ExOrd
+    .DaExt = "*.xml"
+    .DaNam = ExOrd & DaNam
+    .DaTit = "Bitte Name und Ordner der Exportdatei angeben"
+    .DaStr = "XML-Dateien (*.xml)" & Chr(0) & "*.xml" & Chr(0) & "Alle Dateien (*.*)" & Chr(0) & "*.*"
+    FilNa = .FilSav
 End With
+
+If FilNa = vbNullString Then
+    Set RpSel = Nothing
+    Set RpCls = Nothing
+    Set RpCo3 = Nothing
+    Set RpCo4 = Nothing
+    Exit Function
+End If
 
 If LCase(Right$(FilNa, 4)) <> ".xml" Then
     FilNa = FilNa & ".xml"
 End If
 
-If InStr(FilNa, ":") = 0 Then
-    If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR - Invalid file path: " & FilNa
-    MsgBox "Fehler: Ungultiger Dateipfad. Bitte einen vollstandigen Pfad angeben.", vbExclamation, "PADNext Export"
-    S_ReExN = False
-    Exit Function
-End If
-
 If GlLog = True Then SLogi "basPAD.S_ReExN: Export file = " & FilNa
-DbgStg = "before_xmldoc"
+DbgSt = "before_xmldoc"
 
 Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
-DbgStg = "xmldoc_created"
+DbgSt = "xmldoc_created"
 xmlDoc.validateOnParse = False
 xmlDoc.resolveExternals = False
 xmlDoc.appendChild xmlDoc.createProcessingInstruction("xml", "version=""1.0"" encoding=""iso-8859-15""")
@@ -1315,7 +1296,7 @@ Set xmlRoot = PadXmlEl(xmlDoc, "rechnungen")
 xmlRoot.setAttribute "xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance"
 xmlRoot.setAttribute "xsi:schemaLocation", "http://padinfo.de/ns/pad http://padinfo.de/ns/pad/padx_adl_v2.12.xsd"
 xmlDoc.appendChild xmlRoot
-DbgStg = "xmlroot_appended"
+DbgSt = "xmlroot_appended"
 If GlLog = True Then SLogi "basPAD.S_ReExN: xmlRoot appended"
 
 Set xmlElem = PadXmlEl(xmlDoc, "nachrichtentyp")
@@ -1325,7 +1306,7 @@ xmlRoot.appendChild xmlElem
 
 ' Add rechnungsersteller element (required by PADNext)
 ' Note: ManNr was already retrieved and validated at function start
-DbgStg = "before_RErs ManNr=" & ManNr
+DbgSt = "before_RErs ManNr=" & ManNr
 If GlLog = True Then SLogi "basPAD.S_ReExN: calling S_ReExNAddRErs ManNr=" & ManNr
 Set xmlElem = S_ReExNAddRErs(xmlDoc, ManNr)
 If xmlElem Is Nothing Then
@@ -1333,10 +1314,10 @@ If xmlElem Is Nothing Then
 Else
     xmlRoot.appendChild xmlElem
 End If
-DbgStg = "after_RErs"
+DbgSt = "after_RErs"
 
 ' Add leistungserbringer element (required by PADNext)
-DbgStg = "before_LErb ManNr=" & ManNr
+DbgSt = "before_LErb ManNr=" & ManNr
 If GlLog = True Then SLogi "basPAD.S_ReExN: calling S_ReExNAddLErb ManNr=" & ManNr
 Set xmlElem = S_ReExNAddLErb(xmlDoc, ManNr)
 If xmlElem Is Nothing Then
@@ -1344,21 +1325,21 @@ If xmlElem Is Nothing Then
 Else
     xmlRoot.appendChild xmlElem
 End If
-DbgStg = "after_LErb"
+DbgSt = "after_LErb"
 
-DbgStg = "before_qrySimPADZu"
+DbgSt = "before_qrySimPADZu"
 DBCmEx0 "qrySimPADZu"
-DbgStg = "before_qryAdrMark"
+DbgSt = "before_qryAdrMark"
 DBCmEx0 "qryAdrMark"
 DoEvents
-DbgStg = "before_select_loop count=" & RpSel.Count
+DbgSt = "before_select_loop count=" & RpSel.Count
 If GlLog = True Then SLogi "basPAD.S_ReExN: entering selection loop count=" & RpSel.Count
 
 For Each RpRow In RpSel
     If RpRow.GroupRow = False Then
         RowNr = RpRow.Index
         GloRe(AktPo) = RowNr
-        DbgStg = "select_loop row=" & RowNr
+        DbgSt = "select_loop row=" & RowNr
 
         Set RpCol = RpCls.Find(Rec_ID1)
         IdxNr = RpRow.Record(RpCol.ItemIndex).Value
@@ -1392,10 +1373,10 @@ For Each RpRow In RpSel
         End If
     End If
 Next RpRow
-DbgStg = "after_select_loop AktPo=" & AktPo
+DbgSt = "after_select_loop AktPo=" & AktPo
 If GlLog = True Then SLogi "basPAD.S_ReExN: selection loop done AktPo=" & AktPo
 
-DbgStg = "before_rs125_open"
+DbgSt = "before_rs125_open"
 Set RS125 = New ADODB.Recordset
 With RS125
     .CursorLocation = adUseClient
@@ -1405,7 +1386,7 @@ With RS125
     .LockType = adLockReadOnly
     .Open Options:=adCmdTableDirect
 End With
-DbgStg = "after_rs125_open"
+DbgSt = "after_rs125_open"
 
 AnzRe = RS125.RecordCount
 If GlLog = True Then SLogi "basPAD.S_ReExN: Exporting " & AnzRe & " invoices"
@@ -1434,7 +1415,7 @@ If AnzRe > 0 Then
     PosNr = 0
 
     Do While Not RS125.EOF
-        DbgStg = "invoice_loop_top AktWe=" & AktWe
+        DbgSt = "invoice_loop_top AktWe=" & AktWe
         PrBr1.Value = AktWe
         frmStatus.lblLab01.Caption = "Rechnung " & AktWe & " von " & AnzRe
         DoEvents
@@ -1444,7 +1425,7 @@ If AnzRe > 0 Then
         AktRe = RS125.Fields("IDR").Value
         RecSt = RS125.Fields("RechNr").Value
         ReNum = Format$(Right$(RecSt, 4), "000000")
-        DbgStg = "invoice AktWe=" & AktWe & " IDR=" & AktRe & " RechNr=" & RecSt
+        DbgSt = "invoice AktWe=" & AktWe & " IDR=" & AktRe & " RechNr=" & RecSt
         If GlLog = True Then SLogi "basPAD.S_ReExN: invoice " & AktWe & "/" & AnzRe & " IDR=" & AktRe & " RechNr=" & RecSt
 
         Set xmlRech = PadXmlEl(xmlDoc, "rechnung")
@@ -1454,23 +1435,23 @@ If AnzRe > 0 Then
         xmlRech.setAttribute "eabgabe", "0"
         xmlRoot.appendChild xmlRech
 
-        DbgStg = "before_AddEmpf AktWe=" & AktWe
+        DbgSt = "before_AddEmpf AktWe=" & AktWe
         Set xmlElem = S_ReExNAddEmpf(xmlDoc, RS125)
         If xmlElem Is Nothing Then
             If GlLog = True Then SLogi "basPAD.S_ReExN: WARNING - S_ReExNAddEmpf returned Nothing AktWe=" & AktWe & " IDR=" & AktRe
         End If
-        DbgStg = "appendChild_Empf AktWe=" & AktWe
+        DbgSt = "appendChild_Empf AktWe=" & AktWe
         xmlRech.appendChild xmlElem
-        DbgStg = "after_AddEmpf AktWe=" & AktWe
+        DbgSt = "after_AddEmpf AktWe=" & AktWe
 
-        DbgStg = "before_AddFall AktWe=" & AktWe
+        DbgSt = "before_AddFall AktWe=" & AktWe
         Set xmlFall = S_ReExNAddFall(xmlDoc, RS125, AktRe)
         If xmlFall Is Nothing Then
             If GlLog = True Then SLogi "basPAD.S_ReExN: WARNING - S_ReExNAddFall returned Nothing AktWe=" & AktWe & " IDR=" & AktRe
         End If
-        DbgStg = "appendChild_Fall AktWe=" & AktWe
+        DbgSt = "appendChild_Fall AktWe=" & AktWe
         xmlRech.appendChild xmlFall
-        DbgStg = "after_AddFall AktWe=" & AktWe
+        DbgSt = "after_AddFall AktWe=" & AktWe
 
         RS125.MoveNext
         AktWe = AktWe + 1
@@ -1483,16 +1464,14 @@ If AnzRe > 0 Then
     DoEvents
 End If
 
-DbgStg = "before_save"
+DbgSt = "before_save"
 If GlLog = True Then SLogi "basPAD.S_ReExN: saving xmlDoc to " & FilNa
 xmlDoc.Save FilNa
-DbgStg = "after_save"
+DbgSt = "after_save"
 
-If Dir$(FilNa) = vbNullString Then
-    If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR - File not saved: " & FilNa
+If GlLog = True Then
+    SLogi "basPAD.S_ReExN: Completed - " & AnzRe & " invoices to " & FilNa
 End If
-
-If GlLog = True Then SLogi "basPAD.S_ReExN: Completed - " & AnzRe & " invoices to " & FilNa
 
 DoEvents
 GlNeK = GlKoX
@@ -1527,8 +1506,8 @@ End If
 Exit Function
 
 LiErr:
-If GlDbg = True Then MsgBox Err.Description & vbCrLf & "Stage: " & DbgStg, 48, "S_ReExN " & Err.Number
-If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR " & Err.Number & " - " & Err.Description & " [stage=" & DbgStg & "]"
+If GlDbg = True Then MsgBox Err.Description & vbCrLf & "Stage: " & DbgSt, 48, "S_ReExN " & Err.Number
+If GlLog = True Then SLogi "basPAD.S_ReExN: ERROR " & Err.Number & " - " & Err.Description & " [stage=" & DbgSt & "]"
 S_ReExN = False
 Exit Function
 
@@ -2178,7 +2157,7 @@ End Function
 ' Note: Uses createNode instead of createElement to set correct namespace
 ' ============================================================================
 Private Function PadXmlEl(xmlDoc As Object, ByVal ElName As String) As Object
-    Set PadXmlEl = xmlDoc.createNode(1, ElName, PADX_NS)
+    Set PadXmlEl = xmlDoc.CreateNode(1, ElName, PADX_NS)
 End Function
 
 ' ============================================================================

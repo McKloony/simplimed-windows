@@ -2078,6 +2078,7 @@ Public Const Tex_KraKon = 13673 'Krankenblatt Konvertieren
 Public Const Tex_KraDok = 13674 'Krankenblattdokument
 Public Const Tex_DigSig = 13675 'Digitalunterschrift
 Public Const Tex_NeuAuf = 13676 'Neuaufnahmeformular
+Public Const Tex_NweDoc = 13677 'Textdokumentexport
 
 '#######
 
