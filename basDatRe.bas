@@ -27582,11 +27582,7 @@ Case "N1":
             SQL1 = "SELECT dbo.qryAdress.* FROM dbo.qryAdress WHERE (DATEPART(dd, Geboren) = " & Day(NeuDa) & ") AND (DATEPART(mm, Geboren) = " & Month(NeuDa) & ") AND (Mailing = 1) ORDER BY IDKurz"
         End If
     Else
-        If GlTyp > 1 Then
-            SQL1 = "SELECT * FROM qryAdress WHERE (Day([Geboren])=" & Day(NeuDa) & ") AND (DatePart('m',[Geboren])=" & Month(NeuDa) & ") ORDER BY [IDKurz];"
-        Else
-            SQL1 = "SELECT dbo.qryAdress.* FROM dbo.qryAdress WHERE (DATEPART(dd, Geboren) = " & Day(NeuDa) & ") AND (DATEPART(mm, Geboren) = " & Month(NeuDa) & ") ORDER BY IDKurz"
-        End If
+        SQL1 = "SELECT * FROM qryAdress WHERE (Day([Geboren]) = " & Day(NeuDa) & ") AND (Month([Geboren]) = " & Month(NeuDa) & ") ORDER BY [IDKurz]"
     End If
     Set RS142 = New ADODB.Recordset
     With RS142
@@ -27983,11 +27979,7 @@ Case "N1":
             SQL1 = "SELECT dbo.qryAdress.* FROM dbo.qryAdress WHERE (DATEPART(dd, Geboren) = " & Day(NeuDa) & ") AND (DATEPART(mm, Geboren) = " & Month(NeuDa) & ") AND (Mailing = 1) ORDER BY IDKurz"
         End If
     Else
-        If GlTyp > 1 Then
-            SQL1 = "SELECT * FROM qryAdress WHERE (Day([Geboren])=" & Day(NeuDa) & ") AND (DatePart('m',[Geboren])=" & Month(NeuDa) & ") ORDER BY [IDKurz];"
-        Else
-            SQL1 = "SELECT dbo.qryAdress.* FROM dbo.qryAdress WHERE (DATEPART(dd, Geboren) = " & Day(NeuDa) & ") AND (DATEPART(mm, Geboren) = " & Month(NeuDa) & ") ORDER BY IDKurz"
-        End If
+        SQL1 = "SELECT * FROM qryAdress WHERE (Day([Geboren]) = " & Day(NeuDa) & ") AND (Month([Geboren]) = " & Month(NeuDa) & ") ORDER BY [IDKurz]"
     End If
     Set RS143 = New ADODB.Recordset
     With RS143
@@ -28384,11 +28376,7 @@ Case "N1":
             SQL1 = "SELECT dbo.qryAdress.* FROM dbo.qryAdress WHERE (DATEPART(dd, Geboren) = " & Day(NeuDa) & ") AND (DATEPART(mm, Geboren) = " & Month(NeuDa) & ") AND (Mailing = 1) ORDER BY IDKurz"
         End If
     Else
-        If GlTyp > 1 Then
-            SQL1 = "SELECT * FROM qryAdress WHERE (Day([Geboren])=" & Day(NeuDa) & ") AND (DatePart('m',[Geboren])=" & Month(NeuDa) & ") ORDER BY [IDKurz];"
-        Else
-            SQL1 = "SELECT dbo.qryAdress.* FROM dbo.qryAdress WHERE (DATEPART(dd, Geboren) = " & Day(NeuDa) & ") AND (DATEPART(mm, Geboren) = " & Month(NeuDa) & ") ORDER BY IDKurz"
-        End If
+        SQL1 = "SELECT * FROM qryAdress WHERE (Day([Geboren]) = " & Day(NeuDa) & ") AND (Month([Geboren]) = " & Month(NeuDa) & ") ORDER BY [IDKurz]"
     End If
     Set RS144 = New ADODB.Recordset
     With RS144

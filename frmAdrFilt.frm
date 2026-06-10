@@ -2341,17 +2341,8 @@ SQL1 = "("
 
 If Me.txtKr5.Visible = True And Me.txtKr1.Visible = True Then
     If Me.txtKr5.Text <> vbNullString And Me.txtKr1.Text <> vbNullString Then
-        If GlTyp > 1 Then
-            Dat1 = DatePart("m", Me.txtKr1.Text) & "/" & DatePart("d", Me.txtKr1.Text) & "/" & DatePart("yyyy", Me.txtKr1.Text)
-            Dat2 = DatePart("m", Me.txtKr5.Text) & "/" & DatePart("d", Me.txtKr5.Text) & "/" & DatePart("yyyy", Me.txtKr5.Text)
-            SQL1 = SQL1 & FelWe(Me.cmbDa1.ItemData(Me.cmbDa1.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe1.ItemData(Me.cmbBe1.ListIndex)) & Chr$(32)
-            SQL1 = SQL1 & "#" & Dat1 & "# And #" & Dat2 & "# "
-        Else
-            Dat1 = DatePart("yyyy", Me.txtKr1.Text) & "-" & DatePart("m", Me.txtKr1.Text) & "-" & DatePart("d", Me.txtKr1.Text)
-            Dat2 = DatePart("yyyy", Me.txtKr5.Text) & "-" & DatePart("m", Me.txtKr5.Text) & "-" & DatePart("d", Me.txtKr5.Text)
-            SQL1 = SQL1 & FelWe(Me.cmbDa1.ItemData(Me.cmbDa1.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe1.ItemData(Me.cmbBe1.ListIndex)) & Chr$(32)
-            SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
-        End If
+        SQL1 = SQL1 & FelWe(Me.cmbDa1.ItemData(Me.cmbDa1.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe1.ItemData(Me.cmbBe1.ListIndex)) & Chr$(32)
+        SQL1 = SQL1 & SqlDat(CDate(Me.txtKr1.Text)) & " And " & SqlDat(CDate(Me.txtKr5.Text)) & " "
     End If
 ElseIf Me.txtKr1.Visible = True Then
     If Me.txtKr1.Text <> vbNullString Then
@@ -2372,17 +2363,8 @@ End If
 If Me.cmbUo2.Text <> vbNullString Then
     If Me.txtKr6.Visible = True And Me.txtKr2.Visible = True Then
         If Me.txtKr6.Text <> vbNullString And Me.txtKr2.Text <> vbNullString Then
-            If GlTyp > 1 Then
-                Dat1 = DatePart("m", Me.txtKr2.Text) & "/" & DatePart("d", Me.txtKr2.Text) & "/" & DatePart("yyyy", Me.txtKr2.Text)
-                Dat2 = DatePart("m", Me.txtKr6.Text) & "/" & DatePart("d", Me.txtKr6.Text) & "/" & DatePart("yyyy", Me.txtKr6.Text)
-                SQL1 = SQL1 & Chr$(32) & Me.cmbUo2.Tag & Chr$(32) & FelWe(Me.cmbDa2.ItemData(Me.cmbDa2.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe2.ItemData(Me.cmbBe2.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "#" & Dat1 & "# And #" & Dat2 & "# "
-            Else
-                Dat1 = DatePart("yyyy", Me.txtKr2.Text) & "-" & DatePart("m", Me.txtKr2.Text) & "-" & DatePart("d", Me.txtKr2.Text)
-                Dat2 = DatePart("yyyy", Me.txtKr6.Text) & "-" & DatePart("m", Me.txtKr6.Text) & "-" & DatePart("d", Me.txtKr6.Text)
-                SQL1 = SQL1 & Chr$(32) & Me.cmbUo2.Tag & Chr$(32) & FelWe(Me.cmbDa2.ItemData(Me.cmbDa2.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe2.ItemData(Me.cmbBe2.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
-            End If
+            SQL1 = SQL1 & Chr$(32) & Me.cmbUo2.Tag & Chr$(32) & FelWe(Me.cmbDa2.ItemData(Me.cmbDa2.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe2.ItemData(Me.cmbBe2.ListIndex)) & Chr$(32)
+            SQL1 = SQL1 & SqlDat(CDate(Me.txtKr2.Text)) & " And " & SqlDat(CDate(Me.txtKr6.Text)) & " "
         End If
     ElseIf Me.txtKr2.Visible = True Then
         If Me.txtKr2.Text <> vbNullString Then
@@ -2404,17 +2386,8 @@ End If
 If Me.cmbUo3.Text <> vbNullString Then
     If Me.txtKr7.Visible = True And Me.txtKr3.Visible = True Then
         If Me.txtKr7.Text <> vbNullString And Me.txtKr3.Text <> vbNullString Then
-            If GlTyp > 1 Then
-                Dat1 = DatePart("m", Me.txtKr3.Text) & "/" & DatePart("d", Me.txtKr3.Text) & "/" & DatePart("yyyy", Me.txtKr3.Text)
-                Dat2 = DatePart("m", Me.txtKr7.Text) & "/" & DatePart("d", Me.txtKr7.Text) & "/" & DatePart("yyyy", Me.txtKr7.Text)
-                SQL1 = SQL1 & Chr$(32) & Me.cmbUo3.Tag & Chr$(32) & FelWe(Me.cmbDa3.ItemData(Me.cmbDa3.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe3.ItemData(Me.cmbBe3.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "#" & Dat1 & "# And #" & Dat2 & "# "
-            Else
-                Dat1 = DatePart("yyyy", Me.txtKr3.Text) & "-" & DatePart("m", Me.txtKr3.Text) & "-" & DatePart("d", Me.txtKr3.Text)
-                Dat2 = DatePart("yyyy", Me.txtKr7.Text) & "-" & DatePart("m", Me.txtKr7.Text) & "-" & DatePart("d", Me.txtKr7.Text)
-                SQL1 = SQL1 & Chr$(32) & Me.cmbUo3.Tag & Chr$(32) & FelWe(Me.cmbDa3.ItemData(Me.cmbDa3.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe3.ItemData(Me.cmbBe3.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
-            End If
+            SQL1 = SQL1 & Chr$(32) & Me.cmbUo3.Tag & Chr$(32) & FelWe(Me.cmbDa3.ItemData(Me.cmbDa3.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe3.ItemData(Me.cmbBe3.ListIndex)) & Chr$(32)
+            SQL1 = SQL1 & SqlDat(CDate(Me.txtKr3.Text)) & " And " & SqlDat(CDate(Me.txtKr7.Text)) & " "
         End If
     ElseIf Me.txtKr3.Visible = True Then
         If Me.txtKr3.Text <> vbNullString Then
@@ -2436,17 +2409,8 @@ End If
 If Me.cmbUo4.Text <> vbNullString Then
     If Me.txtKr8.Visible = True And Me.txtKr4.Visible = True Then
         If Me.txtKr8.Text <> vbNullString And Me.txtKr4.Text <> vbNullString Then
-            If GlTyp > 1 Then
-                Dat1 = DatePart("m", Me.txtKr4.Text) & "/" & DatePart("d", Me.txtKr4.Text) & "/" & DatePart("yyyy", Me.txtKr4.Text)
-                Dat2 = DatePart("m", Me.txtKr8.Text) & "/" & DatePart("d", Me.txtKr8.Text) & "/" & DatePart("yyyy", Me.txtKr8.Text)
-                SQL1 = SQL1 & Chr$(32) & Me.cmbUo4.Tag & Chr$(32) & FelWe(Me.cmbDa4.ItemData(Me.cmbDa4.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe4.ItemData(Me.cmbBe4.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "#" & Dat1 & "# And #" & Dat2 & "# "
-            Else
-                Dat1 = DatePart("yyyy", Me.txtKr4.Text) & "-" & DatePart("m", Me.txtKr4.Text) & "-" & DatePart("d", Me.txtKr4.Text)
-                Dat2 = DatePart("yyyy", Me.txtKr8.Text) & "-" & DatePart("m", Me.txtKr8.Text) & "-" & DatePart("d", Me.txtKr8.Text)
-                SQL1 = SQL1 & Chr$(32) & Me.cmbUo4.Tag & Chr$(32) & FelWe(Me.cmbDa4.ItemData(Me.cmbDa4.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe4.ItemData(Me.cmbBe4.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
-            End If
+            SQL1 = SQL1 & Chr$(32) & Me.cmbUo4.Tag & Chr$(32) & FelWe(Me.cmbDa4.ItemData(Me.cmbDa4.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe4.ItemData(Me.cmbBe4.ListIndex)) & Chr$(32)
+            SQL1 = SQL1 & SqlDat(CDate(Me.txtKr4.Text)) & " And " & SqlDat(CDate(Me.txtKr8.Text)) & " "
         End If
     ElseIf Me.txtKr4.Visible = True Then
         If Me.txtKr4.Text <> vbNullString Then
@@ -2709,41 +2673,25 @@ End If
 
 If Me.chkFilt9.Value = 1 Then
     If Kombi = True Then SQL1 = SQL1 & " AND "
-    If GlTyp > 1 Then
-        SQL1 = SQL1 & "((qryAdrSu.Telefon2) Like '" & SqlStr(FeVo9.Text) & "%')"
-    Else
-        SQL1 = SQL1 & "((Telefon2) Like '" & SqlStr(FeVo9.Text) & "%')"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Telefon2) Like '" & SqlStr(FeVo9.Text) & "%')"
     Kombi = True
 End If
 
 If Me.chkFilt14.Value = 1 Then
     If Kombi = True Then SQL1 = SQL1 & " AND "
-    If GlTyp > 1 Then
-        SQL1 = SQL1 & "((qryAdrSu.Versand) = " & Versa & ")"
-    Else
-        SQL1 = SQL1 & "((Versand) = " & Versa & ")"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Versand) = " & Versa & ")"
     Kombi = True
 End If
 
 If Me.chkFilt10.Value = 1 Then
     If Kombi = True Then SQL1 = SQL1 & " AND "
-    If GlTyp > 1 Then
-        SQL1 = SQL1 & "((qryAdrSu.Ort) Like '%" & SqlStr(FeV10.Text) & "%')"
-    Else
-        SQL1 = SQL1 & "((Ort) Like '%" & SqlStr(FeV10.Text) & "%')"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Ort) Like '%" & SqlStr(FeV10.Text) & "%')"
     Kombi = True
 End If
 
 If Me.chkFilt11.Value = 1 Then
     If Kombi = True Then SQL1 = SQL1 & " AND "
-    If GlTyp > 1 Then
-        SQL1 = SQL1 & "((Day(qryAdrSu.Geboren))=" & CInt(FeV11.Text) & ") AND ((DatePart('m',qryAdrSu.Geboren))=" & CInt(FeV12.Text) & ")"
-    Else
-        SQL1 = SQL1 & "(DATEPART(dd, Geboren) = " & CInt(FeV11.Text) & ") AND (DATEPART(mm, Geboren) = " & CInt(FeV12.Text) & ")"
-    End If
+    SQL1 = SQL1 & "((Day(qryAdrSu.Geboren))=" & CInt(FeV11.Text) & ") AND ((Month(qryAdrSu.Geboren))=" & CInt(FeV12.Text) & ")"
     Kombi = True
     GebFi = True
 End If
@@ -2757,11 +2705,7 @@ If Me.chkFilt12.Value = 1 Then
             SQL1 = SQL1 & "((Mailing) = 1)"
         End If
     Else
-        If GlTyp > 1 Then
-            SQL1 = SQL1 & "((qryAdrSu.Mailing) = 0)"
-        Else
-            SQL1 = SQL1 & "((Mailing) = 0)"
-        End If
+        SQL1 = SQL1 & "((qryAdrSu.Mailing) = 0)"
     End If
     Kombi = True
 End If
@@ -2827,18 +2771,10 @@ Else
     SQL1 = SQL1 & SQL2
 End If
 
-If GlTyp > 1 Then
-    If GebFi = True Then
-        SQL1 = SQL1 & ") ORDER BY Left$([Geboren],2);"
-    Else
-        SQL1 = SQL1 & ") ORDER BY " & SoStr
-    End If
+If GebFi = True Then
+    SQL1 = SQL1 & ") ORDER BY Day([Geboren])"
 Else
-    If GebFi = True Then
-        SQL1 = SQL1 & ") ORDER BY DATEPART(dd, Geboren)"
-    Else
-        SQL1 = SQL1 & ") ORDER BY " & SoStr & ";"
-    End If
+    SQL1 = SQL1 & ") ORDER BY " & SoStr
 End If
 
 FVoFi = SQL1
