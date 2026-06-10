@@ -263,11 +263,7 @@ Set Lbl09 = FM.lblLab09
 Set PrBr1 = FM.prbStat1
 Set PrBr2 = FM.prbStat2
 
-If GlTyp < 2 Then
-    SQL2 = "SELECT * FROM dbo.qryKat04C WHERE ID3 = " & KatNr
-Else
-    SQL2 = "SELECT * FROM qryKat04C WHERE [ID3] = " & KatNr & ";"
-End If
+SQL2 = "SELECT * FROM qryKat04C WHERE [ID3] = " & KatNr
 
 Set RS124 = New ADODB.Recordset
 With RS124
@@ -457,11 +453,7 @@ If ReAbg = True Then
     Exit Sub
 End If
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE IDR = " & ReNum
-Else
-    SQL1 = "SELECT * FROM qrySimAbSav WHERE [IDR] = " & ReNum & ";"
-End If
+SQL1 = "SELECT * FROM qrySimAbSav WHERE [IDR] = " & ReNum
 Set RS120 = New ADODB.Recordset
 With RS120
     .CursorLocation = adUseClient
@@ -1493,11 +1485,7 @@ If RpSel.Count > 0 Then
     End If
 End If
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimRez WHERE ID1 = " & RzNum
-Else
-    SQL1 = "SELECT * FROM qrySimRez WHERE [ID1] = " & RzNum & ";"
-End If
+SQL1 = "SELECT * FROM qrySimRez WHERE [ID1] = " & RzNum
 Set RS120 = New ADODB.Recordset
 With RS120
     .CursorLocation = adUseClient
@@ -2412,25 +2400,14 @@ Set RpRcs = RpCo5.Records
 TreKy = Left$(GlNod, 1)
 GrpNr = Mid$(GlNod, 2, Len(GlNod) - 1)
 
-If GlTyp < 2 Then
-    Select Case TreKy
-    Case "D": SQL1 = "SELECT * FROM dbo.qryKet01A WHERE ID1 = " & KetNr 'Gebührenketten
-    Case "F": SQL1 = "SELECT * FROM dbo.qryKet03A WHERE ID1 = " & KetNr 'Diagnoseketten
-    Case "H": SQL1 = "SELECT * FROM dbo.qryKet02A WHERE ID1 = " & KetNr 'Laborketten
-    Case "J": SQL1 = "SELECT * FROM dbo.qryKet04A WHERE ID1 = " & KetNr 'Arzneiketten
-    Case "R": SQL1 = "SELECT * FROM dbo.qryKon02A WHERE ID1 = " & KetNr 'Terminketten
-    Case "Q": SQL1 = "SELECT * FROM dbo.qryKet12A WHERE ID1 = " & KetNr 'Artikelketten
-    End Select
-Else
-    Select Case TreKy
-    Case "D": SQL1 = "SELECT * FROM qryKet01A WHERE [ID1] = " & KetNr & ";" 'Gebührenketten
-    Case "F": SQL1 = "SELECT * FROM qryKet03A WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
-    Case "H": SQL1 = "SELECT * FROM qryKet02A WHERE [ID1] = " & KetNr & ";" 'Laborketten
-    Case "J": SQL1 = "SELECT * FROM qryKet04A WHERE [ID1] = " & KetNr & ";" 'Arzneiketten
-    Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = " & KetNr & ";" 'Terminketten
-    Case "Q": SQL1 = "SELECT * FROM qryKet12A WHERE [ID1] = " & KetNr & ";" 'Artikelketten
-    End Select
-End If
+Select Case TreKy
+Case "D": SQL1 = "SELECT * FROM qryKet01A WHERE [ID1] = " & KetNr & ";" 'Gebührenketten
+Case "F": SQL1 = "SELECT * FROM qryKet03A WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
+Case "H": SQL1 = "SELECT * FROM qryKet02A WHERE [ID1] = " & KetNr & ";" 'Laborketten
+Case "J": SQL1 = "SELECT * FROM qryKet04A WHERE [ID1] = " & KetNr & ";" 'Arzneiketten
+Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = " & KetNr & ";" 'Terminketten
+Case "Q": SQL1 = "SELECT * FROM qryKet12A WHERE [ID1] = " & KetNr & ";" 'Artikelketten
+End Select
 
 If RpRcs.Count > 0 Then
     For Each RpRec In RpRcs
@@ -3081,37 +3058,20 @@ TreKy = Left$(GlNod, 1)
 RpCo5.Populate
 DoEvents
 
-If GlTyp < 2 Then
-    Select Case TreKy
-    Case "D": SQL1 = "SELECT * FROM dbo.qryKet01 WHERE ID1 = " & KetNr  'Gebührenketten
-              SQL2 = "SELECT * FROM dbo.qryKet01M WHERE ID1 = " & KetNr
-    Case "F": SQL1 = "SELECT * FROM dbo.qryKet03 WHERE ID1 = " & KetNr  'Diagnoseketten
-              SQL2 = "SELECT * FROM dbo.qryKet03M WHERE ID1 = " & KetNr
-    Case "H": SQL1 = "SELECT * FROM dbo.qryKet02 WHERE ID1 = " & KetNr  'Laborprofile
-              SQL2 = "SELECT * FROM dbo.qryKet02M WHERE ID1 = " & KetNr
-    Case "J": SQL1 = "SELECT * FROM dbo.qryKet04 WHERE ID1 = " & KetNr  'Arzneiketten
-              SQL2 = "SELECT * FROM dbo.qryKet04M WHERE ID1 = " & KetNr
-    Case "R": SQL1 = "SELECT * FROM dbo.qryKon02 WHERE ID1 = " & KetNr  'Terminketten
-              SQL2 = "SELECT * FROM dbo.qryKon02M WHERE ID1 = " & KetNr
-    Case "Q": SQL1 = "SELECT * FROM dbo.qryKet12 WHERE ID1 = " & KetNr  'Artikelketten
-              SQL2 = "SELECT * FROM dbo.qryKet12M WHERE ID1 = " & KetNr
-    End Select
-Else
-    Select Case TreKy
-    Case "D": SQL1 = "SELECT * FROM qryKet01 WHERE [ID1] = " & KetNr & ";" 'Gebührenketten
-              SQL2 = "SELECT * FROM qryKet01M WHERE [ID1] = " & KetNr & ";"
-    Case "F": SQL1 = "SELECT * FROM qryKet03 WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
-              SQL2 = "SELECT * FROM qryKet03M WHERE [ID1] = " & KetNr & ";"
-    Case "H": SQL1 = "SELECT * FROM qryKet02 WHERE [ID1] = " & KetNr & ";" 'Laborprofile
-              SQL2 = "SELECT * FROM qryKet02M WHERE [ID1] = " & KetNr & ";"
-    Case "J": SQL1 = "SELECT * FROM qryKet04 WHERE [ID1] = " & KetNr & ";" 'Arzneiketten
-              SQL2 = "SELECT * FROM qryKet04M WHERE [ID1] = " & KetNr & ";"
-    Case "R": SQL1 = "SELECT * FROM qryKon02 WHERE [ID1] = " & KetNr & ";" 'Terminketten
-              SQL2 = "SELECT * FROM qryKon02M WHERE [ID1] = " & KetNr & ";"
-    Case "Q": SQL1 = "SELECT * FROM qryKet12 WHERE [ID1] = " & KetNr & ";" 'Artikelketten
-              SQL2 = "SELECT * FROM qryKet12M WHERE [ID1] = " & KetNr & ";"
-    End Select
-End If
+Select Case TreKy
+Case "D": SQL1 = "SELECT * FROM qryKet01 WHERE [ID1] = " & KetNr & ";" 'Gebührenketten
+          SQL2 = "SELECT * FROM qryKet01M WHERE [ID1] = " & KetNr
+Case "F": SQL1 = "SELECT * FROM qryKet03 WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
+          SQL2 = "SELECT * FROM qryKet03M WHERE [ID1] = " & KetNr
+Case "H": SQL1 = "SELECT * FROM qryKet02 WHERE [ID1] = " & KetNr & ";" 'Laborprofile
+          SQL2 = "SELECT * FROM qryKet02M WHERE [ID1] = " & KetNr
+Case "J": SQL1 = "SELECT * FROM qryKet04 WHERE [ID1] = " & KetNr & ";" 'Arzneiketten
+          SQL2 = "SELECT * FROM qryKet04M WHERE [ID1] = " & KetNr
+Case "R": SQL1 = "SELECT * FROM qryKon02 WHERE [ID1] = " & KetNr & ";" 'Terminketten
+          SQL2 = "SELECT * FROM qryKon02M WHERE [ID1] = " & KetNr
+Case "Q": SQL1 = "SELECT * FROM qryKet12 WHERE [ID1] = " & KetNr & ";" 'Artikelketten
+          SQL2 = "SELECT * FROM qryKet12M WHERE [ID1] = " & KetNr
+End Select
 
 If RpRcs.Count > 0 Then
     Set RS136 = New ADODB.Recordset
@@ -3848,46 +3808,24 @@ Set TxDum = FM.txtIdxNr
 TreKy = Left$(GlNod, 1)
 GrpNr = Mid$(GlNod, 2, Len(GlNod) - 1)
 
-If GlTyp < 2 Then
-    If GlKeN = True Then
-        Select Case TreKy
-        Case "D": SQL1 = "SELECT * FROM dbo.qryKet01a WHERE ID1 = -1" 'Gebührenketten
-        Case "F": SQL1 = "SELECT * FROM dbo.qryKet03a WHERE ID1 = -1" 'Diagnoseketten
-        Case "H": SQL1 = "SELECT * FROM dbo.qryKet02a WHERE ID1 = -1" 'Laborprofile
-        Case "J": SQL1 = "SELECT * FROM dbo.qryKet04a WHERE ID1 = -1" 'Arzeikennetn
-        Case "R": SQL1 = "SELECT * FROM dbo.qryKon02A WHERE ID1 = -1" 'Terminketten
-        Case "Q": SQL1 = "SELECT * FROM dbo.qryKet12a WHERE ID1 = -1" 'Artikelketten
-        End Select
-    Else
-        Select Case TreKy
-        Case "D": SQL1 = "SELECT * FROM dbo.qryKet01a WHERE ID1 = " & KetNr 'Gebührenketten
-        Case "F": SQL1 = "SELECT * FROM dbo.qryKet03a WHERE ID1 = " & KetNr 'Diagnoseketten
-        Case "H": SQL1 = "SELECT * FROM dbo.qryKet02a WHERE ID1 = " & KetNr 'Laborprofile
-        Case "J": SQL1 = "SELECT * FROM dbo.qryKet04a WHERE ID1 = " & KetNr 'Arzeikennetn
-        Case "R": SQL1 = "SELECT * FROM dbo.qryKon02A WHERE ID1 = " & KetNr 'Terminketten
-        Case "Q": SQL1 = "SELECT * FROM dbo.qryKet12a WHERE ID1 = " & KetNr 'Artikelketten
-        End Select
-    End If
+If GlKeN = True Then
+    Select Case TreKy
+    Case "D": SQL1 = "SELECT * FROM qryKet01a WHERE [ID1] = -1;" 'Gebührenketten
+    Case "F": SQL1 = "SELECT * FROM qryKet03a WHERE [ID1] = -1;" 'Diagnoseketten
+    Case "H": SQL1 = "SELECT * FROM qryKet02a WHERE [ID1] = -1;" 'Laborprofile
+    Case "J": SQL1 = "SELECT * FROM qryKet04a WHERE [ID1] = -1;" 'Arzeikennetn
+    Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = -1;" 'Terminketten
+    Case "Q": SQL1 = "SELECT * FROM qryKet12a WHERE [ID1] = -1;" 'Artikelketten
+    End Select
 Else
-    If GlKeN = True Then
-        Select Case TreKy
-        Case "D": SQL1 = "SELECT * FROM qryKet01a WHERE [ID1] = -1;" 'Gebührenketten
-        Case "F": SQL1 = "SELECT * FROM qryKet03a WHERE [ID1] = -1;" 'Diagnoseketten
-        Case "H": SQL1 = "SELECT * FROM qryKet02a WHERE [ID1] = -1;" 'Laborprofile
-        Case "J": SQL1 = "SELECT * FROM qryKet04a WHERE [ID1] = -1;" 'Arzeikennetn
-        Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = -1;" 'Terminketten
-        Case "Q": SQL1 = "SELECT * FROM qryKet12a WHERE [ID1] = -1;" 'Artikelketten
-        End Select
-    Else
-        Select Case TreKy
-        Case "D": SQL1 = "SELECT * FROM qryKet01a WHERE [ID1] = " & KetNr & ";" 'Gebührenketten
-        Case "F": SQL1 = "SELECT * FROM qryKet03a WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
-        Case "H": SQL1 = "SELECT * FROM qryKet02a WHERE [ID1] = " & KetNr & ";" 'Laborprofile
-        Case "J": SQL1 = "SELECT * FROM qryKet04a WHERE [ID1] = " & KetNr & ";" 'Arzeikennetn
-        Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = " & KetNr & ";" 'Terminketten
-        Case "Q": SQL1 = "SELECT * FROM qryKet12a WHERE [ID1] = " & KetNr & ";" 'Artikelketten
-        End Select
-    End If
+    Select Case TreKy
+    Case "D": SQL1 = "SELECT * FROM qryKet01a WHERE [ID1] = " & KetNr & ";" 'Gebührenketten
+    Case "F": SQL1 = "SELECT * FROM qryKet03a WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
+    Case "H": SQL1 = "SELECT * FROM qryKet02a WHERE [ID1] = " & KetNr & ";" 'Laborprofile
+    Case "J": SQL1 = "SELECT * FROM qryKet04a WHERE [ID1] = " & KetNr & ";" 'Arzeikennetn
+    Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = " & KetNr & ";" 'Terminketten
+    Case "Q": SQL1 = "SELECT * FROM qryKet12a WHERE [ID1] = " & KetNr & ";" 'Artikelketten
+    End Select
 End If
 
 Set RS136 = New ADODB.Recordset
@@ -4921,11 +4859,7 @@ For Each RpRow In RpRws
                     End With
                     DoEvents
 
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & PatNr
-                    Else
-                        SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & PatNr & ";"
-                    End If
+                    SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & PatNr
                     Set RS114 = New ADODB.Recordset
                     With RS114
                         .CursorLocation = adUseClient
@@ -6164,11 +6098,7 @@ Else
     If IdxNr = 0 Then
         SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = -1;" 'Fragebogen
     Else
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryKat08B WHERE ID6 = " & IdxNr  'Fragebogen
-        Else
-            SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = " & IdxNr & ";" 'Fragebogen
-        End If
+        SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = " & IdxNr & ";" 'Fragebogen
     End If
 End If
 
@@ -6378,11 +6308,7 @@ Case 2:
         SuStr = TmpSt
 End Select
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryAnKa5 WHERE ID0 = " & IdxNr 'Gebührenkataloge
-Else
-    SQL1 = "SELECT * FROM qryAnKa5 WHERE [ID0] = " & IdxNr & ";" 'Gebührenkataloge
-End If
+SQL1 = "SELECT * FROM qryAnKa5 WHERE [ID0] = " & IdxNr & ";" 'Gebührenkataloge
 
 Set RS123 = New ADODB.Recordset
 With RS123
@@ -7395,11 +7321,7 @@ If GlNeB = True Then 'neue Buchung
     TmGui = CreateID("Z")
     SQL1 = "SELECT * FROM qrySimBaZuor"
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBaZuor WHERE IDZ = " & RegNr
-    Else
-        SQL1 = "SELECT * FROM qrySimBaZuor WHERE [IDZ] = " & RegNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimBaZuor WHERE [IDZ] = " & RegNr
 End If
 
 Set RS125 = New ADODB.Recordset
@@ -8855,11 +8777,7 @@ Else
     Else
         IdxNr = 0
     End If
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBuVoSu WHERE ID0 = " & IdxNr
-    Else
-        SQL1 = "SELECT * FROM qrySimBuVoSu WHERE [ID0] = " & IdxNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimBuVoSu WHERE [ID0] = " & IdxNr
 End If
 
 If IdxWe = 0 Then
@@ -9993,33 +9911,17 @@ End Select
 FoWar = 2
 GlAkt = True
 
-If GlTyp < 2 Then
-    If GlNeK.NeuEi = True Then
-        If GlNeK.KeiAk = True Then
-            SQL1 = "SELECT * FROM dbo.qrySimAbNe ORDER BY ID3 DESC"
-        Else
-            SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE ID0 = " & GlAdr & " ORDER BY ID3 DESC"
-        End If
+If GlNeK.NeuEi = True Then
+    If GlNeK.KeiAk = True Then
+        SQL1 = "SELECT * FROM qrySimAbNe ORDER BY [ID3] DESC"
     Else
-        If GlNeK.KoGui <> vbNullString Then
-            SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE Kommentar2 Like '" & SqlStr(GlNeK.KoGui) & "'"
-        Else
-            SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE ID2 = " & GlNeK.IdxNr
-        End If
+        SQL1 = "SELECT * FROM qrySimAbSav WHERE [ID0] = " & GlAdr & " ORDER BY [ID3] DESC"
     End If
 Else
-    If GlNeK.NeuEi = True Then
-        If GlNeK.KeiAk = True Then
-            SQL1 = "SELECT * FROM qrySimAbNe ORDER BY [ID3] DESC;"
-        Else
-            SQL1 = "SELECT * FROM qrySimAbSav WHERE [ID0] = " & GlAdr & " ORDER BY [ID3] DESC;"
-        End If
+    If GlNeK.KoGui <> vbNullString Then
+        SQL1 = "SELECT * FROM qrySimAbSav WHERE [Kommentar2] Like '" & SqlStr(GlNeK.KoGui) & "'"
     Else
-        If GlNeK.KoGui <> vbNullString Then
-            SQL1 = "SELECT * FROM qrySimAbSav WHERE [Kommentar2] Like '" & SqlStr(GlNeK.KoGui) & "';"
-        Else
-            SQL1 = "SELECT * FROM qrySimAbSav WHERE [ID2] = " & GlNeK.IdxNr & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimAbSav WHERE [ID2] = " & GlNeK.IdxNr
     End If
 End If
 
@@ -20023,66 +19925,34 @@ Set RpSel = RpCo8.SelectedRows
 
 TreKy = Left$(GlNod, 1)
 
-If GlTyp < 2 Then
-    If GlKaN = True Then
-        GrpNr = Mid$(GlNod, 2, Len(GlNod) - 1)
-        Select Case TreKy
-        Case "A": SQL1 = "SELECT * FROM dbo.qryKat01R WHERE ID0 = -1" 'Gebührenkatalog
-        Case "C": SQL1 = "SELECT * FROM dbo.qryKat03R WHERE ID0 = -1" 'Diagnosekatalog
-        Case "G": SQL1 = "SELECT * FROM dbo.qryKat02C WHERE ID0 = -1" 'Laborparameter
-        Case "I": SQL1 = "SELECT * FROM dbo.qryKat04C WHERE ID0 = -1" 'Arzneikatalog
-        Case "K": SQL1 = "SELECT * FROM dbo.qryKat02C WHERE ID0 = -1" 'Begründungen
-        Case "L": SQL1 = "SELECT * FROM dbo.qryKat02C WHERE ID0 = -1" 'Anamnesetexte
-        Case "M": SQL1 = "SELECT * FROM dbo.qryKon01E WHERE ID4 = -1" 'Terminbetreffs
-        Case "N": SQL1 = "SELECT * FROM dbo.qryKat08B WHERE ID6 = -1" 'Anamnesetebogen
-        Case "O": SQL1 = "SELECT * FROM dbo.qryKat04C WHERE ID0 = -1" 'Textphrasen
-        Case "P": SQL1 = "SELECT * FROM dbo.qryKat12C WHERE ID0 = -1" 'Artikelkatalog
-        End Select
-    Else
-        IdxNr = FM.txtIdxNr.Text
-        Select Case TreKy
-        Case "A": SQL1 = "SELECT * FROM dbo.qryKat01R WHERE ID0 = " & IdxNr 'Gebührenkatalog
-        Case "C": SQL1 = "SELECT * FROM dbo.qryKat03R WHERE ID0 = " & IdxNr 'Diagnosen
-        Case "G": SQL1 = "SELECT * FROM dbo.qryKat02C WHERE ID0 = " & IdxNr 'Laborparameter
-        Case "I": SQL1 = "SELECT * FROM dbo.qryKat04C WHERE ID0 = " & IdxNr 'Arzneikatalog
-        Case "K": SQL1 = "SELECT * FROM dbo.qryKat02C WHERE ID0 = " & IdxNr 'Begründungen
-        Case "L": SQL1 = "SELECT * FROM dbo.qryKat02C WHERE ID0 = " & IdxNr 'Anamnesetexte
-        Case "M": SQL1 = "SELECT * FROM dbo.qryKon01E WHERE ID4 = " & IdxNr 'Terminbetreffs
-        Case "N": SQL1 = "SELECT * FROM dbo.qryKat08B WHERE ID6 = " & IdxNr 'Fragebogen
-        Case "O": SQL1 = "SELECT * FROM dbo.qryKat04C WHERE ID0 = " & IdxNr 'Textphrasen
-        Case "P": SQL1 = "SELECT * FROM dbo.qryKat12C WHERE ID0 = " & IdxNr 'Artikelkatalog
-        End Select
-    End If
+If GlKaN = True Then
+    GrpNr = Mid$(GlNod, 2, Len(GlNod) - 1)
+    Select Case TreKy
+    Case "A": SQL1 = "SELECT * FROM qryKat01R WHERE [ID0] = -1;" 'Gebührenkatalog
+    Case "C": SQL1 = "SELECT * FROM qryKat03R WHERE [ID0] = -1;" 'Diagnosekatalog
+    Case "G": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = -1;" 'Laborparameter
+    Case "I": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = -1;" 'Arzneikatalog
+    Case "K": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = -1;" 'Begründungen
+    Case "L": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = -1;" 'Anamnesetexte
+    Case "M": SQL1 = "SELECT * FROM qryKon01E WHERE [ID4] = -1;" 'Terminbetreffs
+    Case "N": SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = -1;" 'Fragebogen
+    Case "O": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = -1;" 'Textphrasen
+    Case "P": SQL1 = "SELECT * FROM qryKat12C WHERE [ID0] = -1;" 'Artikelkatalog
+    End Select
 Else
-    If GlKaN = True Then
-        GrpNr = Mid$(GlNod, 2, Len(GlNod) - 1)
-        Select Case TreKy
-        Case "A": SQL1 = "SELECT * FROM qryKat01R WHERE [ID0] = -1;" 'Gebührenkatalog
-        Case "C": SQL1 = "SELECT * FROM qryKat03R WHERE [ID0] = -1;" 'Diagnosekatalog
-        Case "G": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = -1;" 'Laborparameter
-        Case "I": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = -1;" 'Arzneikatalog
-        Case "K": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = -1;" 'Begründungen
-        Case "L": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = -1;" 'Anamnesetexte
-        Case "M": SQL1 = "SELECT * FROM qryKon01E WHERE [ID4] = -1;" 'Terminbetreffs
-        Case "N": SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = -1;" 'Fragebogen
-        Case "O": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = -1;" 'Textphrasen
-        Case "P": SQL1 = "SELECT * FROM qryKat12C WHERE [ID0] = -1;" 'Artikelkatalog
-        End Select
-    Else
-        IdxNr = FM.txtIdxNr.Text
-        Select Case TreKy
-        Case "A": SQL1 = "SELECT * FROM qryKat01R WHERE [ID0] = " & IdxNr & ";" 'Gebührenkatalog
-        Case "C": SQL1 = "SELECT * FROM qryKat03R WHERE [ID0] = " & IdxNr & ";" 'Diagnosen
-        Case "G": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = " & IdxNr & ";" 'Laborparameter
-        Case "I": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = " & IdxNr & ";" 'Arzneikatalog
-        Case "K": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = " & IdxNr & ";" 'Begründungen
-        Case "L": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = " & IdxNr & ";" 'Anamnesetexte
-        Case "M": SQL1 = "SELECT * FROM qryKon01E WHERE [ID4] = " & IdxNr & ";" 'Terminbetreffs
-        Case "N": SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = " & IdxNr & ";" 'Fragebogen
-        Case "O": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = " & IdxNr & ";" 'Textphrasen
-        Case "P": SQL1 = "SELECT * FROM qryKat12C WHERE [ID0] = " & IdxNr & ";" 'Artikelkatalog
-        End Select
-    End If
+    IdxNr = FM.txtIdxNr.Text
+    Select Case TreKy
+    Case "A": SQL1 = "SELECT * FROM qryKat01R WHERE [ID0] = " & IdxNr & ";" 'Gebührenkatalog
+    Case "C": SQL1 = "SELECT * FROM qryKat03R WHERE [ID0] = " & IdxNr & ";" 'Diagnosen
+    Case "G": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = " & IdxNr & ";" 'Laborparameter
+    Case "I": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = " & IdxNr & ";" 'Arzneikatalog
+    Case "K": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = " & IdxNr & ";" 'Begründungen
+    Case "L": SQL1 = "SELECT * FROM qryKat02C WHERE [ID0] = " & IdxNr & ";" 'Anamnesetexte
+    Case "M": SQL1 = "SELECT * FROM qryKon01E WHERE [ID4] = " & IdxNr & ";" 'Terminbetreffs
+    Case "N": SQL1 = "SELECT * FROM qryKat08B WHERE [ID6] = " & IdxNr & ";" 'Fragebogen
+    Case "O": SQL1 = "SELECT * FROM qryKat04C WHERE [ID0] = " & IdxNr & ";" 'Textphrasen
+    Case "P": SQL1 = "SELECT * FROM qryKat12C WHERE [ID0] = " & IdxNr & ";" 'Artikelkatalog
+    End Select
 End If
 
 If TreKy = "M" Then
