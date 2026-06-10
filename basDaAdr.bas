@@ -886,11 +886,7 @@ Set FM = frmStatus
 If GuiSt <> vbNullString Then
     SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] Like '" & SqlStr(GuiSt) & "'"
 ElseIf PatNr > 0 Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & PatNr
-    Else
-        SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & PatNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & PatNr
 Else
     SQL1 = "SELECT * FROM qryAdress ORDER BY [ID0]"
 End If
@@ -2244,11 +2240,7 @@ Set FeOrt = FM.txtS1F09
 
 IdStr = AErSu(FeFir.Text, FeNam.Text, FeVor.Text, FeOrt.Text, CLng(FeNum.Text))
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & GlAId
-Else
-    SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlAId & ";"
-End If
+SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlAId
 
 Set RS40 = New ADODB.Recordset
 With RS40
@@ -4272,18 +4264,10 @@ Set PrGr1 = FM.prpGrid1
 Set PrGr2 = FM.prpGrid2
 Set PrGr3 = FM.prpGrid3
 
-If GlTyp < 2 Then
-    If GlAId = -1 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE GuiID = '" & SqlStr(GlAdG) & "'"
-    Else
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & GlAId
-    End If
+If GlAId = -1 Then
+    SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "'"
 Else
-    If GlAId = -1 Then
-        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "';"
-    Else
-        SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlAId & ";"
-    End If
+    SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlAId
 End If
 
 If FeKur.Text <> vbNullString Then
@@ -5057,11 +5041,7 @@ If GlAzN = False Then 'Neue Zugeordnete anlegen
                 Set RpCol = RpCls.Find(Adr_ID0)
                 IdxNr = RpRow.Record(RpCol.ItemIndex).Value
                 
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qryMailAdress WHERE IDA = " & IdxNr
-                Else
-                    SQL1 = "SELECT * FROM qryMailAdress WHERE [IDA] = " & IdxNr & ";"
-                End If
+                SQL1 = "SELECT * FROM qryMailAdress WHERE [IDA] = " & IdxNr
                 
                 Set RS40 = New ADODB.Recordset
                 With RS40
@@ -9915,18 +9895,10 @@ End Select
 
 TmGui = CreateID("M")
 
-If GlTyp < 2 Then
-    If GlMId < 0 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "'"
-    Else
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & GlMId
-    End If
+If GlMId < 0 Then
+    SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "'"
 Else
-    If GlMId < 0 Then
-        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "';"
-    Else
-        SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlMId & ";"
-    End If
+    SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlMId
 End If
 
 If FeKur.Text <> vbNullString Then
@@ -10354,11 +10326,7 @@ Set CmCom = CmBrs.FindControl(CmCom, AD_Sprechzeit_Auswa, , True)
 
 IdxNr = CmCom.ItemData(CmCom.ListIndex)
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerZeNe WHERE IDZ = " & IdxNr
-Else
-    SQL1 = "SELECT * FROM qryTerZeNe WHERE [IDZ] = " & IdxNr & ";"
-End If
+SQL1 = "SELECT * FROM qryTerZeNe WHERE [IDZ] = " & IdxNr
 
 Set RS43 = New ADODB.Recordset
 With RS43
@@ -14534,11 +14502,7 @@ If DaVer = True Then
                             If CBool(OuAdr(139, TesZa)) = True Then 'Replicated?
                                 If OuKon(28, AktZa) = OuAdr(4, TesZa) Then 'BillingInformation bzw. GuiID
                                     If OuKon(25, AktZa) > OuAdr(51, TesZa) Then 'LastModificationTime
-                                        If GlTyp < 2 Then
-                                            SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & OuAdr(0, TesZa)
-                                        Else
-                                            SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & OuAdr(0, TesZa) & ";"
-                                        End If
+                                        SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & OuAdr(0, TesZa)
                                         Set RS53 = New ADODB.Recordset
                                         With RS53
                                             .CursorLocation = adUseClient
@@ -14609,11 +14573,7 @@ If DaVer = True Then
                         If Not IsNull(OuEvt(17, TesZa)) Then 'LastModification
                             If OuTer(17, AktZa) = OuEvt(25, TesZa) Then 'BillingInformation bzw. GuiID
                                 If OuTer(13, AktZa) > OuEvt(17, TesZa) Then 'LastModification
-                                    If GlTyp < 2 Then
-                                        SQL1 = "SELECT * FROM dbo.qryTerBele WHERE ID2 = " & OuEvt(1, TesZa)
-                                    Else
-                                        SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & OuEvt(1, TesZa) & ";"
-                                    End If
+                                    SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & OuEvt(1, TesZa)
                                     Set RS53 = New ADODB.Recordset
                                     With RS53
                                         .CursorLocation = adUseClient
@@ -23899,11 +23859,7 @@ If AnzTa = 0 Then
 End If
 
 If TeAnd = True Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerBele WHERE ID2 = " & TerNr
-    Else
-        SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & TerNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & TerNr
     
     Set RS40 = New ADODB.Recordset
     With RS40
@@ -31795,11 +31751,7 @@ Set TxZeV = FM.txtVonZe
 
 IdxNr = Val(TxID2.Text)
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerBele WHERE ID2 = " & IdxNr
-Else
-    SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & IdxNr & ";"
-End If
+SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & IdxNr
 
 If IsDate(TxDa1.Text) Then
     NeuDa = TxDa1.Text
