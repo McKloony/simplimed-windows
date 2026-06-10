@@ -1180,11 +1180,7 @@ Case RibTab_Krankenbla:
         DBCmEx6 "qrySimAbDiA2", "@PatNr", "@IdxNr", "@IdCod", "@IdStr", "@IdGrp", "@IdRef", PatNr, 0, CoStr, KuStr, 0, 0
     Next AktZa
 Case RibTab_Kat_Eintrg:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT TOP 5 * FROM dbo.qryKat04C"
-    Else
-        SQL1 = "SELECT TOP 5 * FROM qryKat04C;"
-    End If
+    SQL1 = "SELECT TOP 5 * FROM qryKat04C"
     Set RS05 = New ADODB.Recordset
     With RS05
         .CursorLocation = adUseClient
@@ -1196,11 +1192,7 @@ Case RibTab_Kat_Eintrg:
     End With
     If RS05.Supports(adAddNew) Then
         For AktZa = 0 To GesZa - 1
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryKat04 WHERE IDKurz Like '" & SqlStr(HerNa(AktZa)) & "'"
-            Else
-                SQL2 = "SELECT * FROM qryKat04 WHERE [IDKurz] Like '" & SqlStr(HerNa(AktZa)) & "';"
-            End If
+            SQL2 = "SELECT * FROM qryKat04 WHERE [IDKurz] Like '" & SqlStr(HerNa(AktZa)) & "'"
             Set RS06 = New ADODB.Recordset
             With RS06 'Ist Hersteller schon vorhanden?
                 .CursorLocation = adUseClient
@@ -1244,11 +1236,7 @@ Case RibTab_Kat_Eintrg:
             DoEvents
 
             If HerID > 0 Then
-                If GlTyp < 2 Then
-                    SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & HerID & " AND GOID Like '" & SqlStr(MePZN(AktZa)) & "'"
-                Else
-                    SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & HerID & " AND [GOID] Like '" & SqlStr(MePZN(AktZa)) & "';"
-                End If
+                SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & HerID & " AND [GOID] Like '" & SqlStr(MePZN(AktZa)) & "'"
                 Set RS04 = New ADODB.Recordset
                 With RS04
                     .CursorLocation = adUseClient
@@ -1277,11 +1265,7 @@ Case RibTab_Kat_Eintrg:
                 RS04.Close
                 Set RS04 = Nothing
                 
-                If GlTyp < 2 Then
-                    SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & 1 & " AND GOID Like '" & SqlStr(MePZN(AktZa)) & "'"
-                Else
-                    SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & 1 & " AND [GOID] Like '" & SqlStr(MePZN(AktZa)) & "';"
-                End If
+                SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & 1 & " AND [GOID] Like '" & SqlStr(MePZN(AktZa)) & "'"
                 Set RS04 = New ADODB.Recordset
                 With RS04
                     .CursorLocation = adUseClient
