@@ -59,11 +59,26 @@ T-SQL-Ausdruck im Jet-Zweig).
 | Verbindungslogik (clsConn/clsData) | 7 | Kategorie (a) der Spec |
 | ONLY/ONLY1 (TSE/Stored-Procs) | 19 | SQL-Server-exklusiv, Kategorie (c) |
 
-### Außerdem offen (eigene Tasks)
+### Task 11 ✅ ERLEDIGT (Commits 9cafcaa, fa2d161, dc510cc)
 
-- **Task 11:** 32× `If GlTyp > 1` (invertiert, Schwerpunkt basDatRe) per Parser-Erweiterung;
-  34× `Select Case GlTyp` manuell sichten (`scripts/gltyp_uncovered_v32final.csv`)
-- **Task 10:** Abschluss-Verifikation + Spec-Status
+Parser v4 erkennt `If GlTyp > 1` (Zweige getauscht, Klassen ONLYA/ONLY1A). Von 32 invertierten
+Blöcken 17 vereinheitlicht (5 MECH/NOSQL, 12 manuell: SqlDat-Ranges frmAdrFilt, Day()/Month()
+statt DATEPART/DatePart('m'), Präfix-Merges); 15 bleiben (Mailing-Boolean, DBCmRe2-Familie,
+Datei-Dialog, 3 ONLYA). Von 34 `Select Case GlTyp` 11 vereinheitlicht (Quartals-/Zeitraum-
+Nachzügler mit SqlDat, PLZ-/TOP-1-/ID0-Kosmetik); 23 bleiben (16× .dbx/.dbv-Dateinamen,
+Boolean, frmOptions=WIP, clsData=Verbindung).
+
+### Endstand (Task 10, Report `scripts/gltyp_report_final.csv`)
+
+**495 Dialekt-Konstrukte vereinheitlicht.** Verbleibend 150 Blöcke + 34 Einzelzeilen, alle
+begründet: 50 strukturelle (Triage-Begründungen in `gltyp_triage.csv`), 27 Command/StoredProc,
+26 Datums-Schema/Wochenfilter, 15 Jet-Boolean vs. BIT, 19 ONLY (TSE/Procs), 3 ONLYA,
+7 Verbindungslogik, 3 Helper selbst, 16× .dbx/.dbv u. a.
+
+### Offene User-Entscheide
+
+- PLZ/Land-Wildcard (basDaAdr, `gltyp_triage.csv` Bucket=REVIEW)
+- Schlüsselfelder basDatKat:12575/16926 (`ID1`/`ID4` vs. `[ID0]` — Bug oder Absicht?)
 
 ## Empfehlung Reihenfolge
 
