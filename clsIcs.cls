@@ -39,9 +39,9 @@ TmStr = TmStr & "DTSTART:" & Format(mDaSt, "yyyymmdd") & "T" & Format(mZeSt, "hh
 TmStr = TmStr & "DTEND:" & Format(mDaEn, "yyyymmdd") & "T" & Format(mZeEn, "hhmmss") & vbCrLf
 TmStr = TmStr & "DTSTAMP:" & Format(Date, "yyyymmdd") & "T" & Format(Now, "hhmmss") & vbCrLf
 TmStr = TmStr & "TRANSP:OPAQUE" & vbCrLf
-TmStr = TmStr & "SUMMARY:" & mTeBe & vbCrLf
-TmStr = TmStr & "LOCATION:" & mTeOr & vbCrLf
-TmStr = TmStr & "DESCRIPTION:" & mTeKo & vbCrLf
+TmStr = TmStr & "SUMMARY:" & IcsEsc(mTeBe) & vbCrLf
+TmStr = TmStr & "LOCATION:" & IcsEsc(mTeOr) & vbCrLf
+TmStr = TmStr & "DESCRIPTION:" & IcsEsc(mTeKo) & vbCrLf
 TmStr = TmStr & "PRIORITY:" & mTePr & vbCrLf
 TmStr = TmStr & "END:VEVENT" & vbCrLf
 
@@ -83,7 +83,7 @@ TmStr = "BEGIN:VCALENDAR" & vbCrLf
 TmStr = TmStr & "VERSION:2.0" & vbCrLf
 TmStr = TmStr & "PRODID:SimpliMed23 Kalender" & vbCrLf
 TmStr = TmStr & "METHOD:PUBLISH" & vbCrLf
-TmStr = TmStr & "X-WR-CALNAME:" & mKaNa & vbCrLf
+TmStr = TmStr & "X-WR-CALNAME:" & IcsEsc(mKaNa) & vbCrLf
 TmStr = TmStr & "X-WR-TIMEZONE:Europe/Berlin" & vbCrLf
 TmStr = TmStr & "CALSCALE:GREGORIAN" & vbCrLf
 
@@ -206,3 +206,13 @@ Public Property Get moZeSt() As String
     moZeSt = mZeSt
 End Property
 
+Private Function IcsEsc(ByVal SuStr As String) As String
+'Escaped TEXT-Werte nach RFC 5545: Backslash zuerst, dann Zeilenumbrueche, Semikolon, Komma
+SuStr = Replace(SuStr, "\", "\\")
+SuStr = Replace(SuStr, vbCrLf, "\n")
+SuStr = Replace(SuStr, vbCr, "\n")
+SuStr = Replace(SuStr, vbLf, "\n")
+SuStr = Replace(SuStr, ";", "\;")
+SuStr = Replace(SuStr, ",", "\,")
+IcsEsc = SuStr
+End Function
