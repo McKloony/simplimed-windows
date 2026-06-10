@@ -754,7 +754,7 @@ Case RibTab_Krankenbla:
             For AktZa = 1 To UBound(GlKrA) 'Krankenblatttypen
                 If LiTyp = GlKrA(AktZa, 0) Then
                     CmCom.ListIndex = AktZa - 9
-                    TxKom.ForeColor = GlKrA(AktZa - 9, 3)
+                    TxKom.ForeColor = GlKrA(AktZa, 3)
                     Exit For
                 End If
             Next AktZa
