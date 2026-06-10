@@ -1025,21 +1025,12 @@ If OpMon.Value = True Then
     Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
     TxDum.Text = CmMon.Text & " / " & CmJah.Text
 ElseIf OpQua.Value = True Then
-    If GlTyp < 2 Then
-        Select Case AkQua
-        Case 1: Krit1 = "((Datum >= '01.01." & AkJha & "') AND (Datum <= '31.03." & AkJha & "'))"
-        Case 2: Krit1 = "((Datum >= '01.04." & AkJha & "') AND (Datum <= '30.06." & AkJha & "'))"
-        Case 3: Krit1 = "((Datum >= '01.07." & AkJha & "') AND (Datum <= '30.09." & AkJha & "'))"
-        Case 4: Krit1 = "((Datum >= '01.10." & AkJha & "') AND (Datum <= '31.12." & AkJha & "'))"
-        End Select
-    Else
-        Select Case AkQua
-        Case 1: Krit1 = "(([Datum] Between #01/01/" & AkJha & "# AND #03/31/" & AkJha & "#))"
-        Case 2: Krit1 = "(([Datum] Between #04/01/" & AkJha & "# AND #06/30/" & AkJha & "#))"
-        Case 3: Krit1 = "(([Datum] Between #07/01/" & AkJha & "# AND #09/30/" & AkJha & "#))"
-        Case 4: Krit1 = "(([Datum] Between #10/01/" & AkJha & "# AND #12/31/" & AkJha & "#))"
-        End Select
-    End If
+    Select Case AkQua
+    Case 1: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJha, 1, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJha, 3, 31)) & "))"
+    Case 2: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJha, 4, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJha, 6, 30)) & "))"
+    Case 3: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJha, 7, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJha, 9, 30)) & "))"
+    Case 4: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJha, 10, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJha, 12, 31)) & "))"
+    End Select
     TxDum.Text = CmQua.Text & " / " & CmJah.Text
 ElseIf OpJah.Value = True Then
     Krit1 = "((Year([Datum]) = " & AkJha & "))"

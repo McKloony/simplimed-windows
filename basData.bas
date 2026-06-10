@@ -3372,41 +3372,21 @@ Case RibTab_Adressen:
         Case 18: Set RS147 = DBCmRe1("qrySimAdTel5", "@IdStr", "%" & GlSuP.SuStr & "%")
         End Select
     Else
-        If GlTyp < 2 Then
-            DaSt1 = GlSuP.SuDat
-            Select Case GlSuP.SuIdx
-            Case 1: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE IDKurz Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 2: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE PLZ Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 3: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Bemerkung Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 4: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE ID0 = " & GlSuP.SuNum & " ORDER BY " & SoStr
-            Case 6: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE IDP = " & GlSuP.SuMan & " ORDER BY " & SoStr
-            Case 10: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE (Geboren >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Geboren <= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) ORDER BY " & SoStr
-            Case 12: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Versicherung Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 13: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon1 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 14: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon2 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 15: SQL1 = "SELECT * FROM dbo.qrySimAdDiS1 WHERE Diagnose Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 16: SQL1 = "SELECT * FROM dbo.qrySimAdDiS2 WHERE Diagnose Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 17: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon4 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            Case 18: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon5 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
-            End Select
-        Else
-            DaSt1 = DatePart("m", GlSuP.SuDat) & "/" & DatePart("d", GlSuP.SuDat) & "/" & DatePart("yyyy", GlSuP.SuDat)
-            Select Case GlSuP.SuIdx
-            Case 1: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDKurz] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 2: SQL1 = "SELECT * FROM qrySimAdSu WHERE [PLZ] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 3: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Bemerkung] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 4: SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlSuP.SuNum & " ORDER BY " & SoStr & ";"
-            Case 6: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDP] = " & GlSuP.SuMan & " ORDER BY " & SoStr & ";"
-            Case 10: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Geboren] = #" & DaSt1 & "# ORDER BY " & SoStr & ";"
-            Case 12: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Versicherung] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 13: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon1] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 14: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon2] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 15: SQL1 = "SELECT * FROM qrySimAdDiS1 WHERE [Diagnose] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 16: SQL1 = "SELECT * FROM qrySimAdDiS2 WHERE [Diagnose] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 17: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon4] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            Case 18: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon5] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
-            End Select
-        End If
+        Select Case GlSuP.SuIdx
+        Case 1: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDKurz] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 2: SQL1 = "SELECT * FROM qrySimAdSu WHERE [PLZ] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 3: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Bemerkung] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 4: SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlSuP.SuNum & " ORDER BY " & SoStr
+        Case 6: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDP] = " & GlSuP.SuMan & " ORDER BY " & SoStr
+        Case 10: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Geboren] = " & SqlDat(GlSuP.SuDat) & " ORDER BY " & SoStr
+        Case 12: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Versicherung] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 13: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon1] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 14: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon2] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 15: SQL1 = "SELECT * FROM qrySimAdDiS1 WHERE [Diagnose] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 16: SQL1 = "SELECT * FROM qrySimAdDiS2 WHERE [Diagnose] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 17: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon4] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        Case 18: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon5] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+        End Select
         Set RS147 = DBCmRe0(SQL1, True)
     End If
 Case RibTab_Mandanten:
@@ -11837,41 +11817,18 @@ IdBnk = CmGlk.ItemData(CmGlk.ListIndex)
 
 VonDa = CDate("01.01." & BuJah) 'wird immer vom 01.01.xxxx bis BisDa berechnet
 
-If GlTyp < 2 Then
-    Datu1 = DatePart("yyyy", VonDa) & "-" & DatePart("m", VonDa) & "-" & DatePart("d", VonDa) & " 00:00:00"
-    Datu2 = DatePart("yyyy", BisDa) & "-" & DatePart("m", BisDa) & "-" & DatePart("d", BisDa) & " 00:00:00"
-Else
-    Datu1 = Format$(DatePart("m", VonDa, vbMonday), "00") & "/" & Format$(DatePart("d", VonDa, vbMonday), "00") & "/" & DatePart("yyyy", VonDa, vbMonday)
-    Datu2 = Format$(DatePart("m", BisDa, vbMonday), "00") & "/" & Format$(DatePart("d", BisDa, vbMonday), "00") & "/" & DatePart("yyyy", BisDa, vbMonday)
-End If
 
 If ManNr > 0 Then
-    If GlTyp < 2 Then
-        If IdBnk > 0 Then
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1a.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1a.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1a WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102)) AND (IDT = " & ManNr & ") AND (IDB = " & IdBnk & ")"
-        Else
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1a.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1a.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1a WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102)) AND (IDT = " & ManNr & ")"
-        End If
+    If IdBnk > 0 Then
+        SQL1 = "SELECT Sum(qryPrBuJo1a.Einnahme) AS Einnahme, Sum(qryPrBuJo1a.Ausgabe) AS Ausgabe FROM qryPrBuJo1a WHERE ([Datum] >= " & SqlDat(VonDa) & ") AND ([Datum] <= " & SqlDat(BisDa) & ") AND ([IDT] = " & ManNr & ") AND ([IDB] = " & IdBnk & ")"
     Else
-        If IdBnk > 0 Then
-            SQL1 = "SELECT Sum(qryPrBuJo1a.Einnahme) AS Einnahme, Sum(qryPrBuJo1a.Ausgabe) AS Ausgabe From qryPrBuJo1a HAVING (((qryPrBuJo1a.Datum) Between #" & Datu1 & "# And #" & Datu2 & "#)) AND ([IDT] = " & ManNr & ") AND ([IDB] = " & IdBnk & ");"
-        Else
-            SQL1 = "SELECT Sum(qryPrBuJo1a.Einnahme) AS Einnahme, Sum(qryPrBuJo1a.Ausgabe) AS Ausgabe From qryPrBuJo1a HAVING (((qryPrBuJo1a.Datum) Between #" & Datu1 & "# And #" & Datu2 & "#)) AND ([IDT] = " & ManNr & ");"
-        End If
+        SQL1 = "SELECT Sum(qryPrBuJo1a.Einnahme) AS Einnahme, Sum(qryPrBuJo1a.Ausgabe) AS Ausgabe FROM qryPrBuJo1a WHERE ([Datum] >= " & SqlDat(VonDa) & ") AND ([Datum] <= " & SqlDat(BisDa) & ") AND ([IDT] = " & ManNr & ")"
     End If
 Else
-    If GlTyp < 2 Then
-        If IdBnk > 0 Then
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1 WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102)) AND (IDB = " & IdBnk & ")"
-        Else
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1 WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102))"
-        End If
+    If IdBnk > 0 Then
+        SQL1 = "SELECT Sum(qryPrBuJo1.Einnahme) AS Einnahme, Sum(qryPrBuJo1.Ausgabe) AS Ausgabe FROM qryPrBuJo1 WHERE ([Datum] >= " & SqlDat(VonDa) & ") AND ([Datum] <= " & SqlDat(BisDa) & ") AND ([IDB] = " & IdBnk & ")"
     Else
-        If IdBnk > 0 Then
-            SQL1 = "SELECT Sum(qryPrBuJo1.Einnahme) AS Einnahme, Sum(qryPrBuJo1.Ausgabe) AS Ausgabe From qryPrBuJo1 HAVING (((qryPrBuJo1.Datum) Between #" & Datu1 & "# And #" & Datu2 & "#) AND ([IDB] = " & IdBnk & "));"
-        Else
-            SQL1 = "SELECT Sum(qryPrBuJo1.Einnahme) AS Einnahme, Sum(qryPrBuJo1.Ausgabe) AS Ausgabe From qryPrBuJo1 HAVING (((qryPrBuJo1.Datum) Between #" & Datu1 & "# And #" & Datu2 & "#));"
-        End If
+        SQL1 = "SELECT Sum(qryPrBuJo1.Einnahme) AS Einnahme, Sum(qryPrBuJo1.Ausgabe) AS Ausgabe FROM qryPrBuJo1 WHERE ([Datum] >= " & SqlDat(VonDa) & ") AND ([Datum] <= " & SqlDat(BisDa) & ")"
     End If
 End If
 

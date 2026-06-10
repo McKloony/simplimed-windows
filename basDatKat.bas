@@ -1370,18 +1370,8 @@ If KraMe = True Then
         DBCmEx6 "qrySimAbDiA2", "@PatNr", "@IdxNr", "@IdCod", "@IdStr", "@IdGrp", "@IdRef", GlAdr, 0, CoStr, KuStr, 0, 0
     Next AktPo
 Else
-    If GlTyp < 2 Then
-        DaSt1 = DatePart("yyyy", GlTag(1)) & "-" & DatePart("m", GlTag(1)) & "-" & DatePart("d", GlTag(1)) & " 00:00:00"
-        DaSt2 = DatePart("yyyy", GlTag(1) + 1) & "-" & DatePart("m", GlTag(1) + 1) & "-" & DatePart("d", GlTag(1) + 1) & " 00:00:00"
-    Else
-        DaSt1 = DatePart("m", GlTag(1)) & "/" & DatePart("d", GlTag(1)) & "/" & DatePart("yyyy", GlTag(1))
-    End If
     
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & GlAdr & " ) AND (ID1 = 107) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
-    Else
-        SQL1 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & GlAdr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 107));"
-    End If
+    SQL1 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & GlAdr & ") AND ([ID1] = 107) AND ([Datum] >= " & SqlDat(GlTag(1)) & ") AND ([Datum] < " & SqlDat(GlTag(1) + 1) & "))"
     
     Set RS120 = New ADODB.Recordset
     With RS120
@@ -14138,31 +14128,13 @@ Krit2 = SDaFi2(1)
 
 Select Case GlBut
 Case RibTab_Krankenbla:
-    If GlTyp < 2 Then
-        DaSt1 = DatePart("yyyy", GlTag(1)) & "-" & DatePart("m", GlTag(1)) & "-" & DatePart("d", GlTag(1)) & " 00:00:00"
-        DaSt2 = DatePart("yyyy", GlTag(1) + 1) & "-" & DatePart("m", GlTag(1) + 1) & "-" & DatePart("d", GlTag(1) + 1) & " 00:00:00"
-    Else
-        DaSt1 = DatePart("m", GlTag(1)) & "/" & DatePart("d", GlTag(1)) & "/" & DatePart("yyyy", GlTag(1))
-    End If
     Select Case PaFrm
     Case "AnEi":
-        If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 21) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
-        Else
-            SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 21));"
-        End If
+        SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & ") AND ([ID1] = 21) AND ([Datum] >= " & SqlDat(GlTag(1)) & ") AND ([Datum] < " & SqlDat(GlTag(1) + 1) & "))"
     Case "KrDi":
-        If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 103) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
-        Else
-            SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 103));"
-        End If
+        SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & ") AND ([ID1] = 103) AND ([Datum] >= " & SqlDat(GlTag(1)) & ") AND ([Datum] < " & SqlDat(GlTag(1) + 1) & "))"
     Case "KrMe":
-        If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 107) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
-        Else
-            SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 107));"
-        End If
+        SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & ") AND ([ID1] = 107) AND ([Datum] >= " & SqlDat(GlTag(1)) & ") AND ([Datum] < " & SqlDat(GlTag(1) + 1) & "))"
     Case Else:
         Select Case GlSoK
         Case 2:

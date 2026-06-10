@@ -1359,21 +1359,12 @@ ElseIf OpMon.Value = True Then 'Monatsauswertung
 ElseIf OpQua.Value = True Then 'Quartalsauswertung
 
     If ZeiWa = True Then
-        If GlTyp < 2 Then
-            Select Case AkQua
-            Case 1: Krit1 = "((Datum >= '01.01." & AkJah & "') AND (Datum <= '31.03." & AkJah & "'))"
-            Case 2: Krit1 = "((Datum >= '01.04." & AkJah & "') AND (Datum <= '30.06." & AkJah & "'))"
-            Case 3: Krit1 = "((Datum >= '01.07." & AkJah & "') AND (Datum <= '30.09." & AkJah & "'))"
-            Case 4: Krit1 = "((Datum >= '01.10." & AkJah & "') AND (Datum <= '31.12." & AkJah & "'))"
-            End Select
-        Else
-            Select Case AkQua
-            Case 1: Krit1 = "(([Datum] Between #01/01/" & AkJah & "# AND #03/31/" & AkJah & "#))"
-            Case 2: Krit1 = "(([Datum] Between #04/01/" & AkJah & "# AND #06/30/" & AkJah & "#))"
-            Case 3: Krit1 = "(([Datum] Between #07/01/" & AkJah & "# AND #09/30/" & AkJah & "#))"
-            Case 4: Krit1 = "(([Datum] Between #10/01/" & AkJah & "# AND #12/31/" & AkJah & "#))"
-            End Select
-        End If
+        Select Case AkQua
+        Case 1: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJah, 1, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJah, 3, 31)) & "))"
+        Case 2: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJah, 4, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJah, 6, 30)) & "))"
+        Case 3: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJah, 7, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJah, 9, 30)) & "))"
+        Case 4: Krit1 = "(([Datum] >= " & SqlDat(DateSerial(AkJah, 10, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(AkJah, 12, 31)) & "))"
+        End Select
     Else
         Krit1 = "(([Jahr] = " & AkJah & ") AND ([Quartal] = " & AkQua & "))"
     End If
@@ -1397,11 +1388,7 @@ ElseIf OpJah.Value = True Then 'Jahresauswertung
     
 ElseIf OpDat.Value = True Then 'Zeitraumsauswertung
 
-    If GlTyp < 2 Then
-        Krit1 = "(Datum = '" & DaSta & "')"
-    Else
-        Krit1 = "([Datum] = #" & Datu1 & "#)"
-    End If
+    Krit1 = "([Datum] = " & SqlDat(CDate(DaSta)) & ")"
     TxDum.Text = DaSta
     BisDa = DaSta
     

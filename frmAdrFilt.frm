@@ -2635,13 +2635,7 @@ AktZa = 1
 SQL1 = "("
 
 If Me.chkFilt1.Value = 1 Then
-    If GlTyp < 2 Then
-        DaSt1 = DatePart("yyyy", TxDa1.Text) & "-" & DatePart("m", TxDa1.Text) & "-" & DatePart("d", TxDa1.Text)
-        SQL1 = SQL1 & "(Geändert < CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102))"
-    Else
-        DaSt1 = DatePart("m", TxDa1.Text) & "/" & DatePart("d", TxDa1.Text) & "/" & DatePart("yyyy", TxDa1.Text)
-        SQL1 = SQL1 & "((qryAdrSu.Geändert) < #" & DaSt1 & "#)"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Geändert) < " & SqlDat(CDate(TxDa1.Text)) & ")"
     Kombi = True
 End If
 
@@ -2649,13 +2643,7 @@ If Me.chkFilt13.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        DaSt2 = DatePart("yyyy", TxDa2.Text) & "-" & DatePart("m", TxDa2.Text) & "-" & DatePart("d", TxDa2.Text)
-        SQL1 = SQL1 & "(Geändert > CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102))"
-    Else
-        DaSt2 = DatePart("m", TxDa2.Text) & "/" & DatePart("d", TxDa2.Text) & "/" & DatePart("yyyy", TxDa2.Text)
-        SQL1 = SQL1 & "((qryAdrSu.Geändert) > #" & DaSt2 & "#)"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Geändert) > " & SqlDat(CDate(TxDa2.Text)) & ")"
     Kombi = True
 End If
 

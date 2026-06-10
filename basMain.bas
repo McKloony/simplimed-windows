@@ -7242,21 +7242,12 @@ Case 1:
     Case 1:
         Krit2 = "((Year([Datum]) = " & GlSuK.SuJah & "))"
     Case 2:
-        If GlTyp < 2 Then
-            Select Case GlSuK.SuQua
-            Case 1: Krit2 = "((Datum >= '01.01." & GlSuK.SuJah & "') AND (Datum <= '31.03." & GlSuK.SuJah & "'))"
-            Case 2: Krit2 = "((Datum >= '01.04." & GlSuK.SuJah & "') AND (Datum <= '30.06." & GlSuK.SuJah & "'))"
-            Case 3: Krit2 = "((Datum >= '01.07." & GlSuK.SuJah & "') AND (Datum <= '30.09." & GlSuK.SuJah & "'))"
-            Case 4: Krit2 = "((Datum >= '01.10." & GlSuK.SuJah & "') AND (Datum <= '31.12." & GlSuK.SuJah & "'))"
-            End Select
-        Else
-            Select Case GlSuK.SuQua
-            Case 1: Krit2 = "(([Datum] Between #01/01/" & GlSuK.SuJah & "# AND #03/31/" & GlSuK.SuJah & "#))"
-            Case 2: Krit2 = "(([Datum] Between #04/01/" & GlSuK.SuJah & "# AND #06/30/" & GlSuK.SuJah & "#))"
-            Case 3: Krit2 = "(([Datum] Between #07/01/" & GlSuK.SuJah & "# AND #09/30/" & GlSuK.SuJah & "#))"
-            Case 4: Krit2 = "(([Datum] Between #10/01/" & GlSuK.SuJah & "# AND #12/31/" & GlSuK.SuJah & "#))"
-            End Select
-        End If
+        Select Case GlSuK.SuQua
+        Case 1: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuK.SuJah, 1, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuK.SuJah, 3, 31)) & "))"
+        Case 2: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuK.SuJah, 4, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuK.SuJah, 6, 30)) & "))"
+        Case 3: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuK.SuJah, 7, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuK.SuJah, 9, 30)) & "))"
+        Case 4: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuK.SuJah, 10, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuK.SuJah, 12, 31)) & "))"
+        End Select
     Case 3:
         Krit2 = "((Month([Datum])=" & GlSuK.SuMon & ") AND (Year([Datum])=" & GlSuK.SuJah & "))"
     Case 4:
@@ -7266,41 +7257,23 @@ Case 1:
             Krit2 = "((DatePart('ww',[Datum])=" & GlSuK.SuWek & ") AND (Year([Datum])=" & GlSuK.SuJah & "))"
         End If
     Case 5:
-        If GlTyp < 2 Then
-            Krit2 = "((Datum='" & GlSuK.SuDat & "'))"
-        Else
-            DaSt1 = DatePart("m", GlSuK.SuDat) & "/" & DatePart("d", GlSuK.SuDat) & "/" & DatePart("yyyy", GlSuK.SuDat)
-            Krit2 = "(([Datum]=#" & DaSt1 & "#))"
-        End If
+        Krit2 = "(([Datum] = " & SqlDat(GlSuK.SuDat) & "))"
     Case 6:
         Jahr1 = Year(Date) - 30 'WICHTIG!
         Jahr2 = Year(Date) + 1
-        If GlTyp < 2 Then
-            Krit2 = "(Datum >= CONVERT(DATETIME, '" & Jahr1 & "-01-01 00:00:00', 102)) AND (Datum <= CONVERT(DATETIME, '" & Jahr2 & "-12-31 00:00:00', 102)) "
-        Else
-            Krit2 = "(([Datum] Between #01/01/" & Jahr1 & "# AND #12/31/" & Jahr2 & "#))"
-        End If
+        Krit2 = "(([Datum] >= " & SqlDat(DateSerial(Jahr1, 1, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(Jahr2, 12, 31)) & "))"
     End Select
 Case 2:
     Select Case GlSuO.SuIdx
     Case 1:
         Krit2 = "((Year([Datum]) = " & GlSuO.SuJah & "))"
     Case 2:
-        If GlTyp < 2 Then
-            Select Case GlSuO.SuQua
-            Case 1: Krit2 = "((Datum >= '01.01." & GlSuO.SuJah & "') AND (Datum <= '31.03." & GlSuO.SuJah & "'))"
-            Case 2: Krit2 = "((Datum >= '01.04." & GlSuO.SuJah & "') AND (Datum <= '30.06." & GlSuO.SuJah & "'))"
-            Case 3: Krit2 = "((Datum >= '01.07." & GlSuO.SuJah & "') AND (Datum <= '30.09." & GlSuO.SuJah & "'))"
-            Case 4: Krit2 = "((Datum >= '01.10." & GlSuO.SuJah & "') AND (Datum <= '31.12." & GlSuO.SuJah & "'))"
-            End Select
-        Else
-            Select Case GlSuO.SuQua
-            Case 1: Krit2 = "(([Datum] Between #01/01/" & GlSuO.SuJah & "# AND #03/31/" & GlSuO.SuJah & "#))"
-            Case 2: Krit2 = "(([Datum] Between #04/01/" & GlSuO.SuJah & "# AND #06/30/" & GlSuO.SuJah & "#))"
-            Case 3: Krit2 = "(([Datum] Between #07/01/" & GlSuO.SuJah & "# AND #09/30/" & GlSuO.SuJah & "#))"
-            Case 4: Krit2 = "(([Datum] Between #10/01/" & GlSuO.SuJah & "# AND #12/31/" & GlSuO.SuJah & "#))"
-            End Select
-        End If
+        Select Case GlSuO.SuQua
+        Case 1: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuO.SuJah, 1, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuO.SuJah, 3, 31)) & "))"
+        Case 2: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuO.SuJah, 4, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuO.SuJah, 6, 30)) & "))"
+        Case 3: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuO.SuJah, 7, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuO.SuJah, 9, 30)) & "))"
+        Case 4: Krit2 = "(([Datum] >= " & SqlDat(DateSerial(GlSuO.SuJah, 10, 1)) & ") AND ([Datum] <= " & SqlDat(DateSerial(GlSuO.SuJah, 12, 31)) & "))"
+        End Select
     Case 3:
         Krit2 = "((Month([Datum])=" & GlSuO.SuMon & ") AND (Year([Datum])=" & GlSuO.SuJah & "))"
     Case 4:
@@ -7310,12 +7283,7 @@ Case 2:
             Krit2 = "((DatePart('ww',[Datum])=" & GlSuO.SuWek & ") AND (Year([Datum])=" & GlSuO.SuJah & "))"
         End If
     Case 5:
-        If GlTyp < 2 Then
-            Krit2 = "((Datum='" & GlSuO.SuDat & "'))"
-        Else
-            DaSt1 = DatePart("m", GlSuO.SuDat) & "/" & DatePart("d", GlSuO.SuDat) & "/" & DatePart("yyyy", GlSuO.SuDat)
-            Krit2 = "(([Datum]=#" & DaSt1 & "#))"
-        End If
+        Krit2 = "(([Datum] = " & SqlDat(GlSuO.SuDat) & "))"
     End Select
 End Select
 
@@ -13359,10 +13327,10 @@ Case Else:
         Select Case GlSoK
         Case 2:
             Select Case GlUm2
-            Case 1: SQL1 = "SELECT * FROM qrySimAbKra04 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit2 & " ORDER BY DateValue([Datum]) DESC, [CONVERT(CHAR(8), Druckdatum, 24)] DESC, [ID2];" 'Datum absteigend
-            Case 2: SQL1 = "SELECT * FROM qrySimAbKra02 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY DateValue([Datum]) DESC, [CONVERT(CHAR(8), Druckdatum, 24)] DESC, [ID2];" 'Datum absteigend
-            Case 3: SQL1 = "SELECT * FROM qrySimAbKra02 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY DateValue([Datum]) DESC, [CONVERT(CHAR(8), Druckdatum, 24)] DESC, [ID2];" 'Datum absteigend
-            Case Else: SQL1 = "SELECT * FROM qrySimAbKra04 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY DateValue([Datum]), [CONVERT(CHAR(8), Druckdatum, 24)], [ID2];" 'Datum absteigend
+            Case 1: SQL1 = "SELECT * FROM qrySimAbKra04 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit2 & " ORDER BY DateValue([Datum]) DESC, [Druckdatum] DESC, [ID2];" 'Datum absteigend
+            Case 2: SQL1 = "SELECT * FROM qrySimAbKra02 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY DateValue([Datum]) DESC, [Druckdatum] DESC, [ID2];" 'Datum absteigend
+            Case 3: SQL1 = "SELECT * FROM qrySimAbKra02 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY DateValue([Datum]) DESC, [Druckdatum] DESC, [ID2];" 'Datum absteigend
+            Case Else: SQL1 = "SELECT * FROM qrySimAbKra04 WHERE (([ID0] = " & IdxNr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY DateValue([Datum]), [Druckdatum], [ID2];" 'Datum absteigend
             End Select
         Case 1:
             Select Case GlUm2
@@ -23076,11 +23044,7 @@ ElseIf OpQua.Value = True Then
 ElseIf OpJah.Value = True Then
     Krit1 = "([Jahr]=" & AkJha & ")"
 ElseIf OpZei.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "((Datum >= '" & DaSta & "') AND (Datum <= '" & DaEnd & "'))"
-    Else
-        Krit1 = "(([Datum] Between #" & Datu1 & "# AND #" & Datu2 & "#))"
-    End If
+    Krit1 = "(([Datum] >= " & SqlDat(CDate(DaSta)) & ") AND ([Datum] <= " & SqlDat(CDate(DaEnd)) & "))"
 Else
     WindowMess Mld1, Dial2, Tit1, FM.hwnd
 End If
