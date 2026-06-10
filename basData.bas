@@ -1053,11 +1053,7 @@ Case 9: SoStr = "[Telefon1]"
 Case 10: SoStr = "[Telefon1]"
 Case 11: SoStr = "[Telefon5]"
 Case 12:
-    If GlTyp < 2 Then
-        SoStr = "RIGHT ('00000000' + CONVERT (varchar(10), Mandant), 8)"
-    Else
-        SoStr = "Format$([Mandant],'00000000')"
-    End If
+    SoStr = SqlPad("Mandant", 8)
 End Select
 
 Set clFil = New clsFile
@@ -2409,11 +2405,7 @@ Case 9: SoStr = "[Telefon1]"
 Case 10: SoStr = "[Telefon1]"
 Case 11: SoStr = "[Telefon5]"
 Case 12:
-    If GlTyp < 2 Then
-        SoStr = "RIGHT ('00000000' + CONVERT (varchar(10), Mandant), 8)"
-    Else
-        SoStr = "Format$([Mandant],'00000000')"
-    End If
+    SoStr = SqlPad("Mandant", 8)
 End Select
 
 If GlPaK <> "P800" Then
@@ -3213,11 +3205,7 @@ Case 9: SoStr = "[Telefon1]"
 Case 10: SoStr = "[Telefon1]"
 Case 11: SoStr = "[Telefon5]"
 Case 12:
-    If GlTyp < 2 Then
-        SoStr = "RIGHT ('00000000' + CONVERT (varchar(10), Mandant), 8)"
-    Else
-        SoStr = "Format$([Mandant],'00000000')"
-    End If
+    SoStr = SqlPad("Mandant", 8)
 End Select
 
 If Left$(GlPaK, 1) = "G" Then 'Adressgruppen
@@ -3354,11 +3342,7 @@ Case 9: SoStr = "[Telefon1]"
 Case 10: SoStr = "[Telefon1]"
 Case 11: SoStr = "[Telefon5]"
 Case 12:
-    If GlTyp < 2 Then
-        SoStr = "RIGHT ('00000000' + CONVERT (varchar(10), Mandant), 8)"
-    Else
-        SoStr = "Format$([Mandant],'00000000')"
-    End If
+    SoStr = SqlPad("Mandant", 8)
 End Select
 
 Set RS147 = New ADODB.Recordset

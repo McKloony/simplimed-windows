@@ -2334,11 +2334,7 @@ Case 9: SoStr = "[Telefon1]"
 Case 10: SoStr = "[Telefon1]"
 Case 11: SoStr = "[Telefon5]"
 Case 12:
-    If GlTyp < 2 Then
-        SoStr = "RIGHT ('00000000' + CONVERT (varchar(10), Mandant), 8)"
-    Else
-        SoStr = "Format$([Mandant],'00000000')"
-    End If
+    SoStr = SqlPad("Mandant", 8)
 End Select
 
 SQL1 = "("
@@ -2632,11 +2628,7 @@ Case 9: SoStr = "[Telefon1]"
 Case 10: SoStr = "[Telefon1]"
 Case 11: SoStr = "[Telefon5]"
 Case 12:
-    If GlTyp < 2 Then
-        SoStr = "RIGHT ('00000000' + CONVERT (varchar(10), Mandant), 8)"
-    Else
-        SoStr = "Format$([Mandant],'00000000')"
-    End If
+    SoStr = SqlPad("Mandant", 8)
 End Select
 
 AktZa = 1
