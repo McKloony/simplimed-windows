@@ -12874,6 +12874,8 @@ If Monat = 0 Then Monat = VBA.Month(Now)
 
 If TeJah = 0 Then TeJah = VBA.Year(Now)
 
+If Monat > 12 Then Monat = Monat - 12: TeJah = TeJah + 1
+
 AktTa = DateSerial(TeJah, Monat, 1)
 
 If VBA.Weekday(AktTa) <> WoTag Then
