@@ -6606,25 +6606,14 @@ If clFil.FilVor(AnNam) = False Then
     Exit Sub
 End If
 
-If GlTyp < 2 Then
-    Select Case ForNa
-    Case "RechLi": SQL1 = "SELECT * FROM dbo.qryPrSimRe7 ORDER BY ReNr DESC"
-    Case "ReList": SQL1 = "SELECT * FROM dbo.qryPrSimRe7 ORDER BY ReNr DESC"
-    Case "ResUbe": SQL1 = "SELECT * FROM dbo.qryPrSimRe8 ORDER BY Patient, Datum"
-    Case "AbrLis": SQL1 = "SELECT * FROM dbo.qryPrAbrLi1 ORDER BY Beleg DESC, Datum, IDR"
-    Case "BuList": SQL1 = "SELECT * FROM dbo.qryPrBuLis1 ORDER BY Datum DESC, Nr"
-    Case "TerExp": SQL1 = "SELECT * FROM dbo.qryPrTerLis1 ORDER BY VonDat, ZeiVon"
-    End Select
-Else
-    Select Case ForNa
-    Case "RechLi": SQL1 = "SELECT * FROM qryPrSimRe7 ORDER BY [ReNr] DESC;"
-    Case "ReList": SQL1 = "SELECT * FROM qryPrSimRe7 ORDER BY [ReNr] DESC;"
-    Case "ResUbe": SQL1 = "SELECT * FROM qryPrSimRe8 ORDER BY [Patient], [Datum];"
-    Case "AbrLis": SQL1 = "SELECT * FROM qryPrAbrLi1 ORDER BY [Beleg] DESC, [Datum], [IDR];"
-    Case "BuList": SQL1 = "SELECT * FROM qryPrBuLis1 ORDER BY [Datum] DESC, [Nr];"
-    Case "TerExp": SQL1 = "SELECT * FROM qryPrTerLis1 ORDER BY [VonDat], [ZeiVon];"
-    End Select
-End If
+Select Case ForNa
+Case "RechLi": SQL1 = "SELECT * FROM qryPrSimRe7 ORDER BY [ReNr] DESC"
+Case "ReList": SQL1 = "SELECT * FROM qryPrSimRe7 ORDER BY [ReNr] DESC"
+Case "ResUbe": SQL1 = "SELECT * FROM qryPrSimRe8 ORDER BY [Patient], [Datum]"
+Case "AbrLis": SQL1 = "SELECT * FROM qryPrAbrLi1 ORDER BY [Beleg] DESC, [Datum], [IDR]"
+Case "BuList": SQL1 = "SELECT * FROM qryPrBuLis1 ORDER BY [Datum] DESC, [Nr]"
+Case "TerExp": SQL1 = "SELECT * FROM qryPrTerLis1 ORDER BY [VonDat], [ZeiVon]"
+End Select
 
 If SQL1 = vbNullString Then
     WindowMess Mld1, Dial4, Tit1, FM.hwnd
@@ -8503,11 +8492,7 @@ For AktPo = 1 To AnzPo
     If CmTex = True Then
         Select Case ForNa
         Case "KraBla":
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimKr5 WHERE (" & Krite & " AND (PatNr = " & GloDr(AktPo) & ")) ORDER BY Datum"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimKr5 WHERE (" & Krite & " AND ([PatNr] = " & GloDr(AktPo) & ")) ORDER BY [Datum];"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimKr5 WHERE (" & Krite & " AND ([PatNr] = " & GloDr(AktPo) & ")) ORDER BY [Datum]"
         Case Else:
         End Select
         Set RS32 = DBCmRe0(SQL2, CmTex)
@@ -10559,29 +10544,16 @@ AkPos = InStrRev(FiNam, "\", Len(FiNam), 1)
 DruDa = TmPfa & Mid$(FiNam, AkPos + 1, Len(FiNam) - (AkPos + 3)) & "LL"
 DaExt = Right$(FiNam, 3)
 
-If GlTyp < 2 Then
-    Select Case ForNa
-    Case "AdrEti": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "DiaEti": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "KarEt1": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "KarEt2": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "PhoEti": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "StaEt2": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "VerEti": SQL1 = "SELECT * FROM dbo.qryPrSimAd1 ORDER BY Kurzbezeichnung"
-    Case "LabBef": SQL1 = "SELECT * FROM dbo.qryPrLaBef"
-    End Select
-Else
-    Select Case ForNa
-    Case "AdrEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "DiaEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "KarEt1": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "KarEt2": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "PhoEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "StaEt2": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "VerEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung];"
-    Case "LabBef": SQL1 = "SELECT * FROM qryPrLaBef;"
-    End Select
-End If
+Select Case ForNa
+Case "AdrEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "DiaEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "KarEt1": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "KarEt2": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "PhoEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "StaEt2": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "VerEti": SQL1 = "SELECT * FROM qryPrSimAd1 ORDER BY [Kurzbezeichnung]"
+Case "LabBef": SQL1 = "SELECT * FROM qryPrLaBef"
+End Select
 
 If SQL1 = vbNullString Then
     SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
@@ -10983,46 +10955,22 @@ Case "StaDia": 'Diagnosestatistik
         SQL1 = "qryPrSimDia1"
         Select Case ZeRau
         Case 1: 'Monat
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimDia1a WHERE " & Krite & " ORDER BY Anzahl DESC"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimDia1a WHERE " & Krite & " ORDER BY [Anzahl] DESC;"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimDia1a WHERE " & Krite & " ORDER BY [Anzahl] DESC"
         Case 2: 'Jahr
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimDia2a WHERE " & Krite & " ORDER BY Anzahl DESC"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimDia2a WHERE " & Krite & " ORDER BY [Anzahl] DESC;"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimDia2a WHERE " & Krite & " ORDER BY [Anzahl] DESC"
         Case 3: 'Qurtal
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimDia3a WHERE " & Krite & " ORDER BY Anzahl DESC"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimDia3a WHERE " & Krite & " ORDER BY [Anzahl] DESC;"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimDia3a WHERE " & Krite & " ORDER BY [Anzahl] DESC"
         End Select
         CmTex = True
 Case "StaGeb":
         SQL1 = "qryPrSimGeb1"
         Select Case ZeRau
         Case 1: 'Monat
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimGeb1a WHERE " & Krite & " ORDER BY Anzahl DESC"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimGeb1a WHERE " & Krite & " ORDER BY [Anzahl] DESC;"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimGeb1a WHERE " & Krite & " ORDER BY [Anzahl] DESC"
         Case 2: 'Jahr
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimGeb2a WHERE " & Krite & " ORDER BY Anzahl DESC"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimGeb2a WHERE " & Krite & " ORDER BY [Anzahl] DESC;"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimGeb2a WHERE " & Krite & " ORDER BY [Anzahl] DESC"
         Case 3: 'Qurtal
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrSimGeb3a WHERE " & Krite & " ORDER BY Anzahl DESC"
-            Else
-                SQL2 = "SELECT * FROM qryPrSimGeb3a WHERE " & Krite & " ORDER BY [Anzahl] DESC;"
-            End If
+            SQL2 = "SELECT * FROM qryPrSimGeb3a WHERE " & Krite & " ORDER BY [Anzahl] DESC"
         End Select
         CmTex = True
 Case "TagSum": 'Tagessummen
@@ -11045,32 +10993,16 @@ Case "EiUbMo": 'Einnahmenüberschussrechnung
         SQL1 = "qryPrBuEr3"
         Select Case ZeRau
         Case 1: 'Monat
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrBuEr1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto]"
-            Else
-                SQL2 = "SELECT * FROM qryPrBuEr1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto];"
-            End If
+            SQL2 = "SELECT * FROM qryPrBuEr1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto]"
         Case 2: 'Jahr
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrBuEr2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Konto]"
-            Else
-                SQL2 = "SELECT * FROM qryPrBuEr2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Konto];"
-            End If
+            SQL2 = "SELECT * FROM qryPrBuEr2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Konto]"
         Case 3: 'Qurtal
-            If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrBuEr4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Quartal], [Konto]"
-            Else
-                SQL2 = "SELECT * FROM qryPrBuEr4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Quartal], [Konto];"
-            End If
+            SQL2 = "SELECT * FROM qryPrBuEr4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Quartal], [Konto]"
         End Select
         CmTex = True
 Case "EiUbGr":
         SQL1 = "qryPrBuEr3"
-        If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryPrBuEr1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto]"
-            Else
-                SQL2 = "SELECT * FROM qryPrBuEr1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto];"
-            End If
+        SQL2 = "SELECT * FROM qryPrBuEr1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto]"
         CmTex = True
 Case "SaKoMo": 'Saldenliste der Sachkonten"
         SQL1 = "qryPrBuKo3"
@@ -11078,46 +11010,22 @@ Case "SaKoMo": 'Saldenliste der Sachkonten"
         Select Case ZeRau
         Case 1: 'Monat
             If Gefun > 0 Then
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuKo1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK], [Monat]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuKo1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK], [Monat];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuKo1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK], [Monat]"
             Else
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuKo1 WHERE " & Krite & " ORDER BY [Jahr], [IDK], [Monat]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuKo1 WHERE " & Krite & " ORDER BY [Jahr], [IDK], [Monat];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuKo1 WHERE " & Krite & " ORDER BY [Jahr], [IDK], [Monat]"
             End If
         Case 2: 'Jahr
             If Gefun > 0 Then
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuKo2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuKo2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuKo2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK]"
             Else
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuKo2 WHERE " & Krite & " ORDER BY [Jahr], [IDK]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuKo2 WHERE " & Krite & " ORDER BY [Jahr], [IDK];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuKo2 WHERE " & Krite & " ORDER BY [Jahr], [IDK]"
             End If
         Case 3: 'Qurtal
             If Gefun > 0 Then
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuKo4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK], [Quartal]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuKo4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK], [Quartal];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuKo4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDK], [Quartal]"
             
             Else
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuKo4 WHERE " & Krite & " ORDER BY [Jahr], [IDK], [Quartal]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuKo4 WHERE " & Krite & " ORDER BY [Jahr], [IDK], [Quartal];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuKo4 WHERE " & Krite & " ORDER BY [Jahr], [IDK], [Quartal]"
             End If
         End Select
         CmTex = True
@@ -11126,149 +11034,73 @@ Case "SaGeMo": 'Saldenliste der Geldkonten
         Select Case ZeRau
         Case 1: 'Monat
             If Gefun > 0 Then
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuBa1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB], [Monat]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuBa1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB], [Monat];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuBa1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB], [Monat]"
             Else
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuBa1 WHERE " & Krite & " ORDER BY [Jahr], [IDB], [Monat]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuBa1 WHERE " & Krite & " ORDER BY [Jahr], [IDB], [Monat];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuBa1 WHERE " & Krite & " ORDER BY [Jahr], [IDB], [Monat]"
             End If
         Case 2: 'Jahr
             If Gefun > 0 Then
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuBa2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuBa2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuBa2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB]"
             Else
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuBa2 WHERE " & Krite & " ORDER BY [Jahr], [IDB]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuBa2 WHERE " & Krite & " ORDER BY [Jahr], [IDB];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuBa2 WHERE " & Krite & " ORDER BY [Jahr], [IDB]"
             End If
         Case 3: 'Qurtal
             If Gefun > 0 Then
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuBa4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB], [Quartal]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuBa4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB], [Quartal];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuBa4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [IDB], [Quartal]"
             Else
-                If GlTyp < 2 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuBa4 WHERE " & Krite & " ORDER BY [Jahr], [IDB], [Quartal]"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuBa4 WHERE " & Krite & " ORDER BY [Jahr], [IDB], [Quartal];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuBa4 WHERE " & Krite & " ORDER BY [Jahr], [IDB], [Quartal]"
             End If
         End Select
         CmTex = True
 Case "KonAus": 'Einzelkontenauswertung
         SQL1 = "qryPrBuJo3"
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryPrBuJo1a WHERE " & Krite & " ORDER BY Datum"
-        Else
-            SQL2 = "SELECT * FROM qryPrBuJo1a WHERE " & Krite & " ORDER BY [Datum];"
-        End If
+        SQL2 = "SELECT * FROM qryPrBuJo1a WHERE " & Krite & " ORDER BY [Datum]"
         CmTex = True
 Case "KonGru": 'Einzelkontenauswertung (Gruppiert Sachkonten)
         SQL1 = "qryPrBuJo3"
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryPrBuJo2a WHERE " & Krite & " ORDER BY Konto, Datum"
-        Else
-            SQL2 = "SELECT * FROM qryPrBuJo2a WHERE " & Krite & " ORDER BY [Konto], [Datum];"
-        End If
+        SQL2 = "SELECT * FROM qryPrBuJo2a WHERE " & Krite & " ORDER BY [Konto], [Datum]"
         CmTex = True
 Case "KonGel": 'Einzelkontenauswertung (Gruppiert Geldkonten)
         SQL1 = "qryPrBuJo3"
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryPrBuJo4a WHERE " & Krite & " ORDER BY IDB, Datum"
-        Else
-            SQL2 = "SELECT * FROM qryPrBuJo4a WHERE " & Krite & " ORDER BY [IDB], [Datum];"
-        End If
+        SQL2 = "SELECT * FROM qryPrBuJo4a WHERE " & Krite & " ORDER BY [IDB], [Datum]"
         CmTex = True
 Case "ReUmsa":
         SQL1 = "qryPrReUm3"
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryPrReUm1a WHERE " & Krite & " ORDER BY Sort"
-        Else
-            SQL2 = "SELECT * FROM qryPrReUm1a WHERE " & Krite & " ORDER BY [Sort];"
-        End If
+        SQL2 = "SELECT * FROM qryPrReUm1a WHERE " & Krite & " ORDER BY [Sort]"
         CmTex = True
 Case "KomAus": 'Kompaktauswertung
         SQL1 = "qryPrBuKom"
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryPrBuKom2 WHERE " & Krite & " ORDER BY Jahr, Sort"
-        Else
-            SQL2 = "SELECT * FROM qryPrBuKom2 WHERE " & Krite & " ORDER BY [Jahr], [Sort];"
-        End If
+        SQL2 = "SELECT * FROM qryPrBuKom2 WHERE " & Krite & " ORDER BY [Jahr], [Sort]"
         CmTex = True
 Case "UmStMo": 'Umsatzsteuerübersicht
         SQL1 = "qryPrBuSt3"
         Select Case ZeRau
         Case 1: 'Monat
-            If GlTyp < 2 Then
-                If InStr(1, Krite, "IDT", 1) > 0 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuSt1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto]"
-                Else
-                    SQL2 = "SELECT * FROM dbo.qryPrBuSt1 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Monat], [Konto]"
-                End If
+            If InStr(1, Krite, "IDT", 1) > 0 Then
+                SQL2 = "SELECT * FROM qryPrBuSt1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto]"
             Else
-                If InStr(1, Krite, "IDT", 1) > 0 Then
-                    SQL2 = "SELECT * FROM qryPrBuSt1a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Monat], [Konto];"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuSt1 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Monat], [Konto];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuSt1 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Monat], [Konto]"
             End If
         Case 2: 'Jahr
-            If GlTyp < 2 Then
-                If InStr(1, Krite, "IDT", 1) > 0 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuSt2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Konto]"
-                Else
-                    SQL2 = "SELECT * FROM dbo.qryPrBuSt2 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Konto]"
-                End If
+            If InStr(1, Krite, "IDT", 1) > 0 Then
+                SQL2 = "SELECT * FROM qryPrBuSt2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Konto]"
             Else
-                If InStr(1, Krite, "IDT", 1) > 0 Then
-                    SQL2 = "SELECT * FROM qryPrBuSt2a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Konto];"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuSt2 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Konto];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuSt2 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Konto]"
             End If
         Case 3: 'Qurtal
-            If GlTyp < 2 Then
-                If InStr(1, Krite, "IDT", 1) > 0 Then
-                    SQL2 = "SELECT * FROM dbo.qryPrBuSt4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Quartal], [Konto]"
-                Else
-                    SQL2 = "SELECT * FROM dbo.qryPrBuSt4 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Quartal], [Konto]"
-                End If
+            If InStr(1, Krite, "IDT", 1) > 0 Then
+                SQL2 = "SELECT * FROM qryPrBuSt4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Quartal], [Konto]"
             Else
-                If InStr(1, Krite, "IDT", 1) > 0 Then
-                    SQL2 = "SELECT * FROM qryPrBuSt4a WHERE " & Krite & " ORDER BY [IDT], [Jahr], [EA], [Quartal], [Konto];"
-                Else
-                    SQL2 = "SELECT * FROM qryPrBuSt4 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Quartal], [Konto];"
-                End If
+                SQL2 = "SELECT * FROM qryPrBuSt4 WHERE " & Krite & " ORDER BY [Jahr], [EA], [Quartal], [Konto]"
             End If
         End Select
         CmTex = True
 Case "BuKont": 'Kontenplan
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM qryPrKon1 WHERE " & Krite & " ORDER BY Kontonummer"
-        Else
-            SQL2 = "SELECT * FROM qryPrKon1 WHERE " & Krite & " ORDER BY [Kontonummer];"
-        End If
+        SQL2 = "SELECT * FROM qryPrKon1 WHERE " & Krite & " ORDER BY [Kontonummer]"
         CmTex = True
 Case "ReUber":
         SQL1 = "qryPrSimReL2"
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryPrSimReL1 WHERE " & Krite & " ORDER BY Datum"
-        Else
-            SQL2 = "SELECT * FROM qryPrSimReL1 WHERE " & Krite & " ORDER BY [Datum];"
-        End If
+        SQL2 = "SELECT * FROM qryPrSimReL1 WHERE " & Krite & " ORDER BY [Datum]"
         CmTex = True
 Case "TerPat": 'Terminzettel
         VerMo = True
