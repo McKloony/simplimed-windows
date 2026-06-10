@@ -668,29 +668,13 @@ On Error GoTo ErrHandler
     ' Build SQL query based on current tab
     Select Case GlBut
     Case RibTab_Abrechnung:
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimReSu WHERE " & Krite & " ORDER BY ID1, Datum"
-        Else
-            SQL1 = "SELECT * FROM qrySimReSu WHERE " & Krite & " ORDER BY [ID1], [Datum];"
-        End If
+        SQL1 = "SELECT * FROM qrySimReSu WHERE " & Krite & " ORDER BY [ID1], [Datum]"
     Case RibTab_Rechnungen:
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimReSu WHERE " & Krite & " ORDER BY ID1, Datum"
-        Else
-            SQL1 = "SELECT * FROM qrySimReSu WHERE " & Krite & " ORDER BY [ID1], [Datum];"
-        End If
+        SQL1 = "SELECT * FROM qrySimReSu WHERE " & Krite & " ORDER BY [ID1], [Datum]"
     Case RibTab_Mahnwesen:
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimOPSu WHERE " & Krite & " ORDER BY IDR, Datum"
-        Else
-            SQL1 = "SELECT * FROM qrySimOPSu WHERE " & Krite & " ORDER BY [IDR], [Datum];"
-        End If
+        SQL1 = "SELECT * FROM qrySimOPSu WHERE " & Krite & " ORDER BY [IDR], [Datum]"
     Case RibTab_Buchungen:
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimBuSu WHERE " & Krite & " ORDER BY Datum"
-        Else
-            SQL1 = "SELECT * FROM qrySimBuSu WHERE " & Krite & " ORDER BY [Datum];"
-        End If
+        SQL1 = "SELECT * FROM qrySimBuSu WHERE " & Krite & " ORDER BY [Datum]"
     Case Else
         SPopu "DATEV-Export", "DATEV-Export nur von Buchungen moeglich", IC48_Warning
         Exit Sub
@@ -3996,11 +3980,7 @@ On Error GoTo ErrHandler
     ShowProgressDialogInit "DATEV Export"
 
     ' Build SQL query based on database type
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBuSu WHERE " & SQLCriteria & " ORDER BY Datum"
-    Else
-        SQL1 = "SELECT * FROM qrySimBuSu WHERE " & SQLCriteria & " ORDER BY [Datum];"
-    End If
+    SQL1 = "SELECT * FROM qrySimBuSu WHERE " & SQLCriteria & " ORDER BY [Datum]"
 
     ' Execute query
     Set RST = New ADODB.Recordset
