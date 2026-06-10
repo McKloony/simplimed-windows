@@ -11924,27 +11924,9 @@ Set FM = frmOptions
 Set RpCon = FM.repCont3
 Set RpRcs = RpCon.Records
 
-Select Case GlTyp
-Case 0:
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "%')"
-    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')"
-    End Select
-Case 1:
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "%')"
-    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')"
-    End Select
-Case 2:
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
-    End Select
-Case 3:
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
-    End Select
+Select Case SuTyp
+Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%'"
+Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')"
 End Select
 
 Set RS46 = New ADODB.Recordset
@@ -26145,12 +26127,7 @@ On Error GoTo LoErr
 Dim SQL1 As String
 Dim MasTe As Long
 
-Select Case GlTyp
-Case 0: SQL1 = "SELECT TOP 1 ID2 FROM dbo.Tabelle_PatientenWv ORDER BY ID2 DESC"
-Case 1: SQL1 = "SELECT TOP 1 ID2 FROM dbo.Tabelle_PatientenWv ORDER BY ID2 DESC"
-Case 2: SQL1 = "SELECT TOP 1 ID2 FROM Tabelle_PatientenWv ORDER BY ID2 DESC;"
-Case 3: SQL1 = "SELECT TOP 1 ID2 FROM Tabelle_PatientenWv ORDER BY ID2 DESC;"
-End Select
+SQL1 = "SELECT TOP 1 ID2 FROM Tabelle_PatientenWv ORDER BY ID2 DESC"
 
 Set RS40 = New ADODB.Recordset
 With RS40

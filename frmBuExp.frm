@@ -1036,12 +1036,7 @@ ElseIf OpJah.Value = True Then
     Krit1 = "((Year([Datum]) = " & AkJha & "))"
     TxDum.Text = "Jahr: " & CmJah.Text
 ElseIf OpZei.Value = True Then
-    Select Case GlTyp
-    Case 0: Krit1 = "((Datum >= '" & DaSta & "') AND (Datum <= '" & DaEnd & "'))"
-    Case 1: Krit1 = "((Datum >= '" & DaSta & "') AND (Datum <= '" & DaEnd & "'))"
-    Case 2: Krit1 = "(([Datum] Between #" & Datu1 & "# AND #" & Datu2 & "#))"
-    Case 3: Krit1 = "(([Datum] Between #" & Datu1 & "# AND #" & Datu2 & "#))"
-    End Select
+    Krit1 = "(([Datum] >= " & SqlDat(CDate(DaSta)) & ") AND ([Datum] <= " & SqlDat(CDate(DaEnd)) & "))"
     TxDum.Text = DaSta & " - " & DaEnd
 Else
     WindowMess Mld1, Dial2, Tit1, Me.hwnd

@@ -1168,12 +1168,7 @@ Tit1 = "Einzelbriefübergabe"
 Select Case OuAbg
 Case 0:
     If TrLi1.Nodes("P801").Checked = True Then
-        Select Case GlTyp
-        Case 0: Krit1 = "(ID0 > 0)"
-        Case 1: Krit1 = "(ID0 > 0)"
-        Case 2: Krit1 = "([ID0] > 0)"
-        Case 3: Krit1 = "([ID0] > 0)"
-        End Select
+        Krit1 = "([ID0] > 0)"
     Else
         If TrLi1.Nodes("P802").Checked = True Then
             Select Case GlTyp
@@ -1256,45 +1251,16 @@ Case 1:
     If OpMon.Value = True Then
         Krit1 = "(((Month([VonDat]))=" & AkMon & ") AND ((Year([VonDat]))=" & AkJha & "))"
     ElseIf OpQua.Value = True Then
-        Select Case GlTyp
-        Case 0:
-            Select Case AkQua
-            Case 1: Krit1 = "((VonDat >= '01.01." & AkJha & "') AND (VonDat <= '31.03." & AkJha & "'))"
-            Case 2: Krit1 = "((VonDat >= '01.04." & AkJha & "') AND (VonDat <= '30.06." & AkJha & "'))"
-            Case 3: Krit1 = "((VonDat >= '01.07." & AkJha & "') AND (VonDat <= '30.09." & AkJha & "'))"
-            Case 4: Krit1 = "((VonDat >= '01.10." & AkJha & "') AND (VonDat <= '31.12." & AkJha & "'))"
-            End Select
-        Case 1:
-            Select Case AkQua
-            Case 1: Krit1 = "((VonDat >= '01.01." & AkJha & "') AND (VonDat <= '31.03." & AkJha & "'))"
-            Case 2: Krit1 = "((VonDat >= '01.04." & AkJha & "') AND (VonDat <= '30.06." & AkJha & "'))"
-            Case 3: Krit1 = "((VonDat >= '01.07." & AkJha & "') AND (VonDat <= '30.09." & AkJha & "'))"
-            Case 4: Krit1 = "((VonDat >= '01.10." & AkJha & "') AND (VonDat <= '31.12." & AkJha & "'))"
-            End Select
-        Case 2:
-            Select Case AkQua
-            Case 1: Krit1 = "(([VonDat] Between #01/01/" & AkJha & "# AND #03/31/" & AkJha & "#))"
-            Case 2: Krit1 = "(([VonDat] Between #04/01/" & AkJha & "# AND #06/30/" & AkJha & "#))"
-            Case 3: Krit1 = "(([VonDat] Between #07/01/" & AkJha & "# AND #09/30/" & AkJha & "#))"
-            Case 4: Krit1 = "(([VonDat] Between #10/01/" & AkJha & "# AND #12/31/" & AkJha & "#))"
-            End Select
-        Case 3:
-            Select Case AkQua
-            Case 1: Krit1 = "(([VonDat] Between #01/01/" & AkJha & "# AND #03/31/" & AkJha & "#))"
-            Case 2: Krit1 = "(([VonDat] Between #04/01/" & AkJha & "# AND #06/30/" & AkJha & "#))"
-            Case 3: Krit1 = "(([VonDat] Between #07/01/" & AkJha & "# AND #09/30/" & AkJha & "#))"
-            Case 4: Krit1 = "(([VonDat] Between #10/01/" & AkJha & "# AND #12/31/" & AkJha & "#))"
-            End Select
+        Select Case AkQua
+        Case 1: Krit1 = "(([VonDat] >= " & SqlDat(DateSerial(AkJha, 1, 1)) & ") AND ([VonDat] <= " & SqlDat(DateSerial(AkJha, 3, 31)) & "))"
+        Case 2: Krit1 = "(([VonDat] >= " & SqlDat(DateSerial(AkJha, 4, 1)) & ") AND ([VonDat] <= " & SqlDat(DateSerial(AkJha, 6, 30)) & "))"
+        Case 3: Krit1 = "(([VonDat] >= " & SqlDat(DateSerial(AkJha, 7, 1)) & ") AND ([VonDat] <= " & SqlDat(DateSerial(AkJha, 9, 30)) & "))"
+        Case 4: Krit1 = "(([VonDat] >= " & SqlDat(DateSerial(AkJha, 10, 1)) & ") AND ([VonDat] <= " & SqlDat(DateSerial(AkJha, 12, 31)) & "))"
         End Select
     ElseIf OpJah.Value = True Then
         Krit1 = "((Year([VonDat])=" & AkJha & "))"
     ElseIf OpZei.Value = True Then
-        Select Case GlTyp
-        Case 0: Krit1 = "(([VonDat] >= '" & DaSta & "') AND ([VonDat] <= '" & DaEnd & "'))"
-        Case 1: Krit1 = "(([VonDat] >= '" & DaSta & "') AND ([VonDat] <= '" & DaEnd & "'))"
-        Case 2: Krit1 = "(([VonDat] Between #" & Datu1 & "# AND #" & Datu2 & "#))"
-        Case 3: Krit1 = "(([VonDat] Between #" & Datu1 & "# AND #" & Datu2 & "#))"
-        End Select
+        Krit1 = "(([VonDat] >= " & SqlDat(CDate(DaSta)) & ") AND ([VonDat] <= " & SqlDat(CDate(DaEnd)) & "))"
     Else
         WindowMess Mld1, Dial2, Tit1, Me.hwnd
     End If
