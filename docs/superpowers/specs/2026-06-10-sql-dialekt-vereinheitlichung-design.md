@@ -1,7 +1,7 @@
 # Design: Vereinheitlichung der SQL-Dialekte (GlTyp-Verzweigungen)
 
-Stand: 2026-06-10 · Status: **Umgesetzt** — 496 Dialekt-Konstrukte vereinheitlicht; Restbestand
-(149 Blöcke + 34 Zeilen) begründet verzweigt, kategorisiert in
+Stand: 2026-06-10 · Status: **Umgesetzt** — 514 Dialekt-Konstrukte vereinheitlicht; Restbestand
+(131 Blöcke + 34 Zeilen) begründet verzweigt, kategorisiert in
 `docs/superpowers/2026-06-10-task9-arbeitsliste.md` und `scripts/gltyp_triage.csv`
 
 ## 1. Kontext / Ist-Zustand

@@ -70,11 +70,14 @@ Boolean, frmOptions=WIP, clsData=Verbindung).
 
 ### Endstand (Task 10, Report `scripts/gltyp_report_final.csv`)
 
-**496 Dialekt-Konstrukte vereinheitlicht** (inkl. Opt_PLZ, 2026-06-10 nachgezogen).
-Verbleibend 149 Blöcke + 34 Einzelzeilen, alle
+**514 Dialekt-Konstrukte vereinheitlicht** (inkl. Opt_PLZ sowie SorDat/SorTim-Familie
+qryTerLis/qryTerPas/qryTerAufg1+2 = 18 Blöcke, 2026-06-10 per User-Freigabe nachgezogen:
+SorDat/SorTim sind Sortierhilfsspalten, Reihenfolge äquivalent zu `[VonDat], [ZeiVon]`;
+qryTerAufg2 mit Uhrzeit `[VonDat], [ZeiVon], [Patient]` — Access sortierte dort bisher ohne Zeit).
+Verbleibend 131 Blöcke + 34 Einzelzeilen (Zählung `gltyp_report_final2.csv`), alle
 begründet: 49 strukturelle (Triage-Begründungen in `gltyp_triage.csv`), 27 Command/StoredProc,
-26 Datums-Schema/Wochenfilter, 15 Jet-Boolean vs. BIT, 19 ONLY (TSE/Procs), 3 ONLYA,
-7 Verbindungslogik, 3 Helper selbst, 16× .dbx/.dbv u. a.
+8 Datums-Schema/Wochenfilter (u. a. DATEPART(ww), qryTerWiVor), 15 Jet-Boolean vs. BIT,
+19 ONLY (TSE/Procs), 3 ONLYA, 7 Verbindungslogik, 3 Helper selbst, 16× .dbx/.dbv u. a.
 
 ### Offene User-Entscheide
 
