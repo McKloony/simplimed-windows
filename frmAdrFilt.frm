@@ -2465,11 +2465,7 @@ If Me.cmbUo4.Text <> vbNullString Then
     End If
 End If
 
-If GlTyp > 1 Then
-    SQL1 = SQL1 & ") ORDER BY " & SoStr
-Else
-    SQL1 = SQL1 & ") ORDER BY " & SoStr & ";"
-End If
+SQL1 = SQL1 & ") ORDER BY " & SoStr
 
 FStri = SQL1
 
@@ -2806,32 +2802,16 @@ For Each Knote In TrLi1.Nodes
             GrIdx = Mid$(Knote.Key, 2, Len(Knote.Key) - 1)
             GruKy = "o" & GrIdx & "o"
             If Opti1.Value = True Then
-                If GlTyp > 1 Then
-                    If AktZa > 1 Then
-                        SQL2 = SQL2 & " AND TreKey Like '%" & SqlStr(GruKy) & "%'"
-                    Else
-                        SQL2 = SQL2 & "TreKey Like '%" & SqlStr(GruKy) & "%'"
-                    End If
+                If AktZa > 1 Then
+                    SQL2 = SQL2 & " AND TreKey Like '%" & SqlStr(GruKy) & "%'"
                 Else
-                    If AktZa > 1 Then
-                        SQL2 = SQL2 & " AND [TreKey] Like '%" & SqlStr(GruKy) & "%'"
-                    Else
-                        SQL2 = SQL2 & "[TreKey] Like '%" & SqlStr(GruKy) & "%'"
-                    End If
+                    SQL2 = SQL2 & "TreKey Like '%" & SqlStr(GruKy) & "%'"
                 End If
             Else
-                If GlTyp > 1 Then
-                    If AktZa > 1 Then
-                        SQL2 = SQL2 & " OR TreKey Like '%" & SqlStr(GruKy) & "%'"
-                    Else
-                        SQL2 = SQL2 & "TreKey Like '%" & SqlStr(GruKy) & "%'"
-                    End If
+                If AktZa > 1 Then
+                    SQL2 = SQL2 & " OR TreKey Like '%" & SqlStr(GruKy) & "%'"
                 Else
-                    If AktZa > 1 Then
-                        SQL2 = SQL2 & " OR [TreKey] Like '%" & SqlStr(GruKy) & "%'"
-                    Else
-                        SQL2 = SQL2 & "[TreKey] Like '%" & SqlStr(GruKy) & "%'"
-                    End If
+                    SQL2 = SQL2 & "TreKey Like '%" & SqlStr(GruKy) & "%'"
                 End If
             End If
             AktZa = AktZa + 1

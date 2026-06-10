@@ -12869,19 +12869,11 @@ DaExt = Right$(FiNam, 3)
 
 Select Case ForNa
 Case "BuJour":
-        If GlTyp > 1 Then
-            SQL2 = "SELECT * FROM qryPrBuJo1 WHERE " & Krite & " ORDER BY [Datum], [Beleg];"
-        Else
-            SQL2 = "SELECT * FROM dbo.qryPrBuJo1 WHERE " & Krite & " ORDER BY Datum, Beleg"
-        End If
+        SQL2 = "SELECT * FROM qryPrBuJo1 WHERE " & Krite & " ORDER BY [Datum], [Beleg]"
         AkSal = AnSal
         CmTex = True
 Case "BuKass":
-        If GlTyp > 1 Then
-            SQL2 = "SELECT * FROM qryPrBuKas WHERE " & Krite & " ORDER BY [Datum], [Beleg];"
-        Else
-            SQL2 = "SELECT * FROM dbo.qryPrBuKas WHERE " & Krite & " ORDER BY Datum, Beleg"
-        End If
+        SQL2 = "SELECT * FROM qryPrBuKas WHERE " & Krite & " ORDER BY [Datum], [Beleg]"
         AkSal = AnSal
         CmTex = True
 End Select
