@@ -655,6 +655,27 @@ Initialisierungs-/Zuweisungszeilen (`GlTyp = …`, `clsConn`-Logik) erscheinen d
   Zeile — Datenliteral-Ende vor Konkatenation — bleibt unangetastet; bei MECH-Blöcken hatte
   der Srv-Zweig dasselbe `;` im Skelett, Beibehalten ist also korrekt).
 
+### A.7 Lib v3 (nach Re-Review): Get-CodeOnly + MECH-Gate
+
+- **`Get-CodeOnly($Line)`** (neu): entfernt VB6-Stringinhalte (behält die `"`-Marker, `""`-Escape
+  konsumiert) und Kommentare. **Alle** Struktur-Regexes in `Get-GlTypBlocks` (Header, End If,
+  Else, ElseIf, Doppelpunkt, Depth-Increment, Zeilenfortsetzung, Einzeiler-Erkennung) laufen auf
+  der bereinigten Zeile. Damit zählen If-Header mit Apostroph im String
+  (`If InStr(s, "'") > 0 Then`) korrekt als Block-If; Increment-Regex vereinfacht sich zu
+  `'^\s*#?If\b.*\bThen\s*$'`.
+- **MECH-Gate:** Klasse MECH nur, wenn Normalisierung gleich **und** Blocktext SQL-führend ist
+  (`'\b(SELECT|INSERT|UPDATE|DELETE|EXEC|EXECUTE)\b'`, case-insensitive). Gleich, aber nicht
+  SQL-führend → neue Klasse **MECH_NOSQL** (nie Auto-Patch; Transform filtert weiterhin
+  `Class -eq 'MECH'`).
+- **Kontrollzeichen-Guard:** Branch enthält `[char]1`/`[char]2` → RAW-Sentinel.
+- **dbo-Strip mit Wortgrenze:** `'\bdbo\.'`.
+- **Fixture v3:** Block 14 (MECH_NOSQL): `Print #1, "Name;Vorname;"` vs. `Print #1, "Name;Vorname"`.
+  **Neue Erwartung Task 3:** 14 Blöcke — MECH 3, MECH_NOSQL 1, DIFF 6, ONLY 1, ONLY1 1,
+  ONLY1E 1, COMPLEX 1; DateNum 2; MECH auto-patchbar 3.
+- Dokumentierte Restrisiken (bewusst akzeptiert, Richtung konservativ): RAW-Sentinel-Schwächung
+  durch Quote-haltige Kommentare hinter offenem SQL-Literal; Nicht-SQL-Apostrophe (`"Don't"`)
+  erzeugen RAW→DIFF statt MECH; lone-LF-Zeilen.
+
 ## Offene Abhängigkeiten
 
 - Tasks 4, 5, 7 und jede Welle in Task 8 enthalten **harte User-Gates** (Report-Review, Compile, Smoke-Tests) — keine Fortsetzung ohne Freigabe.
