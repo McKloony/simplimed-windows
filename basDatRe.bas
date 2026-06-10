@@ -25963,11 +25963,7 @@ If AnzPo > 0 Then
                     Set RpCol = RpCls.Find(Rzp_ID1)
                     RzNum = RpRow.Record(RpCol.ItemIndex).Value
         
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qrySimRzEdit WHERE ID1 = " & RzNum
-                    Else
-                        SQL1 = "SELECT * FROM qrySimRzEdit WHERE [ID1] = " & RzNum & ";"
-                    End If
+                    SQL1 = "SELECT * FROM qrySimRzEdit WHERE [ID1] = " & RzNum
                     Set RS120 = New ADODB.Recordset
                     With RS120
                         .CursorLocation = adUseClient
@@ -27227,11 +27223,7 @@ If RpSel.Count > 0 Then
         End Select
     End Select
 
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimRez WHERE ID1 = " & RezNr
-    Else
-        SQL1 = "SELECT * FROM qrySimRez WHERE [ID1] = " & RezNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimRez WHERE [ID1] = " & RezNr
 Else
     Mld1 = "Sie müssen erst einen neuen Beleg anlegen, bevor Sie diesen speichern können!"
     Tit1 = "Noch kein Beleg angelegt"
