@@ -676,6 +676,24 @@ Initialisierungs-/Zuweisungszeilen (`GlTyp = …`, `clsConn`-Logik) erscheinen d
   durch Quote-haltige Kommentare hinter offenem SQL-Literal; Nicht-SQL-Apostrophe (`"Don't"`)
   erzeugen RAW→DIFF statt MECH; lone-LF-Zeilen.
 
+### A.8 Lib v3.1: Semikolon-Strip pro Zeile (Fixture-Befund Block 8)
+
+Mehrzeilige Zweige (Select Case), in denen jede Access-SQL-Zeile mit `;"` endet, wurden DIFF
+statt MECH (Strip feuerte nur am Branch-Ende). Fix: Skelett-Zeilen werden einzeln getrimmt und
+mit `[char]3` gejoint; der Strip ersetzt `;"` nur unmittelbar vor `[char]3` oder Stringende
+(`';"(?=|$)'`). Die bisherigen Regeln `';"$'`/`';\s*$'` entfallen. Damit bleibt ein
+Datenlisten-Semikolon (`"Mo;Di;" & SuStr` — gefolgt von Leerzeichen+`&`) korrekt erhalten (DIFF),
+während jedes Statement-Endsemikolon am Zeilenende gestrippt wird (MECH möglich).
+
+### A.9 Lib v3.2 (Task 9): konkateniertes Schluss-Semikolon
+
+Befund der DIFF-Gruppierung: 57 von 171 Rest-DIFF unterscheiden sich nur durch das Access-Idiom
+`... " & PatNr & ";"` (Statement-Endsemikolon als eigene Konkatenation). Neue Skelett-Regel
+(VOR den bestehenden `;"`-Regeln, sonst zerstört deren Ersetzung das Muster):
+`'\s*&\s*";"(?=<LINESEP>|$)'` → ''. Transform strippt analog `'\s*&\s*";"\s*$'` beim Bauen der
+NEU-Zeilen. Fixture Block 15 (MECH, qryTest8); neue Fixture-Erwartung: 15 Blöcke, MECH 4.
+Mid-Statement-Vorkommen (`& ";" & x`) bleiben unberührt (Lookahead auf Zeilenende).
+
 ## Offene Abhängigkeiten
 
 - Tasks 4, 5, 7 und jede Welle in Task 8 enthalten **harte User-Gates** (Report-Review, Compile, Smoke-Tests) — keine Fortsetzung ohne Freigabe.
