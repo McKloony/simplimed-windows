@@ -176,33 +176,18 @@ Case 101: 'Rezept
 
 Case 106: 'Rechnung
 
-    If GlTyp < 2 Then
-        Select Case GlSoA 'Sortierung Datum
-        Case 1: 'Datum Absteigend
-            Select Case GlSoZ 'Eingabesortierung
-            Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbLei4 WHERE IDR = " & IdxNr & " ORDER BY Sorter DESC, ID3 DESC" 'Sorter absteigend
-            Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbLei2 WHERE IDR = " & IdxNr & " ORDER BY Sorter DESC, ID3" 'Sorter aufsteigend
-            End Select
-        Case 2: 'Datum Aufsteigend
-            Select Case GlSoZ
-            Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbLei3 WHERE IDR = " & IdxNr & " ORDER BY Sorter, ID3 DESC" 'Sorter absteigend
-            Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbLei1 WHERE IDR = " & IdxNr & " ORDER BY Sorter, ID3" 'Sorter aufsteigend
-            End Select
+    Select Case GlSoA 'Sortierung Datum
+    Case 1: 'Datum Absteigend
+        Select Case GlSoZ 'Eingabesortierung
+        Case 3: SQL1 = "SELECT * FROM qrySimAbLei4 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3] DESC;" 'Sorter absteigend
+        Case 4: SQL1 = "SELECT * FROM qrySimAbLei2 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3];" 'Sorter aufsteigend
         End Select
-    Else
-        Select Case GlSoA 'Sortierung Datum
-        Case 1: 'Datum Absteigend
-            Select Case GlSoZ 'Eingabesortierung
-            Case 3: SQL1 = "SELECT * FROM qrySimAbLei4 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3] DESC;" 'Sorter absteigend
-            Case 4: SQL1 = "SELECT * FROM qrySimAbLei2 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3];" 'Sorter aufsteigend
-            End Select
-        Case 2: 'Datum Aufsteigend
-            Select Case GlSoZ
-            Case 3: SQL1 = "SELECT * FROM qrySimAbLei3 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3] DESC;" 'Sorter absteigend
-            Case 4: SQL1 = "SELECT * FROM qrySimAbLei1 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3];" 'Sorter aufsteigend
-            End Select
+    Case 2: 'Datum Aufsteigend
+        Select Case GlSoZ
+        Case 3: SQL1 = "SELECT * FROM qrySimAbLei3 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3] DESC;" 'Sorter absteigend
+        Case 4: SQL1 = "SELECT * FROM qrySimAbLei1 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3];" 'Sorter aufsteigend
         End Select
-    End If
+    End Select
     
     Set RS155 = New ADODB.Recordset
     With RS155
@@ -2646,11 +2631,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
 
     '--------------------- Adressen ---------------------
                             
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimAdDr3 ORDER BY Matchcode"
-    Else
-        SQL1 = "SELECT * FROM qrySimAdDr3 ORDER BY [Matchcode];"
-    End If
+    SQL1 = "SELECT * FROM qrySimAdDr3 ORDER BY [Matchcode]"
     Set RS121 = New ADODB.Recordset 'Adressen
     With RS121
         .CursorLocation = adUseClient
@@ -2800,17 +2781,9 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     '--------------------- Rechnungen ---------------------
 
     If Krite <> vbNullString Then
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qrySimReExp13 WHERE " & Krite & " ORDER BY Matchcode"
-        Else
-            SQL2 = "SELECT * FROM qrySimReExp13 WHERE " & Krite & " ORDER BY [Matchcode];"
-        End If
+        SQL2 = "SELECT * FROM qrySimReExp13 WHERE " & Krite & " ORDER BY [Matchcode]"
     Else
-        If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qrySimReExp13 ORDER BY Matchcode"
-        Else
-            SQL2 = "SELECT * FROM qrySimReExp13 ORDER BY [Matchcode];"
-        End If
+        SQL2 = "SELECT * FROM qrySimReExp13 ORDER BY [Matchcode]"
     End If
 
     Set RS122 = New ADODB.Recordset 'Rechnungen
@@ -3006,11 +2979,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     '--------------------- Positionen ---------------------
     
     If GoBDx = False Then
-        If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimReExp11 ORDER BY Zähler"
-        Else
-            SQL3 = "SELECT * FROM qrySimReExp11 ORDER BY [Zähler];"
-        End If
+        SQL3 = "SELECT * FROM qrySimReExp11 ORDER BY [Zähler]"
         Set RS123 = New ADODB.Recordset 'Positionen
         With RS123
             .CursorLocation = adUseClient
@@ -3157,11 +3126,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     '--------------------- Diagnosen ---------------------
     
     If GoBDx = False Then
-        If GlTyp < 2 Then
-            SQL4 = "SELECT * FROM dbo.qrySimReExp08 ORDER BY Patientennummer"
-        Else
-            SQL4 = "SELECT * FROM qrySimReExp08 ORDER BY [Patientennummer];"
-        End If
+        SQL4 = "SELECT * FROM qrySimReExp08 ORDER BY [Patientennummer]"
         Set RS124 = New ADODB.Recordset 'Diagnosen
         With RS124
             .CursorLocation = adUseClient
@@ -3310,11 +3275,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     '--------------------- Rezepte ---------------------
     
     If GoBDx = False Then
-        If GlTyp < 2 Then
-            SQL5 = "SELECT * FROM dbo.qrySimReExp09 ORDER BY ID0"
-        Else
-            SQL5 = "SELECT * FROM qrySimReExp09 ORDER BY [ID0];"
-        End If
+        SQL5 = "SELECT * FROM qrySimReExp09 ORDER BY [ID0]"
         Set RS125 = New ADODB.Recordset 'Rezepte
         With RS125
             .CursorLocation = adUseClient
@@ -3442,17 +3403,9 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     '--------------------- Offene Posten ---------------------
     
     If Krite <> vbNullString Then
-        If GlTyp < 2 Then
-            SQL6 = "SELECT * FROM dbo.qrySimReExp15 WHERE " & Krite & " ORDER BY Rechnungsindex"
-        Else
-            SQL6 = "SELECT * FROM qrySimReExp15 WHERE " & Krite & " ORDER BY [Rechnungsindex];"
-        End If
+        SQL6 = "SELECT * FROM qrySimReExp15 WHERE " & Krite & " ORDER BY [Rechnungsindex]"
     Else
-        If GlTyp < 2 Then
-            SQL6 = "SELECT * FROM dbo.qrySimReExp15 ORDER BY Rechnungsindex"
-        Else
-            SQL6 = "SELECT * FROM qrySimReExp15 ORDER BY [Rechnungsindex];"
-        End If
+        SQL6 = "SELECT * FROM qrySimReExp15 ORDER BY [Rechnungsindex]"
     End If
     
     Set RS126 = New ADODB.Recordset 'Offene Posten
@@ -3732,17 +3685,9 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     '--------------------- Buchungen ---------------------
 
     If Krite <> vbNullString Then
-        If GlTyp < 2 Then
-            SQL7 = "SELECT * FROM dbo.qrySimReExp14 WHERE " & Krite & " ORDER BY Datum"
-        Else
-            SQL7 = "SELECT * FROM qrySimReExp14 WHERE " & Krite & " ORDER BY [Datum];"
-        End If
+        SQL7 = "SELECT * FROM qrySimReExp14 WHERE " & Krite & " ORDER BY [Datum]"
     Else
-        If GlTyp < 2 Then
-            SQL7 = "SELECT * FROM dbo.qrySimReExp14 ORDER BY Datum"
-        Else
-            SQL7 = "SELECT * FROM qrySimReExp14 ORDER BY [Datum];"
-        End If
+        SQL7 = "SELECT * FROM qrySimReExp14 ORDER BY [Datum]"
     End If
 
     Set RS128 = New ADODB.Recordset 'Offene Posten
@@ -9433,18 +9378,10 @@ Case RibTab_Mahnwesen:
             End If
         ElseIf LiIdx = 4 Then 'Lastschriften
             If GlUm3 = True Then 'Umschalten Postem
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qrySimOPKto2 ORDER BY IDR, Datum"
-                Else
-                    SQL1 = "SELECT * FROM qrySimOPKto2 ORDER BY [IDR], [Datum];"
-                End If
+                SQL1 = "SELECT * FROM qrySimOPKto2 ORDER BY [IDR], [Datum]"
                 Set RS146 = DBCmRe0(SQL1, True)
             Else
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qrySimOPKto ORDER BY IDR, Datum"
-                Else
-                    SQL1 = "SELECT * FROM qrySimOPKto ORDER BY [IDR], [Datum];"
-                End If
+                SQL1 = "SELECT * FROM qrySimOPKto ORDER BY [IDR], [Datum]"
                 Set RS146 = DBCmRe0(SQL1, True)
             End If
         ElseIf LiIdx = 6 Then
@@ -9477,18 +9414,10 @@ Case RibTab_Mahnwesen:
             End If
         Else
             If GlUm3 = True Then
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qrySimOPAu ORDER BY IDR, Datum"
-                Else
-                    SQL1 = "SELECT * FROM qrySimOPAu ORDER BY [IDR], [Datum];"
-                End If
+                SQL1 = "SELECT * FROM qrySimOPAu ORDER BY [IDR], [Datum]"
                 Set RS146 = DBCmRe0(SQL1, True)
             Else
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qrySimOP ORDER BY IDR, Datum"
-                Else
-                    SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum];"
-                End If
+                SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum]"
                 Set RS146 = DBCmRe0(SQL1, True)
             End If
         End If
@@ -10807,11 +10736,7 @@ Case RibTab_Ter_Akont:
                     Set RS146 = DBCmRe1("qryTerSta03", "@IdFar", GlSuT.SuSta)
                 End If
             Else
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qryTerJah6 ORDER BY Fallig1, ZeiVon"
-                Else
-                    SQL1 = "SELECT * FROM qryTerJah6 ORDER BY [Fallig1], [ZeiVon];"
-                End If
+                SQL1 = "SELECT * FROM qryTerJah6 ORDER BY [Fallig1], [ZeiVon]"
                 Set RS146 = DBCmRe0(SQL1, True)
             End If
         End Select
@@ -10850,18 +10775,10 @@ Case RibTab_LabBerichte:
             Set RS146 = DBCmRe1("qryLabBeThe", "@IdxNr", GlSuL.SuMan)
         Else
             If GlBer = True Then
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qryLabBeri2 ORDER BY ID0 DESC"
-                Else
-                    SQL1 = "SELECT * FROM qryLabBeri2 ORDER BY [ID0] DESC;"
-                End If
+                SQL1 = "SELECT * FROM qryLabBeri2 ORDER BY [ID0] DESC"
                 Set RS146 = DBCmRe0(SQL1, True)
             Else
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qryLabBeri ORDER BY ID0 DESC"
-                Else
-                    SQL1 = "SELECT * FROM qryLabBeri ORDER BY [ID0] DESC;"
-                End If
+                SQL1 = "SELECT * FROM qryLabBeri ORDER BY [ID0] DESC"
                 Set RS146 = DBCmRe0(SQL1, True)
             End If
         End If
@@ -10891,27 +10808,15 @@ Case RibTab_LabAuftrage:
             End With
             Set RS146 = DBCmRe1("qryLabAuThe", "@IdxNr", GlSuL.SuMan)
         Else
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qryLabAuf ORDER BY ID1 DESC"
-            Else
-                SQL1 = "SELECT * FROM qryLabAuf ORDER BY [ID1] DESC;"
-            End If
+            SQL1 = "SELECT * FROM qryLabAuf ORDER BY [ID1] DESC"
             Set RS146 = DBCmRe0(SQL1, True)
         End If
 Case Else:
         If GlUm3 = True Then
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimOPAu ORDER BY IDR, Datum"
-            Else
-                SQL1 = "SELECT * FROM qrySimOPAu ORDER BY [IDR], [Datum];"
-            End If
+            SQL1 = "SELECT * FROM qrySimOPAu ORDER BY [IDR], [Datum]"
             Set RS146 = DBCmRe0(SQL1, True)
         Else
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimOP ORDER BY IDR, Datum"
-            Else
-                SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum];"
-            End If
+            SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum]"
             Set RS146 = DBCmRe0(SQL1, True)
         End If
 End Select
@@ -11224,17 +11129,9 @@ RS146.CursorLocation = adUseClient
 Select Case GlBut
 Case RibTab_Mahnwesen:
     If GlUm3 = True Then
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimOPKto2 ORDER BY IDR, Datum"
-        Else
-            SQL1 = "SELECT * FROM qrySimOPKto2 ORDER BY [IDR], [Datum];"
-        End If
+        SQL1 = "SELECT * FROM qrySimOPKto2 ORDER BY [IDR], [Datum]"
     Else
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimOPKto ORDER BY IDR, Datum"
-        Else
-            SQL1 = "SELECT * FROM qrySimOPKto ORDER BY [IDR], [Datum];"
-        End If
+        SQL1 = "SELECT * FROM qrySimOPKto ORDER BY [IDR], [Datum]"
     End If
     If GlUm3 = True Then
         Select Case GlSuM.SuIdx
@@ -12548,11 +12445,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
             
     '---
     
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimAdDru ORDER BY IDKurz"
-    Else
-        SQL1 = "SELECT * FROM qrySimAdDru ORDER BY [IDKurz];"
-    End If
+    SQL1 = "SELECT * FROM qrySimAdDru ORDER BY [IDKurz]"
     Set RS121 = New ADODB.Recordset 'Patienten
     With RS121
         .CursorLocation = adUseClient
@@ -12691,11 +12584,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
 
     '---
 
-    If GlTyp < 2 Then
-        SQL2 = "SELECT * FROM dbo.qrySimReExp04 ORDER BY IDKurz"
-    Else
-        SQL2 = "SELECT * FROM qrySimReExp04 ORDER BY [IDKurz];"
-    End If
+    SQL2 = "SELECT * FROM qrySimReExp04 ORDER BY [IDKurz]"
     Set RS122 = New ADODB.Recordset 'Rechnungen
     With RS122
         .CursorLocation = adUseClient
@@ -12828,11 +12717,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
             
     '---
 
-    If GlTyp < 2 Then
-        SQL3 = "SELECT * FROM dbo.qrySimReExp07 ORDER BY ID2"
-    Else
-        SQL3 = "SELECT * FROM qrySimReExp07 ORDER BY [ID2];"
-    End If
+    SQL3 = "SELECT * FROM qrySimReExp07 ORDER BY [ID2]"
     Set RS123 = New ADODB.Recordset 'Positionen
     With RS123
         .CursorLocation = adUseClient
@@ -12966,11 +12851,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
         
     '---
     
-    If GlTyp < 2 Then
-        SQL4 = "SELECT * FROM dbo.qrySimReExp08 ORDER BY Patientennummer"
-    Else
-        SQL4 = "SELECT * FROM qrySimReExp08 ORDER BY [Patientennummer];"
-    End If
+    SQL4 = "SELECT * FROM qrySimReExp08 ORDER BY [Patientennummer]"
     Set RS124 = New ADODB.Recordset 'Diagnosen
     With RS124
         .CursorLocation = adUseClient
@@ -13098,11 +12979,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     
     '---
     
-    If GlTyp < 2 Then
-        SQL5 = "SELECT * FROM dbo.qrySimReExp09 ORDER BY ID0"
-    Else
-        SQL5 = "SELECT * FROM qrySimReExp09 ORDER BY [ID0];"
-    End If
+    SQL5 = "SELECT * FROM qrySimReExp09 ORDER BY [ID0]"
     Set RS125 = New ADODB.Recordset 'Rezepte
     With RS125
         .CursorLocation = adUseClient
@@ -13233,11 +13110,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
     
     '---
     
-    If GlTyp < 2 Then
-        SQL6 = "SELECT * FROM dbo.qrySimReExp10 ORDER BY ID1"
-    Else
-        SQL6 = "SELECT * FROM qrySimReExp10 ORDER BY [ID1];"
-    End If
+    SQL6 = "SELECT * FROM qrySimReExp10 ORDER BY [ID1]"
     Set RS126 = New ADODB.Recordset 'Offene Posten
     With RS126
         .CursorLocation = adUseClient
@@ -14844,11 +14717,7 @@ If AnzPa > 0 Then
         Set RS121 = Nothing
     Else 'Patient existiert bereits
         If PatKu <> PaKur Then
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qryAdress WHERE [GuiID] = '" & SqlStr(PaGui) & "'"
-            Else
-                SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(PaGui) & "';"
-            End If
+            SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(PaGui) & "'"
             Set RS121 = New ADODB.Recordset 'Existierendere Patient
             With RS121
                 .CursorLocation = adUseClient
@@ -15810,11 +15679,7 @@ If AnzPo > 0 Then
                         End If
                     End If
                 Else
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qrySimReVor ORDER BY PLZ DESC"
-                    Else
-                        SQL1 = "SELECT * FROM qrySimReVor ORDER BY [PLZ] DESC;"
-                    End If
+                    SQL1 = "SELECT * FROM qrySimReVor ORDER BY [PLZ] DESC"
                     Set RS120 = New ADODB.Recordset
                     RS120.CursorLocation = adUseClient
                     If GlRMa = True Then 'getrennter Mandentenrechnungsnummernkreis
@@ -22201,11 +22066,7 @@ If AnzRe > 0 Then
         
     Else 'Patient existiert bereits
         
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryAdress WHERE [GuiID] = '" & SqlStr(PaGui) & "'"
-        Else
-            SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(PaGui) & "';"
-        End If
+        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(PaGui) & "'"
         Set RS121 = New ADODB.Recordset 'existierender Patient
         With RS121
             .CursorLocation = adUseClient
@@ -22852,11 +22713,7 @@ If NeuNr > 0 Then
     DBCmEx2 "qrySimReKo2", "@IdPat", "@IdxNr", GlNeR.PatNr, NeuNr
     DBCmEx2 "qrySimReSm1", "@IdBet", "@IdxNr", ReBet, NeuNr
     DoEvents
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE IDR = " & ReNum & " ORDER BY ID3 DESC"
-    Else
-        SQL1 = "SELECT * FROM qrySimAbSav WHERE [IDR] = " & ReNum & " ORDER BY [ID3] DESC;"
-    End If
+    SQL1 = "SELECT * FROM qrySimAbSav WHERE [IDR] = " & ReNum & " ORDER BY [ID3] DESC"
     Set RS123 = New ADODB.Recordset 'Krenkanblatt
     With RS123
         .CursorLocation = adUseClient
@@ -25048,29 +24905,16 @@ If AnzPo > 0 Then
                         ReIdA(AktRe) = ReNeu
                     Next AktRe
                     
-                    If GlTyp < 2 Then
-                        Select Case GlSoA 'Sortierung Datum
-                        Case 1: Select Case GlSoZ 'Eingabesortierung
-                                Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbLei4 WHERE IDR = " & ReNum & " ORDER BY Sorter DESC, ID3 DESC" 'Datum absteigend
-                                Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbLei2 WHERE IDR = " & ReNum & " ORDER BY Sorter DESC, ID3" 'Datum absteigend
-                                End Select
-                        Case 2: Select Case GlSoZ
-                                Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbLei3 WHERE IDR = " & ReNum & " ORDER BY Sorter, ID3 DESC" 'Datum aufsteigend
-                                Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbLei1 WHERE IDR = " & ReNum & " ORDER BY Sorter, ID3" 'Datum aufsteigend
-                                End Select
-                        End Select
-                    Else
-                        Select Case GlSoA 'Sortierung Datum
-                        Case 1: Select Case GlSoZ 'Eingabesortierung
-                                Case 3: SQL1 = "SELECT * FROM qrySimAbLei4 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter] DESC, [ID3] DESC;"  'Datum absteigend
-                                Case 4: SQL1 = "SELECT * FROM qrySimAbLei2 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter] DESC, [ID3];" 'Datum absteigend
-                                End Select
-                        Case 2: Select Case GlSoZ
-                                Case 3: SQL1 = "SELECT * FROM qrySimAbLei3 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter], [ID3] DESC;" 'Datum aufsteigend
-                                Case 4: SQL1 = "SELECT * FROM qrySimAbLei1 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter], [ID3];" 'Datum aufsteigend
-                                End Select
-                        End Select
-                    End If
+                    Select Case GlSoA 'Sortierung Datum
+                    Case 1: Select Case GlSoZ 'Eingabesortierung
+                            Case 3: SQL1 = "SELECT * FROM qrySimAbLei4 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter] DESC, [ID3] DESC;"  'Datum absteigend
+                            Case 4: SQL1 = "SELECT * FROM qrySimAbLei2 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter] DESC, [ID3];" 'Datum absteigend
+                            End Select
+                    Case 2: Select Case GlSoZ
+                            Case 3: SQL1 = "SELECT * FROM qrySimAbLei3 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter], [ID3] DESC;" 'Datum aufsteigend
+                            Case 4: SQL1 = "SELECT * FROM qrySimAbLei1 WHERE [IDR] = " & ReNum & " ORDER BY [Sorter], [ID3];" 'Datum aufsteigend
+                            End Select
+                    End Select
 
                     Set RS126 = New ADODB.Recordset
                     With RS126
@@ -25483,11 +25327,7 @@ Dim SQL1 As String
 Dim GesZa As Long
 Dim LeiDa As Date
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimAbKra03 WHERE ID0=" & IdxNr & " ORDER BY Datum, ID3" 'Datum aufsteigend
-Else
-    SQL1 = "SELECT * FROM qrySimAbKra03 WHERE [ID0]=" & IdxNr & " ORDER BY [Datum], [ID3];" 'Datum aufsteigend
-End If
+SQL1 = "SELECT * FROM qrySimAbKra03 WHERE [ID0]=" & IdxNr & " ORDER BY [Datum], [ID3];" 'Datum aufsteigend
 
 Set RS126 = New ADODB.Recordset
 With RS126
@@ -25567,11 +25407,7 @@ If ReTyp = "U" Or ReTyp = "V" Or ReTyp = "M" Then
 
 Else
 
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimReVor ORDER BY PLZ DESC"
-    Else
-        SQL1 = "SELECT * FROM qrySimReVor ORDER BY [PLZ] DESC;"
-    End If
+    SQL1 = "SELECT * FROM qrySimReVor ORDER BY [PLZ] DESC"
     Set RS120 = New ADODB.Recordset
     RS120.CursorLocation = adUseClient
     
@@ -27786,11 +27622,7 @@ Case "N2":
         End If
     End If
 Case "N3":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimOP ORDER BY IDR, Datum"
-    Else
-        SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum];"
-    End If
+    SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum]"
     Set RS142 = New ADODB.Recordset
     With RS142
         .CursorLocation = adUseClient
@@ -27816,11 +27648,7 @@ Case "N4":
         .Open Options:=adCmdText
     End With
 Case "N5":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerJah2 ORDER BY Fallig1, ZeiVon"
-    Else
-        SQL1 = "SELECT * FROM qryTerJah2 ORDER BY [Fallig1], [ZeiVon];"
-    End If
+    SQL1 = "SELECT * FROM qryTerJah2 ORDER BY [Fallig1], [ZeiVon]"
     Set RS142 = New ADODB.Recordset
     RS142.CursorLocation = adUseClient
     Set RS142 = DBCmRe0(SQL1, True)
@@ -28195,11 +28023,7 @@ Case "N2":
         End If
     End If
 Case "N3":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimOP ORDER BY IDR, Datum"
-    Else
-        SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum];"
-    End If
+    SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum]"
     Set RS143 = New ADODB.Recordset
     With RS143
         .CursorLocation = adUseClient
@@ -28225,11 +28049,7 @@ Case "N4":
         .Open Options:=adCmdText
     End With
 Case "N5":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerJah2 ORDER BY Fallig1, ZeiVon"
-    Else
-        SQL1 = "SELECT * FROM qryTerJah2 ORDER BY [Fallig1], [ZeiVon];"
-    End If
+    SQL1 = "SELECT * FROM qryTerJah2 ORDER BY [Fallig1], [ZeiVon]"
     Set RS143 = New ADODB.Recordset
     RS143.CursorLocation = adUseClient
     Set RS143 = DBCmRe0(SQL1, True)
@@ -28604,11 +28424,7 @@ Case "N2":
         End If
     End If
 Case "N3":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimOP ORDER BY IDR, Datum"
-    Else
-        SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum];"
-    End If
+    SQL1 = "SELECT * FROM qrySimOP ORDER BY [IDR], [Datum]"
     Set RS144 = New ADODB.Recordset
     With RS144
         .CursorLocation = adUseClient
@@ -28634,11 +28450,7 @@ Case "N4":
         .Open Options:=adCmdText
     End With
 Case "N5":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerJah2 ORDER BY Fallig1, ZeiVon"
-    Else
-        SQL1 = "SELECT * FROM qryTerJah2 ORDER BY [Fallig1], [ZeiVon];"
-    End If
+    SQL1 = "SELECT * FROM qryTerJah2 ORDER BY [Fallig1], [ZeiVon]"
     Set RS144 = New ADODB.Recordset
     RS144.CursorLocation = adUseClient
     Set RS144 = DBCmRe0(SQL1, True)
