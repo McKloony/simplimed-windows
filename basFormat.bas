@@ -10399,3 +10399,46 @@ Public Function SqlStr(ByVal SuStr As Variant) As String
 If IsNull(SuStr) Then Exit Function
 SqlStr = Replace(SuStr, Chr$(39), Chr$(39) & Chr$(39))
 End Function
+
+Public Function SqlDat(ByVal DatVal As Date, Optional ByVal MitZeit As Boolean = False) As String
+'Liefert einbettungsfertiges Datums-Literal je nach GlTyp (Spec 2026-06-10)
+'SQL Server: CONVERT(DATETIME, 'yyyy-mm-dd hh:nn:ss', 120) - Access/Jet: #m/d/yyyy[ h:nn:ss]#
+'Aufbau per DatePart - niemals Format$ fuer SQL-Literale (Locale-Risiko)
+Dim TmDat As String
+Dim TmZei As String
+If GlTyp < 2 Then
+    TmDat = DatePart("yyyy", DatVal) & "-" & Right$("0" & DatePart("m", DatVal), 2) & "-" & Right$("0" & DatePart("d", DatVal), 2)
+    If MitZeit = True Then
+        TmZei = Right$("0" & DatePart("h", DatVal), 2) & ":" & Right$("0" & DatePart("n", DatVal), 2) & ":" & Right$("0" & DatePart("s", DatVal), 2)
+    Else
+        TmZei = "00:00:00"
+    End If
+    SqlDat = "CONVERT(DATETIME, '" & TmDat & " " & TmZei & "', 120)"
+Else
+    TmDat = DatePart("m", DatVal) & "/" & DatePart("d", DatVal) & "/" & DatePart("yyyy", DatVal)
+    If MitZeit = True Then
+        SqlDat = "#" & TmDat & " " & DatePart("h", DatVal) & ":" & Right$("0" & DatePart("n", DatVal), 2) & ":" & Right$("0" & DatePart("s", DatVal), 2) & "#"
+    Else
+        SqlDat = "#" & TmDat & "#"
+    End If
+End If
+End Function
+
+Public Function SqlNum(ByVal NumVal As Variant) As String
+'Dezimalzahl Locale-sicher fuer SQL-Einbettung (Punkt als Dezimaltrenner); Null ergibt Leerstring
+'CStr/Format$ liefern in deutscher Locale Komma und sind fuer SQL-Literale verboten
+If IsNull(NumVal) Then Exit Function
+SqlNum = Trim$(Str$(NumVal))
+If InStr(1, SqlNum, "E", vbTextCompare) > 0 Then
+    If GlDbg = True Then SErLog "SqlNum Exponentialschreibweise: " & SqlNum & " SqlNum 0"
+End If
+End Function
+
+Public Function SqlPad(ByVal FldNam As String, ByVal PadLen As Integer) As String
+'Liefert Zero-Padding-Ausdruck (ORDER BY/SELECT) je nach GlTyp; ersetzt das SoStr-Muster
+If GlTyp < 2 Then
+    SqlPad = "RIGHT ('" & String$(PadLen, "0") & "' + CONVERT (varchar(10), " & FldNam & "), " & PadLen & ")"
+Else
+    SqlPad = "Format$([" & FldNam & "],'" & String$(PadLen, "0") & "')"
+End If
+End Function
