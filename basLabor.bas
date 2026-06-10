@@ -845,11 +845,7 @@ Private Sub L_Com(ByVal ImpDa As Long)
     L_Log "L_Com: Opening qryLdtIm9 for Update..."
     
     ' Construct the SQL string manually based on what qryLdtIm9 likely does (Select from qryLdtIm9/Table where Importdatei = ImpDa)
-    If GlTyp < 2 Then
-        RS_Com.Open "SELECT * FROM dbo.qryLdtIm9 WHERE Importdatei = " & ImpDa, DB1, adOpenDynamic, adLockOptimistic
-    Else
-        RS_Com.Open "SELECT * FROM qryLdtIm9 WHERE [Importdatei] = " & ImpDa, DB1, adOpenDynamic, adLockOptimistic
-    End If
+    RS_Com.Open "SELECT * FROM qryLdtIm9 WHERE [Importdatei] = " & ImpDa, DB1, adOpenDynamic, adLockOptimistic
     
     Do While Not RS_Com.EOF
         If RS_Com("Grenz").Value & "@" = "@" And RS_Com("Ergebniswert").Value <> "0" Then
@@ -880,22 +876,14 @@ Private Sub L_Pat(ByVal ImpDa As Long)
     RS_Ber.CursorLocation = adUseClient
     L_Log "L_Pat: Opening qryLdtIm9 for Update..."
 
-    If GlTyp < 2 Then
-        RS_Ber.Open "SELECT * FROM dbo.qryLdtIm9 WHERE Importdatei = " & ImpDa, DB1, adOpenDynamic, adLockOptimistic
-    Else
-        RS_Ber.Open "SELECT * FROM qryLdtIm9 WHERE [Importdatei] = " & ImpDa, DB1, adOpenDynamic, adLockOptimistic
-    End If
+    RS_Ber.Open "SELECT * FROM qryLdtIm9 WHERE [Importdatei] = " & ImpDa, DB1, adOpenDynamic, adLockOptimistic
 
     ' Open qryLdtAuf as SQL query (works for both Access and SQL Server)
     Set RS_Auf = New ADODB.Recordset
     RS_Auf.CursorLocation = adUseClient
     L_Log "L_Pat: Opening qryLdtAuf..."
     On Error Resume Next
-    If GlTyp < 2 Then
-        RS_Auf.Open "SELECT * FROM dbo.qryLdtAuf", DB1, adOpenKeyset, adLockReadOnly, adCmdText
-    Else
-        RS_Auf.Open "SELECT * FROM qryLdtAuf", DB1, adOpenKeyset, adLockReadOnly, adCmdText
-    End If
+    RS_Auf.Open "SELECT * FROM qryLdtAuf", DB1, adOpenKeyset, adLockReadOnly, adCmdText
     If Err.Number <> 0 Then
         L_Log "L_Pat: qryLdtAuf could not be opened (" & Err.Description & ") - skipping patient match"
         Err.Clear
