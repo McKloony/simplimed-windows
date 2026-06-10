@@ -1359,11 +1359,7 @@ Dim Mld1, Tit1 As String
 Set FM = frmMain
 Set TrLi1 = FM.trvList1
 
-If GlTyp < 2 Then
-    ASQL = "SELECT * FROM dbo.qryAdrSu WHERE "
-Else
-    ASQL = "SELECT * FROM qryAdrSu WHERE "
-End If
+ASQL = "SELECT * FROM qryAdrSu WHERE "
 
 GlAkt = True
 
