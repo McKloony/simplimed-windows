@@ -593,13 +593,8 @@ Set RpRws = RpCo1.Rows
 
 Set RS160 = FM.FoRST
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatAnBoN WHERE ID5 = -1"
-    SQL2 = "SELECT * FROM dbo.qryPatAnNeu WHERE ID1 = -1"
-Else
-    SQL1 = "SELECT * FROM qryPatAnBoN WHERE [ID5] = -1;"
-    SQL2 = "SELECT * FROM qryPatAnNeu WHERE [ID1] = -1;"
-End If
+SQL1 = "SELECT * FROM qryPatAnBoN WHERE [ID5] = -1"
+SQL2 = "SELECT * FROM qryPatAnNeu WHERE [ID1] = -1"
 
 Set RS169 = New ADODB.Recordset
 With RS169
@@ -1034,13 +1029,8 @@ End If
 
 BogID = CreateID("F")
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatAnBoN WHERE ID5 = -1"
-    SQL3 = "SELECT * FROM dbo.qryPatAnNeu WHERE ID1 = -1"
-Else
-    SQL1 = "SELECT * FROM qryPatAnBoN WHERE [ID5] = -1;"
-    SQL3 = "SELECT * FROM qryPatAnNeu WHERE [ID1] = -1;"
-End If
+SQL1 = "SELECT * FROM qryPatAnBoN WHERE [ID5] = -1"
+SQL3 = "SELECT * FROM qryPatAnNeu WHERE [ID1] = -1"
 
 Set RS169 = New ADODB.Recordset
 With RS169
@@ -3165,11 +3155,7 @@ If DB1.State <> adStateOpen Then
 End If
 
 AktZa = 0
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryFormu ORDER BY ID1"
-Else
-    SQL1 = "SELECT * FROM qryFormu ORDER BY [ID1];"
-End If
+SQL1 = "SELECT * FROM qryFormu ORDER BY [ID1]"
 
 Set RS152 = New ADODB.Recordset 'Formulare
 With RS152
@@ -3241,11 +3227,7 @@ DoEvents
 '------------------------------------------ Setup -----------------------------------------------
 
 AktZa = 0
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySetup ORDER BY ID1"
-Else
-    SQL1 = "SELECT * FROM qrySetup ORDER BY [ID1];"
-End If
+SQL1 = "SELECT * FROM qrySetup ORDER BY [ID1]"
 
 Set RS153 = New ADODB.Recordset 'Einstellungen
 With RS153
@@ -4253,11 +4235,7 @@ Dim AktNu As Integer
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimKrTyp ORDER BY IDT"
-Else
-    SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT];"
-End If
+SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Krankenblatttypen
 With RS152
@@ -4363,11 +4341,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryLabGrupp ORDER BY Sorter"
-Else
-    SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter];"
-End If
+SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Laborgruppierung
 With RS153
@@ -4416,11 +4390,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatBeh ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryPatBeh ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryPatBeh ORDER BY [IDKurz]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Mandanten
 With RS152
@@ -4615,11 +4585,7 @@ End If
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatArz ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryPatArz ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryPatArz ORDER BY [IDKurz]"
 AktZa = 2
 Set RS153 = New ADODB.Recordset 'Verordner
 With RS153
@@ -4955,11 +4921,7 @@ Dim AlKon As Boolean
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTermTyp ORDER BY IDTyp"
-Else
-    SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp];"
-End If
+SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp]"
 AktZa = 1
 Set RS154 = New ADODB.Recordset 'Kalendermarker
 With RS154
@@ -4998,11 +4960,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-Else
-    SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-End If
+SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
 AktZa = 1
 Set RS151 = New ADODB.Recordset 'OTS-Betreffs
 With RS151
@@ -5039,11 +4997,7 @@ End If
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatZah ORDER BY IDZ"
-Else
-    SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ];"
-End If
+SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ]"
 AktZa = 1
 Set RS150 = New ADODB.Recordset 'Zahlungsziele
 With RS150
@@ -5086,11 +5040,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKatVers ORDER BY ID3"
-Else
-    SQL1 = "SELECT * FROM qryKatVers ORDER BY [ID3];"
-End If
+SQL1 = "SELECT * FROM qryKatVers ORDER BY [ID3]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Gebührenkataloge
 With RS152
@@ -5142,17 +5092,9 @@ DoEvents
 '--------------------------------------------------
 
 If GlFri = 5 Then 'Naturheilpraktiker (Tarif 590)
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryPatTarf WHERE Kommentar Like 'CH' ORDER BY IDKurz"
-    Else
-        SQL1 = "SELECT * FROM qryPatTarf WHERE [Kommentar] Like 'CH' ORDER BY [IDKurz];"
-    End If
+    SQL1 = "SELECT * FROM qryPatTarf WHERE [Kommentar] Like 'CH' ORDER BY [IDKurz]"
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryPatTarf ORDER BY IDKurz"
-    Else
-        SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz];"
-    End If
+    SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz]"
 End If
 AktZa = 1
 Set RS154 = New ADODB.Recordset 'Versicherungstarife
@@ -5186,11 +5128,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimBuSatz ORDER BY IDS"
-Else
-    SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS];"
-End If
+SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Steuersätze / Steuermix
 With RS153
@@ -5513,11 +5451,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-Else
-    SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-End If
+SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
 AktZa = 1
 Set RS154 = New ADODB.Recordset 'Geldkonten
 With RS154
@@ -5632,11 +5566,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimBuTex ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz]"
 AktZa = 1
 Set RS155 = New ADODB.Recordset 'Buchungstexte
 With RS155
@@ -5667,11 +5597,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatWar ORDER BY IDW"
-Else
-    SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW];"
-End If
+SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Wärungen
 With RS152
@@ -5711,17 +5637,9 @@ DoEvents
 '--------------------------------------------------
 
 If GlTBe = True Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryKontBetr ORDER BY Betreff"
-    Else
-        SQL1 = "SELECT * FROM qryKontBetr ORDER BY [Betreff];"
-    End If
+    SQL1 = "SELECT * FROM qryKontBetr ORDER BY [Betreff]"
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryKontBetr ORDER BY ID4"
-    Else
-        SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4];"
-    End If
+    SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4]"
 End If
 
 AktZa = 1
@@ -5779,17 +5697,9 @@ DoEvents
 '--------------------------------------------------
 
 If GlRSo = True Then 'Die Raumzuordnung numerisch sortiert anzeigen
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryKontOrt ORDER BY ID4"
-    Else
-        SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4];"
-    End If
+    SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4]"
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryKontOrt ORDER BY Ort"
-    Else
-        SQL1 = "SELECT * FROM qryKontOrt ORDER BY [Ort];"
-    End If
+    SQL1 = "SELECT * FROM qryKontOrt ORDER BY [Ort]"
 End If
 
 AktZa = 1
@@ -5837,11 +5747,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat03 ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Diagnosegruppen
 With RS152
@@ -5872,11 +5778,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat04 ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Arzneigruppen
 With RS153
@@ -5907,11 +5809,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat12 ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Artikelgruppen
 With RS153
@@ -5943,11 +5841,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat05 ORDER BY ID3"
-Else
-    SQL1 = "SELECT * FROM qryKat05 ORDER BY [ID3];"
-End If
+SQL1 = "SELECT * FROM qryKat05 ORDER BY [ID3]"
 AktZa = 1
 Set RS154 = New ADODB.Recordset 'Fragebogengruppe
 With RS154
@@ -5978,11 +5872,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat10 ORDER BY ID3"
-Else
-    SQL1 = "SELECT * FROM qryKat10 ORDER BY [ID3];"
-End If
+SQL1 = "SELECT * FROM qryKat10 ORDER BY [ID3]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Fragebogen
 With RS153
@@ -6020,11 +5910,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat09 ORDER BY ID3"
-Else
-    SQL1 = "SELECT * FROM qryKat09 ORDER BY [ID3];"
-End If
+SQL1 = "SELECT * FROM qryKat09 ORDER BY [ID3]"
 AktZa = 1
 Set RS154 = New ADODB.Recordset 'Laborkataloge
 With RS154
@@ -6055,11 +5941,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerFar ORDER BY IDTyp"
-Else
-    SQL1 = "SELECT * FROM qryTerFar ORDER BY [IDTyp];"
-End If
+SQL1 = "SELECT * FROM qryTerFar ORDER BY [IDTyp]"
 AktZa = 1
 Set RS150 = New ADODB.Recordset 'Terminfarben
 With RS150
@@ -6114,11 +5996,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerHin ORDER BY IDTyp"
-Else
-    SQL1 = "SELECT * FROM qryTerHin ORDER BY [IDTyp];"
-End If
+SQL1 = "SELECT * FROM qryTerHin ORDER BY [IDTyp]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Terminhintergrund
 With RS152
@@ -6183,11 +6061,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimReKm ORDER BY IDK"
-Else
-    SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK];"
-End If
+SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK]"
 AktZa = 1
 Set RS155 = New ADODB.Recordset 'Rechnungskommentare
 With RS155
@@ -6222,11 +6096,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then 'Adressengruppen (Patientengruppen)
-    SQL1 = "SELECT * FROM dbo.qryPatGrup ORDER BY TreKey"
-Else
-    SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey];"
-End If
+SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset
 With RS153
@@ -6307,11 +6177,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryLand ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz]"
 AktZa = 2
 Set RS153 = New ADODB.Recordset 'Länder
 With RS153
@@ -6354,11 +6220,7 @@ RS153.Close
 Set RS153 = Nothing
 DoEvents
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKat11 ORDER BY IDG"
-Else
-    SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG];"
-End If
+SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG]"
 AktZa = 1
 Set RS154 = New ADODB.Recordset 'Behinderungsgrade
 With RS154
@@ -6390,11 +6252,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTermSta ORDER BY IDS"
-Else
-    SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS];"
-End If
+SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Terminstatus
 With RS153
@@ -6436,11 +6294,7 @@ DoEvents
 '--------------------------------------------------
 
 AktZa = 1
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryMailKonta ORDER BY IDK"
-Else
-    SQL1 = "SELECT * FROM qryMailKonta ORDER BY [IDK];"
-End If
+SQL1 = "SELECT * FROM qryMailKonta ORDER BY [IDK]"
 Set RS152 = New ADODB.Recordset 'Emailkonten
 With RS152
     .CursorLocation = adUseClient
@@ -6658,11 +6512,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-Else
-    SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-End If
+SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Emailtextvorlagen
 With RS153
@@ -6708,11 +6558,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-Else
-    SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-End If
+SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Terminnachrichtentexte
 With RS152
@@ -6771,11 +6617,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerZeNe ORDER BY Datum"
-Else
-    SQL1 = "SELECT * FROM qryTerZeNe ORDER BY [Datum];"
-End If
+SQL1 = "SELECT * FROM qryTerZeNe ORDER BY [Datum]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Terminnachrichtenvorlagen
 With RS152
@@ -6812,11 +6654,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryZahlText ORDER BY IDS"
-Else
-    SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS];"
-End If
+SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS]"
 AktZa = 1
 Set RS153 = New ADODB.Recordset 'Zahlungstexte
 With RS153
@@ -7562,11 +7400,7 @@ Dim AnMaO As Integer
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatBeh ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryPatBeh ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryPatBeh ORDER BY [IDKurz]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Therapeuten Index
 With RS152
@@ -8275,11 +8109,7 @@ DoEvents
 
 '--------------------------------------------------
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatMit ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryPatMit ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryPatMit ORDER BY [IDKurz]"
 AktZa = 1
 Set RS152 = New ADODB.Recordset 'Mitarbeiter Index
 With RS152
