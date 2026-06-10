@@ -20921,18 +20921,10 @@ Case "TxPh":
 Case "ReSe":
     Select Case SuTyp
     Case 1:
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryTerAufg2 ORDER BY SorDat, SorTim, Patient"
-        Else
-            SQL1 = "SELECT * FROM qryTerAufg2 ORDER BY [VonDat], [Patient];"
-        End If
+        SQL1 = "SELECT * FROM qryTerAufg2 ORDER BY [VonDat], [ZeiVon], [Patient]"
         Set RS137 = DBCmRe0(SQL1, True)
     Case 2:
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryTerAufg2 ORDER BY SorDat, SorTim, Patient"
-        Else
-            SQL1 = "SELECT * FROM qryTerAufg2 ORDER BY [VonDat], [Patient];"
-        End If
+        SQL1 = "SELECT * FROM qryTerAufg2 ORDER BY [VonDat], [ZeiVon], [Patient]"
         Set RS137 = DBCmRe0(SQL1, True)
     End Select
 Case "BuVo":
