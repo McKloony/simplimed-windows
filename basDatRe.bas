@@ -10079,17 +10079,9 @@ Case RibTab_Ter_Listen:
                 End If
             Else
                 If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qryTerPas WHERE YEAR(VonDat) = " & GlSuT.SuJah & " ORDER BY SorDat, SorTim"
-                    Else
-                        SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat], [ZeiVon];"
-                    End If
+                    SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat], [ZeiVon]"
                 Else
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qryTerPas WHERE YEAR(VonDat) = " & GlSuT.SuJah & " ORDER BY SorDat DESC, SorTim DESC"
-                    Else
-                        SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat] DESC, [ZeiVon] DESC;"
-                    End If
+                    SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat] DESC, [ZeiVon] DESC"
                 End If
                 Set RS146 = DBCmRe0(SQL1, True)
             End If
@@ -10237,17 +10229,9 @@ Case RibTab_Ter_Listen:
                     End If
                 Else
                     If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
-                        If GlTyp < 2 Then
-                            SQL1 = "SELECT * FROM dbo.qryTerLis ORDER BY SorDat, SorTim"
-                        Else
-                            SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat], [ZeiVon];"
-                        End If
+                        SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat], [ZeiVon]"
                     Else
-                        If GlTyp < 2 Then
-                            SQL1 = "SELECT * FROM dbo.qryTerLis ORDER BY SorDat DESC, SorTim DESC"
-                        Else
-                            SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat] DESC, [ZeiVon] DESC;"
-                        End If
+                        SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat] DESC, [ZeiVon] DESC"
                     End If
                     Set RS146 = DBCmRe0(SQL1, True)
                 End If
@@ -11973,17 +11957,9 @@ Case RibTab_Ter_Listen:
                 End If
             Else
                 If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qryTerPas WHERE YEAR(VonDat) = " & GlSuT.SuJah & " ORDER BY SorDat, SorTim"
-                    Else
-                        SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat], [ZeiVon];"
-                    End If
+                    SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat], [ZeiVon]"
                 Else
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qryTerPas WHERE YEAR(VonDat) = " & GlSuT.SuJah & " ORDER BY SorDat DESC, SorTim DESC"
-                    Else
-                        SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat] DESC, [ZeiVon] DESC;"
-                    End If
+                    SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat] DESC, [ZeiVon] DESC"
                 End If
                 Set RS146 = DBCmRe0(SQL1, True)
             End If
@@ -12068,17 +12044,9 @@ Case RibTab_Ter_Listen:
             End If
         Else
             If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qryTerPas WHERE YEAR(VonDat) = " & GlSuT.SuJah & " ORDER BY SorDat, SorTim"
-                Else
-                    SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat], [ZeiVon];"
-                End If
+                SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat], [ZeiVon]"
             Else
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qryTerPas WHERE YEAR(VonDat) = " & GlSuT.SuJah & " ORDER BY SorDat DESC, SorTim DESC"
-                Else
-                    SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat] DESC, [ZeiVon] DESC;"
-                End If
+                SQL1 = "SELECT * FROM qryTerPas WHERE YEAR([VonDat]) = " & GlSuT.SuJah & " ORDER BY [VonDat] DESC, [ZeiVon] DESC"
             End If
             Set RS146 = DBCmRe0(SQL1, True)
         End If

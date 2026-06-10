@@ -13543,17 +13543,9 @@ Case 0: 'Adressen
     SQL1 = "SELECT * FROM qryAdress WHERE " & Krite & " ORDER BY [IDKurz]"
 Case 1: 'Termine
     If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryTerLis WHERE " & Krite & " ORDER BY SorDat, SorTim"
-        Else
-            SQL1 = "SELECT * FROM qryTerLis WHERE " & Krite & " ORDER BY [VonDat], [ZeiVon];"
-        End If
+        SQL1 = "SELECT * FROM qryTerLis WHERE " & Krite & " ORDER BY [VonDat], [ZeiVon]"
     Else
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryTerLis WHERE " & Krite & " ORDER BY SorDat DESC, SorTim DESC"
-        Else
-            SQL1 = "SELECT * FROM qryTerLis WHERE " & Krite & " ORDER BY [VonDat] DESC, [ZeiVon] DESC;"
-        End If
+        SQL1 = "SELECT * FROM qryTerLis WHERE " & Krite & " ORDER BY [VonDat] DESC, [ZeiVon] DESC"
     End If
 End Select
 

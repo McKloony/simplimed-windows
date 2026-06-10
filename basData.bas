@@ -36079,17 +36079,9 @@ Mld1 = "Sollen die Terminfarben nun auf Grundlage der terminbetreffs neu zugeord
 Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
 If Frage = 6 Then
     If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryTerLis ORDER BY SorDat, SorTim"
-        Else
-            SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat], [ZeiVon];"
-        End If
+        SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat], [ZeiVon]"
     Else
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryTerLis ORDER BY SorDat DESC, SorTim DESC"
-        Else
-            SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat] DESC, [ZeiVon] DESC;"
-        End If
+        SQL1 = "SELECT * FROM qryTerLis ORDER BY [VonDat] DESC, [ZeiVon] DESC"
     End If
     
     Set RS137 = New ADODB.Recordset
