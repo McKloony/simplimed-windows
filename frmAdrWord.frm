@@ -1679,11 +1679,7 @@ Mld1 = "Sie haben keinen Auswertungszeitraum gewählt"
 Tit1 = "Einzelbriefübergabe"
 
 If OpMon.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "(((MONTH(Datum))=" & AkMon & ") AND ((YEAR(Datum))=" & AkJha & "))"
-    Else
-        Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
-    End If
+    Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
 ElseIf OpQua.Value = True Then
     Select Case GlTyp
     Case 0:
@@ -1716,11 +1712,7 @@ ElseIf OpQua.Value = True Then
         End Select
     End Select
 ElseIf OpJah.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "((YEAR(Datum) = " & AkJha & "))"
-    Else
-        Krit1 = "((Year([Datum]) = " & AkJha & "))"
-    End If
+    Krit1 = "((Year([Datum]) = " & AkJha & "))"
 ElseIf OpZei.Value = True Then
     Select Case GlTyp
     Case 0: Krit1 = "((Datum >= '" & DaSta & "') AND (Datum <= '" & DaEnd & "'))"

@@ -492,11 +492,7 @@ Private Sub L_Hea(ByVal LaGui As String, ByRef VerNu As Long, ByRef ImpDa As Lon
     
     Set RS_Src = New ADODB.Recordset
     RS_Src.CursorLocation = adUseClient
-    If GlTyp < 2 Then
-        RS_Src.Open "SELECT * FROM dbo.qryLdtDat ORDER BY ID0", DB1, adOpenKeyset, adLockReadOnly
-    Else
-        RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenKeyset, adLockReadOnly
-    End If
+    RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenKeyset, adLockReadOnly
     
     If RS_Src.RecordCount = 0 Then
         L_Log "L_Hea: qryLdtDat is empty."
@@ -544,11 +540,7 @@ Private Sub L_Hea(ByVal LaGui As String, ByRef VerNu As Long, ByRef ImpDa As Lon
     
     Set RS_Tmp = New ADODB.Recordset
     RS_Tmp.CursorLocation = adUseClient
-    If GlTyp < 2 Then
-        RS_Tmp.Open "SELECT ID0 From dbo.qryLdtFile WHERE (GuiID = '" & SqlStr(LaGui) & "')", DB1
-    Else
-        RS_Tmp.Open "SELECT [ID0] From qryLdtFile WHERE ([GuiID] = '" & SqlStr(LaGui) & "');", DB1
-    End If
+    RS_Tmp.Open "SELECT [ID0] From qryLdtFile WHERE ([GuiID] = '" & SqlStr(LaGui) & "');", DB1
     If RS_Tmp.RecordCount > 0 Then ImpDa = RS_Tmp.Fields("ID0").Value
     RS_Tmp.Close
     Exit Sub
@@ -569,11 +561,7 @@ Private Sub L_Rep(ByVal LaGui As String, ByVal ImpDa As Long, ByVal ManNr As Lon
 
     Set RS_Src = New ADODB.Recordset
     RS_Src.CursorLocation = adUseClient
-    If GlTyp < 2 Then
-        RS_Src.Open "SELECT * FROM dbo.qryLdtDat ORDER BY ID0", DB1, adOpenForwardOnly, adLockReadOnly
-    Else
-        RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenForwardOnly, adLockReadOnly
-    End If
+    RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenForwardOnly, adLockReadOnly
 
     Set RS_Rep = New ADODB.Recordset
     L_Log "L_Rep: Opening qryLdtIm5 for AddNew..."
@@ -662,11 +650,7 @@ Private Sub L_Val(ByVal ImpDa As Long, ByVal VerNu As Long)
     
     Set RS_Src = New ADODB.Recordset
     RS_Src.CursorLocation = adUseClient
-    If GlTyp < 2 Then
-        RS_Src.Open "SELECT * FROM dbo.qryLdtDat ORDER BY ID0", DB1, adOpenForwardOnly, adLockReadOnly
-    Else
-        RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenForwardOnly, adLockReadOnly
-    End If
+    RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenForwardOnly, adLockReadOnly
     
     BerNr = 0
     Do While Not RS_Src.EOF
@@ -739,19 +723,11 @@ Private Sub L_Nor(ByVal ImpDa As Long)
     Set RS_Nrm = New ADODB.Recordset
     RS_Nrm.CursorLocation = adUseClient
     L_Log "L_Nor: Opening qryLabAuNo for AddNew..."
-    If GlTyp < 2 Then
-        RS_Nrm.Open "SELECT * FROM dbo.qryLabAuNo", DB1, adOpenDynamic, adLockOptimistic
-    Else
-        RS_Nrm.Open "SELECT * FROM qryLabAuNo;", DB1, adOpenDynamic, adLockOptimistic
-    End If
+    RS_Nrm.Open "SELECT * FROM qryLabAuNo;", DB1, adOpenDynamic, adLockOptimistic
 
     Set RS_Src = New ADODB.Recordset
     RS_Src.CursorLocation = adUseClient
-    If GlTyp < 2 Then
-        RS_Src.Open "SELECT * FROM dbo.qryLdtDat ORDER BY ID0", DB1, adOpenForwardOnly, adLockReadOnly
-    Else
-        RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenForwardOnly, adLockReadOnly
-    End If
+    RS_Src.Open "SELECT * FROM qryLdtDat ORDER BY [ID0];", DB1, adOpenForwardOnly, adLockReadOnly
 
     TesNr = 0
     Do While Not RS_Src.EOF

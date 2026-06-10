@@ -999,11 +999,7 @@ Mld1 = "Sie haben keinen Auswertungszeitraum gewählt"
 Tit1 = "Rechnungsübersicht"
 
 If OpMon.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "(((MONTH(Datum))=" & AkMon & ") AND ((YEAR(Datum))=" & AkJha & "))"
-    Else
-        Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
-    End If
+    Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
     TxDum.Text = CmMon.Text & " / " & CmJah.Text
 ElseIf OpQua.Value = True Then
     If GlTyp < 2 Then
@@ -1023,11 +1019,7 @@ ElseIf OpQua.Value = True Then
     End If
     TxDum.Text = CmQua.Text & " / " & CmJah.Text
 ElseIf OpJah.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "((YEAR(Datum) = " & AkJha & "))"
-    Else
-        Krit1 = "((Year([Datum]) = " & AkJha & "))"
-    End If
+    Krit1 = "((Year([Datum]) = " & AkJha & "))"
     TxDum.Text = "Jahr: " & CmJah.Text
 ElseIf OpZei.Value = True Then
     Select Case GlTyp

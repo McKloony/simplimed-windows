@@ -454,11 +454,7 @@ End If
 
 If OpMon.Value = True Then 'Monatsauswertung
 
-    If GlTyp < 2 Then
-        Krit1 = "(((MONTH(Datum))=" & AkMon & ") AND ((YEAR(Datum))=" & AkJha & "))"
-    Else
-        Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
-    End If
+    Krit1 = "(((Month([Datum]))=" & AkMon & ") AND ((Year([Datum]))=" & AkJha & "))"
     If AkMon = 1 Then
         VonDa = CDate("01." & AkMon - 1 & "." & AkJha)
         BisDa = CDate("01." & AkMon & "." & AkJha)
@@ -494,11 +490,7 @@ ElseIf OpQua.Value = True Then 'Quartalsauswertung
     
 ElseIf OpJah.Value = True Then 'Jahresauswertung
     
-    If GlTyp < 2 Then
-        Krit1 = "((YEAR(Datum) = " & AkJha & "))"
-    Else
-        Krit1 = "((Year([Datum]) = " & AkJha & "))"
-    End If
+    Krit1 = "((Year([Datum]) = " & AkJha & "))"
     
     BisDa = CDate("01.01." & AkJha)
 

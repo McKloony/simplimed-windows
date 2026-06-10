@@ -2663,11 +2663,7 @@ If Me.chkFilt2.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        SQL1 = SQL1 & "((ID3)=" & FeVo2.ItemData(FeVo2.ListIndex) & ")"
-    Else
-        SQL1 = SQL1 & "((qryAdrSu.ID3)=" & FeVo2.ItemData(FeVo2.ListIndex) & ")"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.ID3)=" & FeVo2.ItemData(FeVo2.ListIndex) & ")"
     Kombi = True
 End If
 
@@ -2675,11 +2671,7 @@ If Me.chkFilt3.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        SQL1 = SQL1 & "((Bemerkung) Like '%" & SqlStr(FeVo3.Text) & "%')"
-    Else
-        SQL1 = SQL1 & "((qryAdrSu.Bemerkung) Like '%" & SqlStr(FeVo3.Text) & "%')"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Bemerkung) Like '%" & SqlStr(FeVo3.Text) & "%')"
     Kombi = True
 End If
 
@@ -2687,11 +2679,7 @@ If Me.chkFilt4.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        SQL1 = SQL1 & "((PLZ) Like '" & SqlStr(FeVo4.Text) & "%')"
-    Else
-        SQL1 = SQL1 & "((qryAdrSu.PLZ) Like '" & SqlStr(FeVo4.Text) & "%')"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.PLZ) Like '" & SqlStr(FeVo4.Text) & "%')"
     Kombi = True
 End If
 
@@ -2699,11 +2687,7 @@ If Me.chkFilt5.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        SQL1 = SQL1 & "(MONTH(Geboren) IS NOT NULL) AND (MONTH(Geboren) = " & CInt(FeVo5.Text) & ")"
-    Else
-        SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND  ((Month(qryAdrSu.Geboren))=" & CInt(FeVo5.Text) & ")"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND  ((Month(qryAdrSu.Geboren))=" & CInt(FeVo5.Text) & ")"
     Kombi = True
     GebFi = True
 End If
@@ -2725,11 +2709,7 @@ If Me.chkFilt7.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        SQL1 = SQL1 & "(YEAR(Geboren) IS NOT NULL) AND (YEAR(Geboren) > " & CInt(FeVo7.Text) & ")"
-    Else
-        SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND ((Year(qryAdrSu.Geboren)) > " & CInt(FeVo7.Text) & ")"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND ((Year(qryAdrSu.Geboren)) > " & CInt(FeVo7.Text) & ")"
     Kombi = True
     GebFi = True
 End If
@@ -2738,11 +2718,7 @@ If Me.chkFilt8.Value = 1 Then
     If Kombi = True Then
         SQL1 = SQL1 & " AND "
     End If
-    If GlTyp < 2 Then
-        SQL1 = SQL1 & "(YEAR(Geboren) IS NOT NULL) AND (YEAR(Geboren) < " & CInt(FeVo8.Text) & ")"
-    Else
-        SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND  ((Year(qryAdrSu.Geboren)) < " & CInt(FeVo8.Text) & ")"
-    End If
+    SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND  ((Year(qryAdrSu.Geboren)) < " & CInt(FeVo8.Text) & ")"
     Kombi = True
     GebFi = True
 End If

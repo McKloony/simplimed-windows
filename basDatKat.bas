@@ -28443,11 +28443,7 @@ Case RibTab_Wart_Wied:
         End Select
     End If
 Case RibTab_Wart_Beha:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimReFi WHERE (Selekt = 0) ORDER BY ID1 DESC"
-    Else
-        SQL1 = "SELECT * FROM qrySimReFi WHERE ([Selekt]=0) ORDER BY [ID1] DESC;"
-    End If
+    SQL1 = "SELECT * FROM qrySimReFi WHERE ([Selekt]=0) ORDER BY [ID1] DESC"
 Case RibTab_Wart_Noti:
 End Select
 
@@ -28829,11 +28825,7 @@ Case RibTab_Wart_Wied:
         End Select
     End If
 Case RibTab_Wart_Beha:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimReFi WHERE (Selekt = 0) ORDER BY ID1 DESC"
-    Else
-        SQL1 = "SELECT * FROM qrySimReFi WHERE ([Selekt]=0) ORDER BY [ID1] DESC;"
-    End If
+    SQL1 = "SELECT * FROM qrySimReFi WHERE ([Selekt]=0) ORDER BY [ID1] DESC"
 Case RibTab_Wart_Noti:
 
 End Select

@@ -7940,11 +7940,7 @@ Set CmGlk = CmBrs.FindControl(CmGlk, SY_SuBuh, , True)
 IdBnk = CmGlk.ItemData(CmGlk.ListIndex)
 BuJah = CmJah.Text
 
-If GlTyp < 2 Then
-    Krite = "((YEAR(Datum) = " & BuJah & "))"
-Else
-    Krite = "((Year([Datum]) = " & BuJah & "))"
-End If
+Krite = "((Year([Datum]) = " & BuJah & "))"
 
 SQL1 = "SELECT * FROM qrySimOP ORDER BY [Datum]"
 

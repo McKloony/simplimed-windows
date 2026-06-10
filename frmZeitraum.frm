@@ -1344,18 +1344,10 @@ If OpWoc.Value = True Then 'Wochenauswertung
 
 ElseIf OpMon.Value = True Then 'Monatsauswertung
 
-    If GlTyp < 2 Then
-        If ZeiWa = True Then
-            Krit1 = "(((MONTH(Datum)) = " & AkMon & ") AND ((YEAR(Datum)) = " & AkJah & "))"
-        Else
-            Krit1 = "((Jahr = " & AkJah & ") AND (Monat = " & AkMon & "))"
-        End If
+    If ZeiWa = True Then
+        Krit1 = "(((Month([Datum])) = " & AkMon & ") AND ((Year([Datum])) = " & AkJah & "))"
     Else
-        If ZeiWa = True Then
-            Krit1 = "(((Month([Datum])) = " & AkMon & ") AND ((Year([Datum])) = " & AkJah & "))"
-        Else
-            Krit1 = "(([Jahr] = " & AkJah & ") AND ([Monat] = " & AkMon & "))"
-        End If
+        Krit1 = "(([Jahr] = " & AkJah & ") AND ([Monat] = " & AkMon & "))"
     End If
     TxDum.Text = CmMon.Text & " / " & CmJah.Text
     If AkMon = 1 Then
@@ -1396,11 +1388,7 @@ ElseIf OpQua.Value = True Then 'Quartalsauswertung
 ElseIf OpJah.Value = True Then 'Jahresauswertung
 
     If ZeiWa = True Then
-        If GlTyp < 2 Then
-            Krit1 = "((YEAR(Datum) = " & AkJah & "))"
-        Else
-            Krit1 = "((Year([Datum]) = " & AkJah & "))"
-        End If
+        Krit1 = "((Year([Datum]) = " & AkJah & "))"
     Else
         Krit1 = "([Jahr] = " & AkJah & ")"
     End If
