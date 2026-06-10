@@ -570,6 +570,91 @@ Expected: `MECH auto-patchbar (ohne DateNum): 0`; alle verbleibenden Blöcke geh
 
 ---
 
+## Addendum A (2026-06-10, nach Quality-Review Task 1): Lib v2
+
+Der Code-Review der ersten `gltyp_lib.ps1`-Fassung fand drei False-MECH-Risiken im Normalisierer
+(Klammer-/Whitespace-/Semikolon-Entfernung wirkte auch innerhalb von SQL-Datenliteralen) sowie
+Lücken im DateNum-Netz und Parser-Randfälle. **Die Code-Blöcke in Task 1–3 oben gelten als
+überholt, wo dieses Addendum sie ersetzt.**
+
+### A.1 `Get-NormalizedSql` v2 — quote-bewusst
+
+Vertrag: Zwei Branches gelten genau dann als gleich (→ MECH), wenn ihr Code-/SQL-Skelett nach
+Kosmetik-Normalisierung gleich ist **und** alle SQL-Datenliterale **byte-exakt** gleich sind.
+
+Algorithmus, pro Branch (`SrvLines`/`AccLines`), Zustände werden je Zeile zurückgesetzt:
+
+1. Zeichenweiser Scan mit zwei Zuständen: `inVb` (innerhalb VB6-`"…"`), `inSql` (innerhalb
+   SQL-`'…'`, nur toggelbar wenn `inVb`).
+   - `"` toggelt `inVb`; Escape `""` (zwei `"` in Folge bei `inVb=$true`) zählt als Literalzeichen,
+     kein Toggle.
+   - `'` bei `inVb=$true` toggelt `inSql`; `'` bei `inVb=$false` beginnt VB6-Kommentar →
+     Rest der Zeile verwerfen (Kommentare beeinflussen Verhalten nicht; reduziert False-DIFF).
+   - Zeichen bei `inSql=$true` → Daten-Puffer (aktuelles Literal). Beim Wechsel `inSql`
+     false→true wird im Skelett ein Platzhalter `[char]1` eingefügt und ein neues
+     Daten-Segment begonnen.
+   - Alle übrigen Zeichen → Skelett-Puffer.
+2. Endet eine Zeile mit `inSql=$true` (SQL-String per Konkatenation über Zeilen offen):
+   Branch nicht normalisierbar → Rückgabe `([char]2 + 'RAW' + [char]2 + (Zeilen roh gejoint))`
+   → faktisch DIFF, außer beide Branches sind byte-identisch.
+3. Skelett-Transformationen (NUR Skelett, nie Daten-Segmente), Reihenfolge:
+   `[\[\]]` → '' · `dbo\.` → '' · `\s+` → ' ' · Trim · am Ende des Gesamt-Skeletts `;\s*$` → ''
+   (entfernt exakt das Statement-Endsemikolon; ein `;` mitten im Skelett — z. B. Datenlisten
+   `"Mo;Di;" & x` — bleibt und erzeugt DIFF).
+4. Rückgabe: Skelett + `[char]1` + (Daten-Segmente exakt, mit `[char]1` gejoint).
+
+Damit gelöst: LIKE-Escapes `[_]`/`[%]` in Datenliteralen bleiben erhalten (C1), Whitespace in
+Datenliteralen bleibt exakt (C2), nur das Statement-Endsemikolon wird entfernt (C3),
+Kommentar-Differenzen erzeugen kein False-DIFF mehr.
+
+### A.2 Parser-Fixes
+
+- Depth-Increment-Regex härten: `'^\s*#?If\b[^'']*\bThen\s*(''.*)?$'` (kein Match, wenn vor
+  `Then` ein Apostroph liegt — Kommentare, die auf „then" enden, korrumpieren die Tiefe nicht mehr).
+- Guard: wird `$depth -lt 0`, Block als COMPLEX klassifizieren (Parser out of sync).
+- `^\s*(Else|End If)\s*:` auf Tiefe 0 → COMPLEX (Doppelpunkt-Statement-Separator).
+- Einzeiler mit Zeilenfortsetzung (`If GlTyp < 2 Then _`) → COMPLEX statt ONLY1.
+- Einzeiler mit Inline-Else (`If GlTyp < 2 Then x Else y`) → neue Klasse **ONLY1E**
+  (ehrliches Inventar: es existiert ein Access-Zweig).
+- Skelett-Transform-Reihenfolge Klammern-vor-dbo deckt `[dbo].`-Schreibweise gratis ab.
+
+### A.3 DateNum-Regex erweitern
+
+`'"#|#"|CONVERT\s*\(\s*(SMALL)?DATETIME|CONVERT\s*\(\s*N?(VAR)?CHAR|DatePart\s*\(|Format\$?\s*\(|FormatNumber\s*\(|FormatDateTime\s*\(|CDate\s*\('`
+
+(deckt `Format(` ohne `$`, `CONVERT(VARCHAR, …, 104)`-Richtung, `CDate`, `FormatNumber`,
+`FormatDateTime` ab.)
+
+### A.4 Fixture v2 (Task 2) — fünf zusätzliche Blöcke
+
+- Block 9 (DIFF): LIKE-Escape — Srv `… LIKE 'A[_]B'` vs. Acc `… LIKE 'A_B'`
+- Block 10 (DIFF): Mid-Skelett-Semikolon — Srv `SQL1 = "Mo;Di" & SuStr` vs. Acc `SQL1 = "Mo;Di;" & SuStr`
+- Block 11 (ONLY1E): `If GlTyp < 2 Then CmCon.Enabled = False Else CmCon.Enabled = True`
+- Block 12 (DIFF): Datenliteral-Whitespace — Srv `"REPLACE(N, '  ', ' ')"` vs. Acc `"REPLACE(N, ' ', ' ')"`
+- Block 13 (MECH): identisch bis auf Kosmetik **und** ein Trailing-Kommentar nur im Srv-Zweig
+  (beweist Kommentar-Stripping)
+
+**Neue Erwartungswerte Task 3 Fixture-Lauf:** Blöcke gesamt 13 — MECH 3, DIFF 6, ONLY 1,
+ONLY1 1, ONLY1E 1, COMPLEX 1; DateNum-markiert 2; MECH auto-patchbar (ohne DateNum) 3.
+
+### A.5 Task 3 zusätzlich: GlTyp-Coverage-Report
+
+`analyze_gltyp.ps1` ergänzt einen Reconciliation-Report `scripts/gltyp_uncovered.csv`:
+alle Zeilen mit `\bGlTyp\b`, die weder Header noch innerhalb [StartLine..EndLine] eines
+erkannten Blocks liegen (Datei, Zeile, Inhalt). Bekannter Treffer, der dort erscheinen MUSS:
+`basMain.bas:37502` (`ElseIf GlTyp < 2 Then` — vom Parser bewusst nicht als Block erfasst).
+Initialisierungs-/Zuweisungszeilen (`GlTyp = …`, `clsConn`-Logik) erscheinen dort erwartungsgemäß.
+
+### A.6 Task 6 zusätzlich: Roundtrip-Guard + Semikolon-Regel
+
+- `transform_gltyp.ps1` prüft vor jeder Transformation:
+  `($lines -join "`r`n") -ceq $origText`, sonst Abbruch (schützt Dateien mit vereinzelten
+  LF-only-Zeilenenden vor stiller Normalisierung beim Zurückschreiben).
+- Semikolon-Strip beim Bauen der Ersatzzeilen NUR am Zeilenende:
+  `-replace ';"(\s*)$', '"$1'` statt global `-replace ';"', '"'` (ein `;"` mitten in der
+  Zeile — Datenliteral-Ende vor Konkatenation — bleibt unangetastet; bei MECH-Blöcken hatte
+  der Srv-Zweig dasselbe `;` im Skelett, Beibehalten ist also korrekt).
+
 ## Offene Abhängigkeiten
 
 - Tasks 4, 5, 7 und jede Welle in Task 8 enthalten **harte User-Gates** (Report-Review, Compile, Smoke-Tests) — keine Fortsetzung ohne Freigabe.
