@@ -1290,29 +1290,17 @@ Tit1 = "Bericht drucken"
 
 If GlMaV = True Then 'Mandanten vorhanden
     If ManNr > 0 Then
-        If GlTyp < 2 Then
-            Krit3 = " AND (IDT = " & ManNr & ")"
-        Else
-            Krit3 = " AND ([IDT] = " & ManNr & ")"
-        End If
+        Krit3 = " AND ([IDT] = " & ManNr & ")"
     End If
 End If
 
 If MitWa = True Then
     If GlMiV = True Then
         If MitNr > 0 Then
-            If GlTyp < 2 Then
-                If Krit3 <> vbNullString Then
-                    Krit3 = Krit3 & " AND (IDM = " & MitNr & ")"
-                Else
-                    Krit3 = " AND (IDM = " & MitNr & ")"
-                End If
+            If Krit3 <> vbNullString Then
+                Krit3 = Krit3 & " AND ([IDM] = " & MitNr & ")"
             Else
-                If Krit3 <> vbNullString Then
-                    Krit3 = Krit3 & " AND ([IDM] = " & MitNr & ")"
-                Else
-                    Krit3 = " AND ([IDM] = " & MitNr & ")"
-                End If
+                Krit3 = " AND ([IDM] = " & MitNr & ")"
             End If
         End If
     End If
@@ -1320,17 +1308,9 @@ End If
 
 If TxDum.Text = "KonAus" Then
     If OpEiK.Value = True Then
-        If GlTyp < 2 Then
-            Krit2 = " AND (Konto = " & KtoNr & ")"
-        Else
-            Krit2 = " AND ([Konto] = " & KtoNr & ")"
-        End If
+        Krit2 = " AND ([Konto] = " & KtoNr & ")"
     ElseIf OpEiG.Value = True Then
-        If GlTyp < 2 Then
-            Krit2 = " AND (IDB = " & GldNr & ")"
-        Else
-            Krit2 = " AND ([IDB] = " & GldNr & ")"
-        End If
+        Krit2 = " AND ([IDB] = " & GldNr & ")"
     End If
 End If
 
@@ -1342,21 +1322,13 @@ End If
 
 If TxDum.Text = "KonGel" Then
     If OpEiG.Value = True Then
-        If GlTyp < 2 Then
-            Krit2 = " AND (IDB = " & GldNr & ")"
-        Else
-            Krit2 = " AND ([IDB] = " & GldNr & ")"
-        End If
+        Krit2 = " AND ([IDB] = " & GldNr & ")"
     End If
 End If
 
 If LiKey = "BuJour" Then
     If IdBnk > 0 Then
-        If GlTyp < 2 Then
-            Krit2 = " AND (IDB = " & IdBnk & ")"
-        Else
-            Krit2 = " AND ([IDB] = " & IdBnk & ")"
-        End If
+        Krit2 = " AND ([IDB] = " & IdBnk & ")"
     End If
 End If
 
@@ -1411,11 +1383,7 @@ ElseIf OpQua.Value = True Then 'Quartalsauswertung
             End Select
         End If
     Else
-        If GlTyp < 2 Then
-            Krit1 = "((Jahr = " & AkJah & ") AND (Quartal = " & AkQua & "))"
-        Else
-            Krit1 = "(([Jahr] = " & AkJah & ") AND ([Quartal] = " & AkQua & "))"
-        End If
+        Krit1 = "(([Jahr] = " & AkJah & ") AND ([Quartal] = " & AkQua & "))"
     End If
     TxDum.Text = CmQua.Text & " / " & CmJah.Text
     Select Case AkQua
@@ -1434,11 +1402,7 @@ ElseIf OpJah.Value = True Then 'Jahresauswertung
             Krit1 = "((Year([Datum]) = " & AkJah & "))"
         End If
     Else
-        If GlTyp < 2 Then
-            Krit1 = "(Jahr = " & AkJah & ")"
-        Else
-            Krit1 = "([Jahr] = " & AkJah & ")"
-        End If
+        Krit1 = "([Jahr] = " & AkJah & ")"
     End If
     TxDum.Text = "Jahr: " & CmJah.Text
     BisDa = CDate("01.01." & AkJah)

@@ -1043,11 +1043,7 @@ End If
 
 If GlMaV = True Then 'Mandanten vorhanden
     If ManNr > 0 Then
-        If GlTyp < 2 Then
-            Krit1 = Krit1 & " AND (IDP = " & ManNr & " )"
-        Else
-            Krit1 = Krit1 & " AND ([IDP] = " & ManNr & " )"
-        End If
+        Krit1 = Krit1 & " AND ([IDP] = " & ManNr & " )"
     End If
 End If
 

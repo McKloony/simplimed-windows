@@ -34437,11 +34437,7 @@ End With
 Krit1 = SDaFi1(2) 'Es werden alle Typen mit <> ausgeschlossen, die im TreeView nicht markiert sind
 
 If SuStr <> vbNullString Then
-    If GlTyp < 2 Then
-        Krit2 = "((Bezeichnung Like '%" & SqlStr(SuStr) & "%'))"
-    Else
-        Krit2 = "(([Bezeichnung] Like '%" & SqlStr(SuStr) & "%'))"
-    End If
+    Krit2 = "(([Bezeichnung] Like '%" & SqlStr(SuStr) & "%'))"
 Else
     Krit2 = SDaFi2(2)
 End If

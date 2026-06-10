@@ -16271,11 +16271,7 @@ Case 6: 'Umsatz der Mandanten
             ManNr = GlMan(AktZa, 2)
         End If
 
-        If GlTyp < 2 Then
-            SQL2 = SQL1 & " AND (IDT = " & ManNr & ") ORDER BY Sort"
-        Else
-            SQL2 = SQL1 & " AND ([IDT] = " & ManNr & ") ORDER BY [Sort];"
-        End If
+        SQL2 = SQL1 & " AND ([IDT] = " & ManNr & ") ORDER BY [Sort]"
 
         Set RS70 = New ADODB.Recordset
         With RS70
@@ -16352,11 +16348,7 @@ Case 7: 'Umsatz der Mitarbeiter
 
     For AktZa = 1 To UBound(GlMiK)
         MitNr = GlMiK(AktZa, 2)
-        If GlTyp < 2 Then
-            SQL2 = SQL1 & " AND (IDT = " & MitNr & ") ORDER BY Sort"
-        Else
-            SQL2 = SQL1 & " AND ([IDT] = " & MitNr & ") ORDER BY [Sort];"
-        End If
+        SQL2 = SQL1 & " AND ([IDT] = " & MitNr & ") ORDER BY [Sort]"
 
         Set RS70 = New ADODB.Recordset
         With RS70

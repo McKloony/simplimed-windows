@@ -448,11 +448,7 @@ ManNr = CmThe.ItemData(CmThe.ListIndex)
 
 If GlMaV = True Then 'Mandanten vorhanden
     If ManNr > 0 Then
-        If GlTyp < 2 Then
-            Krit2 = " AND (ManNr = " & ManNr & ")"
-        Else
-            Krit2 = " AND ([ManNr] = " & ManNr & ")"
-        End If
+        Krit2 = " AND ([ManNr] = " & ManNr & ")"
     End If
 End If
 

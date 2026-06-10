@@ -1066,11 +1066,7 @@ End If
 
 If GlMaV = True Then 'Mandanten vorhanden
     If ManNr > 0 Then
-        If GlTyp < 2 Then
-            Krit1 = Krit1 & " AND (IDT = " & ManNr & " )"
-        Else
-            Krit1 = Krit1 & " AND ([IDT] = " & ManNr & " )"
-        End If
+        Krit1 = Krit1 & " AND ([IDT] = " & ManNr & " )"
     End If
 End If
 
@@ -1182,11 +1178,7 @@ ElseIf Rahm3.Visible = True Then
     
     GeKto = CmGeg.ItemData(CmGeg.ListIndex)
     If GeKto > 0 Then
-        If GlTyp < 2 Then
-            SQL3 = "(IDB = " & GeKto & ")"
-        Else
-            SQL3 = "([IDB] = " & GeKto & ")"
-        End If
+        SQL3 = "([IDB] = " & GeKto & ")"
     End If
     
     If SQL1 <> vbNullString Then

@@ -7191,17 +7191,9 @@ Case 1:
         Krit1 = KrTyp
     Case Else:
         If (KrTyp - 3) > 0 Then
-            If GlTyp < 2 Then
-                Krit1 = "((Typ = " & GlKrA(KrTyp - 3, 0) & "))"
-            Else
-                Krit1 = "(([Typ] = " & GlKrA(KrTyp - 3, 0) & "))"
-            End If
+            Krit1 = "(([Typ] = " & GlKrA(KrTyp - 3, 0) & "))"
         Else
-            If GlTyp < 2 Then
-                Krit1 = "(Typ = 1)"
-            Else
-                Krit1 = "([Typ] = 1)"
-            End If
+            Krit1 = "([Typ] = 1)"
         End If
     End Select
 Case 2:
@@ -7216,17 +7208,9 @@ Case 2:
                     KrTyp = Right$(Knote.Key, 1)
                 End If
                 If Krit1 = vbNullString Then
-                    If GlTyp < 2 Then
-                        Krit1 = "((Typ <> " & KrTyp & ")"
-                    Else
-                        Krit1 = "(([Typ] <> " & KrTyp & ")"
-                    End If
+                    Krit1 = "(([Typ] <> " & KrTyp & ")"
                 Else
-                    If GlTyp < 2 Then
-                        Krit1 = Krit1 & " AND (Typ <> " & KrTyp & ")"
-                    Else
-                        Krit1 = Krit1 & " AND ([Typ] <> " & KrTyp & ")"
-                    End If
+                    Krit1 = Krit1 & " AND ([Typ] <> " & KrTyp & ")"
                 End If
             End If
         End If
@@ -7256,11 +7240,7 @@ Select Case SuTyp
 Case 1:
     Select Case GlSuK.SuIdx
     Case 1:
-        If GlTyp < 2 Then
-            Krit2 = "((Year(Datum) = " & GlSuK.SuJah & "))"
-        Else
-            Krit2 = "((Year([Datum]) = " & GlSuK.SuJah & "))"
-        End If
+        Krit2 = "((Year([Datum]) = " & GlSuK.SuJah & "))"
     Case 2:
         If GlTyp < 2 Then
             Select Case GlSuK.SuQua
@@ -7278,11 +7258,7 @@ Case 1:
             End Select
         End If
     Case 3:
-        If GlTyp < 2 Then
-            Krit2 = "((Month(Datum)=" & GlSuK.SuMon & ") AND (Year(Datum)=" & GlSuK.SuJah & "))"
-        Else
-            Krit2 = "((Month([Datum])=" & GlSuK.SuMon & ") AND (Year([Datum])=" & GlSuK.SuJah & "))"
-        End If
+        Krit2 = "((Month([Datum])=" & GlSuK.SuMon & ") AND (Year([Datum])=" & GlSuK.SuJah & "))"
     Case 4:
         If GlTyp < 2 Then
             Krit2 = "((DATEPART(ww, Datum)=" & GlSuK.SuWek & ") AND (Year([Datum])=" & GlSuK.SuJah & "))" '|| There is a syntax error in the SQL Server database (firstdayof week)
@@ -7308,11 +7284,7 @@ Case 1:
 Case 2:
     Select Case GlSuO.SuIdx
     Case 1:
-        If GlTyp < 2 Then
-            Krit2 = "((Year(Datum) = " & GlSuO.SuJah & "))"
-        Else
-            Krit2 = "((Year([Datum]) = " & GlSuO.SuJah & "))"
-        End If
+        Krit2 = "((Year([Datum]) = " & GlSuO.SuJah & "))"
     Case 2:
         If GlTyp < 2 Then
             Select Case GlSuO.SuQua
@@ -7330,11 +7302,7 @@ Case 2:
             End Select
         End If
     Case 3:
-        If GlTyp < 2 Then
-            Krit2 = "((Month(Datum)=" & GlSuO.SuMon & ") AND (Year(Datum)=" & GlSuO.SuJah & "))"
-        Else
-            Krit2 = "((Month([Datum])=" & GlSuO.SuMon & ") AND (Year([Datum])=" & GlSuO.SuJah & "))"
-        End If
+        Krit2 = "((Month([Datum])=" & GlSuO.SuMon & ") AND (Year([Datum])=" & GlSuO.SuJah & "))"
     Case 4:
         If GlTyp < 2 Then
             Krit2 = "((DATEPART(ww, Datum)=" & GlSuO.SuWek & ") AND (Year([Datum])=" & GlSuO.SuJah & "))"
@@ -13423,18 +13391,10 @@ On Error GoTo PoErr
 Dim Krit3 As String
 Dim SQL1 As String
 
-If GlTyp < 2 Then
-    If InStr(1, Krit1, "105", 1) > 0 Then
-        Krit3 = "((Bezeichnung) Like '%" & SqlStr(SuStr) & "%')"
-    Else
-        Krit3 = "((Kommentar) Like '%" & SqlStr(SuStr) & "%')"
-    End If
+If InStr(1, Krit1, "105", 1) > 0 Then
+    Krit3 = "(([Bezeichnung]) Like '%" & SqlStr(SuStr) & "%')"
 Else
-    If InStr(1, Krit1, "105", 1) > 0 Then
-        Krit3 = "(([Bezeichnung]) Like '%" & SqlStr(SuStr) & "%')"
-    Else
-        Krit3 = "(([Kommentar]) Like '%" & SqlStr(SuStr) & "%')"
-    End If
+    Krit3 = "(([Kommentar]) Like '%" & SqlStr(SuStr) & "%')"
 End If
 
 If SuStr <> vbNullString Then
@@ -23105,11 +23065,7 @@ Mld1 = "Sie haben keinen Auswertungszeitraum gewählt"
 Tit1 = "Rechnungsübersicht"
 
 If OpMon.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "((Jahr=" & AkJha & ") AND (Monat=" & AkMon & "))"
-    Else
-        Krit1 = "(([Jahr]=" & AkJha & ") AND ([Monat]=" & AkMon & "))"
-    End If
+    Krit1 = "(([Jahr]=" & AkJha & ") AND ([Monat]=" & AkMon & "))"
 ElseIf OpQua.Value = True Then
     Select Case AkQua
     Case 1: Krit1 = "((([Monat] >= 1) AND ([Monat] <= 3)) AND ([Jahr] = " & AkJha & "))"
@@ -23118,11 +23074,7 @@ ElseIf OpQua.Value = True Then
     Case 4: Krit1 = "((([Monat] >= 10) AND ([Monat] <= 12)) AND ([Jahr] = " & AkJha & "))"
     End Select
 ElseIf OpJah.Value = True Then
-    If GlTyp < 2 Then
-        Krit1 = "(Jahr=" & AkJha & ")"
-    Else
-        Krit1 = "([Jahr]=" & AkJha & ")"
-    End If
+    Krit1 = "([Jahr]=" & AkJha & ")"
 ElseIf OpZei.Value = True Then
     If GlTyp < 2 Then
         Krit1 = "((Datum >= '" & DaSta & "') AND (Datum <= '" & DaEnd & "'))"
@@ -23134,11 +23086,7 @@ Else
 End If
 
 If ManNr > 0 Then
-    If GlTyp < 2 Then
-        Krit2 = " AND (IDT = " & ManNr & ")"
-    Else
-        Krit2 = " AND ([IDT] = " & ManNr & ")"
-    End If
+    Krit2 = " AND ([IDT] = " & ManNr & ")"
     Krit1 = Krit1 & Krit2
 End If
 
