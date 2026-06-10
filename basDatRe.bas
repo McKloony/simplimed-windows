@@ -27589,11 +27589,7 @@ Case "N3":
         .Open Options:=adCmdText
     End With
 Case "N4":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerAufg1 ORDER BY SorDat, SorTim"
-    Else
-        SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon];"
-    End If
+    SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon]"
     Set RS142 = New ADODB.Recordset
     With RS142
         .CursorLocation = adUseClient
@@ -27986,11 +27982,7 @@ Case "N3":
         .Open Options:=adCmdText
     End With
 Case "N4":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerAufg1 ORDER BY SorDat, SorTim"
-    Else
-        SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon];"
-    End If
+    SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon]"
     Set RS143 = New ADODB.Recordset
     With RS143
         .CursorLocation = adUseClient
@@ -28383,11 +28375,7 @@ Case "N3":
         .Open Options:=adCmdText
     End With
 Case "N4":
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryTerAufg1 ORDER BY SorDat, SorTim"
-    Else
-        SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon];"
-    End If
+    SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon]"
     Set RS144 = New ADODB.Recordset
     With RS144
         .CursorLocation = adUseClient

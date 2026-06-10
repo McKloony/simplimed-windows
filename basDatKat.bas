@@ -28969,11 +28969,7 @@ Set Rpc12 = FM.repCon12
 Set RpRcs = Rpc12.Records
 Set RpSel = Rpc12.SelectedRows
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerAufg1 ORDER BY SorDat, SorTim"
-Else
-    SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon];"
-End If
+SQL1 = "SELECT * FROM qryTerAufg1 ORDER BY [VonDat], [ZeiVon]"
 
 If RpSel.Count > 0 Then
     Set RpRow = RpSel(0)
