@@ -70,14 +70,16 @@ Boolean, frmOptions=WIP, clsData=Verbindung).
 
 ### Endstand (Task 10, Report `scripts/gltyp_report_final.csv`)
 
-**495 Dialekt-Konstrukte vereinheitlicht.** Verbleibend 150 Blöcke + 34 Einzelzeilen, alle
-begründet: 50 strukturelle (Triage-Begründungen in `gltyp_triage.csv`), 27 Command/StoredProc,
+**496 Dialekt-Konstrukte vereinheitlicht** (inkl. Opt_PLZ, 2026-06-10 nachgezogen).
+Verbleibend 149 Blöcke + 34 Einzelzeilen, alle
+begründet: 49 strukturelle (Triage-Begründungen in `gltyp_triage.csv`), 27 Command/StoredProc,
 26 Datums-Schema/Wochenfilter, 15 Jet-Boolean vs. BIT, 19 ONLY (TSE/Procs), 3 ONLYA,
 7 Verbindungslogik, 3 Helper selbst, 16× .dbx/.dbv u. a.
 
 ### Offene User-Entscheide
 
-- PLZ/Land-Wildcard (basDaAdr, `gltyp_triage.csv` Bucket=REVIEW)
+- ~~PLZ/Land-Wildcard (basDaAdr)~~ ✅ 2026-06-10 entschieden: Ergebnis laut Anwender beidseitig
+  identisch → Opt_PLZ vereinheitlicht (Land exakt, universelle Form; Triage-Bucket=MERGED)
 - Schlüsselfelder basDatKat:12575/16926 (`ID1`/`ID4` vs. `[ID0]` — Bug oder Absicht?)
 
 ## Empfehlung Reihenfolge
