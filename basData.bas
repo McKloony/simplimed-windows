@@ -2419,33 +2419,18 @@ End Select
 If GlPaK <> "P800" Then
     If GlzPa <> GlPaK Then
         If AdVor = True Then
-            If GlTyp < 2 Then
-                Select Case GlPaK
-                Case "P801": SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE ID0 = " & GlAdr & " ORDER BY " & SoStr
-                Case "P802": SQL1 = "SELECT * FROM dbo.qrySimAdMai WHERE ID0 = " & GlAdr & " ORDER BY " & SoStr
-                Case "P803": SQL1 = "SELECT * FROM dbo.qrySimAdEdi WHERE ID0 = " & GlAdr & " ORDER BY " & SoStr
-                Case "P804": SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE ID0 = " & GlAdr & " ORDER BY " & SoStr
-                Case "P805": SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE ID0 = " & GlAdr & " ORDER BY " & SoStr
-                Case "P806": SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE ID0 = " & GlMId & " ORDER BY " & SoStr
-                Case "P807": SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE ID0 = " & GlMId & " ORDER BY " & SoStr
-                Case "P808": SQL1 = "SELECT * FROM dbo.qrySimAdIna WHERE ID0 = " & GlMId & " ORDER BY " & SoStr
-                Case "P804": Exit Sub
-                Case Else: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE ID0 = " & GlAdr & " ORDER BY " & SoStr
-                End Select
-            Else
-                Select Case GlPaK
-                Case "P801": SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr & ";"
-                Case "P802": SQL1 = "SELECT * FROM qrySimAdMai WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr & ";"
-                Case "P803": SQL1 = "SELECT * FROM qrySimAdEdi WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr & ";"
-                Case "P804": SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr & ";"
-                Case "P805": SQL1 = "SELECT * FROM qrySimAdVip WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr & ";"
-                Case "P806": SQL1 = "SELECT * FROM qrySimAdArzt WHERE [ID0] = " & GlMId & " ORDER BY " & SoStr & ";"
-                Case "P807": SQL1 = "SELECT * FROM qrySimAdMita WHERE [ID0] = " & GlMId & " ORDER BY " & SoStr & ";"
-                Case "P808": SQL1 = "SELECT * FROM qrySimAdIna WHERE [ID0] = " & GlMId & " ORDER BY " & SoStr & ";"
-                Case "P804": Exit Sub
-                Case Else: SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr & ";"
-                End Select
-            End If
+            Select Case GlPaK
+            Case "P801": SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr
+            Case "P802": SQL1 = "SELECT * FROM qrySimAdMai WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr
+            Case "P803": SQL1 = "SELECT * FROM qrySimAdEdi WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr
+            Case "P804": SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr
+            Case "P805": SQL1 = "SELECT * FROM qrySimAdVip WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr
+            Case "P806": SQL1 = "SELECT * FROM qrySimAdArzt WHERE [ID0] = " & GlMId & " ORDER BY " & SoStr
+            Case "P807": SQL1 = "SELECT * FROM qrySimAdMita WHERE [ID0] = " & GlMId & " ORDER BY " & SoStr
+            Case "P808": SQL1 = "SELECT * FROM qrySimAdIna WHERE [ID0] = " & GlMId & " ORDER BY " & SoStr
+            Case "P804": Exit Sub
+            Case Else: SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlAdr & " ORDER BY " & SoStr
+            End Select
             Set RS147 = New ADODB.Recordset
             With RS147
                 .CursorLocation = adUseClient
@@ -2470,31 +2455,17 @@ If GlPaK <> "P800" Then
                 RS147.CursorLocation = adUseClient
                 Set RS147 = DBCmRe1("qrySimAdGr", "@IdStr", "%" & SuStr & "%")
             Case "P":
-                If GlTyp < 2 Then
-                    Select Case GlPaK
-                    Case "P801": SQL1 = "SELECT * FROM dbo.qrySimAdSu ORDER BY " & SoStr
-                    Case "P802": SQL1 = "SELECT * FROM dbo.qrySimAdMai ORDER BY " & SoStr
-                    Case "P803": SQL1 = "SELECT * FROM dbo.qrySimAdEdi ORDER BY " & SoStr
-                    Case "P805": SQL1 = "SELECT * FROM dbo.qrySimAdVip ORDER BY " & SoStr
-                    Case "P806": SQL1 = "SELECT * FROM dbo.qrySimAdArzt ORDER BY " & SoStr
-                    Case "P807": SQL1 = "SELECT * FROM dbo.qrySimAdMita ORDER BY " & SoStr
-                    Case "P808": SQL1 = "SELECT * FROM dbo.qrySimAdIna ORDER BY " & SoStr
-                    Case "P804": Exit Sub
-                    Case Else: SQL1 = "SELECT * FROM dbo.qrySimAdSu ORDER BY " & SoStr
-                    End Select
-                Else
-                    Select Case GlPaK
-                    Case "P801": SQL1 = "SELECT * FROM qrySimAdSu ORDER BY " & SoStr & ";"
-                    Case "P802": SQL1 = "SELECT * FROM qrySimAdMai ORDER BY " & SoStr & ";"
-                    Case "P803": SQL1 = "SELECT * FROM qrySimAdEdi ORDER BY " & SoStr & ";"
-                    Case "P805": SQL1 = "SELECT * FROM qrySimAdVip ORDER BY " & SoStr & ";"
-                    Case "P806": SQL1 = "SELECT * FROM qrySimAdArzt ORDER BY " & SoStr & ";"
-                    Case "P807": SQL1 = "SELECT * FROM qrySimAdMita ORDER BY " & SoStr & ";"
-                    Case "P808": SQL1 = "SELECT * FROM qrySimAdIna ORDER BY " & SoStr & ";"
-                    Case "P804": Exit Sub
-                    Case Else: SQL1 = "SELECT * FROM qrySimAdSu ORDER BY " & SoStr & ";"
-                    End Select
-                End If
+                Select Case GlPaK
+                Case "P801": SQL1 = "SELECT * FROM qrySimAdSu ORDER BY " & SoStr
+                Case "P802": SQL1 = "SELECT * FROM qrySimAdMai ORDER BY " & SoStr
+                Case "P803": SQL1 = "SELECT * FROM qrySimAdEdi ORDER BY " & SoStr
+                Case "P805": SQL1 = "SELECT * FROM qrySimAdVip ORDER BY " & SoStr
+                Case "P806": SQL1 = "SELECT * FROM qrySimAdArzt ORDER BY " & SoStr
+                Case "P807": SQL1 = "SELECT * FROM qrySimAdMita ORDER BY " & SoStr
+                Case "P808": SQL1 = "SELECT * FROM qrySimAdIna ORDER BY " & SoStr
+                Case "P804": Exit Sub
+                Case Else: SQL1 = "SELECT * FROM qrySimAdSu ORDER BY " & SoStr
+                End Select
                 Set RS147 = New ADODB.Recordset
                 With RS147
                     .CursorLocation = adUseClient
@@ -3255,29 +3226,16 @@ If Left$(GlPaK, 1) = "G" Then 'Adressgruppen
     RS147.CursorLocation = adUseClient
     Set RS147 = DBCmRe1("qrySimAdGr", "@IdStr", "%" & SuStr & "%")
 Else
-    If GlTyp < 2 Then
-        Select Case GlPaK
-        Case "P801": SQL1 = "SELECT * FROM dbo.qrySimAdSu ORDER BY " & SoStr
-        Case "P802": SQL1 = "SELECT * FROM dbo.qrySimAdMai ORDER BY " & SoStr
-        Case "P803": SQL1 = "SELECT * FROM dbo.qrySimAdEdi ORDER BY " & SoStr
-        Case "P805": SQL1 = "SELECT * FROM dbo.qrySimAdVip ORDER BY " & SoStr
-        Case "P806": SQL1 = "SELECT * FROM dbo.qrySimAdArzt ORDER BY " & SoStr
-        Case "P807": SQL1 = "SELECT * FROM dbo.qrySimAdMita ORDER BY " & SoStr
-        Case "P808": SQL1 = "SELECT * FROM dbo.qrySimAdIna ORDER BY " & SoStr
-        Case "P804": Exit Sub
-        End Select
-    Else
-        Select Case GlPaK
-        Case "P801": SQL1 = "SELECT * FROM qrySimAdSu ORDER BY " & SoStr & ";"
-        Case "P802": SQL1 = "SELECT * FROM qrySimAdMai ORDER BY " & SoStr & ";"
-        Case "P803": SQL1 = "SELECT * FROM qrySimAdEdi ORDER BY " & SoStr & ";"
-        Case "P805": SQL1 = "SELECT * FROM qrySimAdVip ORDER BY " & SoStr & ";"
-        Case "P806": SQL1 = "SELECT * FROM qrySimAdArzt ORDER BY " & SoStr & ";"
-        Case "P807": SQL1 = "SELECT * FROM qrySimAdMita ORDER BY " & SoStr & ";"
-        Case "P808": SQL1 = "SELECT * FROM qrySimAdIna ORDER BY " & SoStr & ";"
-        Case "P804": Exit Sub
-        End Select
-    End If
+    Select Case GlPaK
+    Case "P801": SQL1 = "SELECT * FROM qrySimAdSu ORDER BY " & SoStr
+    Case "P802": SQL1 = "SELECT * FROM qrySimAdMai ORDER BY " & SoStr
+    Case "P803": SQL1 = "SELECT * FROM qrySimAdEdi ORDER BY " & SoStr
+    Case "P805": SQL1 = "SELECT * FROM qrySimAdVip ORDER BY " & SoStr
+    Case "P806": SQL1 = "SELECT * FROM qrySimAdArzt ORDER BY " & SoStr
+    Case "P807": SQL1 = "SELECT * FROM qrySimAdMita ORDER BY " & SoStr
+    Case "P808": SQL1 = "SELECT * FROM qrySimAdIna ORDER BY " & SoStr
+    Case "P804": Exit Sub
+    End Select
 
     Set RS147 = New ADODB.Recordset
     With RS147
@@ -3812,11 +3770,7 @@ Case "ClientNew":
             RS127.Update
         End If
 Case "ClientChange":
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryAdress WHERE Mandant LIKE " & GlTDx.CSenderInternalIdentification
-        Else
-            SQL1 = "SELECT * FROM qryAdress WHERE [Mandant] LIKE " & GlTDx.CSenderInternalIdentification & ";"
-        End If
+        SQL1 = "SELECT * FROM qryAdress WHERE [Mandant] LIKE " & GlTDx.CSenderInternalIdentification
         
         Set RS127 = New ADODB.Recordset 'Neuer Patient anlegen
         With RS127
@@ -3903,13 +3857,8 @@ If AnzPo > 0 Then
                 RowNr = RpRow.Index
             Next RpRow
 
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & IdAry(1)
-                SQL2 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & IdAry(2)
-            Else
-                SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & IdAry(1) & ";"
-                SQL2 = "SELECT * FROM qryAdress WHERE [ID0] = " & IdAry(2) & ";"
-            End If
+            SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & IdAry(1)
+            SQL2 = "SELECT * FROM qryAdress WHERE [ID0] = " & IdAry(2)
 
             Set RS162 = New ADODB.Recordset
             RS162.CursorLocation = adUseClient
@@ -7341,11 +7290,7 @@ If AnzPo > 0 Then
         If ReZuo = True Then
             Screen.MousePointer = vbHourglass
         
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-            Else
-                SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
             Set RS125 = New ADODB.Recordset
             With RS125
                 .CursorLocation = adUseClient
@@ -7815,11 +7760,7 @@ If AnzPo > 0 Then
         End If
 
         If OpZuo = True Then
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-            Else
-                SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
             Set RS125 = New ADODB.Recordset
             With RS125
                 .CursorLocation = adUseClient
@@ -8099,11 +8040,7 @@ If GesZa > 0 Then
             LenSu = Len(SuStr)
             
             If BuZug = False Then 'Offener Posten zugeordnet
-                If GlTyp < 2 Then
-                    SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-                Else
-                    SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-                End If
+                SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
                 Set RS125 = New ADODB.Recordset
                 With RS125
                     .CursorLocation = adUseClient
@@ -8193,11 +8130,7 @@ If GesZa > 0 Then
                 LenSu = Len(SuStr)
     
                 If BuZug = False Then 'Offener Posten zugeordnet
-                    If GlTyp < 2 Then
-                        SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-                    Else
-                        SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-                    End If
+                    SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
                     Set RS125 = New ADODB.Recordset
                     With RS125
                         .CursorLocation = adUseClient
@@ -8278,11 +8211,7 @@ If GesZa > 0 Then
                     LenSu = Len(SuStr)
     
                     If BuZug = False Then 'Offener Posten zugeordnet
-                        If GlTyp < 2 Then
-                            SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-                        Else
-                            SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-                        End If
+                        SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
                         Set RS125 = New ADODB.Recordset
                         With RS125
                             .CursorLocation = adUseClient
@@ -8363,11 +8292,7 @@ If GesZa > 0 Then
                         LenSu = Len(SuStr)
     
                         If BuZug = False Then 'Offener Posten zugeordnet
-                            If GlTyp < 2 Then
-                                SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-                            Else
-                                SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-                            End If
+                            SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
                             Set RS125 = New ADODB.Recordset
                             With RS125
                                 .CursorLocation = adUseClient
@@ -8448,11 +8373,7 @@ If GesZa > 0 Then
                             LenSu = Len(SuStr)
     
                             If BuZug = False Then 'Offener Posten zugeordnet
-                                If GlTyp < 2 Then
-                                    SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-                                Else
-                                    SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-                                End If
+                                SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
                                 Set RS125 = New ADODB.Recordset
                                 With RS125
                                     .CursorLocation = adUseClient
@@ -8533,11 +8454,7 @@ If GesZa > 0 Then
                                 LenSu = Len(SuStr)
         
                                 If BuZug = False Then 'Offener Posten zugeordnet
-                                    If GlTyp < 2 Then
-                                        SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-                                    Else
-                                        SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-                                    End If
+                                    SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
                                     Set RS125 = New ADODB.Recordset
                                     With RS125
                                         .CursorLocation = adUseClient
@@ -8867,11 +8784,7 @@ If AnzPo > 0 Then
         AnzWo = UBound(TmAry) 'WICHTIG!
 
         If AnzWo > 1 Then
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimBaZuor WHERE IDZ = " & RegNr
-            Else
-                SQL1 = "SELECT * FROM qrySimBaZuor WHERE [IDZ] = " & RegNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qrySimBaZuor WHERE [IDZ] = " & RegNr
             Set RS125 = New ADODB.Recordset
             With RS125
                 .CursorLocation = adUseClient
@@ -8927,11 +8840,7 @@ On Error GoTo LiErr
 
 Dim SQL1 As String
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID2 = " & IdxNr
-Else
-    SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr & ";"
-End If
+SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID2] = " & IdxNr
 Set RS125 = New ADODB.Recordset
 With RS125
     .CursorLocation = adUseClient
@@ -9741,17 +9650,9 @@ BuJah = ComBu.Text
 ManNr = ComTh.ItemData(ComTh.ListIndex)
 
 If ManNr > 0 Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBuAf WHERE Jahr = " & BuJah & " AND IDT = " & ManNr
-    Else
-        SQL1 = "SELECT * FROM qrySimBuAf WHERE [Jahr] = " & BuJah & " AND [IDT] = " & ManNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimBuAf WHERE [Jahr] = " & BuJah & " AND [IDT] = " & ManNr
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBuAf WHERE Jahr = " & BuJah
-    Else
-        SQL1 = "SELECT * FROM qrySimBuAf WHERE [Jahr] = " & BuJah & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimBuAf WHERE [Jahr] = " & BuJah
 End If
 
 With RpCo1
@@ -10287,17 +10188,9 @@ On Error GoTo LiErr
 Dim SQL1 As String
             
 If OpNum = True Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE ID1 = " & IdxNr
-    Else
-        SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID1] = " & IdxNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimBaSu WHERE [ID1] = " & IdxNr
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimBaSu WHERE IDR = " & IdxNr
-    Else
-        SQL1 = "SELECT * FROM qrySimBaSu WHERE [IDR] = " & IdxNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimBaSu WHERE [IDR] = " & IdxNr
 End If
 
 Set RS125 = New ADODB.Recordset
@@ -22121,11 +22014,7 @@ If GlSav = True Then
             Set RpCol = RpCls.Find(Lab_ID0)
             IdxNr = RpRow.Record(RpCol.ItemIndex).Value
             
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qryLabBeri WHERE [ID0]=" & IdxNr
-            Else
-                SQL1 = "SELECT * FROM qryLabBeri WHERE [ID0]=" & IdxNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qryLabBeri WHERE [ID0]=" & IdxNr
             
             Set RS126 = New ADODB.Recordset
             With RS126
@@ -22482,11 +22371,7 @@ If RpSel.Count > 0 Then
             Set RpCol = RpCls.Find(Lau_ID1)
             IdxNr = RpRow.Record(RpCol.ItemIndex).Value
         End If
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryLabPos WHERE IDA = " & IdxNr
-        Else
-            SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr & ";"
-        End If
+        SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr
     End Select
 
     If ClKop = True Then
@@ -23070,11 +22955,7 @@ If RpSel.Count > 0 Then
         ElseIf GlBut = RibTab_LabAuftrag Or GlBut = RibTab_LabAuftrage Then
             Set RpCol = RpCls.Find(Lau_ID1)
             IdxNr = RpRow.Record(RpCol.ItemIndex).Value
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qryLabPos WHERE IDA = " & IdxNr
-            Else
-                SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr
         End If
 
         Set RS149 = New ADODB.Recordset
@@ -23193,11 +23074,7 @@ Case RibTab_LabAuftrag:
     Else
         IdxNr = 0
     End If
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryLabPos WHERE IDA = " & IdxNr
-    Else
-        SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr & ";"
-    End If
+    SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr
 End Select
 
 Set RS149 = New ADODB.Recordset
@@ -24027,11 +23904,7 @@ If GlSav = True Then
             RowNr = RpRow.Index
             Set RpCol = RpCls.Find(Lau_ID1)
             IdxNr = RpRow.Record(RpCol.ItemIndex).Value
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qryLabPos WHERE IDA = " & IdxNr
-            Else
-                SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qryLabPos WHERE [IDA] = " & IdxNr
         End Select
         
         Set RS149 = New ADODB.Recordset
@@ -33107,11 +32980,7 @@ Case RibTab_Abrechnung:
         End Select
 
         End Select
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimReNe WHERE ID1 = " & ReNum
-        Else
-            SQL1 = "SELECT * FROM qrySimReNe WHERE [ID1] = " & ReNum & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimReNe WHERE [ID1] = " & ReNum
         Set RS120 = New ADODB.Recordset
         With RS120
             .CursorLocation = adUseClient
@@ -33321,11 +33190,7 @@ Case RibTab_Rechnungen:
         Case 5: PkStr = "GA"
         End Select
             
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimReNe WHERE ID1=" & ReNum
-        Else
-            SQL1 = "SELECT * FROM qrySimReNe WHERE [ID1]=" & ReNum & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimReNe WHERE [ID1]=" & ReNum
         Set RS120 = New ADODB.Recordset
         With RS120
             .CursorLocation = adUseClient
@@ -33511,11 +33376,7 @@ Case RibTab_Mahnwesen:
             Else
                 IdxNr = 0
             End If
-            If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimOPSu WHERE ID1 = " & IdxNr
-            Else
-                SQL1 = "SELECT * FROM qrySimOPSu WHERE [ID1] = " & IdxNr & ";"
-            End If
+            SQL1 = "SELECT * FROM qrySimOPSu WHERE [ID1] = " & IdxNr
         End If
         
         Set RS125 = New ADODB.Recordset
@@ -33672,11 +33533,7 @@ Case RibTab_Buchungen:
         Else
             IdxNr = 0
         End If
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimBuSav WHERE ID0 = " & IdxNr
-        Else
-            SQL1 = "SELECT * FROM qrySimBuSav WHERE [ID0] = " & IdxNr & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimBuSav WHERE [ID0] = " & IdxNr
     End If
     
     Set RS125 = New ADODB.Recordset
@@ -33786,11 +33643,7 @@ Case RibTab_Fragebogen:
     If RpRow.GroupRow = False Then
         Set RpCol = RpCls.Find(Bog_ID5)
         RzNum = RpRow.Record(RpCol.ItemIndex).Value
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qryPatAnBoN WHERE ID5 = " & RzNum
-        Else
-            SQL1 = "SELECT * FROM qryPatAnBoN WHERE [ID5] = " & RzNum & ";"
-        End If
+        SQL1 = "SELECT * FROM qryPatAnBoN WHERE [ID5] = " & RzNum
         Set RS120 = New ADODB.Recordset
         With RS120
             .CursorLocation = adUseClient
@@ -33871,11 +33724,7 @@ Case RibTab_HomeBanki:
         Else
             IdxNr = 0
         End If
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimBuSav WHERE ID0 = " & IdxNr
-        Else
-            SQL1 = "SELECT * FROM qrySimBuSav WHERE [ID0] = " & IdxNr & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimBuSav WHERE [ID0] = " & IdxNr
     End If
     
     Set RS125 = New ADODB.Recordset
@@ -34018,11 +33867,7 @@ Case RibTab_Rezeptmodul:
         RzNum = RpRow.Record(RpCol.ItemIndex).Value
         Set RpCol = RpCls.Find(Rzp_ID0)
         PatNr = RpRow.Record(RpCol.ItemIndex).Value
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimRzEdit WHERE ID1=" & RzNum
-        Else
-            SQL1 = "SELECT * FROM qrySimRzEdit WHERE [ID1]=" & RzNum & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimRzEdit WHERE [ID1]=" & RzNum
         Set RS120 = New ADODB.Recordset
         With RS120
             .CursorLocation = adUseClient
@@ -34093,11 +33938,7 @@ Case RibTab_Belegmodul:
     If RpRow.GroupRow = False Then
         Set RpCol = RpCls.Find(Rzp_ID1)
         RzNum = RpRow.Record(RpCol.ItemIndex).Value
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimRzEdit WHERE ID1=" & RzNum
-        Else
-            SQL1 = "SELECT * FROM qrySimRzEdit WHERE [ID1]=" & RzNum & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimRzEdit WHERE [ID1]=" & RzNum
         Set RS120 = New ADODB.Recordset
         With RS120
             .CursorLocation = adUseClient
@@ -34200,11 +34041,7 @@ Case Else:
         Else
             IdxNr = 0
         End If
-        If GlTyp < 2 Then
-            SQL1 = "SELECT * FROM dbo.qrySimBuSav WHERE ID0 = " & IdxNr
-        Else
-            SQL1 = "SELECT * FROM qrySimBuSav WHERE [ID0] = " & IdxNr & ";"
-        End If
+        SQL1 = "SELECT * FROM qrySimBuSav WHERE [ID0] = " & IdxNr
     End If
     
     Set RS125 = New ADODB.Recordset
@@ -35076,11 +34913,7 @@ Mld1 = "Soll der Termin an die neuen Position verschoben werden?"
 
 AnzTa = DateDiff("d", GlDFi, GlDLa)
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryTerBele WHERE ID2 = " & IdxNr
-Else
-    SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & IdxNr & ";"
-End If
+SQL1 = "SELECT * FROM qryTerBele WHERE [ID2] = " & IdxNr
 
 Set RS138 = New ADODB.Recordset
 With RS138
@@ -37056,11 +36889,7 @@ If clFil.FilVor(FiNam) = True Then
                         If TerNr > 0 Then
                             RS134.Close
                             Set RS134 = Nothing
-                            If GlTyp < 2 Then
-                                SQL1 = "SELECT * FROM dbo.qryTerLis WHERE [ID2] = " & TerNr
-                            Else
-                                SQL1 = "SELECT * FROM qryTerLis WHERE [ID2] = " & TerNr & ";"
-                            End If
+                            SQL1 = "SELECT * FROM qryTerLis WHERE [ID2] = " & TerNr
                             Set RS134 = New ADODB.Recordset
                             With RS134
                                 .CursorLocation = adUseClient
