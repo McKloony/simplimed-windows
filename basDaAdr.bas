@@ -12018,21 +12018,12 @@ Case 6: LaStr = "DE" 'Physiotherapeut
 Case 7: LaStr = "AT" 'Wahlarzt (AT)
 End Select
 
-If GlTyp < 2 Then
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "' AND Land LIKE N'" & SqlStr(LaStr) & "')"
-            SQL2 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "')"
-    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE ((POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')) AND (Land LIKE N'" & SqlStr(LaStr) & "%')"
-            SQL2 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')"
-    End Select
-Else
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "' AND [Land] Like '" & SqlStr(LaStr) & "';"
-            SQL2 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE (([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')) AND ([Land] Like '" & SqlStr(LaStr) & "');"
-            SQL2 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
-    End Select
-End If
+Select Case SuTyp
+Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "' AND [Land] Like '" & SqlStr(LaStr) & "'"
+        SQL2 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "'"
+Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE (([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')) AND ([Land] Like '" & SqlStr(LaStr) & "')"
+        SQL2 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')"
+End Select
 
 Set RS46 = New ADODB.Recordset
 With RS46
