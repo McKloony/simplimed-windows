@@ -25,7 +25,16 @@ Manuell-mechanisch zusammenführbar, je Muster-Gruppe ein Patch-Skript mit Previ
 (fehlendes Leerzeichen; Access-Zweig von Katalogknoten K32 seit jeher defekt). Beim
 Zusammenführen Leerzeichen ergänzen. **Verifiziert am Code.**
 
-### Gruppe 2 — SqlDat-Kandidaten: ~28 DateNum-Stellen, je einzeln
+### Gruppe 2 — SqlDat-Kandidaten ✅ ERLEDIGT (Commit 6609d79)
+
+21 Blöcke auf SqlDat umgebaut (Quartals-/Tages-/Zeitraumfilter, 8 Module); Tagesfilter auf
+`[Tag, Tag+1)` und Access-HAVING→WHERE je mit User-Freigabe; 2 Bugfixes (Krankenblatt-ORDER-BY
+`[CONVERT(CHAR(8),…)]`→`[Druckdatum]` 4×; Geburtstags-Suche CONVERT-Stil-102). 14 geprüfte
+Blöcke bleiben strukturell verzweigt: Wochenfilter (`DATEPART(ww)` — Wochennummerierung
+engine-abhängig), qryTerWiVor (ORDER BY `Sorter` vs. `ZeiVon`), DBCmRe2-Datums-Parameter,
+Krankenblatt-ORDER-BY (Datums-Trunkierung je Engine).
+
+### (ursprüngliche Planung Gruppe 2 — historisch)
 
 | Sub-Muster | Anzahl | Behandlung |
 |---|---|---|
