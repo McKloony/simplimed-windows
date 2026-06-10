@@ -757,11 +757,7 @@ Set TxDum = FM.txtDummy
 PrBr2.Min = 0
 PrBr2.Max = GesZa
 
-If GlTyp < 2 Then
-    SQL2 = "SELECT * FROM dbo.qryKat04C WHERE ID3 = " & KatNr
-Else
-    SQL2 = "SELECT * FROM qryKat04C WHERE [ID3] = " & KatNr & ";"
-End If
+SQL2 = "SELECT * FROM qryKat04C WHERE [ID3] = " & KatNr
 
 Set RS04 = New ADODB.Recordset
 With RS04
@@ -1082,11 +1078,7 @@ Case RibTab_Tex_Rezept:
         .SelLength = 0
     End With
 Case RibTab_Rezeptmodul:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimRez WHERE ID1 = " & RzNum
-    Else
-        SQL1 = "SELECT * FROM qrySimRez WHERE [ID1] = " & RzNum & ";"
-    End If
+    SQL1 = "SELECT * FROM qrySimRez WHERE [ID1] = " & RzNum
     Set RS01 = New ADODB.Recordset
     With RS01
         .CursorLocation = adUseClient
@@ -1132,11 +1124,7 @@ Case RibTab_Rezeptmodul:
     Set RS01 = Nothing
 Case RibTab_Abrechnung:
     If ReAbg = False Then
-        If GlTyp < 2 Then
-            SQL4 = "SELECT * FROM dbo.qrySimAbSav WHERE IDR = " & ReNum
-        Else
-            SQL4 = "SELECT * FROM qrySimAbSav WHERE [IDR] = " & ReNum & ";"
-        End If
+        SQL4 = "SELECT * FROM qrySimAbSav WHERE [IDR] = " & ReNum
         Set RS02 = New ADODB.Recordset
         With RS02
             .CursorLocation = adUseClient
