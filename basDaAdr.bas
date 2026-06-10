@@ -779,11 +779,7 @@ On Error GoTo LiErr
 
 Dim SQL1 As String
    
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryPatFeld WHERE ([ID6] = " & IDFld & ") AND ([ID0] = " & GlAId & ")"
-Else
-    SQL1 = "SELECT * FROM qryPatFeld WHERE ([ID6] = " & IDFld & ") AND ([ID0] = " & GlAId & ");"
-End If
+SQL1 = "SELECT * FROM qryPatFeld WHERE ([ID6] = " & IDFld & ") AND ([ID0] = " & GlAId & ")"
 
 Set RS47 = New ADODB.Recordset
 With RS47
@@ -827,11 +823,7 @@ Dim PrDat As XtremePropertyGrid.PropertyGridItemDate
 Set FM = frmAdress
 Set PrGr3 = FM.prpGrid3
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryFelder ORDER BY ID6"
-Else
-    SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6];"
-End If
+SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6]"
 
 Set RS48 = New ADODB.Recordset
 RS48.CursorLocation = adUseClient
@@ -892,11 +884,7 @@ Dim TxDum As VB.TextBox
 Set FM = frmStatus
 
 If GuiSt <> vbNullString Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE GuiID Like '" & SqlStr(GuiSt) & "'"
-    Else
-        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] Like '" & SqlStr(GuiSt) & "';"
-    End If
+    SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] Like '" & SqlStr(GuiSt) & "'"
 ElseIf PatNr > 0 Then
     If GlTyp < 2 Then
         SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & PatNr
@@ -904,11 +892,7 @@ ElseIf PatNr > 0 Then
         SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & PatNr & ";"
     End If
 Else
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress ORDER BY ID0"
-    Else
-        SQL1 = "SELECT * FROM qryAdress ORDER BY [ID0];"
-    End If
+    SQL1 = "SELECT * FROM qryAdress ORDER BY [ID0]"
 End If
 
 Set RS46 = New ADODB.Recordset
@@ -2056,11 +2040,7 @@ Dim AktPo As Integer
 Dim StaPo As Integer
 Dim TxDum As VB.TextBox
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryAdrAl ORDER BY IDKurz"
-Else
-    SQL1 = "SELECT * FROM qryAdrAl ORDER BY [IDKurz];"
-End If
+SQL1 = "SELECT * FROM qryAdrAl ORDER BY [IDKurz]"
 
 Set RS46 = New ADODB.Recordset
 With RS46
@@ -7519,11 +7499,7 @@ Else
     Mld1 = "Möchten Sie die Adresse aus der Gruppe " & TrLi1.SelectedItem.Text & " entfernen?"
 End If
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryAdress WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
-Else
-    SQL1 = "SELECT * FROM qryAdress WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
-End If
+SQL1 = "SELECT * FROM qryAdress WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
 
 Set RS50 = New ADODB.Recordset
 With RS50
@@ -7714,11 +7690,7 @@ Set TrLi1 = FM.trvList1
 TmpKy = GlPaK
 AktZa = 1
 
-If GlTyp < 2 Then 'Adressgruppen (Patientenfruppen)
-    SQL1 = "SELECT * FROM dbo.qryPatGrup ORDER BY TreKey"
-Else
-    SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey];"
-End If
+SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey]"
 Set RS50 = New ADODB.Recordset
 With RS50 'nicht disconnectet
     .CursorLocation = adUseClient
@@ -8026,29 +7998,13 @@ End If
 
 Select Case GlMKa 'Mailkatalog (1=Posteingang 2=Postaisgang)
 Case 1:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailInGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
-    Else
-        SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
-    End If
+    SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
 Case 2:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailOuGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
-    Else
-        SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
-    End If
+    SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
 Case 3:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailInGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
-    Else
-        SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
-    End If
+    SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
 Case 4:
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailOuGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
-    Else
-        SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
-    End If
+    SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
 End Select
 
 Set RS50 = New ADODB.Recordset
@@ -8259,11 +8215,7 @@ Set TrLi3 = FM.trvList3
 TmpKy = GlMaK
 AktZa = 1
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryMailGrup WHERE IDM = " & GlMiA(GlSmI, 2) & " ORDER BY TreKey"
-Else
-    SQL1 = "SELECT * FROM qryMailGrup WHERE [IDM] = " & GlMiA(GlSmI, 2) & " ORDER BY [TreKey];"
-End If
+SQL1 = "SELECT * FROM qryMailGrup WHERE [IDM] = " & GlMiA(GlSmI, 2) & " ORDER BY [TreKey]"
 Set RS50 = New ADODB.Recordset
 With RS50
     .CursorLocation = adUseClient
@@ -8902,11 +8854,7 @@ Set FeKur = FS.txtAnlaß
 Set TxZeV = FS.txtVonZe
 Set TxZeB = FS.txtBisZe
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKonSav WHERE [ID2] = '" & SqlStr(GlKoG) & "'"
-Else
-    SQL1 = "SELECT * FROM qryKonSav WHERE [ID2] = '" & SqlStr(GlKoG) & "';"
-End If
+SQL1 = "SELECT * FROM qryKonSav WHERE [ID2] = '" & SqlStr(GlKoG) & "'"
 
 If IsDate(TxDa1.Text) Then
     NeuDa = TxDa1.Text
@@ -10495,17 +10443,10 @@ Set RpCon = FM.repCont4
 Set RpNav = RpCon.Navigator
 Set RpSel = RpCon.SelectedRows
 
-If GlTyp < 2 Then
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
-    End Select
-Else
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%';"
-    End Select
-End If
+Select Case SuTyp
+Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
+Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
+End Select
 
 If RpSel.Count > 0 Then
     Set RpRow = RpSel(0)
@@ -10562,17 +10503,10 @@ Set FM = frmOptions
 Set RpCon = FM.repCont4
 Set RpRcs = RpCon.Records
 
-If GlTyp < 2 Then
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
-    End Select
-Else
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%';"
-    End Select
-End If
+Select Case SuTyp
+Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
+Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
+End Select
 
 Set RS46 = New ADODB.Recordset
 With RS46
@@ -10650,17 +10584,10 @@ With RpCon
     .Populate
 End With
 
-If GlTyp < 2 Then
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
-    End Select
-Else
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%';"
-    End Select
-End If
+Select Case SuTyp
+Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
+Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
+End Select
 
 Set RS46 = New ADODB.Recordset
 With RS46
@@ -10814,81 +10741,42 @@ With RpCon
     .Populate
 End With
 
-If GlTyp < 2 Then
-    Select Case NodKy
-    Case "K01": SQL1 = "SELECT * FROM dbo.qryPatGrup ORDER BY TreKey"
-    Case "K02": SQL1 = "SELECT * FROM dbo.qryPatVers ORDER BY ID3"
-    Case "K03": SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-    Case "K05": SQL1 = "SELECT * FROM dbo.qryPatZah ORDER BY IDZ"
-    Case "K06": SQL1 = "SELECT * FROM dbo.qryPatWar ORDER BY IDW"
-    Case "K07": SQL1 = "SELECT * FROM dbo.qrySimOPMa ORDER BY IDM"
-    Case "K08": SQL1 = "SELECT * FROM dbo.qryKat04 ORDER BY IDKurz"
-    Case "K09": SQL1 = "SELECT * FROM dbo.qrySimBuTex ORDER BY IDKurz"
-    Case "K10": SQL1 = "SELECT * FROM dbo.qrySimBuSatz ORDER BY IDS"
-    Case "K11": SQL1 = "SELECT * FROM dbo.qryKontBetr ORDER BY ID4"
-    Case "K12": SQL1 = "SELECT * FROM dbo.qryKontOrt ORDER BY ID4"
-    Case "K13": SQL1 = "SELECT * FROM dbo.qryFelder ORDER BY ID6"
-    Case "K14": SQL1 = "SELECT * FROM dbo.qrySimKrTyp ORDER BY IDT"
-    Case "K15": SQL1 = "SELECT * FROM dbo.qryPatTarf ORDER BY IDKurz"
-    Case "K16": SQL1 = "SELECT * FROM dbo.qrySimReKm ORDER BY IDK"
-    Case "K17": SQL1 = "SELECT * FROM dbo.qryLand ORDER BY IDKurz"
-    Case "K18": SQL1 = "SELECT * FROM dbo.qryTermTyp ORDER BY IDTyp"
-    Case "K19": SQL1 = "SELECT * FROM dbo.qryKat08 ORDER BY IDG"
-    Case "K20": SQL1 = "SELECT * FROM dbo.qryKat11 ORDER BY IDG"
-    Case "K21": SQL1 = "SELECT * FROM dbo.qryTermSta ORDER BY IDS"
-    Case "K22": SQL1 = "SELECT * FROM dbo.qryKat03 ORDER BY IDKurz"
-    Case "K23": SQL1 = "SELECT * FROM dbo.qryMailGrup ORDER BY TreKey"
-    Case "K24": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K25": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K26": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K27": SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-    Case "K28": SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-    Case "K29": SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-    Case "K30": SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-    Case "K31": SQL1 = "SELECT * FROM dbo.qryKat12 ORDER BY IDKurz"
-    Case "K32": SQL1 = "SELECT * FROM dbo.qryKat01Q ORDER BY ID1"
-    Case "K33": SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-    Case "K34": SQL1 = "SELECT * FROM dbo.qryZahlText ORDER BY IDS"
-    Case "K35": SQL1 = "SELECT * FROM dbo.qryLabGrupp ORDER BY Sorter"
-    End Select
-Else
-    Select Case NodKy
-    Case "K01": SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey];"
-    Case "K02": SQL1 = "SELECT * FROM qryPatVers ORDER BY [ID3];"
-    Case "K03": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-    Case "K05": SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ];"
-    Case "K06": SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW];"
-    Case "K07": SQL1 = "SELECT * FROM qrySimOPMa ORDER BY [IDM];"
-    Case "K08": SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz];"
-    Case "K09": SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz];"
-    Case "K10": SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS];"
-    Case "K11": SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4];"
-    Case "K12": SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4];"
-    Case "K13": SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6];"
-    Case "K14": SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT];"
-    Case "K15": SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz];"
-    Case "K16": SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK];"
-    Case "K17": SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz];"
-    Case "K18": SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp];"
-    Case "K19": SQL1 = "SELECT * FROM qryKat08 ORDER BY [IDG];"
-    Case "K20": SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG];"
-    Case "K21": SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS];"
-    Case "K22": SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz];"
-    Case "K23": SQL1 = "SELECT * FROM qryMailGrup ORDER BY [TreKey];"
-    Case "K24": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K25": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K26": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K27": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-    Case "K28": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-    Case "K29": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-    Case "K30": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-    Case "K31": SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz];"
-    Case "K32": SQL1 = "SELECT * FROM qryKat01Q ORDER BY [ID1];"
-    Case "K33": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-    Case "K34": SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS];"
-    Case "K35": SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
-    End Select
-End If
+Select Case NodKy
+Case "K01": SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey]"
+Case "K02": SQL1 = "SELECT * FROM qryPatVers ORDER BY [ID3]"
+Case "K03": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
+Case "K05": SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ]"
+Case "K06": SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW]"
+Case "K07": SQL1 = "SELECT * FROM qrySimOPMa ORDER BY [IDM]"
+Case "K08": SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz]"
+Case "K09": SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz]"
+Case "K10": SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS]"
+Case "K11": SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4]"
+Case "K12": SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4]"
+Case "K13": SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6]"
+Case "K14": SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT]"
+Case "K15": SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz]"
+Case "K16": SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK]"
+Case "K17": SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz]"
+Case "K18": SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp]"
+Case "K19": SQL1 = "SELECT * FROM qryKat08 ORDER BY [IDG]"
+Case "K20": SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG]"
+Case "K21": SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS]"
+Case "K22": SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz]"
+Case "K23": SQL1 = "SELECT * FROM qryMailGrup ORDER BY [TreKey]"
+Case "K24": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K25": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K26": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K27": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
+Case "K28": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
+Case "K29": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
+Case "K30": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
+Case "K31": SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz]"
+Case "K32": SQL1 = "SELECT * FROM qryKat01Q ORDER BY [ID1]"
+Case "K33": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
+Case "K34": SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS]"
+Case "K35": SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
+End Select
 
 Set RS46 = New ADODB.Recordset
 With RS46
@@ -11746,81 +11634,42 @@ clFen.FenDsk 2
 TreKy = TrLi1.SelectedItem.Key
 TmGui = CreateID("O")
 
-If GlTyp < 2 Then
-    Select Case TreKy
-    Case "K01": SQL1 = "SELECT * FROM dbo.qryPatGrup ORDER BY TreKey"
-    Case "K02": SQL1 = "SELECT * FROM dbo.qryPatVers ORDER BY ID3"
-    Case "K03": SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-    Case "K05": SQL1 = "SELECT * FROM dbo.qryPatZah ORDER BY IDZ"
-    Case "K06": SQL1 = "SELECT * FROM dbo.qryPatWar ORDER BY IDW"
-    Case "K07": SQL1 = "SELECT * FROM dbo.qrySimOPMa ORDER BY IDM"
-    Case "K08": SQL1 = "SELECT * FROM dbo.qryKat04 ORDER BY IDKurz"
-    Case "K09": SQL1 = "SELECT * FROM dbo.qrySimBuTex ORDER BY IDKurz"
-    Case "K10": SQL1 = "SELECT * FROM dbo.qrySimBuSatz ORDER BY IDS"
-    Case "K11": SQL1 = "SELECT * FROM dbo.qryKontBetr ORDER BY ID4"
-    Case "K12": SQL1 = "SELECT * FROM dbo.qryKontOrt ORDER BY ID4"
-    Case "K13": SQL1 = "SELECT * FROM dbo.qryFelder ORDER BY ID6"
-    Case "K14": SQL1 = "SELECT * FROM dbo.qrySimKrTyp ORDER BY IDT"
-    Case "K15": SQL1 = "SELECT * FROM dbo.qryPatTarf ORDER BY IDKurz"
-    Case "K16": SQL1 = "SELECT * FROM dbo.qrySimReKm ORDER BY IDK"
-    Case "K17": SQL1 = "SELECT * FROM dbo.qryLand ORDER BY IDKurz"
-    Case "K18": SQL1 = "SELECT * FROM dbo.qryTermTyp ORDER BY IDTyp"
-    Case "K19": SQL1 = "SELECT * FROM dbo.qryKat08 ORDER BY IDG"
-    Case "K20": SQL1 = "SELECT * FROM dbo.qryKat11 ORDER BY IDG"
-    Case "K21": SQL1 = "SELECT * FROM dbo.qryTermSta ORDER BY IDS"
-    Case "K22": SQL1 = "SELECT * FROM dbo.qryKat03 ORDER BY IDKurz"
-    Case "K23": SQL1 = "SELECT * FROM dbo.qryMailGrup ORDER BY IDKurz"
-    Case "K24": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K25": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K26": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K27": SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-    Case "K28": SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-    Case "K29": SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-    Case "K30": SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-    Case "K31": SQL1 = "SELECT * FROM dbo.qryKat12 ORDER BY IDKurz"
-    Case "K32": SQL1 = "SELECT * FROM dbo.qryKat01Q ORDER BY ID1"
-    Case "K33": SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-    Case "K34": SQL1 = "SELECT * FROM dbo.qryZahlText ORDER BY IDS"
-    Case "K35": SQL1 = "SELECT * FROM dbo.qryLabGrupp ORDER BY Sorter"
-    End Select
-Else
-    Select Case TreKy
-    Case "K01": SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey];"
-    Case "K02": SQL1 = "SELECT * FROM qryPatVers ORDER BY [ID3];"
-    Case "K03": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-    Case "K05": SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ];"
-    Case "K06": SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW];"
-    Case "K07": SQL1 = "SELECT * FROM qrySimOPMa ORDER BY [IDM];"
-    Case "K08": SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz];"
-    Case "K09": SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz];"
-    Case "K10": SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS];"
-    Case "K11": SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4];"
-    Case "K12": SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4];"
-    Case "K13": SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6];"
-    Case "K14": SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT];"
-    Case "K15": SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz];"
-    Case "K16": SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK];"
-    Case "K17": SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz];"
-    Case "K18": SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp];"
-    Case "K19": SQL1 = "SELECT * FROM qryKat08 ORDER BY [IDG];"
-    Case "K20": SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG];"
-    Case "K21": SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS];"
-    Case "K22": SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz];"
-    Case "K23": SQL1 = "SELECT * FROM qryMailGrup ORDER BY [IDKurz];"
-    Case "K24": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K25": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K26": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K27": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-    Case "K28": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-    Case "K29": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-    Case "K30": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-    Case "K31": SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz];"
-    Case "K32": SQL1 = "SELECT * FROM qryKat01Q ORDER BY [ID1];"
-    Case "K33": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-    Case "K34": SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS];"
-    Case "K35": SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
-    End Select
-End If
+Select Case TreKy
+Case "K01": SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey]"
+Case "K02": SQL1 = "SELECT * FROM qryPatVers ORDER BY [ID3]"
+Case "K03": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
+Case "K05": SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ]"
+Case "K06": SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW]"
+Case "K07": SQL1 = "SELECT * FROM qrySimOPMa ORDER BY [IDM]"
+Case "K08": SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz]"
+Case "K09": SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz]"
+Case "K10": SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS]"
+Case "K11": SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4]"
+Case "K12": SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4]"
+Case "K13": SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6]"
+Case "K14": SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT]"
+Case "K15": SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz]"
+Case "K16": SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK]"
+Case "K17": SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz]"
+Case "K18": SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp]"
+Case "K19": SQL1 = "SELECT * FROM qryKat08 ORDER BY [IDG]"
+Case "K20": SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG]"
+Case "K21": SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS]"
+Case "K22": SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz]"
+Case "K23": SQL1 = "SELECT * FROM qryMailGrup ORDER BY [IDKurz]"
+Case "K24": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K25": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K26": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K27": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
+Case "K28": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
+Case "K29": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
+Case "K30": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
+Case "K31": SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz]"
+Case "K32": SQL1 = "SELECT * FROM qryKat01Q ORDER BY [ID1]"
+Case "K33": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
+Case "K34": SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS]"
+Case "K35": SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
+End Select
 
 Set RS46 = New ADODB.Recordset
 With RS46
@@ -12089,17 +11938,10 @@ Set RpCon = FM.repCont3
 Set RpNav = RpCon.Navigator
 Set RpSel = RpCon.SelectedRows
 
-If GlTyp < 2 Then
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')"
-    End Select
-Else
-    Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
-    End Select
-End If
+Select Case SuTyp
+Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%'"
+Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')"
+End Select
 
 If RpSel.Count > 0 Then
     Set RpRow = RpSel(0)
@@ -12440,81 +12282,42 @@ Set FM = frmOptions
 Set RpCon = FM.repCont2
 Set RpRcs = RpCon.Records
 
-If GlTyp < 2 Then
-    Select Case NodKy
-    Case "K01": SQL1 = "SELECT * FROM dbo.qryPatGrup ORDER BY TreKey"
-    Case "K02": SQL1 = "SELECT * FROM dbo.qryPatVers ORDER BY ID3"
-    Case "K03": SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-    Case "K05": SQL1 = "SELECT * FROM dbo.qryPatZah ORDER BY IDZ"
-    Case "K06": SQL1 = "SELECT * FROM dbo.qryPatWar ORDER BY IDW"
-    Case "K07": SQL1 = "SELECT * FROM dbo.qrySimOPMa ORDER BY IDM"
-    Case "K08": SQL1 = "SELECT * FROM dbo.qryKat04 ORDER BY IDKurz"
-    Case "K09": SQL1 = "SELECT * FROM dbo.qrySimBuTex ORDER BY IDKurz"
-    Case "K10": SQL1 = "SELECT * FROM dbo.qrySimBuSatz ORDER BY IDS"
-    Case "K11": SQL1 = "SELECT * FROM dbo.qryKontBetr ORDER BY ID4"
-    Case "K12": SQL1 = "SELECT * FROM dbo.qryKontOrt ORDER BY ID4"
-    Case "K13": SQL1 = "SELECT * FROM dbo.qryFelder ORDER BY ID6"
-    Case "K14": SQL1 = "SELECT * FROM dbo.qrySimKrTyp ORDER BY IDT"
-    Case "K15": SQL1 = "SELECT * FROM dbo.qryPatTarf ORDER BY IDKurz"
-    Case "K16": SQL1 = "SELECT * FROM dbo.qrySimReKm ORDER BY IDK"
-    Case "K17": SQL1 = "SELECT * FROM dbo.qryLand ORDER BY IDKurz"
-    Case "K18": SQL1 = "SELECT * FROM dbo.qryTermTyp ORDER BY IDTyp"
-    Case "K19": SQL1 = "SELECT * FROM dbo.qryKat08 ORDER BY IDG"
-    Case "K20": SQL1 = "SELECT * FROM dbo.qryKat11 ORDER BY IDG"
-    Case "K21": SQL1 = "SELECT * FROM dbo.qryTermSta ORDER BY IDS"
-    Case "K22": SQL1 = "SELECT * FROM dbo.qryKat03 ORDER BY IDKurz"
-    Case "K23": SQL1 = "SELECT * FROM dbo.qryMailGrup ORDER BY IDKurz"
-    Case "K24": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K25": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K26": SQL1 = "SELECT * FROM dbo.qryTermOnl ORDER BY ID5"
-    Case "K27": SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-    Case "K28": SQL1 = "SELECT * FROM dbo.qryMailTxEdi ORDER BY ID1"
-    Case "K29": SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-    Case "K30": SQL1 = "SELECT * FROM dbo.qryMailBeEdi ORDER BY ID1"
-    Case "K31": SQL1 = "SELECT * FROM dbo.qryKat12 ORDER BY IDKurz"
-    Case "K32": SQL1 = "SELECT * FROM dbo.qryKat01Q ORDER BY ID1"
-    Case "K33": SQL1 = "SELECT * FROM dbo.qrySimBuBa ORDER BY IDB"
-    Case "K34": SQL1 = "SELECT * FROM dbo.qryZahlText ORDER BY IDS"
-    Case "K35": SQL1 = "SELECT * FROM dbo.qryLabGrupp ORDER BY Sorter"
-    End Select
-Else
-    Select Case NodKy
-    Case "K01": SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey];"
-    Case "K02": SQL1 = "SELECT * FROM qryPatVers ORDER BY [ID3];"
-    Case "K03": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-    Case "K05": SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ];"
-    Case "K06": SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW];"
-    Case "K07": SQL1 = "SELECT * FROM qrySimOPMa ORDER BY [IDM];"
-    Case "K08": SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz];"
-    Case "K09": SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz];"
-    Case "K10": SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS];"
-    Case "K11": SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4];"
-    Case "K12": SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4];"
-    Case "K13": SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6];"
-    Case "K14": SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT];"
-    Case "K15": SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz];"
-    Case "K16": SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK];"
-    Case "K17": SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz];"
-    Case "K18": SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp];"
-    Case "K19": SQL1 = "SELECT * FROM qryKat08 ORDER BY [IDG];"
-    Case "K20": SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG];"
-    Case "K21": SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS];"
-    Case "K22": SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz];"
-    Case "K23": SQL1 = "SELECT * FROM qryMailGrup ORDER BY [IDKurz];"
-    Case "K24": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K25": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K26": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5];"
-    Case "K27": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-    Case "K28": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1];"
-    Case "K29": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-    Case "K30": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1];"
-    Case "K31": SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz];"
-    Case "K32": SQL1 = "SELECT * FROM qryKat01Q ORDER BY [ID1];"
-    Case "K33": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB];"
-    Case "K34": SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS];"
-    Case "K35": SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
-    End Select
-End If
+Select Case NodKy
+Case "K01": SQL1 = "SELECT * FROM qryPatGrup ORDER BY [TreKey]"
+Case "K02": SQL1 = "SELECT * FROM qryPatVers ORDER BY [ID3]"
+Case "K03": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
+Case "K05": SQL1 = "SELECT * FROM qryPatZah ORDER BY [IDZ]"
+Case "K06": SQL1 = "SELECT * FROM qryPatWar ORDER BY [IDW]"
+Case "K07": SQL1 = "SELECT * FROM qrySimOPMa ORDER BY [IDM]"
+Case "K08": SQL1 = "SELECT * FROM qryKat04 ORDER BY [IDKurz]"
+Case "K09": SQL1 = "SELECT * FROM qrySimBuTex ORDER BY [IDKurz]"
+Case "K10": SQL1 = "SELECT * FROM qrySimBuSatz ORDER BY [IDS]"
+Case "K11": SQL1 = "SELECT * FROM qryKontBetr ORDER BY [ID4]"
+Case "K12": SQL1 = "SELECT * FROM qryKontOrt ORDER BY [ID4]"
+Case "K13": SQL1 = "SELECT * FROM qryFelder ORDER BY [ID6]"
+Case "K14": SQL1 = "SELECT * FROM qrySimKrTyp ORDER BY [IDT]"
+Case "K15": SQL1 = "SELECT * FROM qryPatTarf ORDER BY [IDKurz]"
+Case "K16": SQL1 = "SELECT * FROM qrySimReKm ORDER BY [IDK]"
+Case "K17": SQL1 = "SELECT * FROM qryLand ORDER BY [IDKurz]"
+Case "K18": SQL1 = "SELECT * FROM qryTermTyp ORDER BY [IDTyp]"
+Case "K19": SQL1 = "SELECT * FROM qryKat08 ORDER BY [IDG]"
+Case "K20": SQL1 = "SELECT * FROM qryKat11 ORDER BY [IDG]"
+Case "K21": SQL1 = "SELECT * FROM qryTermSta ORDER BY [IDS]"
+Case "K22": SQL1 = "SELECT * FROM qryKat03 ORDER BY [IDKurz]"
+Case "K23": SQL1 = "SELECT * FROM qryMailGrup ORDER BY [IDKurz]"
+Case "K24": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K25": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K26": SQL1 = "SELECT * FROM qryTermOnl ORDER BY [ID5]"
+Case "K27": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
+Case "K28": SQL1 = "SELECT * FROM qryMailTxEdi ORDER BY [ID1]"
+Case "K29": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
+Case "K30": SQL1 = "SELECT * FROM qryMailBeEdi ORDER BY [ID1]"
+Case "K31": SQL1 = "SELECT * FROM qryKat12 ORDER BY [IDKurz]"
+Case "K32": SQL1 = "SELECT * FROM qryKat01Q ORDER BY [ID1]"
+Case "K33": SQL1 = "SELECT * FROM qrySimBuBa ORDER BY [IDB]"
+Case "K34": SQL1 = "SELECT * FROM qryZahlText ORDER BY [IDS]"
+Case "K35": SQL1 = "SELECT * FROM qryLabGrupp ORDER BY [Sorter]"
+End Select
 
 Set RS46 = New ADODB.Recordset
 With RS46
@@ -13839,11 +13642,7 @@ Set RpRcs = RpCo2.Records
 
 Select Case ExTyp
 Case 0: 'Adressen
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE " & Krite & " ORDER BY IDKurz"
-    Else
-        SQL1 = "SELECT * FROM qryAdress WHERE " & Krite & " ORDER BY [IDKurz];"
-    End If
+    SQL1 = "SELECT * FROM qryAdress WHERE " & Krite & " ORDER BY [IDKurz]"
 Case 1: 'Termine
     If GlTS1 = True Then 'Sortierung Terminliste Aufsteigend
         If GlTyp < 2 Then
@@ -19979,11 +19778,7 @@ Case 4: SuStr = "-"
 End Select
 
 If SuStr <> vbNullString Then
-    If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryAnKa1 WHERE ID2 = " & TerNr & " ORDER BY ID1"
-    Else
-        SQL1 = "SELECT * FROM qryAnKa1 WHERE [ID2] = " & TerNr & " ORDER BY [ID1];"
-    End If
+    SQL1 = "SELECT * FROM qryAnKa1 WHERE [ID2] = " & TerNr & " ORDER BY [ID1]"
     
     Set RS63 = New ADODB.Recordset
     With RS63
@@ -22505,11 +22300,7 @@ If RpSel.Count > 0 Then
     KrRow = RpRow.Index
 End If
 
-If GlTyp < 2 Then
-    SQL2 = "SELECT * FROM dbo.qryAnKa1 WHERE ID2 = " & TerNr & " ORDER BY ID1"
-Else
-    SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID2] = " & TerNr & " ORDER BY [ID1];"
-End If
+SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID2] = " & TerNr & " ORDER BY [ID1]"
 
 If TerNr > 0 Then
     Set RS50 = New ADODB.Recordset
@@ -24801,11 +24592,7 @@ If AnzRe > 0 Then
 
                             If TeLei = True Then 'Leistungen vorhanden
                                 GesLe = UBound(GlTLe)
-                                If GlTyp < 2 Then
-                                    SQL2 = "SELECT * FROM dbo.qryAnKa1 WHERE ID1 = -1"
-                                Else
-                                    SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID1] = -1;"
-                                End If
+                                SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID1] = -1"
                                 Set RS48 = New ADODB.Recordset
                                 With RS48
                                     .CursorLocation = adUseClient
@@ -25293,11 +25080,7 @@ If AnzTe > 0 Then
     
                     If TeLei = True Then 'Leistungen vorhanden
                         GesLe = UBound(GlTLe)
-                        If GlTyp < 2 Then
-                            SQL2 = "SELECT * FROM dbo.qryAnKa1 WHERE ID1 = -1"
-                        Else
-                            SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID1] = -1;"
-                        End If
+                        SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID1] = -1"
                         Set RS48 = New ADODB.Recordset
                         With RS48
                             .CursorLocation = adUseClient
@@ -26341,11 +26124,7 @@ If RS45.Supports(adAddNew) Then
                 If GlVrt = True Then 'virtuelle Leistungen vorhanden
                     If AkSpl = 1 Then 'nur beim ersten Splttermin die Leistungen einsetzen
                         GesZa = UBound(GlTLe)
-                        If GlTyp < 2 Then
-                            SQL2 = "SELECT * FROM dbo.qryAnKa1 WHERE ID1 = -1"
-                        Else
-                            SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID1] = -1;"
-                        End If
+                        SQL2 = "SELECT * FROM qryAnKa1 WHERE [ID1] = -1"
                         Set RS48 = New ADODB.Recordset
                         With RS48
                             .CursorLocation = adUseClient
@@ -29843,11 +29622,7 @@ With RpCo2
     .Populate
 End With
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qrySimAdWar ORDER BY Geändert"
-Else
-    SQL1 = "SELECT * FROM qrySimAdWar ORDER BY [Geändert];"
-End If
+SQL1 = "SELECT * FROM qrySimAdWar ORDER BY [Geändert]"
 
 Set RS38 = New ADODB.Recordset
 With RS38
@@ -30109,11 +29884,7 @@ End If
 'NeuDa = DateAdd("d", ZaZil, TerDa)
 NeuDa = DateAdd("d", ZaZil, Date)
 
-If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryAnKa1 WHERE ID2 = " & TerNr & " ORDER BY ID3 DESC"
-Else
-    SQL1 = "SELECT * FROM qryAnKa1 WHERE [ID2] = " & TerNr & " ORDER BY [ID3] DESC;"
-End If
+SQL1 = "SELECT * FROM qryAnKa1 WHERE [ID2] = " & TerNr & " ORDER BY [ID3] DESC"
 
 Set RS63 = New ADODB.Recordset 'Terminleistungen
 With RS63
