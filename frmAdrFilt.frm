@@ -2358,14 +2358,14 @@ If Me.txtKr5.Visible = True And Me.txtKr1.Visible = True Then
             Dat1 = DatePart("yyyy", Me.txtKr1.Text) & "-" & DatePart("m", Me.txtKr1.Text) & "-" & DatePart("d", Me.txtKr1.Text)
             Dat2 = DatePart("yyyy", Me.txtKr5.Text) & "-" & DatePart("m", Me.txtKr5.Text) & "-" & DatePart("d", Me.txtKr5.Text)
             SQL1 = SQL1 & FelWe(Me.cmbDa1.ItemData(Me.cmbDa1.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe1.ItemData(Me.cmbBe1.ListIndex)) & Chr$(32)
-            SQL1 = SQL1 & "(CONVERT(DATETIME, '" & Dat1 & "', 102)) AND (CONVERT(DATETIME, '" & Dat2 & "', 102))"
+            SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
         End If
     End If
 ElseIf Me.txtKr1.Visible = True Then
     If Me.txtKr1.Text <> vbNullString Then
         SQL1 = SQL1 & FelWe(Me.cmbDa1.ItemData(Me.cmbDa1.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe1.ItemData(Me.cmbBe1.ListIndex)) & Chr$(32)
         If BedWe(Me.cmbBe1.ItemData(Me.cmbBe1.ListIndex)) = "Like" Then
-            SQL1 = SQL1 & "'%" & Me.txtKr1.Text & "%'"
+            SQL1 = SQL1 & "'%" & SqlStr(Me.txtKr1.Text) & "%'"
         Else
             SQL1 = SQL1 & Me.txtKr1.Text
         End If
@@ -2389,14 +2389,14 @@ If Me.cmbUo2.Text <> vbNullString Then
                 Dat1 = DatePart("yyyy", Me.txtKr2.Text) & "-" & DatePart("m", Me.txtKr2.Text) & "-" & DatePart("d", Me.txtKr2.Text)
                 Dat2 = DatePart("yyyy", Me.txtKr6.Text) & "-" & DatePart("m", Me.txtKr6.Text) & "-" & DatePart("d", Me.txtKr6.Text)
                 SQL1 = SQL1 & Chr$(32) & Me.cmbUo2.Tag & Chr$(32) & FelWe(Me.cmbDa2.ItemData(Me.cmbDa2.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe2.ItemData(Me.cmbBe2.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & Dat1 & "', 102)) AND (CONVERT(DATETIME, '" & Dat2 & "', 102))"
+                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
             End If
         End If
     ElseIf Me.txtKr2.Visible = True Then
         If Me.txtKr2.Text <> vbNullString Then
             SQL1 = SQL1 & Chr$(32) & Me.cmbUo2.Tag & Chr$(32) & FelWe(Me.cmbDa2.ItemData(Me.cmbDa2.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe2.ItemData(Me.cmbBe2.ListIndex)) & Chr$(32)
             If BedWe(Me.cmbBe2.ItemData(Me.cmbBe2.ListIndex)) = "Like" Then
-                SQL1 = SQL1 & "'%" & Me.txtKr2.Text & "%'"
+                SQL1 = SQL1 & "'%" & SqlStr(Me.txtKr2.Text) & "%'"
             Else
                 SQL1 = SQL1 & Me.txtKr2.Text
             End If
@@ -2421,14 +2421,14 @@ If Me.cmbUo3.Text <> vbNullString Then
                 Dat1 = DatePart("yyyy", Me.txtKr3.Text) & "-" & DatePart("m", Me.txtKr3.Text) & "-" & DatePart("d", Me.txtKr3.Text)
                 Dat2 = DatePart("yyyy", Me.txtKr7.Text) & "-" & DatePart("m", Me.txtKr7.Text) & "-" & DatePart("d", Me.txtKr7.Text)
                 SQL1 = SQL1 & Chr$(32) & Me.cmbUo3.Tag & Chr$(32) & FelWe(Me.cmbDa3.ItemData(Me.cmbDa3.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe3.ItemData(Me.cmbBe3.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & Dat1 & "', 102)) AND (CONVERT(DATETIME, '" & Dat2 & "', 102))"
+                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
             End If
         End If
     ElseIf Me.txtKr3.Visible = True Then
         If Me.txtKr3.Text <> vbNullString Then
             SQL1 = SQL1 & Chr$(32) & Me.cmbUo3.Tag & Chr$(32) & FelWe(Me.cmbDa3.ItemData(Me.cmbDa3.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe3.ItemData(Me.cmbBe3.ListIndex)) & Chr$(32)
             If BedWe(Me.cmbBe3.ItemData(Me.cmbBe3.ListIndex)) = "Like" Then
-                SQL1 = SQL1 & "'%" & Me.txtKr3.Text & "%'"
+                SQL1 = SQL1 & "'%" & SqlStr(Me.txtKr3.Text) & "%'"
             Else
                 SQL1 = SQL1 & Me.txtKr3.Text
             End If
@@ -2453,14 +2453,14 @@ If Me.cmbUo4.Text <> vbNullString Then
                 Dat1 = DatePart("yyyy", Me.txtKr4.Text) & "-" & DatePart("m", Me.txtKr4.Text) & "-" & DatePart("d", Me.txtKr4.Text)
                 Dat2 = DatePart("yyyy", Me.txtKr8.Text) & "-" & DatePart("m", Me.txtKr8.Text) & "-" & DatePart("d", Me.txtKr8.Text)
                 SQL1 = SQL1 & Chr$(32) & Me.cmbUo4.Tag & Chr$(32) & FelWe(Me.cmbDa4.ItemData(Me.cmbDa4.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe4.ItemData(Me.cmbBe4.ListIndex)) & Chr$(32)
-                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & Dat1 & "', 102)) AND (CONVERT(DATETIME, '" & Dat2 & "', 102))"
+                SQL1 = SQL1 & "(CONVERT(DATETIME, '" & SqlStr(Dat1) & "', 102)) AND (CONVERT(DATETIME, '" & SqlStr(Dat2) & "', 102))"
             End If
         End If
     ElseIf Me.txtKr4.Visible = True Then
         If Me.txtKr4.Text <> vbNullString Then
             SQL1 = SQL1 & Chr$(32) & Me.cmbUo4.Tag & Chr$(32) & FelWe(Me.cmbDa4.ItemData(Me.cmbDa4.ListIndex)) & Chr$(32) & BedWe(Me.cmbBe4.ItemData(Me.cmbBe4.ListIndex)) & Chr$(32)
             If BedWe(Me.cmbBe4.ItemData(Me.cmbBe4.ListIndex)) = "Like" Then
-                SQL1 = SQL1 & "'%" & Me.txtKr4.Text & "%'"
+                SQL1 = SQL1 & "'%" & SqlStr(Me.txtKr4.Text) & "%'"
             Else
                 SQL1 = SQL1 & Me.txtKr4.Text
             End If
@@ -2649,7 +2649,7 @@ SQL1 = "("
 If Me.chkFilt1.Value = 1 Then
     If GlTyp < 2 Then
         DaSt1 = DatePart("yyyy", TxDa1.Text) & "-" & DatePart("m", TxDa1.Text) & "-" & DatePart("d", TxDa1.Text)
-        SQL1 = SQL1 & "(Geändert < CONVERT(DATETIME, '" & DaSt1 & "', 102))"
+        SQL1 = SQL1 & "(Geändert < CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102))"
     Else
         DaSt1 = DatePart("m", TxDa1.Text) & "/" & DatePart("d", TxDa1.Text) & "/" & DatePart("yyyy", TxDa1.Text)
         SQL1 = SQL1 & "((qryAdrSu.Geändert) < #" & DaSt1 & "#)"
@@ -2663,7 +2663,7 @@ If Me.chkFilt13.Value = 1 Then
     End If
     If GlTyp < 2 Then
         DaSt2 = DatePart("yyyy", TxDa2.Text) & "-" & DatePart("m", TxDa2.Text) & "-" & DatePart("d", TxDa2.Text)
-        SQL1 = SQL1 & "(Geändert > CONVERT(DATETIME, '" & DaSt2 & "', 102))"
+        SQL1 = SQL1 & "(Geändert > CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102))"
     Else
         DaSt2 = DatePart("m", TxDa2.Text) & "/" & DatePart("d", TxDa2.Text) & "/" & DatePart("yyyy", TxDa2.Text)
         SQL1 = SQL1 & "((qryAdrSu.Geändert) > #" & DaSt2 & "#)"
@@ -2688,9 +2688,9 @@ If Me.chkFilt3.Value = 1 Then
         SQL1 = SQL1 & " AND "
     End If
     If GlTyp < 2 Then
-        SQL1 = SQL1 & "((Bemerkung) Like '%" & FeVo3.Text & "%')"
+        SQL1 = SQL1 & "((Bemerkung) Like '%" & SqlStr(FeVo3.Text) & "%')"
     Else
-        SQL1 = SQL1 & "((qryAdrSu.Bemerkung) Like '%" & FeVo3.Text & "%')"
+        SQL1 = SQL1 & "((qryAdrSu.Bemerkung) Like '%" & SqlStr(FeVo3.Text) & "%')"
     End If
     Kombi = True
 End If
@@ -2700,9 +2700,9 @@ If Me.chkFilt4.Value = 1 Then
         SQL1 = SQL1 & " AND "
     End If
     If GlTyp < 2 Then
-        SQL1 = SQL1 & "((PLZ) Like '" & FeVo4.Text & "%')"
+        SQL1 = SQL1 & "((PLZ) Like '" & SqlStr(FeVo4.Text) & "%')"
     Else
-        SQL1 = SQL1 & "((qryAdrSu.PLZ) Like '" & FeVo4.Text & "%')"
+        SQL1 = SQL1 & "((qryAdrSu.PLZ) Like '" & SqlStr(FeVo4.Text) & "%')"
     End If
     Kombi = True
 End If
@@ -2727,7 +2727,7 @@ If Me.chkFilt6.Value = 1 Then
     If GlTyp < 2 Then
         SQL1 = SQL1 & "(DATEPART(ww, Geboren) IS NOT NULL) AND (DATEPART(ww, Geboren) = " & CInt(FeVo6.Text) & ")"
     Else
-        SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND  ((Format(qryAdrSu.Geboren,'ww', 2, 1)) Like '" & CInt(FeVo6.Text) & "')"
+        SQL1 = SQL1 & "((qryAdrSu.Geboren) Is Not Null) AND  ((Format(qryAdrSu.Geboren,'ww', 2, 1)) Like '" & SqlStr(CInt(FeVo6.Text)) & "')"
     End If
     Kombi = True
     GebFi = True
@@ -2762,9 +2762,9 @@ End If
 If Me.chkFilt9.Value = 1 Then
     If Kombi = True Then SQL1 = SQL1 & " AND "
     If GlTyp > 1 Then
-        SQL1 = SQL1 & "((qryAdrSu.Telefon2) Like '" & FeVo9.Text & "%')"
+        SQL1 = SQL1 & "((qryAdrSu.Telefon2) Like '" & SqlStr(FeVo9.Text) & "%')"
     Else
-        SQL1 = SQL1 & "((Telefon2) Like '" & FeVo9.Text & "%')"
+        SQL1 = SQL1 & "((Telefon2) Like '" & SqlStr(FeVo9.Text) & "%')"
     End If
     Kombi = True
 End If
@@ -2782,9 +2782,9 @@ End If
 If Me.chkFilt10.Value = 1 Then
     If Kombi = True Then SQL1 = SQL1 & " AND "
     If GlTyp > 1 Then
-        SQL1 = SQL1 & "((qryAdrSu.Ort) Like '%" & FeV10.Text & "%')"
+        SQL1 = SQL1 & "((qryAdrSu.Ort) Like '%" & SqlStr(FeV10.Text) & "%')"
     Else
-        SQL1 = SQL1 & "((Ort) Like '%" & FeV10.Text & "%')"
+        SQL1 = SQL1 & "((Ort) Like '%" & SqlStr(FeV10.Text) & "%')"
     End If
     Kombi = True
 End If
@@ -2856,29 +2856,29 @@ For Each Knote In TrLi1.Nodes
             If Opti1.Value = True Then
                 If GlTyp > 1 Then
                     If AktZa > 1 Then
-                        SQL2 = SQL2 & " AND TreKey Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & " AND TreKey Like '%" & SqlStr(GruKy) & "%'"
                     Else
-                        SQL2 = SQL2 & "TreKey Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & "TreKey Like '%" & SqlStr(GruKy) & "%'"
                     End If
                 Else
                     If AktZa > 1 Then
-                        SQL2 = SQL2 & " AND [TreKey] Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & " AND [TreKey] Like '%" & SqlStr(GruKy) & "%'"
                     Else
-                        SQL2 = SQL2 & "[TreKey] Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & "[TreKey] Like '%" & SqlStr(GruKy) & "%'"
                     End If
                 End If
             Else
                 If GlTyp > 1 Then
                     If AktZa > 1 Then
-                        SQL2 = SQL2 & " OR TreKey Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & " OR TreKey Like '%" & SqlStr(GruKy) & "%'"
                     Else
-                        SQL2 = SQL2 & "TreKey Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & "TreKey Like '%" & SqlStr(GruKy) & "%'"
                     End If
                 Else
                     If AktZa > 1 Then
-                        SQL2 = SQL2 & " OR [TreKey] Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & " OR [TreKey] Like '%" & SqlStr(GruKy) & "%'"
                     Else
-                        SQL2 = SQL2 & "[TreKey] Like '%" & GruKy & "%'"
+                        SQL2 = SQL2 & "[TreKey] Like '%" & SqlStr(GruKy) & "%'"
                     End If
                 End If
             End If

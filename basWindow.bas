@@ -1023,7 +1023,7 @@ DroLa = Screen.Height / Screen.TwipsPerPixelY
 If DroHo > DroLa / 2 Then DroHo = DroLa / 2
 
 With CmbIt
-    MoveWindow .hwnd, .Left / Screen.TwipsPerPixelX, .Top / Screen.TwipsPerPixelY, .Width / Screen.TwipsPerPixelY, DroHo, 1
+    MoveWindow .hwnd, .Left / Screen.TwipsPerPixelX, .Top / Screen.TwipsPerPixelY, .Width / Screen.TwipsPerPixelX, DroHo, 1
 End With
     
 Exit Sub
@@ -1054,7 +1054,7 @@ DroLa = Screen.Height / Screen.TwipsPerPixelY
 If DroHo > DroLa / 2 Then DroHo = DroLa / 2
 
 With CmbIt
-    MoveWindow .hwnd, .Left / Screen.TwipsPerPixelX, .Top / Screen.TwipsPerPixelY, .Width / Screen.TwipsPerPixelY, DroHo, 1
+    MoveWindow .hwnd, .Left / Screen.TwipsPerPixelX, .Top / Screen.TwipsPerPixelY, .Width / Screen.TwipsPerPixelX, DroHo, 1
 End With
     
 Exit Sub
@@ -1069,7 +1069,7 @@ On Error Resume Next
 
 Dim RetWe As Long
 
-RetWe = SetWindowLong(mHwnd, GWL_WNDPROC, MProc)
+If MProc <> 0 Then RetWe = SetWindowLong(mHwnd, GWL_WNDPROC, MProc)
     
 End Sub
 

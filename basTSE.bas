@@ -308,8 +308,6 @@ Dim ErStr As String
 
 If Len(AlPIN) <> Len(inewpin) Then
     TSE_PUK = "Fehler Pin/Puk länge stimmt nicht!"
-    MsgBox "hier problem", , AlPIN & Space$(1) & inewpin
-    End
     Exit Function
 End If
 
@@ -734,8 +732,7 @@ RetWe = ChGlb.UnlockBundle("GNTRSC.CB11217_aAaet8Bij08o")
 
 If (RetWe <> 1) Then
     MsgBox ChGlb.LastErrorText, , "DLL fehlt oder ist beschädigt!"
-End
-
+    Exit Function
 End If
 
 ChTar.WriteFormat = "gnu"

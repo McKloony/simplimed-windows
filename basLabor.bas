@@ -545,9 +545,9 @@ Private Sub L_Hea(ByVal LaGui As String, ByRef VerNu As Long, ByRef ImpDa As Lon
     Set RS_Tmp = New ADODB.Recordset
     RS_Tmp.CursorLocation = adUseClient
     If GlTyp < 2 Then
-        RS_Tmp.Open "SELECT ID0 From dbo.qryLdtFile WHERE (GuiID = '" & LaGui & "')", DB1
+        RS_Tmp.Open "SELECT ID0 From dbo.qryLdtFile WHERE (GuiID = '" & SqlStr(LaGui) & "')", DB1
     Else
-        RS_Tmp.Open "SELECT [ID0] From qryLdtFile WHERE ([GuiID] = '" & LaGui & "');", DB1
+        RS_Tmp.Open "SELECT [ID0] From qryLdtFile WHERE ([GuiID] = '" & SqlStr(LaGui) & "');", DB1
     End If
     If RS_Tmp.RecordCount > 0 Then ImpDa = RS_Tmp.Fields("ID0").Value
     RS_Tmp.Close

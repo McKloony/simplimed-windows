@@ -741,7 +741,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
             Do
             If RS126.Fields("Text").Value <> vbNullString Then
                 If IsDate(RS126.Fields("Datum").Value) = True Then
-                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then
+                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then
                         If Left$(Round(RS126.Fields("GesBetrag").Value, 2), 1) = "-" Then
                             VoZei = "-"
                         Else
@@ -879,11 +879,11 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                 If PosKz = Chr$(32) Then
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Ziffe & Aznah & Fakto & VoZei & Gesam & VoZei & Einze & " 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & " 0000000 0000000 0000000" & VoZei & Gesam & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 End If
                             Else
                                 MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
@@ -894,11 +894,11 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                 If PosKz = Chr$(32) Then
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Ziffe & Aznah & Fakto & VoZei & Gesam & VoZei & Einze & " 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & " 0000000 0000000 0000000" & VoZei & Gesam & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 End If
                             Else
                                 MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
@@ -912,7 +912,7 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                     Else
                                         MeStr = MeStr & Space$(7) & Aznah & Fakto & VoZei & "0000000" & VoZei & "0000000 0000000 " & Gesam & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
                                     End If
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
                                 End If
@@ -932,11 +932,11 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                 If PosKz = Chr$(32) Then
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Ziffe & Aznah & Fakto & VoZei & Gesam & VoZei & Einze & " 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & " 0000000 0000000 0000000" & VoZei & Gesam & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 End If
                             Else
                                 MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
@@ -947,11 +947,11 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                 If PosKz = Chr$(32) Then
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & VoZei & Gesam & VoZei & Einze & " 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & " 0000000 0000000 0000000" & VoZei & Gesam & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 End If
                             Else
                                 MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
@@ -963,11 +963,11 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                 If PosKz = Chr$(32) Then
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Ziffe & Aznah & Fakto & VoZei & Gesam & VoZei & Einze & " 0000000 0000000" & LeTex & Space(9) & StuLe & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & " 0000000 0000000 0000000" & VoZei & Gesam & LeTex & Space(9) & StuLe & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 End If
                             Else
                                 MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & StuLe & Space(2) & vbCrLf
@@ -978,11 +978,11 @@ If Not IsNull(FilNa) And Not FilNa = vbNullString Then
                                 If PosKz = Chr$(32) Then
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Ziffe & Aznah & Fakto & VoZei & Gesam & VoZei & Einze & " 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then HoSum = HoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 Else
                                     MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz
                                     MeStr = MeStr & Space$(7) & Aznah & Fakto & " 0000000 0000000 0000000" & VoZei & Gesam & LeTex & Space(9) & "0000" & Space(2) & vbCrLf
-                                    If Round(RS126.Fields("GesBetrag").Value, 2) <> vbNullString Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
+                                    If Not IsNull(RS126.Fields("GesBetrag").Value) Then KoSum = KoSum + Round(RS126.Fields("GesBetrag").Value, 2)
                                 End If
                             Else
                                 MeStr = MeStr & KunNr & ReNum & "700" & PosDa & PosKz & Space$(7) & "000000000000" & " 0000000 0000000 0000000 0000000" & LeTex & Space(9) & "0000" & Space(2) & vbCrLf

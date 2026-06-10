@@ -738,7 +738,7 @@ If RS160.RecordCount > 0 Then
                         BoNum = RpRow.Record(18).Value '[BogenNr]
                         If BoNum > 0 Then 'Patientenbogennummer
 
-                            RS160.Filter = "[FormSubmissionId] Like '" & WebID & "'"
+                            RS160.Filter = "[FormSubmissionId] Like '" & SqlStr(WebID) & "'"
                             DoEvents
                             If RS160.RecordCount > 0 Then
                                 Do

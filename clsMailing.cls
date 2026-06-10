@@ -1017,10 +1017,10 @@ End Property
 Public Property Get moPxSe() As String
     moPxSe = mPxSe
 End Property
-Public Property Let moPxPa(Flag As Integer)
+Public Property Let moPxPa(Flag As String)
     mPxPa = Flag
 End Property
-Public Property Get moPxPa() As Integer
+Public Property Get moPxPa() As String
     moPxPa = mPxPa
 End Property
 Public Property Let moPxPo(Flag As String)

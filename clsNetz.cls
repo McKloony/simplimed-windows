@@ -153,7 +153,7 @@ RetWe = GetComputerName(ReNam, ReLen)
 
 If RetWe = 1 Then
     CName = Left$(ReNam, InStr(1, ReNam, Chr$(0)) - 1)
-    NetNam = ReNam
+    NetNam = CName
 Else
     NetNam = vbNullString
 End If

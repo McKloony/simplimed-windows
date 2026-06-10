@@ -777,7 +777,7 @@ If RS04.RecordCount > 0 Then
     For AktZa = 0 To GesZa - 1
         SuStr = Format$(MePZN(AktZa), "0000000")
     
-        Krite = "[GOID] Like '" & SuStr & "'"
+        Krite = "[GOID] Like '" & SqlStr(SuStr) & "'"
         RS04.Filter = Krite
 
         If RS04.RecordCount > 0 Then
@@ -1197,9 +1197,9 @@ Case RibTab_Kat_Eintrg:
     If RS05.Supports(adAddNew) Then
         For AktZa = 0 To GesZa - 1
             If GlTyp < 2 Then
-                SQL2 = "SELECT * FROM dbo.qryKat04 WHERE IDKurz Like '" & HerNa(AktZa) & "'"
+                SQL2 = "SELECT * FROM dbo.qryKat04 WHERE IDKurz Like '" & SqlStr(HerNa(AktZa)) & "'"
             Else
-                SQL2 = "SELECT * FROM qryKat04 WHERE [IDKurz] Like '" & HerNa(AktZa) & "';"
+                SQL2 = "SELECT * FROM qryKat04 WHERE [IDKurz] Like '" & SqlStr(HerNa(AktZa)) & "';"
             End If
             Set RS06 = New ADODB.Recordset
             With RS06 'Ist Hersteller schon vorhanden?
@@ -1245,9 +1245,9 @@ Case RibTab_Kat_Eintrg:
 
             If HerID > 0 Then
                 If GlTyp < 2 Then
-                    SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & HerID & " AND GOID Like '" & MePZN(AktZa) & "'"
+                    SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & HerID & " AND GOID Like '" & SqlStr(MePZN(AktZa)) & "'"
                 Else
-                    SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & HerID & " AND [GOID] Like '" & MePZN(AktZa) & "';"
+                    SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & HerID & " AND [GOID] Like '" & SqlStr(MePZN(AktZa)) & "';"
                 End If
                 Set RS04 = New ADODB.Recordset
                 With RS04
@@ -1278,9 +1278,9 @@ Case RibTab_Kat_Eintrg:
                 Set RS04 = Nothing
                 
                 If GlTyp < 2 Then
-                    SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & 1 & " AND GOID Like '" & MePZN(AktZa) & "'"
+                    SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & 1 & " AND GOID Like '" & SqlStr(MePZN(AktZa)) & "'"
                 Else
-                    SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & 1 & " AND [GOID] Like '" & MePZN(AktZa) & "';"
+                    SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & 1 & " AND [GOID] Like '" & SqlStr(MePZN(AktZa)) & "';"
                 End If
                 Set RS04 = New ADODB.Recordset
                 With RS04

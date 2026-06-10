@@ -1202,15 +1202,15 @@ Case 0:
                             GruKy = "o" & GrIdx & "o"
                             If ChOp1.Value = True Then
                                 If AktZa > 1 Then
-                                    SQL3 = SQL3 & " AND [TreKey] Like '%" & GruKy & "%'"
+                                    SQL3 = SQL3 & " AND [TreKey] Like '%" & SqlStr(GruKy) & "%'"
                                 Else
-                                    SQL3 = SQL3 & "[TreKey] Like '%" & GruKy & "%'"
+                                    SQL3 = SQL3 & "[TreKey] Like '%" & SqlStr(GruKy) & "%'"
                                 End If
                             Else
                                 If AktZa > 1 Then
-                                    SQL3 = SQL3 & " OR [TreKey] Like '%" & GruKy & "%'"
+                                    SQL3 = SQL3 & " OR [TreKey] Like '%" & SqlStr(GruKy) & "%'"
                                 Else
-                                    SQL3 = SQL3 & "[TreKey] Like '%" & GruKy & "%'"
+                                    SQL3 = SQL3 & "[TreKey] Like '%" & SqlStr(GruKy) & "%'"
                                 End If
                             End If
                             AktZa = AktZa + 1

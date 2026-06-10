@@ -1187,9 +1187,9 @@ If RS120.Supports(adAddNew) Then
         PrBr1.Max = GesPo
     
         If GlTyp < 2 Then
-            SQL2 = "SELECT * FROM dbo.qryKat04 WHERE IDKurz Like '" & GlClp(AktPo, ABDA_Firmenname) & "'"
+            SQL2 = "SELECT * FROM dbo.qryKat04 WHERE IDKurz Like '" & SqlStr(GlClp(AktPo, ABDA_Firmenname)) & "'"
         Else
-            SQL2 = "SELECT * FROM qryKat04 WHERE [IDKurz] Like '" & GlClp(AktPo, ABDA_Firmenname) & "';"
+            SQL2 = "SELECT * FROM qryKat04 WHERE [IDKurz] Like '" & SqlStr(GlClp(AktPo, ABDA_Firmenname)) & "';"
         End If
         Set RS121 = New ADODB.Recordset
         With RS121 'Ist Hersteller schon vorhanden?
@@ -1282,9 +1282,9 @@ If RS120.Supports(adAddNew) Then
             End If
     
             If GlTyp < 2 Then
-                SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & HerID & " AND GOID Like '" & GlClp(AktPo, ABDA_PZN) & "'"
+                SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & HerID & " AND GOID Like '" & SqlStr(GlClp(AktPo, ABDA_PZN)) & "'"
             Else
-                SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & HerID & " AND [GOID] Like '" & GlClp(AktPo, ABDA_PZN) & "';"
+                SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & HerID & " AND [GOID] Like '" & SqlStr(GlClp(AktPo, ABDA_PZN)) & "';"
             End If
             Set RS123 = New ADODB.Recordset
             With RS123
@@ -1317,9 +1317,9 @@ If RS120.Supports(adAddNew) Then
             Set RS123 = Nothing
             
             If GlTyp < 2 Then
-                SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & 1 & " AND GOID Like '" & GlClp(AktPo, ABDA_PZN) & "'"
+                SQL3 = "SELECT * FROM dbo.qryKat04C WHERE ID3=" & 1 & " AND GOID Like '" & SqlStr(GlClp(AktPo, ABDA_PZN)) & "'"
             Else
-                SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & 1 & " AND [GOID] Like '" & GlClp(AktPo, ABDA_PZN) & "';"
+                SQL3 = "SELECT * FROM qryKat04C WHERE [ID3]=" & 1 & " AND [GOID] Like '" & SqlStr(GlClp(AktPo, ABDA_PZN)) & "';"
             End If
             Set RS123 = New ADODB.Recordset
             With RS123
@@ -1406,7 +1406,7 @@ Else
     End If
     
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & GlAdr & " ) AND (ID1 = 107) AND (Datum >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & DaSt2 & "', 102)))"
+        SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & GlAdr & " ) AND (ID1 = 107) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
     Else
         SQL1 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & GlAdr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 107));"
     End If
@@ -3986,7 +3986,7 @@ If GlTyp < 2 Then
         Case "F": SQL1 = "SELECT * FROM dbo.qryKet03a WHERE ID1 = " & KetNr 'Diagnoseketten
         Case "H": SQL1 = "SELECT * FROM dbo.qryKet02a WHERE ID1 = " & KetNr 'Laborprofile
         Case "J": SQL1 = "SELECT * FROM dbo.qryKet04a WHERE ID1 = " & KetNr 'Arzeikennetn
-        Case "J": SQL1 = "SELECT * FROM dbo.qryKon02A WHERE ID1 = " & KetNr 'Terminketten
+        Case "R": SQL1 = "SELECT * FROM dbo.qryKon02A WHERE ID1 = " & KetNr 'Terminketten
         Case "Q": SQL1 = "SELECT * FROM dbo.qryKet12a WHERE ID1 = " & KetNr 'Artikelketten
         End Select
     End If
@@ -3997,7 +3997,7 @@ Else
         Case "F": SQL1 = "SELECT * FROM qryKet03a WHERE [ID1] = -1;" 'Diagnoseketten
         Case "H": SQL1 = "SELECT * FROM qryKet02a WHERE [ID1] = -1;" 'Laborprofile
         Case "J": SQL1 = "SELECT * FROM qryKet04a WHERE [ID1] = -1;" 'Arzeikennetn
-        Case "J": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = -1;" 'Terminketten
+        Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = -1;" 'Terminketten
         Case "Q": SQL1 = "SELECT * FROM qryKet12a WHERE [ID1] = -1;" 'Artikelketten
         End Select
     Else
@@ -4006,7 +4006,7 @@ Else
         Case "F": SQL1 = "SELECT * FROM qryKet03a WHERE [ID1] = " & KetNr & ";" 'Diagnoseketten
         Case "H": SQL1 = "SELECT * FROM qryKet02a WHERE [ID1] = " & KetNr & ";" 'Laborprofile
         Case "J": SQL1 = "SELECT * FROM qryKet04a WHERE [ID1] = " & KetNr & ";" 'Arzeikennetn
-        Case "J": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = " & KetNr & ";" 'Terminketten
+        Case "R": SQL1 = "SELECT * FROM qryKon02A WHERE [ID1] = " & KetNr & ";" 'Terminketten
         Case "Q": SQL1 = "SELECT * FROM qryKet12a WHERE [ID1] = " & KetNr & ";" 'Artikelketten
         End Select
     End If
@@ -10186,7 +10186,7 @@ If GlTyp < 2 Then
         End If
     Else
         If GlNeK.KoGui <> vbNullString Then
-            SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE Kommentar2 Like '" & GlNeK.KoGui & "'"
+            SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE Kommentar2 Like '" & SqlStr(GlNeK.KoGui) & "'"
         Else
             SQL1 = "SELECT * FROM dbo.qrySimAbSav WHERE ID2 = " & GlNeK.IdxNr
         End If
@@ -10200,7 +10200,7 @@ Else
         End If
     Else
         If GlNeK.KoGui <> vbNullString Then
-            SQL1 = "SELECT * FROM qrySimAbSav WHERE [Kommentar2] Like '" & GlNeK.KoGui & "';"
+            SQL1 = "SELECT * FROM qrySimAbSav WHERE [Kommentar2] Like '" & SqlStr(GlNeK.KoGui) & "';"
         Else
             SQL1 = "SELECT * FROM qrySimAbSav WHERE [ID2] = " & GlNeK.IdxNr & ";"
         End If
@@ -10460,9 +10460,9 @@ If KoGui = vbNullString Then
 End If
 
 If GlTyp < 2 Then
-    SqlVe = "SELECT ID2 FROM dbo.qrySimAbSav WHERE Kommentar2 Like '" & KoGui & "'"
+    SqlVe = "SELECT ID2 FROM dbo.qrySimAbSav WHERE Kommentar2 Like '" & SqlStr(KoGui) & "'"
 Else
-    SqlVe = "SELECT [ID2] FROM qrySimAbSav WHERE [Kommentar2] Like '" & KoGui & "';"
+    SqlVe = "SELECT [ID2] FROM qrySimAbSav WHERE [Kommentar2] Like '" & SqlStr(KoGui) & "';"
 End If
 
 Set RsVe = New ADODB.Recordset
@@ -14452,19 +14452,19 @@ Case RibTab_Krankenbla:
     Select Case PaFrm
     Case "AnEi":
         If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 21) AND (Datum >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & DaSt2 & "', 102)))"
+            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 21) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
         Else
             SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 21));"
         End If
     Case "KrDi":
         If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 103) AND (Datum >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & DaSt2 & "', 102)))"
+            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 103) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
         Else
             SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 103));"
         End If
     Case "KrMe":
         If GlTyp < 2 Then
-            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 107) AND (Datum >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & DaSt2 & "', 102)))"
+            SQL3 = "SELECT * FROM dbo.qrySimAbSav WHERE ((ID0 = " & PatNr & " ) AND (ID1 = 107) AND (Datum >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)))"
         Else
             SQL3 = "SELECT * FROM qrySimAbSav WHERE (([ID0] = " & PatNr & " ) AND ([Datum] = #" & DaSt1 & "#) AND ([ID1] = 107));"
         End If
@@ -14598,7 +14598,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 KeAnz = 1
                             End If
                             '---
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 EinZu = False
                             Else
@@ -14649,7 +14649,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                     End If
                     Mld1 = "Die Ziffer " & GoStr & " existiert bereits am " & EiDat
                     Mld3 = "Die Leistung " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                     If RS129.RecordCount > 0 Then
                         SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                         If GlMes = 33565 Then
@@ -14796,7 +14796,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 Else
                                     EiTex = RS125.Fields("IDKurz").Value
                                     Mld3 = EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                     If RS129.RecordCount > 0 Then
                                         EinZu = False
                                     Else
@@ -14827,7 +14827,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                     GoStr = RS125.Fields("GOID").Value
                                     Mld1 = "Die Diagnose " & GoStr & " existiert bereits am " & EiDat
                                     Mld3 = "Die Diagnose " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                     If RS129.RecordCount > 0 Then
                                         SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                         If GlMes = 33565 Then
@@ -14867,7 +14867,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         End If
                         Mld1 = "Die Diagnose " & GoStr & " existiert bereits am " & EiDat
                         Mld3 = "Die Diagnose " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                        RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                        RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                         If RS129.RecordCount > 0 Then
                             SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                             If GlMes = 33565 Then
@@ -14971,7 +14971,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         Else
                             Mld1 = "Die Diagnose " & GoStr & " existiert bereits am " & EiDat
                             Mld3 = "Die Diagnose " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                 If GlMes = 33565 Then
@@ -15040,7 +15040,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                     EinNr = RS125.Fields("ID0").Value
                                     EiTex = RS125.Fields("IDKurz").Value
                                     Mld3 = EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                     If RS129.RecordCount > 0 Then
                                         EinZu = False
                                     Else
@@ -15110,7 +15110,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                     GoStr = RS125.Fields("GOID").Value
                                     Mld1 = "Die Diagnose " & GoStr & " existiert bereits am " & EiDat
                                     Mld3 = "Die Diagnose " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                     If RS129.RecordCount > 0 Then
                                         SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                         If GlMes = 33565 Then
@@ -15150,7 +15150,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         End If
                         Mld1 = "Die Diagnose " & GoStr & " existiert bereits am " & EiDat
                         Mld3 = "Die Diagnose " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                        RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                        RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                         If RS129.RecordCount > 0 Then
                             SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                             If GlMes = 33565 Then
@@ -15250,7 +15250,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         Else
                             Mld1 = "Die Diagnose " & GoStr & " existiert bereits am " & EiDat
                             Mld3 = "Die Diagnose " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                 If GlMes = 33565 Then
@@ -15319,7 +15319,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                     EinNr = RS125.Fields("ID0").Value
                                     EiTex = RS125.Fields("IDKurz").Value
                                     Mld3 = EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                     If RS129.RecordCount > 0 Then
                                         EinZu = False
                                     Else
@@ -15338,7 +15338,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 GoStr = RS125.Fields("GOID").Value
                                 Mld1 = "Das Mittel " & GoStr & " existiert bereits am " & EiDat
                                 Mld3 = "Das Mittel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                 If RS129.RecordCount > 0 Then
                                     SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                     If GlMes = 33565 Then
@@ -15371,7 +15371,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 GoStr = RS125.Fields("GOID").Value
                                 Mld1 = "Das Mittel " & GoStr & " existiert bereits am " & EiDat
                                 Mld3 = "Das Mittel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                                RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                                RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                                 If RS129.RecordCount > 0 Then
                                     SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                     If GlMes = 33565 Then
@@ -15425,7 +15425,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         Else
                             Mld1 = "Das Mittel " & GoStr & " existiert bereits am " & EiDat
                             Mld3 = "Das Mittel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                                 If GlMes = 33565 Then
@@ -15464,7 +15464,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         End If
                         Mld1 = "Das Mittel " & GoStr & " existiert bereits am " & EiDat
                         Mld3 = "Das Mittel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                        RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                        RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                         If RS129.RecordCount > 0 Then
                             SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                             If GlMes = 33565 Then
@@ -15502,7 +15502,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                         End If
                         Mld1 = "Das Mittel " & GoStr & " existiert bereits am " & EiDat
                         Mld3 = "Das Mittel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                        RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                        RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                         If RS129.RecordCount > 0 Then
                             SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                             If GlMes = 33565 Then
@@ -15561,7 +15561,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 KeAnz = 1
                             End If
                             '---
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 EinZu = False
                             Else
@@ -15593,7 +15593,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                     End If
                     Mld1 = "Der Parameter " & GoStr & " existiert bereits am " & EiDat
                     Mld3 = "Der Parameter " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                     If RS129.RecordCount > 0 Then
                         SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                         If GlMes = 33565 Then
@@ -15650,7 +15650,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 KeAnz = 1
                             End If
                             Mld3 = EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 EinZu = False
                             Else
@@ -15682,7 +15682,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                     End If
                     Mld1 = "Das Arzneimittel " & GoStr & " existiert bereits am " & EiDat
                     Mld3 = "Das Arzneimittel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                     If RS129.RecordCount > 0 Then
                         SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                         If GlMes = 33565 Then
@@ -15739,7 +15739,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                                 KeAnz = 1
                             End If
                             Mld3 = EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 EinZu = False
                             Else
@@ -15771,7 +15771,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                     End If
                     Mld1 = "Der Artikel " & GoStr & " existiert bereits am " & EiDat
                     Mld3 = "Der Artikel " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                    RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                    RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                     If RS129.RecordCount > 0 Then
                         SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                         If GlMes = 33565 Then
@@ -15810,7 +15810,7 @@ For AktTa = 1 To AnzTa 'Behandlungstage
                 End If
                 Mld1 = "Die Begründung " & GoStr & " existiert bereits am " & EiDat
                 Mld3 = "Die Begründung " & EiTex & " existiert bereits am " & EiDat & ". Möchten Sie diesen Eintrag trotzdem einfügen?"
-                RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                 If RS129.RecordCount > 0 Then
                     SMeFr Tit1, Mld1, Mld3, "", False, 0, False, FM.hwnd
                     If GlMes = 33565 Then
@@ -16233,7 +16233,7 @@ If RS123.Supports(adAddNew) Then
                             Do
                             EiTex = RS125.Fields("IDKurz").Value
                             Mld3 = EiTex & " existiert bereit. Möchten Sie diesen Eintrag wirklich einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 EinZu = False
                             Else
@@ -16272,7 +16272,7 @@ If RS123.Supports(adAddNew) Then
                             EiTex = RpRow.Record(RpCol.ItemIndex).Value
                         End If
                         Mld3 = EiTex & " existiert bereits. Möchten Sie diesen Eintrag wirklich einfügen?"
-                        RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                        RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                         If RS129.RecordCount > 0 Then
                             Frage = WindowMess(Mld3, Dial1, Tit1, FM.hwnd)
                             If Frage = 6 Then
@@ -16377,7 +16377,7 @@ If RS123.Supports(adAddNew) Then
                             Do
                             EiTex = RS125.Fields("IDKurz").Value
                             Mld3 = EiTex & " existiert bereit. Möchten Sie diesen Eintrag wirklich einfügen?"
-                            RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                            RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                             If RS129.RecordCount > 0 Then
                                 EinZu = False
                             Else
@@ -16445,7 +16445,7 @@ If RS123.Supports(adAddNew) Then
                             EiTex = RpRow.Record(RpCol.ItemIndex).Value
                         End If
                         Mld3 = EiTex & " existiert bereits. Möchten Sie diesen Eintrag wirklich einfügen?"
-                        RS129.Filter = "[IDKurz] Like '" & EiTex & "'"
+                        RS129.Filter = "[IDKurz] Like '" & SqlStr(EiTex) & "'"
                         If RS129.RecordCount > 0 Then
                             Frage = WindowMess(Mld3, Dial1, Tit1, FM.hwnd)
                             If Frage = 6 Then
@@ -17138,7 +17138,7 @@ If GlRsP = True Then 'Regelprüfung durchführen?
         Mld4 = "Die Ziffer " & GebZi & " sollte am " & EiDat & " nicht zusammen mit der Ziffer " & GoStr & " abgerechnet werden"
         Mld5 = "Es wurde festgestellt, dass die Ziffer " & GebZi & " am " & EiDat & " zusammen mit der Ziffer " & GoStr & " abgerechnet werden soll. Dieses verstößt gegen eine Gebührenregel, welche dieser Ziffer zugeordnet ist. Soll die Ziffer " & GebZi & " trotzdem am " & EiDat & " abgerechnet werden?"
         Mld6 = "HINWEIS! Die Regelprüfung kann jederzeit unter dem Menüpunkt: Anzeigeoptionen aus- und eingeschaltet werden."
-        RST.Filter = "[GONr] Like '" & GoStr & "'"
+        RST.Filter = "[GONr] Like '" & SqlStr(GoStr) & "'"
         If RST.RecordCount > 0 Then
             SMeFr "Regelverstoß", Mld4, Mld5, Mld6, False, IC32_Hand, False, FM.hwnd
             If GlMes <> 33565 Then
@@ -18864,37 +18864,37 @@ Case "L": 'Anamnesetexte
 Case "D": 'Gebührenketten
     Select Case GlSuN.SuIdx
     Case 0: Set RS153 = DBCmRe1("qryKat01H", "@IdxNr", IdxNr)
-    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 3: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 5: Set RS153 = DBCmRe1("qryKat01I", "@IdxNr", IdxNr)
     End Select
 Case "F": 'Diagnoseketten
     Select Case GlSuN.SuIdx
     Case 0: Set RS153 = DBCmRe1("qryKat03H", "@IdxNr", IdxNr)
-    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 3: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 5: Set RS153 = DBCmRe1("qryKat03I", "@IdxNr", IdxNr)
     End Select
 Case "J": 'Arzneiketten
     Select Case GlSuN.SuIdx
     Case 0: Set RS153 = DBCmRe1("qryKat04H", "@IdxNr", IdxNr)
-    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 3: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 5: Set RS153 = DBCmRe1("qryKat04I", "@IdxNr", IdxNr)
     End Select
 Case "H": 'Laborketten
     Select Case GlSuN.SuIdx
     Case 0: Set RS153 = DBCmRe1("qryKat02H", "@IdxNr", IdxNr)
-    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 3: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 5: Set RS153 = DBCmRe1("qryKat02I", "@IdxNr", IdxNr)
     End Select
 Case "M": 'Terminbetreffs
@@ -18949,10 +18949,10 @@ Case "R": 'Terminketten
 Case "Q": 'Artikelketten
     Select Case GlSuN.SuIdx
     Case 0: Set RS153 = DBCmRe1("qryKat12H", "@IdxNr", IdxNr)
-    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+    Case 1: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+    Case 2: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 3: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+    Case 4: Set RS153 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3] = " & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
     Case 5: Set RS153 = DBCmRe1("qryKat12I", "@IdxNr", IdxNr)
     End Select
 End Select
@@ -21623,10 +21623,10 @@ Case "GbEi": 'Gebührenkatalog
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat01H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat01I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21659,10 +21659,10 @@ Case "DiEi":  'Diagnosen
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat03H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat03I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21680,10 +21680,10 @@ Case "LaEi":  'Laborparameter
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat02H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat02I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21701,10 +21701,10 @@ Case "LaPa":  'Laborauftrag
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat02H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat02I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21722,10 +21722,10 @@ Case "MeEi":  'Arzneimittel
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat04H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat04I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21743,10 +21743,10 @@ Case "ReEi":  'Rechnungen
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat04H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat04I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21795,10 +21795,10 @@ Case "KrDi":  'Krankenblattdiagnosen
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat03H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat03I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21816,10 +21816,10 @@ Case "KrMe":  'Krankenblattmedikamente
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat04H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat04I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -21837,13 +21837,13 @@ Case "TeDe": 'Terminbetreffs
     Case 2:
         If GlTyp < 2 Then
             Select Case GlSuN.SuIdx
-            Case 1: SQL1 = "SELECT * FROM dbo.qrySimAdWar WHERE IDKurz Like '%" & GlSuN.SuStr & "%' ORDER BY Geändert"
-            Case 2: SQL1 = "SELECT * FROM dbo.qrySimAdWar WHERE Hinweis Like '%" & GlSuN.SuStr & "%' ORDER BY Geändert"
+            Case 1: SQL1 = "SELECT * FROM dbo.qrySimAdWar WHERE IDKurz Like '%" & SqlStr(GlSuN.SuStr) & "%' ORDER BY Geändert"
+            Case 2: SQL1 = "SELECT * FROM dbo.qrySimAdWar WHERE Hinweis Like '%" & SqlStr(GlSuN.SuStr) & "%' ORDER BY Geändert"
             End Select
         Else
             Select Case GlSuN.SuIdx
-            Case 1: SQL1 = "SELECT * FROM qrySimAdWar WHERE [IDKurz] Like '%" & GlSuN.SuStr & "%' ORDER BY [Geändert]"
-            Case 2: SQL1 = "SELECT * FROM qrySimAdWar WHERE [Hinweis] Like '%" & GlSuN.SuStr & "%' ORDER BY [Geändert]"
+            Case 1: SQL1 = "SELECT * FROM qrySimAdWar WHERE [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%' ORDER BY [Geändert]"
+            Case 2: SQL1 = "SELECT * FROM qrySimAdWar WHERE [Hinweis] Like '%" & SqlStr(GlSuN.SuStr) & "%' ORDER BY [Geändert]"
             End Select
         End If
         Set RS137 = DBCmRe0(SQL1, True)
@@ -21922,10 +21922,10 @@ Case "ArLi":  'Artikelkatalog
     Case 2:
         Select Case GlSuN.SuIdx
         Case 0: Set RS137 = DBCmRe1("qryKat12H", "@IdxNr", IdxNr)
-        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & GlSuN.SuStr & "%'", True)
-        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & GlSuN.SuStr & "%'", True)
+        Case 1: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(GlSuN.SuStr) & "%'", True)
+        Case 2: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 3: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & GlSuN.SUpRe & GlSuN.SuStr, True)
-        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & GlSuN.SuStr & "%'", True)
+        Case 4: Set RS137 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(GlSuN.SuStr) & "%'", True)
         Case 5: Set RS137 = DBCmRe1("qryKat12I", "@IdxNr", IdxNr)
         End Select
     End Select
@@ -28891,17 +28891,17 @@ Select Case SelTa
 Case RibTab_Wart_Wied:
     If GlTyp < 2 Then
         Select Case SuTyp
-        Case 1: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (VonDat <= CONVERT(DATETIME, '" & DaSt2 & "', 102)) ORDER BY VonDat, Sorter"
-        Case 2: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (Patient Like '" & SuStr & "%') ORDER BY VonDat, Sorter"
-        Case 3: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (IDKurz Like '" & SuStr & "%') ORDER BY VonDat, Sorter"
-        Case 4: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat = CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (IDP = " & ManNr & ")ORDER BY VonDat, Sorter"
+        Case 1: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (VonDat <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)) ORDER BY VonDat, Sorter"
+        Case 2: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (Patient Like '" & SqlStr(SuStr) & "%') ORDER BY VonDat, Sorter"
+        Case 3: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (IDKurz Like '" & SqlStr(SuStr) & "%') ORDER BY VonDat, Sorter"
+        Case 4: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat = CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (IDP = " & ManNr & ")ORDER BY VonDat, Sorter"
         Case 5: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (Erledigt = 0) ORDER BY VonDat, Sorter"
         End Select
     Else
         Select Case SuTyp
         Case 1: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([VonDat] = #" & DaSt1 & "#) ORDER BY [VonDat], [ZeiVon];"
-        Case 2: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([Patient] Like '" & SuStr & "%') ORDER BY [VonDat], [ZeiVon];"
-        Case 3: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([IDKurz] Like '" & SuStr & "%') ORDER BY [VonDat], [ZeiVon];"
+        Case 2: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([Patient] Like '" & SqlStr(SuStr) & "%') ORDER BY [VonDat], [ZeiVon];"
+        Case 3: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([IDKurz] Like '" & SqlStr(SuStr) & "%') ORDER BY [VonDat], [ZeiVon];"
         Case 4: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([VonDat] = #" & DaSt1 & "#) AND ([IDP] = " & ManNr & ") ORDER BY [VonDat], [ZeiVon];"
         Case 5: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([Erledigt] = 0) ORDER BY [VonDat], [ZeiVon];"
         End Select
@@ -29277,17 +29277,17 @@ Select Case GlWaT
 Case RibTab_Wart_Wied:
     If GlTyp < 2 Then
         Select Case SuTyp
-        Case 1: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (VonDat <= CONVERT(DATETIME, '" & DaSt2 & "', 102)) ORDER BY VonDat, Sorter"
-        Case 2: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (Patient Like '" & SuStr & "%') ORDER BY VonDat, Sorter"
-        Case 3: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (IDKurz Like '" & SuStr & "%') ORDER BY VonDat, Sorter"
-        Case 4: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat = CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (IDP = " & ManNr & ")ORDER BY VonDat, Sorter"
+        Case 1: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (VonDat <= CONVERT(DATETIME, '" & SqlStr(DaSt2) & "', 102)) ORDER BY VonDat, Sorter"
+        Case 2: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (Patient Like '" & SqlStr(SuStr) & "%') ORDER BY VonDat, Sorter"
+        Case 3: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (IDKurz Like '" & SqlStr(SuStr) & "%') ORDER BY VonDat, Sorter"
+        Case 4: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (VonDat = CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (IDP = " & ManNr & ")ORDER BY VonDat, Sorter"
         Case 5: SQL1 = "SELECT * FROM dbo.qryTerWiVor WHERE (Erledigt = 0) ORDER BY VonDat, Sorter"
         End Select
     Else
         Select Case SuTyp
         Case 1: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([VonDat] = #" & DaSt1 & "#) ORDER BY [VonDat], [ZeiVon];"
-        Case 2: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([Patient] Like '" & SuStr & "%') ORDER BY [VonDat], [ZeiVon];"
-        Case 3: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([IDKurz] Like '" & SuStr & "%') ORDER BY [VonDat], [ZeiVon];"
+        Case 2: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([Patient] Like '" & SqlStr(SuStr) & "%') ORDER BY [VonDat], [ZeiVon];"
+        Case 3: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([IDKurz] Like '" & SqlStr(SuStr) & "%') ORDER BY [VonDat], [ZeiVon];"
         Case 4: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([VonDat] = #" & DaSt1 & "#) AND ([IDP] = " & ManNr & ") ORDER BY [VonDat], [ZeiVon];"
         Case 5: SQL1 = "SELECT * FROM qryTerWiVor WHERE ([Erledigt] = 0) ORDER BY [VonDat], [ZeiVon];"
         End Select

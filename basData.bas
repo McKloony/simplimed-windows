@@ -1766,7 +1766,7 @@ If ImTyp = "psx" Then
                         End If
                     End If
                     If .FirstName <> vbNullString Then
-                        If Len(.CompanyName) > 70 Then
+                        If Len(.FirstName) > 70 Then
                             RS121.Fields("Vorname").Value = Left(.FirstName, 69)
                         Else
                             RS121.Fields("Vorname").Value = .FirstName
@@ -3437,36 +3437,36 @@ Case RibTab_Adressen:
         If GlTyp < 2 Then
             DaSt1 = GlSuP.SuDat
             Select Case GlSuP.SuIdx
-            Case 1: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE IDKurz Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 2: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE PLZ Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 3: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Bemerkung Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
+            Case 1: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE IDKurz Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 2: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE PLZ Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 3: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Bemerkung Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
             Case 4: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE ID0 = " & GlSuP.SuNum & " ORDER BY " & SoStr
             Case 6: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE IDP = " & GlSuP.SuMan & " ORDER BY " & SoStr
-            Case 10: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE (Geboren >= CONVERT(DATETIME, '" & DaSt1 & "', 102)) AND (Geboren <= CONVERT(DATETIME, '" & DaSt1 & "', 102)) ORDER BY " & SoStr
-            Case 12: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Versicherung Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 13: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon1 Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 14: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon2 Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 15: SQL1 = "SELECT * FROM dbo.qrySimAdDiS1 WHERE Diagnose Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 16: SQL1 = "SELECT * FROM dbo.qrySimAdDiS2 WHERE Diagnose Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 17: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon4 Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
-            Case 18: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon5 Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr
+            Case 10: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE (Geboren >= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) AND (Geboren <= CONVERT(DATETIME, '" & SqlStr(DaSt1) & "', 102)) ORDER BY " & SoStr
+            Case 12: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Versicherung Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 13: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon1 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 14: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon2 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 15: SQL1 = "SELECT * FROM dbo.qrySimAdDiS1 WHERE Diagnose Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 16: SQL1 = "SELECT * FROM dbo.qrySimAdDiS2 WHERE Diagnose Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 17: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon4 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
+            Case 18: SQL1 = "SELECT * FROM dbo.qrySimAdSu WHERE Telefon5 Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr
             End Select
         Else
             DaSt1 = DatePart("m", GlSuP.SuDat) & "/" & DatePart("d", GlSuP.SuDat) & "/" & DatePart("yyyy", GlSuP.SuDat)
             Select Case GlSuP.SuIdx
-            Case 1: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDKurz] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 2: SQL1 = "SELECT * FROM qrySimAdSu WHERE [PLZ] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 3: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Bemerkung] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
+            Case 1: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDKurz] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 2: SQL1 = "SELECT * FROM qrySimAdSu WHERE [PLZ] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 3: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Bemerkung] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
             Case 4: SQL1 = "SELECT * FROM qrySimAdSu WHERE [ID0] = " & GlSuP.SuNum & " ORDER BY " & SoStr & ";"
             Case 6: SQL1 = "SELECT * FROM qrySimAdSu WHERE [IDP] = " & GlSuP.SuMan & " ORDER BY " & SoStr & ";"
             Case 10: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Geboren] = #" & DaSt1 & "# ORDER BY " & SoStr & ";"
-            Case 12: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Versicherung] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 13: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon1] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 14: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon2] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 15: SQL1 = "SELECT * FROM qrySimAdDiS1 WHERE [Diagnose] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 16: SQL1 = "SELECT * FROM qrySimAdDiS2 WHERE [Diagnose] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 17: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon4] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
-            Case 18: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon5] Like '%" & GlSuP.SuStr & "%' ORDER BY " & SoStr & ";"
+            Case 12: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Versicherung] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 13: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon1] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 14: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon2] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 15: SQL1 = "SELECT * FROM qrySimAdDiS1 WHERE [Diagnose] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 16: SQL1 = "SELECT * FROM qrySimAdDiS2 WHERE [Diagnose] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 17: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon4] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
+            Case 18: SQL1 = "SELECT * FROM qrySimAdSu WHERE [Telefon5] Like '%" & SqlStr(GlSuP.SuStr) & "%' ORDER BY " & SoStr & ";"
             End Select
         End If
         Set RS147 = DBCmRe0(SQL1, True)
@@ -3475,27 +3475,27 @@ Case RibTab_Mandanten:
     Select Case GlSuP.SuIdx
     Case 1:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE IDKurz Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE IDKurz Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdVip WHERE [IDKurz] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdVip WHERE [IDKurz] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 2:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE PLZ Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE PLZ Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdVip WHERE [PLZ] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdVip WHERE [PLZ] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 7:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE IDKurz Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdVip WHERE IDKurz Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdVip WHERE [IDKurz] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdVip WHERE [IDKurz] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 11:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdr WHERE GuiID Like '" & GlSuP.GuiID & "' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdr WHERE GuiID Like '" & SqlStr(GlSuP.GuiID) & "' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdr WHERE [GuiID] Like '" & GlSuP.GuiID & "' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdr WHERE [GuiID] Like '" & SqlStr(GlSuP.GuiID) & "' ORDER BY [IDKurz];"
             End If
     End Select
     Set RS147 = DBCmRe0(SQL1, True)
@@ -3503,27 +3503,27 @@ Case RibTab_Verordner:
     Select Case GlSuP.SuIdx
     Case 1:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE IDKurz Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE IDKurz Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdArzt WHERE [IDKurz] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdArzt WHERE [IDKurz] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 2:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE PLZ Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE PLZ Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdArzt WHERE [PLZ] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdArzt WHERE [PLZ] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 7:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE IDKurz Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdArzt WHERE IDKurz Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdArzt WHERE [IDKurz] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdArzt WHERE [IDKurz] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 11:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdr WHERE GuiID Like '" & GlSuP.GuiID & "' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdr WHERE GuiID Like '" & SqlStr(GlSuP.GuiID) & "' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdr WHERE [GuiID] Like '" & GlSuP.GuiID & "' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdr WHERE [GuiID] Like '" & SqlStr(GlSuP.GuiID) & "' ORDER BY [IDKurz];"
             End If
     End Select
     Set RS147 = DBCmRe0(SQL1, True)
@@ -3531,27 +3531,27 @@ Case RibTab_Mitarbeit:
     Select Case GlSuP.SuIdx
     Case 1:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE IDKurz Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE IDKurz Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdMita WHERE [IDKurz] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdMita WHERE [IDKurz] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 2:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE PLZ Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE PLZ Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdMita WHERE [PLZ] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdMita WHERE [PLZ] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 7:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE IDKurz Like '" & GlSuP.SuStr & "%' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdMita WHERE IDKurz Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdMita WHERE [IDKurz] Like '" & GlSuP.SuStr & "%' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdMita WHERE [IDKurz] Like '" & SqlStr(GlSuP.SuStr) & "%' ORDER BY [IDKurz];"
             End If
     Case 11:
             If GlTyp < 2 Then
-                SQL1 = "SELECT * FROM dbo.qrySimAdr WHERE GuiID Like '" & GlSuP.GuiID & "' ORDER BY IDKurz"
+                SQL1 = "SELECT * FROM dbo.qrySimAdr WHERE GuiID Like '" & SqlStr(GlSuP.GuiID) & "' ORDER BY IDKurz"
             Else
-                SQL1 = "SELECT * FROM qrySimAdr WHERE [GuiID] Like '" & GlSuP.GuiID & "' ORDER BY [IDKurz];"
+                SQL1 = "SELECT * FROM qrySimAdr WHERE [GuiID] Like '" & SqlStr(GlSuP.GuiID) & "' ORDER BY [IDKurz];"
             End If
     End Select
     Set RS147 = DBCmRe0(SQL1, True)
@@ -12043,9 +12043,9 @@ End If
 If ManNr > 0 Then
     If GlTyp < 2 Then
         If IdBnk > 0 Then
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1a.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1a.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1a WHERE (Datum >= CONVERT(DATETIME, '" & Datu1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & Datu2 & "', 102)) AND (IDT = " & ManNr & ") AND (IDB = " & IdBnk & ")"
+            SQL1 = "SELECT Sum(dbo.qryPrBuJo1a.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1a.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1a WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102)) AND (IDT = " & ManNr & ") AND (IDB = " & IdBnk & ")"
         Else
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1a.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1a.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1a WHERE (Datum >= CONVERT(DATETIME, '" & Datu1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & Datu2 & "', 102)) AND (IDT = " & ManNr & ")"
+            SQL1 = "SELECT Sum(dbo.qryPrBuJo1a.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1a.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1a WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102)) AND (IDT = " & ManNr & ")"
         End If
     Else
         If IdBnk > 0 Then
@@ -12057,9 +12057,9 @@ If ManNr > 0 Then
 Else
     If GlTyp < 2 Then
         If IdBnk > 0 Then
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1 WHERE (Datum >= CONVERT(DATETIME, '" & Datu1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & Datu2 & "', 102)) AND (IDB = " & IdBnk & ")"
+            SQL1 = "SELECT Sum(dbo.qryPrBuJo1.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1 WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102)) AND (IDB = " & IdBnk & ")"
         Else
-            SQL1 = "SELECT Sum(dbo.qryPrBuJo1.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1 WHERE (Datum >= CONVERT(DATETIME, '" & Datu1 & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & Datu2 & "', 102))"
+            SQL1 = "SELECT Sum(dbo.qryPrBuJo1.Einnahme) AS Einnahme, Sum(dbo.qryPrBuJo1.Ausgabe) AS Ausgabe From dbo.qryPrBuJo1 WHERE (Datum >= CONVERT(DATETIME, '" & SqlStr(Datu1) & "', 102)) AND (Datum <= CONVERT(DATETIME, '" & SqlStr(Datu2) & "', 102))"
         End If
     Else
         If IdBnk > 0 Then
@@ -17373,13 +17373,13 @@ RS120.CursorLocation = adUseClient
 
 If GlTyp < 2 Then
     Select Case SuFel
-    Case 5: SQL1 = "SELECT * FROM dbo.qrySimReFi WHERE [IDKurz] Like '%" & SuStr & "%'"
-    Case 6: SQL1 = "SELECT * FROM dbo.qrySimReFi WHERE [RechNr] Like '" & SuStr & "%'"
+    Case 5: SQL1 = "SELECT * FROM dbo.qrySimReFi WHERE [IDKurz] Like '%" & SqlStr(SuStr) & "%'"
+    Case 6: SQL1 = "SELECT * FROM dbo.qrySimReFi WHERE [RechNr] Like '" & SqlStr(SuStr) & "%'"
     End Select
 Else
     Select Case SuFel
-    Case 5: SQL1 = "SELECT * FROM qrySimReFi WHERE [IDKurz] Like '%" & SuStr & "%';"
-    Case 6: SQL1 = "SELECT * FROM qrySimReFi WHERE [RechNr] Like '" & SuStr & "%';"
+    Case 5: SQL1 = "SELECT * FROM qrySimReFi WHERE [IDKurz] Like '%" & SqlStr(SuStr) & "%';"
+    Case 6: SQL1 = "SELECT * FROM qrySimReFi WHERE [RechNr] Like '" & SqlStr(SuStr) & "%';"
     End Select
 End If
 
@@ -21735,9 +21735,9 @@ If LiVie.SelCount > 0 Then
     AkTag = Format$(Day(AuDat), "00")
     
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryLabAuSu WHERE IDA Like '" & AkJah & AkMon & AkTag & "%'"
+        SQL1 = "SELECT * FROM dbo.qryLabAuSu WHERE IDA Like '" & SqlStr(AkJah & AkMon & AkTag) & "%'"
     Else
-        SQL1 = "SELECT * FROM qryLabAuSu WHERE [IDA] Like '" & AkJah & AkMon & AkTag & "%';"
+        SQL1 = "SELECT * FROM qryLabAuSu WHERE [IDA] Like '" & SqlStr(AkJah & AkMon & AkTag) & "%';"
     End If
 
     Set RS120 = New ADODB.Recordset
@@ -24671,7 +24671,7 @@ If Frage = 6 Then
             DBCmEx2 "qryLabDo5", "@Labor", "@IdStr", LaStr, AuStr
         End If
         
-        SQL1 = "SELECT * FROM qryLabBeNe WHERE [Auftrag] ='" & AuStr & "';"
+        SQL1 = "SELECT * FROM qryLabBeNe WHERE [Auftrag] ='" & SqlStr(AuStr) & "';"
         Set RS112 = New ADODB.Recordset 'jeweiliger Laborbericht
         With RS112
             .CursorLocation = adUseClient
@@ -34871,9 +34871,9 @@ Krit1 = SDaFi1(2) 'Es werden alle Typen mit <> ausgeschlossen, die im TreeView n
 
 If SuStr <> vbNullString Then
     If GlTyp < 2 Then
-        Krit2 = "((Bezeichnung Like '%" & SuStr & "%'))"
+        Krit2 = "((Bezeichnung Like '%" & SqlStr(SuStr) & "%'))"
     Else
-        Krit2 = "(([Bezeichnung] Like '%" & SuStr & "%'))"
+        Krit2 = "(([Bezeichnung] Like '%" & SqlStr(SuStr) & "%'))"
     End If
 Else
     Krit2 = SDaFi2(2)

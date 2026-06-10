@@ -893,9 +893,9 @@ Set FM = frmStatus
 
 If GuiSt <> vbNullString Then
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE GuiID Like '" & GuiSt & "'"
+        SQL1 = "SELECT * FROM dbo.qryAdress WHERE GuiID Like '" & SqlStr(GuiSt) & "'"
     Else
-        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] Like '" & GuiSt & "';"
+        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] Like '" & SqlStr(GuiSt) & "';"
     End If
 ElseIf PatNr > 0 Then
     If GlTyp < 2 Then
@@ -4294,13 +4294,13 @@ Set PrGr3 = FM.prpGrid3
 
 If GlTyp < 2 Then
     If GlAId = -1 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE GuiID = '" & GlAdG & "'"
+        SQL1 = "SELECT * FROM dbo.qryAdress WHERE GuiID = '" & SqlStr(GlAdG) & "'"
     Else
         SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & GlAId
     End If
 Else
     If GlAId = -1 Then
-        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & GlAdG & "';"
+        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "';"
     Else
         SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlAId & ";"
     End If
@@ -7520,9 +7520,9 @@ Else
 End If
 
 If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryAdress WHERE [TreKey] Like '%" & GruSt & "%'"
+    SQL1 = "SELECT * FROM dbo.qryAdress WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%'"
 Else
-    SQL1 = "SELECT * FROM qryAdress WHERE [TreKey] Like '%" & GruSt & "%';"
+    SQL1 = "SELECT * FROM qryAdress WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
 End If
 
 Set RS50 = New ADODB.Recordset
@@ -8027,27 +8027,27 @@ End If
 Select Case GlMKa 'Mailkatalog (1=Posteingang 2=Postaisgang)
 Case 1:
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailInGes WHERE TreKey Like '%" & GruSt & "%'"
+        SQL1 = "SELECT * FROM dbo.qryMailInGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
     Else
-        SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & GruSt & "%';"
+        SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
     End If
 Case 2:
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailOuGes WHERE TreKey Like '%" & GruSt & "%'"
+        SQL1 = "SELECT * FROM dbo.qryMailOuGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
     Else
-        SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & GruSt & "%';"
+        SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
     End If
 Case 3:
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailInGes WHERE TreKey Like '%" & GruSt & "%'"
+        SQL1 = "SELECT * FROM dbo.qryMailInGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
     Else
-        SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & GruSt & "%';"
+        SQL1 = "SELECT * FROM qryMailInGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
     End If
 Case 4:
     If GlTyp < 2 Then
-        SQL1 = "SELECT * FROM dbo.qryMailOuGes WHERE TreKey Like '%" & GruSt & "%'"
+        SQL1 = "SELECT * FROM dbo.qryMailOuGes WHERE TreKey Like '%" & SqlStr(GruSt) & "%'"
     Else
-        SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & GruSt & "%';"
+        SQL1 = "SELECT * FROM qryMailOuGes WHERE [TreKey] Like '%" & SqlStr(GruSt) & "%';"
     End If
 End Select
 
@@ -8903,9 +8903,9 @@ Set TxZeV = FS.txtVonZe
 Set TxZeB = FS.txtBisZe
 
 If GlTyp < 2 Then
-    SQL1 = "SELECT * FROM dbo.qryKonSav WHERE [ID2] = '" & GlKoG & "'"
+    SQL1 = "SELECT * FROM dbo.qryKonSav WHERE [ID2] = '" & SqlStr(GlKoG) & "'"
 Else
-    SQL1 = "SELECT * FROM qryKonSav WHERE [ID2] = '" & GlKoG & "';"
+    SQL1 = "SELECT * FROM qryKonSav WHERE [ID2] = '" & SqlStr(GlKoG) & "';"
 End If
 
 If IsDate(TxDa1.Text) Then
@@ -9969,13 +9969,13 @@ TmGui = CreateID("M")
 
 If GlTyp < 2 Then
     If GlMId < 0 Then
-        SQL1 = "SELECT * FROM dbo.qryAdress WHERE [GuiID] = '" & GlAdG
+        SQL1 = "SELECT * FROM dbo.qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "'"
     Else
         SQL1 = "SELECT * FROM dbo.qryAdress WHERE ID0 = " & GlMId
     End If
 Else
     If GlMId < 0 Then
-        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & GlAdG & "';"
+        SQL1 = "SELECT * FROM qryAdress WHERE [GuiID] = '" & SqlStr(GlAdG) & "';"
     Else
         SQL1 = "SELECT * FROM qryAdress WHERE [ID0] = " & GlMId & ";"
     End If
@@ -10497,13 +10497,13 @@ Set RpSel = RpCon.SelectedRows
 
 If GlTyp < 2 Then
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SuStr & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SuStr & "%'"
+    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
+    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
     End Select
 Else
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SuStr & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SuStr & "%';"
+    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%';"
+    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%';"
     End Select
 End If
 
@@ -10564,13 +10564,13 @@ Set RpRcs = RpCon.Records
 
 If GlTyp < 2 Then
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SuStr & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SuStr & "%'"
+    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
+    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
     End Select
 Else
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SuStr & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SuStr & "%';"
+    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%';"
+    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%';"
     End Select
 End If
 
@@ -10652,13 +10652,13 @@ End With
 
 If GlTyp < 2 Then
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SuStr & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SuStr & "%'"
+    Case 1: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%'"
+    Case 2: SQL1 = "SELECT * FROM dbo.qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%'"
     End Select
 Else
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SuStr & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SuStr & "%';"
+    Case 1: SQL1 = "SELECT * FROM qryBLZ WHERE [BLZ] Like '" & SqlStr(SuStr) & "%';"
+    Case 2: SQL1 = "SELECT * FROM qryBLZ WHERE [Bank] Like '" & SqlStr(SuStr) & "%';"
     End Select
 End If
 
@@ -12091,13 +12091,13 @@ Set RpSel = RpCon.SelectedRows
 
 If GlTyp < 2 Then
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM dbo.qryPLZ WHERE [PLZ] Like '" & SuStr & "%'"
-    Case 2: SQL1 = "SELECT * FROM dbo.qryPLZ WHERE ([POrt] Like '" & SuStr & "%') OR ([HOrt] Like '" & SuStr & "%')"
+    Case 1: SQL1 = "SELECT * FROM dbo.qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%'"
+    Case 2: SQL1 = "SELECT * FROM dbo.qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')"
     End Select
 Else
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SuStr & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SuStr & "%') OR ([HOrt] Like '" & SuStr & "%');"
+    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%';"
+    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
     End Select
 End If
 
@@ -12160,23 +12160,23 @@ Set RpRcs = RpCon.Records
 Select Case GlTyp
 Case 0:
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SuStr & "%')"
-    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SuStr & "%') OR (HOrt LIKE N'" & SuStr & "%')"
+    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "%')"
+    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')"
     End Select
 Case 1:
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SuStr & "%')"
-    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SuStr & "%') OR (HOrt LIKE N'" & SuStr & "%')"
+    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "%')"
+    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')"
     End Select
 Case 2:
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SuStr & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SuStr & "%') OR ([HOrt] Like '" & SuStr & "%');"
+    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%';"
+    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
     End Select
 Case 3:
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SuStr & "%';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SuStr & "%') OR ([HOrt] Like '" & SuStr & "%');"
+    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "%';"
+    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
     End Select
 End Select
 
@@ -12271,17 +12271,17 @@ End Select
 
 If GlTyp < 2 Then
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SuStr & "' AND Land LIKE N'" & LaStr & "')"
-            SQL2 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SuStr & "')"
-    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE ((POrt LIKE N'" & SuStr & "%') OR (HOrt LIKE N'" & SuStr & "%')) AND (Land LIKE N'" & LaStr & "%')"
-            SQL2 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SuStr & "%') OR (HOrt LIKE N'" & SuStr & "%')"
+    Case 1: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "' AND Land LIKE N'" & SqlStr(LaStr) & "')"
+            SQL2 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (PLZ LIKE N'" & SqlStr(SuStr) & "')"
+    Case 2: SQL1 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE ((POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')) AND (Land LIKE N'" & SqlStr(LaStr) & "%')"
+            SQL2 = "SELECT dbo.qryPLZ.* FROM dbo.qryPLZ WHERE (POrt LIKE N'" & SqlStr(SuStr) & "%') OR (HOrt LIKE N'" & SqlStr(SuStr) & "%')"
     End Select
 Else
     Select Case SuTyp
-    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SuStr & "' AND [Land] Like '" & LaStr & "';"
-            SQL2 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SuStr & "';"
-    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE (([POrt] Like '" & SuStr & "%') OR ([HOrt] Like '" & SuStr & "%')) AND ([Land] Like '" & LaStr & "');"
-            SQL2 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SuStr & "%') OR ([HOrt] Like '" & SuStr & "%');"
+    Case 1: SQL1 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "' AND [Land] Like '" & SqlStr(LaStr) & "';"
+            SQL2 = "SELECT * FROM qryPLZ WHERE [PLZ] Like '" & SqlStr(SuStr) & "';"
+    Case 2: SQL1 = "SELECT * FROM qryPLZ WHERE (([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%')) AND ([Land] Like '" & SqlStr(LaStr) & "');"
+            SQL2 = "SELECT * FROM qryPLZ WHERE ([POrt] Like '" & SqlStr(SuStr) & "%') OR ([HOrt] Like '" & SqlStr(SuStr) & "%');"
     End Select
 End If
 
@@ -30757,44 +30757,44 @@ ElseIf TreKy = "K" Or TreKy = "L" Then 'Begründungen / Anamnesetexte
 ElseIf TreKy = "D" Then 'Gebührenketten
     Select Case FilTy
     Case 0: Set RS68 = DBCmRe1("qryKat01H", "@IdxNr", IdxNr)
-    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SuStr & "%'", True)
-    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SuStr & "%'", True)
+    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(SuStr) & "%'", True)
+    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(SuStr) & "%'", True)
     Case 3: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & SuPar & SuStr, True)
-    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SuStr & "%'", True)
+    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat01B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(SuStr) & "%'", True)
     Case 5: Set RS68 = DBCmRe1("qryKat01I", "@IdxNr", IdxNr)
     End Select
 ElseIf TreKy = "F" Then  'Diagnoseketten
     Select Case FilTy
     Case 0: Set RS68 = DBCmRe1("qryKat03H", "@IdxNr", IdxNr)
-    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SuStr & "%'", True)
-    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SuStr & "%'", True)
+    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(SuStr) & "%'", True)
+    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(SuStr) & "%'", True)
     Case 3: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & SuPar & SuStr, True)
-    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SuStr & "%'", True)
+    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat03B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(SuStr) & "%'", True)
     Case 5: Set RS68 = DBCmRe1("qryKat03I", "@IdxNr", IdxNr)
     End Select
 ElseIf TreKy = "J" Then  'Arzneiketten
     Select Case FilTy
     Case 0: Set RS68 = DBCmRe1("qryKat04H", "@IdxNr", IdxNr)
-    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SuStr & "%'", True)
-    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SuStr & "%'", True)
+    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(SuStr) & "%'", True)
+    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(SuStr) & "%'", True)
     Case 3: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & SuPar & SuStr, True)
-    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SuStr & "%'", True)
+    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat04B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(SuStr) & "%'", True)
     Case 5: Set RS68 = DBCmRe1("qryKat04I", "@IdxNr", IdxNr)
     End Select
 ElseIf TreKy = "H" Then  'Laborketten
     Select Case FilTy
     Case 0: Set RS68 = DBCmRe1("qryKat02H", "@IdxNr", IdxNr)
-    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SuStr & "%'", True)
-    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SuStr & "%'", True)
+    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(SuStr) & "%'", True)
+    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(SuStr) & "%'", True)
     Case 3: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & SuPar & SuStr, True)
-    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SuStr & "%'", True)
+    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat02B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(SuStr) & "%'", True)
     Case 5: Set RS68 = DBCmRe1("qryKat02I", "@IdxNr", IdxNr)
     End Select
 ElseIf TreKy = "M" Then  'Diagnosegruppen
     Select Case FilTy
     Case 0: Set RS68 = DBCmRe0("qryKat05B", False, True)
-    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat05B WHERE [IDKurz] Like '%" & SuStr & "%'", True)
-    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat05B WHERE [IDKurz] Like '" & SuStr & "%'", True)
+    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat05B WHERE [IDKurz] Like '%" & SqlStr(SuStr) & "%'", True)
+    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat05B WHERE [IDKurz] Like '" & SqlStr(SuStr) & "%'", True)
     End Select
 ElseIf TreKy = "P" Then  'Artikelliste
     Select Case FilTy
@@ -30808,10 +30808,10 @@ ElseIf TreKy = "P" Then  'Artikelliste
 ElseIf TreKy = "Q" Then  'Artikelketten
     Select Case FilTy
     Case 0: Set RS68 = DBCmRe1("qryKat12H", "@IdxNr", IdxNr)
-    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SuStr & "%'", True)
-    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SuStr & "%'", True)
+    Case 1: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '%" & SqlStr(SuStr) & "%'", True)
+    Case 2: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [GOID] Like '" & SqlStr(SuStr) & "%'", True)
     Case 3: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [Preis1]" & SuPar & SuStr, True)
-    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SuStr & "%'", True)
+    Case 4: Set RS68 = DBCmRe0("SELECT * FROM qryKat12B WHERE [ID3]=" & IdxNr & " AND [IDKurz] Like '" & SqlStr(SuStr) & "%'", True)
     Case 5: Set RS68 = DBCmRe1("qryKat04I", "@IdxNr", IdxNr)
     End Select
 End If

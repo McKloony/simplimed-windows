@@ -71,7 +71,7 @@ Public Property Let DaSQL(Flag As String)
 End Property
 
 Public Property Get DaSQL() As String
-    DaPas = mPaSQ
+    DaSQL = mPaSQ
 End Property
 Private Sub Class_Initialize()
     Set CN100 = New ADODB.Connection

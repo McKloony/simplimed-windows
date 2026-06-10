@@ -13438,15 +13438,15 @@ Dim SQL1 As String
 
 If GlTyp < 2 Then
     If InStr(1, Krit1, "105", 1) > 0 Then
-        Krit3 = "((Bezeichnung) Like '%" & SuStr & "%')"
+        Krit3 = "((Bezeichnung) Like '%" & SqlStr(SuStr) & "%')"
     Else
-        Krit3 = "((Kommentar) Like '%" & SuStr & "%')"
+        Krit3 = "((Kommentar) Like '%" & SqlStr(SuStr) & "%')"
     End If
 Else
     If InStr(1, Krit1, "105", 1) > 0 Then
-        Krit3 = "(([Bezeichnung]) Like '%" & SuStr & "%')"
+        Krit3 = "(([Bezeichnung]) Like '%" & SqlStr(SuStr) & "%')"
     Else
-        Krit3 = "(([Kommentar]) Like '%" & SuStr & "%')"
+        Krit3 = "(([Kommentar]) Like '%" & SqlStr(SuStr) & "%')"
     End If
 End If
 

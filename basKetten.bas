@@ -1125,11 +1125,11 @@ Set CmSta = CmBrs.StatusBar
 
 TreKy = Left$(GlNod, 1)
 
-If KetNa <> vbNullString Then
+If KetKu <> vbNullString Then
     Set CmEdt = CmBrs.FindControl(CmEdt, KA_KeKur, , True)
     CmEdt.Text = KetKu
 End If
-If KetKu <> vbNullString Then
+If KetNa <> vbNullString Then
     Set CmEdt = CmBrs.FindControl(CmEdt, KA_KeNam, , True)
     CmEdt.Text = KetNa
 End If

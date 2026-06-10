@@ -13900,6 +13900,7 @@ TimEnde 4
 TimEnde 5
 TimEnde 6
 TimEnde 7
+TimEnde 8
 DoEvents
 
 WindowEnSu Me.hwnd
@@ -13907,8 +13908,6 @@ DoEvents
 
 WindowClose
 DoEvents
-
-Unload frmMain
 
 End Sub
 

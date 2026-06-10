@@ -1135,7 +1135,7 @@ End If
 PaNum = Format$(PatNr, "000000")
 
 If GlCID <> vbNullString Then 'Cloud-ID
-    DaStr = Format(DateAdd("d", Now(), GlVrw), "yyyy-mm-dd")
+    DaStr = Format(DateAdd("d", GlVrw, Now()), "yyyy-mm-dd")
     PrNam = Chr$(34) & PrNam & Chr$(34)
     IniNa = CreateID("U") & ".ini"
     DaIni = GlTmp & IniNa
@@ -10394,3 +10394,8 @@ Resume Next
 End Sub
 
 
+Public Function SqlStr(ByVal SuStr As Variant) As String
+'Verdoppelt Apostrophe fuer SQL-Stringliterale (T-SQL und Jet/Access); Null ergibt Leerstring
+If IsNull(SuStr) Then Exit Function
+SqlStr = Replace(SuStr, Chr$(39), Chr$(39) & Chr$(39))
+End Function

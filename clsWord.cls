@@ -783,13 +783,10 @@ RaiseEvent WorEnd(False)
 PfNam = FWoFin
 If PfNam <> vbNullString Then
     Select Case Flag
-    Case 1: SheWe = ShellExecute(mHwnd, "open", PfNam & Chr$(32) & mFiNam & vbNullString, vbNullString, vbNullString, SW_NORMAL)
-    Case 2: SheWe = ShellExecute(mHwnd, "open", PfNam & Chr$(32) & mFiNam & vbNullString, vbNullString, vbNullString, SW_MAXIMIZE)
-    Case 3: SheWe = ShellExecute(mHwnd, "open", PfNam & Chr$(32) & mFiNam & vbNullString, vbNullString, vbNullString, SW_MINIMIZE)
+    Case 1: WindowStart Chr$(34) & PfNam & Chr$(34) & Chr$(32) & Chr$(34) & mFiNam & Chr$(34), SW_NORMAL, True, False
+    Case 2: WindowStart Chr$(34) & PfNam & Chr$(34) & Chr$(32) & Chr$(34) & mFiNam & Chr$(34), SW_MAXIMIZE, True, False
+    Case 3: WindowStart Chr$(34) & PfNam & Chr$(34) & Chr$(32) & Chr$(34) & mFiNam & Chr$(34), SW_MINIMIZE, True, False
     End Select
-    FeHan = OpenProcess(SYNCHRONIZE, False, RetWe)
-    WaitForSingleObject FeHan, INFINITE
-    CloseHandle FeHan
 End If
 
 RaiseEvent WorEnd(True)
