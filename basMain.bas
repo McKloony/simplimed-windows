@@ -13359,29 +13359,16 @@ Case RibTab_Krankenbla:
         End If
     End If
 Case RibTab_Abrechnung:
-        If GlTyp < 2 Then
-            Select Case GlSoA 'Sortierung Abrechnung
-            Case 1: Select Case GlSoZ 'Eingabesortierung
-                    Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbLei4 WHERE IDR = " & IdxNr & " ORDER BY Sorter DESC, ID3 DESC" 'Sorter absteigend
-                    Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbLei2 WHERE IDR = " & IdxNr & " ORDER BY Sorter DESC, ID3" 'Sorter absteigend
-                    End Select
-            Case 2: Select Case GlSoZ
-                    Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbLei3 WHERE IDR = " & IdxNr & " ORDER BY Sorter, ID3 DESC" 'Sorter aufsteigend
-                    Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbLei1 WHERE IDR = " & IdxNr & " ORDER BY Sorter, ID3" 'Sorter aufsteigend
-                    End Select
-            End Select
-        Else
-            Select Case GlSoA 'Sortierung Abrechnung
-            Case 1: Select Case GlSoZ 'Eingabesortierung
-                    Case 3: SQL1 = "SELECT * FROM qrySimAbLei4 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3] DESC;"  'Sorter absteigend
-                    Case 4: SQL1 = "SELECT * FROM qrySimAbLei2 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3];" 'Sorter absteigend
-                    End Select
-            Case 2: Select Case GlSoZ
-                    Case 3: SQL1 = "SELECT * FROM qrySimAbLei3 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3] DESC;" 'Sorter aufsteigend
-                    Case 4: SQL1 = "SELECT * FROM qrySimAbLei1 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3];" 'Sorter aufsteigend
-                    End Select
-            End Select
-        End If
+        Select Case GlSoA 'Sortierung Abrechnung
+        Case 1: Select Case GlSoZ 'Eingabesortierung
+                Case 3: SQL1 = "SELECT * FROM qrySimAbLei4 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3] DESC;"  'Sorter absteigend
+                Case 4: SQL1 = "SELECT * FROM qrySimAbLei2 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter] DESC, [ID3];" 'Sorter absteigend
+                End Select
+        Case 2: Select Case GlSoZ
+                Case 3: SQL1 = "SELECT * FROM qrySimAbLei3 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3] DESC;" 'Sorter aufsteigend
+                Case 4: SQL1 = "SELECT * FROM qrySimAbLei1 WHERE [IDR] = " & IdxNr & " ORDER BY [Sorter], [ID3];" 'Sorter aufsteigend
+                End Select
+        End Select
 Case Else:
     If GlTyp < 2 Then
         Select Case GlSoK
@@ -13511,65 +13498,34 @@ If SuStr <> vbNullString Then
         End Select
     End If
 Else
-    If GlTyp < 2 Then
-        Select Case GlSoK 'Sortierung Krankenblatt
-        Case 2: 'Datum Absteigend
-            If GlKrS = False Then 'Konstante Krankenblattsortierung
-                Select Case GlUm2 'Krankenblatttypen
-                Case 1: SQL1 = "SELECT * FROM dbo.qrySimAbKra14 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " ORDER BY Datum DESC, Druckdatum DESC, ID2"
-                Case 2: SQL1 = "SELECT * FROM dbo.qrySimAbKra12 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ <> 104) AND (Typ <> 800) ORDER BY Datum DESC, Druckdatum DESC, ID2"
-                Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbKra12 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ <> 104) AND (Typ <> 106) AND (Typ <> 108) AND (Typ <> 800) ORDER BY Datum DESC, Druckdatum DESC, ID2"
-                Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbKra12 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ = 104) AND (Typ <> 800) ORDER BY Datum DESC, Druckdatum DESC, ID2"
-                Case Else: SQL1 = "SELECT * FROM dbo.qrySimAbKra14 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY Datum DESC, Druckdatum DESC, ID2"
-                End Select
-            Else
-                Select Case GlUm2 'Krankenblatttypen
-                Case 1: SQL1 = "SELECT * FROM dbo.qrySimAbKra14 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " ORDER BY Datum DESC, Druckdatum, ID2"
-                Case 2: SQL1 = "SELECT * FROM dbo.qrySimAbKra12 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ <> 104) AND (Typ <> 800) ORDER BY Datum DESC, Druckdatum, ID2"
-                Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbKra12 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ <> 104) AND (Typ <> 106) AND (Typ <> 108) AND (Typ <> 800) ORDER BY Datum DESC, Druckdatum, ID2"
-                Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbKra12 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ = 104) AND (Typ <> 800) ORDER BY Datum DESC, Druckdatum, ID2"
-                Case Else: SQL1 = "SELECT * FROM dbo.qrySimAbKra14 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY Datum DESC, Druckdatum, ID2"
-                End Select
-            End If
-        Case 1: 'Datum Aufsteigend
-            Select Case GlUm2
-            Case 1: SQL1 = "SELECT * FROM dbo.qrySimAbKra13 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " ORDER BY Datum, Druckdatum, ID2"
-            Case 2: SQL1 = "SELECT * FROM dbo.qrySimAbKra11 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ <> 104) AND (Typ <> 800) ORDER BY Datum, Druckdatum, ID2"
-            Case 3: SQL1 = "SELECT * FROM dbo.qrySimAbKra11 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ <> 104) AND (Typ <> 106) AND (Typ <> 108) AND (Typ <> 800) ORDER BY Datum, Druckdatum, ID2"
-            Case 4: SQL1 = "SELECT * FROM dbo.qrySimAbKra11 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit2 & " AND (Typ = 104) AND (Typ <> 800) ORDER BY Datum, Druckdatum, ID2"
-            Case Else: SQL1 = "SELECT * FROM dbo.qrySimAbKra13 WHERE ((ID0 = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY Datum, Druckdatum, ID2"
+    Select Case GlSoK 'Sortierung Krankenblatt
+    Case 2: 'Datum Absteigend
+        If GlKrS = False Then 'Konstante Krankenblattsortierung
+            Select Case GlUm2 'Krankenblatttypen
+            Case 1: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2]"
+            Case 2: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2]"
+            Case 3: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 106) AND ([Typ] <> 108) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2]"
+            Case 4: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2]"
+            Case Else: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2]"
             End Select
-        End Select
-    Else
-        Select Case GlSoK 'Sortierung Krankenblatt
-        Case 2: 'Datum Absteigend
-            If GlKrS = False Then 'Konstante Krankenblattsortierung
-                Select Case GlUm2 'Krankenblatttypen
-                Case 1: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2];"
-                Case 2: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2];"
-                Case 3: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 106) AND ([Typ] <> 108) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2];"
-                Case 4: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2];"
-                Case Else: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum] DESC, [ID2];"
-                End Select
-            Else
-                Select Case GlUm2 'Krankenblatttypen
-                Case 1: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum], [ID2];"
-                Case 2: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum], [ID2];"
-                Case 3: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 106) AND ([Typ] <> 108) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum], [ID2];"
-                Case 4: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum], [ID2];"
-                Case Else: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum], [ID2];"
-                End Select
-            End If
-        Case 1: 'Datum Aufsteigend
-            Select Case GlUm2
-            Case 1: SQL1 = "SELECT * FROM qrySimAbKra13 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " ORDER BY [Datum], [Druckdatum], [ID2];"
-            Case 2: SQL1 = "SELECT * FROM qrySimAbKra11 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY [Datum], [Druckdatum], [ID2];"
-            Case 3: SQL1 = "SELECT * FROM qrySimAbKra11 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 106) AND ([Typ] <> 108) AND ([Typ] <> 800) ORDER BY [Datum], [Druckdatum], [ID2];"
-            Case 4: SQL1 = "SELECT * FROM qrySimAbKra11 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY [Datum], [Druckdatum], [ID2];"
-            Case Else: SQL1 = "SELECT * FROM qrySimAbKra13 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY [Datum], [Druckdatum], [ID2];"
+        Else
+            Select Case GlUm2 'Krankenblatttypen
+            Case 1: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum], [ID2]"
+            Case 2: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum], [ID2]"
+            Case 3: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 106) AND ([Typ] <> 108) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum], [ID2]"
+            Case 4: SQL1 = "SELECT * FROM qrySimAbKra12 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY [Datum] DESC, [Druckdatum], [ID2]"
+            Case Else: SQL1 = "SELECT * FROM qrySimAbKra14 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY [Datum] DESC, [Druckdatum], [ID2]"
             End Select
+        End If
+    Case 1: 'Datum Aufsteigend
+        Select Case GlUm2
+        Case 1: SQL1 = "SELECT * FROM qrySimAbKra13 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " ORDER BY [Datum], [Druckdatum], [ID2]"
+        Case 2: SQL1 = "SELECT * FROM qrySimAbKra11 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 800) ORDER BY [Datum], [Druckdatum], [ID2]"
+        Case 3: SQL1 = "SELECT * FROM qrySimAbKra11 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] <> 104) AND ([Typ] <> 106) AND ([Typ] <> 108) AND ([Typ] <> 800) ORDER BY [Datum], [Druckdatum], [ID2]"
+        Case 4: SQL1 = "SELECT * FROM qrySimAbKra11 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit2 & " AND ([Typ] = 104) AND ([Typ] <> 800) ORDER BY [Datum], [Druckdatum], [ID2]"
+        Case Else: SQL1 = "SELECT * FROM qrySimAbKra13 WHERE (([ID0] = " & GlAdr & ")) AND " & Krit1 & " AND " & Krit2 & " ORDER BY [Datum], [Druckdatum], [ID2]"
         End Select
-    End If
+    End Select
 End If
 
 SKrSu = SQL1
@@ -23155,21 +23111,12 @@ If OpMon.Value = True Then
         Krit1 = "(([Jahr]=" & AkJha & ") AND ([Monat]=" & AkMon & "))"
     End If
 ElseIf OpQua.Value = True Then
-    If GlTyp < 2 Then
-        Select Case AkQua
-        Case 1: Krit1 = "(((Monat >= 1) AND (Monat <= 3)) AND (Jahr = " & AkJha & "))"
-        Case 2: Krit1 = "(((Monat >= 4) AND (Monat <= 6)) AND (Jahr = " & AkJha & "))"
-        Case 3: Krit1 = "(((Monat >= 7) AND (Monat <= 9)) AND (Jahr = " & AkJha & "))"
-        Case 4: Krit1 = "(((Monat >= 10) AND (Monat <= 12)) AND (Jahr = " & AkJha & "))"
-        End Select
-    Else
-        Select Case AkQua
-        Case 1: Krit1 = "((([Monat] >= 1) AND ([Monat] <= 3)) AND ([Jahr] = " & AkJha & "))"
-        Case 2: Krit1 = "((([Monat] >= 4) AND ([Monat] <= 6)) AND ([Jahr] = " & AkJha & "))"
-        Case 3: Krit1 = "((([Monat] >= 7) AND ([Monat] <= 9)) AND ([Jahr] = " & AkJha & "))"
-        Case 4: Krit1 = "((([Monat] >= 10) AND ([Monat] <= 12)) AND ([Jahr] = " & AkJha & "))"
-        End Select
-    End If
+    Select Case AkQua
+    Case 1: Krit1 = "((([Monat] >= 1) AND ([Monat] <= 3)) AND ([Jahr] = " & AkJha & "))"
+    Case 2: Krit1 = "((([Monat] >= 4) AND ([Monat] <= 6)) AND ([Jahr] = " & AkJha & "))"
+    Case 3: Krit1 = "((([Monat] >= 7) AND ([Monat] <= 9)) AND ([Jahr] = " & AkJha & "))"
+    Case 4: Krit1 = "((([Monat] >= 10) AND ([Monat] <= 12)) AND ([Jahr] = " & AkJha & "))"
+    End Select
 ElseIf OpJah.Value = True Then
     If GlTyp < 2 Then
         Krit1 = "(Jahr=" & AkJha & ")"
@@ -23199,118 +23146,54 @@ If Krit1 <> vbNullString Then
     Select Case GlDiS 'Statistiktauswahl
     Case 1: 'Umsatz der Rechnungen
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm4a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm4 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrReUm4a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrReUm4a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrReUm4 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrReUm4 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm1a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm1 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrReUm1 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrReUm1 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm1a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm1 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrReUm1 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrReUm1 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpZei.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm2a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrReUm2 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrReUm2a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrReUm2a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrReUm2 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrReUm2 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         End If
     Case 2: 'Umsatz der Leistungen
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm4a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm4 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrLeUm4a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrLeUm4a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrLeUm4 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrLeUm4 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm1a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm1 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrLeUm1a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrLeUm1a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrLeUm1 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrLeUm1 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm1a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm1 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrLeUm1a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrLeUm1a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrLeUm1 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrLeUm1 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpZei.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm2a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrLeUm2 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrLeUm2a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrLeUm2a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrLeUm2 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrLeUm2 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         End If
     Case 3: 'Umsatz der Rechnungstypen
@@ -23321,56 +23204,24 @@ If Krit1 <> vbNullString Then
         
     Case 6: 'Umsatz der Mandanten
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm4a WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm4a WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm4a WHERE " & Krit1
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm1a WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm1a WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm1a WHERE " & Krit1
         ElseIf OpZei.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm2a WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm2a WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm2a WHERE " & Krit1
         End If
         
     Case 7: 'Umsatz der Mitarbeiter
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm4b WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm4b WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm4b WHERE " & Krit1
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm1b WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm1b WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm1b WHERE " & Krit1
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm1b WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm1b WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm1b WHERE " & Krit1
         ElseIf OpZei.Value = True Then
-            If GlTyp < 2 Then
-                SQL4 = "SELECT * FROM dbo.qryPrReUm2b WHERE " & Krit1
-            Else
-                SQL4 = "SELECT * FROM qryPrReUm2b WHERE " & Krit1
-            End If
+            SQL4 = "SELECT * FROM qryPrReUm2b WHERE " & Krit1
         End If
         
     Case 8: 'Anzahl abgere. Termintage
@@ -23381,60 +23232,28 @@ If Krit1 <> vbNullString Then
         
     Case 11: 'Anzahl abgere. Patienten
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa4a WHERE " & Krit1 & " ORDER BY Woche"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa4 WHERE " & Krit1 & " ORDER BY Woche"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrRePa4a WHERE " & Krit1 & " ORDER BY [Woche]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrRePa4a WHERE " & Krit1 & " ORDER BY [Woche];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrRePa4 WHERE " & Krit1 & " ORDER BY [Woche];"
-                End If
+                SQL4 = "SELECT * FROM qryPrRePa4 WHERE " & Krit1 & " ORDER BY [Woche]"
             End If
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa1a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa1 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrRePa1a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrRePa1a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrRePa1 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrRePa1 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa1a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa1 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrRePa1a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrRePa1a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrRePa1 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrRePa1 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         ElseIf OpZei.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa2a WHERE " & Krit1 & " ORDER BY Sort"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrRePa2 WHERE " & Krit1 & " ORDER BY Sort"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrRePa2a WHERE " & Krit1 & " ORDER BY [Sort]"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrRePa2a WHERE " & Krit1 & " ORDER BY [Sort];"
-                Else
-                    SQL4 = "SELECT * FROM qryPrRePa2 WHERE " & Krit1 & " ORDER BY [Sort];"
-                End If
+                SQL4 = "SELECT * FROM qryPrRePa2 WHERE " & Krit1 & " ORDER BY [Sort]"
             End If
         End If
     Case 12: 'Anzahl erzeug. Rechnungen
@@ -23443,90 +23262,42 @@ If Krit1 <> vbNullString Then
     
     Case 14 'Verwendete Katalogdiagnosen
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrSimDia1a WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrSimDia1 WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrSimDia1a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrSimDia1a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                Else
-                    SQL4 = "SELECT * FROM qryPrSimDia1 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                End If
+                SQL4 = "SELECT * FROM qryPrSimDia1 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             End If
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrSimDia3a WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrSimDia3 WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrSimDia3a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrSimDia3a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                Else
-                    SQL4 = "SELECT * FROM qryPrSimDia3 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                End If
+                SQL4 = "SELECT * FROM qryPrSimDia3 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             End If
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrSimDia2a WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrSimDia2 WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrSimDia2a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrSimDia2a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                Else
-                    SQL4 = "SELECT * FROM qryPrSimDia2 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                End If
+                SQL4 = "SELECT * FROM qryPrSimDia2 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             End If
         End If
     Case 15: 'Verwendete Gebührenleistungen
         If OpMon.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrSimGeb1a WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrSimGeb1 WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrSimGeb1a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrSimGeb1a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                Else
-                    SQL4 = "SELECT * FROM qryPrSimGeb1 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                End If
+                SQL4 = "SELECT * FROM qryPrSimGeb1 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             End If
         ElseIf OpQua.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrSimGeb3a WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrSimGeb3 WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrSimGeb3a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrSimGeb3a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                Else
-                    SQL4 = "SELECT * FROM qryPrSimGeb3 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                End If
+                SQL4 = "SELECT * FROM qryPrSimGeb3 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             End If
         ElseIf OpJah.Value = True Then
-            If GlTyp < 2 Then
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM dbo.qryPrSimGeb2a WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                Else
-                    SQL4 = "SELECT * FROM dbo.qryPrSimGeb2 WHERE " & Krit1 & " ORDER BY Anzahl DESC"
-                End If
+            If ManNr > 0 Then
+                SQL4 = "SELECT * FROM qryPrSimGeb2a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             Else
-                If ManNr > 0 Then
-                    SQL4 = "SELECT * FROM qryPrSimGeb2a WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                Else
-                    SQL4 = "SELECT * FROM qryPrSimGeb2 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC;"
-                End If
+                SQL4 = "SELECT * FROM qryPrSimGeb2 WHERE " & Krit1 & " ORDER BY [Anzahl] DESC"
             End If
         End If
         
@@ -37845,41 +37616,22 @@ If AnzPo > 0 Then
                 End If
             Next RpRow
             
-            If GlTyp < 2 Then
-                Select Case LiIdx
-                Case 1: 'Jahr
-                    
-                Case 2: 'Quartal
-                    
-                Case 3: 'Monat
-                        If TypNr = 0 Then
-                            Krit1 = "(Jahr = " & SuJah & ") AND (Monat = " & SuMon & ") AND (Typ > 9)"
-                        Else
-                            Krit1 = "(Jahr = " & SuJah & ") AND (Monat = " & SuMon & ") AND (Typ = " & TypNr & ")"
-                        End If
-                Case 4: 'Woche
-                    
-                Case 5: 'Datum
-                    
-                End Select
-            Else
-                Select Case LiIdx
-                Case 1: 'Jahr
-                    
-                Case 2: 'Quartal
-                    
-                Case 3: 'Monat
-                        If TypNr = 0 Then
-                            Krit1 = "([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] > 9)"
-                        Else
-                            Krit1 = "([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] = " & TypNr & ")"
-                        End If
-                Case 4: 'Woche
-                    
-                Case 5: 'Datum
-                    
-                End Select
-            End If
+            Select Case LiIdx
+            Case 1: 'Jahr
+                
+            Case 2: 'Quartal
+                
+            Case 3: 'Monat
+                    If TypNr = 0 Then
+                        Krit1 = "([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] > 9)"
+                    Else
+                        Krit1 = "([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] = " & TypNr & ")"
+                    End If
+            Case 4: 'Woche
+                
+            Case 5: 'Datum
+                
+            End Select
             
             If Formu = True Then
                 If EmlSe = True Then
@@ -37943,18 +37695,10 @@ If AnzPo > 0 Then
                 ReDim Preserve GloDr(1)
                 GloDr(1) = PatNr
                                 
-                If GlTyp < 2 Then
-                    If TypNr = 0 Then
-                        SQL1 = "SELECT * FROM dbo.qryPrSimKr5 WHERE ((PatNr = " & PatNr & ") AND (Jahr = " & SuJah & ") AND (Monat = " & SuMon & ") AND (Typ > 9)) ORDER BY Datum"
-                    Else
-                        SQL1 = "SELECT * FROM dbo.qryPrSimKr5 WHERE ((PatNr = " & PatNr & ") AND (Typ = " & TypNr & ") AND (Jahr = " & SuJah & ") AND (Monat = " & SuMon & ") AND (Typ > 9)) ORDER BY Datum"
-                    End If
+                If TypNr = 0 Then
+                    SQL1 = "SELECT * FROM qryPrSimKr5 WHERE (([PatNr] = " & PatNr & ") AND ([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] > 9)) ORDER BY Datum"
                 Else
-                    If TypNr = 0 Then
-                        SQL1 = "SELECT * FROM qryPrSimKr5 WHERE (([PatNr] = " & PatNr & ") AND ([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] > 9)) ORDER BY Datum"
-                    Else
-                        SQL1 = "SELECT * FROM qryPrSimKr5 WHERE (([PatNr] = " & PatNr & ") AND ([Typ] = " & TypNr & ") AND ([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] > 9)) ORDER BY [Datum];"
-                    End If
+                    SQL1 = "SELECT * FROM qryPrSimKr5 WHERE (([PatNr] = " & PatNr & ") AND ([Typ] = " & TypNr & ") AND ([Jahr] = " & SuJah & ") AND ([Monat] = " & SuMon & ") AND ([Typ] > 9)) ORDER BY [Datum]"
                 End If
                 
                 If EmlSe = True Then
