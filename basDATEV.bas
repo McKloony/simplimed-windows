@@ -1497,19 +1497,24 @@ On Error GoTo ErrHandler
         End If
     End If
 
-    ' DATEV-konforme Debitorennummer (Patientennr + Basis)
+    ' DATEV-Debitorennummer
+    ' Debitorenrechnung: Personenkonto aus der Patientennummer ([Mandant] im
+    ' Patientenstamm) in Feld 7 Konto; ohne gueltige Nummer bleibt das Geldkonto
     DebNr = 0
-    If PidNr > 0 Then
+    If m_InvMod Then
+        DebNr = GetPatientDebtor(SafeLongField(RST, "ID0"), Config.FourDigitAccounts)
+        If DebNr > 0 Then
+            KSoSt = CStr(DebNr)
+        ElseIf GlLog = True Then
+            SLogi "DATEV_Expor: Rechnung ID1=" & IdxNr & " ohne gueltige Patientennummer - Konto bleibt Geldkonto"
+        End If
+    ElseIf PidNr > 0 Then
+        ' Buchungen: unveraendert Patientennr + Basis (nur Beleginfo)
         If Config.FourDigitAccounts Then
             DebNr = 10000 + PidNr
         Else
             DebNr = 1000000 + PidNr
         End If
-    End If
-
-    ' GlDeE: Replace account (Konto) with debtor number (invoices only)
-    If Config.ReplaceAccountWithDebtor And m_InvMod Then
-        If DebNr > 0 Then KSoSt = CStr(DebNr)
     End If
 
     ' Kostenstelle
@@ -1544,7 +1549,11 @@ On Error GoTo ErrHandler
     TmpSt = TmpSt & vbNullString & ExSep 'Skonto
     TmpSt = TmpSt & Chr$(34) & BuStr & Chr$(34) & ExSep 'Buchungstext
     TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Postensperre (Text)
-    TmpSt = TmpSt & Chr$(34) & PaNum & Chr$(34) & ExSep 'Adressnummer
+    If m_InvMod And DebNr > 0 Then
+        TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Adressnummer (leer bei Debitoren-Personenkonto)
+    Else
+        TmpSt = TmpSt & Chr$(34) & PaNum & Chr$(34) & ExSep 'Adressnummer
+    End If
     TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Geschaeftspartnerbank (Text)
     TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Sachverhalt (Text)
     TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Zinssperre (Text)
@@ -4108,6 +4117,59 @@ Public Function DATEV_FormatAccountNumber(ByVal AccountNo As Long, _
 End Function
 
 '================================================================================
+' DATEV_DebtorAccount
+'--------------------------------------------------------------------------------
+' Purpose:     DATEV-Debitorenkonto (Personenkonto) aus einer Patientennummer
+'              fuer Buchungsstapel Feld 7 "Konto" bilden
+'
+' Parameters:  PatNoStr    - Patientennummer als Text (Patientenstamm [Mandant])
+'              FourDigit   - True = Sachkontenlaenge 4, False = 6 (wie GldKt)
+'
+' DATEV:       Personenkontenlaenge = Sachkontennummernlaenge + 1 (Header Feld 14)
+'              Debitoren 10^L bis 7*10^L-1, Kreditoren ab 7*10^L
+'              (L=4: 10000-69999, L=6: 1000000-6999999)
+'
+' Regel:       Debitor = 10^L + Patientennummer (streng monoton, daher
+'              deterministisch und kollisionsfrei). Rechtsbuendiges Auffuellen
+'              mit Nullen scheidet aus: 1, 10, 100 und 1000 ergaeben 10000.
+'              Beispiele L=4: 1 -> 10001, 10 -> 10010, 220 -> 10220
+'
+' Returns:     Debitorennummer; 0 bei leerem oder nicht rein numerischem Wert,
+'              Patientennummer 0 oder Wert ueber 6*10^L-1
+'================================================================================
+Public Function DATEV_DebtorAccount(ByVal PatNoStr As String, _
+                                    ByVal FourDigit As Boolean) As Long
+    Dim DebBas As Long
+    Dim PatNum As Long
+    Dim ChrPos As Long
+
+    DATEV_DebtorAccount = 0
+
+    ' Nur reine Ziffernfolgen, keine Vorzeichen, Trenner oder Exponenten
+    PatNoStr = Trim$(PatNoStr)
+    If Len(PatNoStr) = 0 Then Exit Function
+    For ChrPos = 1 To Len(PatNoStr)
+        If InStr(1, "0123456789", Mid$(PatNoStr, ChrPos, 1), vbBinaryCompare) = 0 Then Exit Function
+    Next ChrPos
+
+    ' Fuehrende Nullen entfernen (000220 = 220), dann Ueberlaufschutz fuer CLng
+    Do While Len(PatNoStr) > 1 And Left$(PatNoStr, 1) = "0"
+        PatNoStr = Mid$(PatNoStr, 2)
+    Loop
+    If Len(PatNoStr) > 9 Then Exit Function
+    PatNum = CLng(PatNoStr)
+
+    If FourDigit Then
+        DebBas = 10000
+    Else
+        DebBas = 1000000
+    End If
+    If PatNum < 1 Or PatNum > 6 * DebBas - 1 Then Exit Function
+
+    DATEV_DebtorAccount = DebBas + PatNum
+End Function
+
+'================================================================================
 ' DATEV_CreateBeleglink
 '--------------------------------------------------------------------------------
 ' Purpose:     Create DATEV Beleglink from GUID
@@ -4787,19 +4849,24 @@ On Error GoTo ErrHandler
         End If
     End If
 
-    ' DATEV-konforme Debitorennummer (Patientennr + Basis)
+    ' DATEV-Debitorennummer
+    ' Debitorenrechnung: Personenkonto aus der Patientennummer ([Mandant] im
+    ' Patientenstamm) in Feld 7 Konto; ohne gueltige Nummer bleibt das Geldkonto
     DebNr = 0
-    If PidNr > 0 Then
+    If m_InvMod Then
+        DebNr = GetPatientDebtor(PatNr, Config.FourDigitAccounts)
+        If DebNr > 0 Then
+            KSoSt = CStr(DebNr)
+        ElseIf GlLog = True Then
+            SLogi "DATEV_BuEx: Rechnung ID1=" & IdxNr & " ohne gueltige Patientennummer - Konto bleibt Geldkonto"
+        End If
+    ElseIf PidNr > 0 Then
+        ' Buchungen: unveraendert Patientennr + Basis (nur Beleginfo)
         If Config.FourDigitAccounts Then
             DebNr = 10000 + PidNr
         Else
             DebNr = 1000000 + PidNr
         End If
-    End If
-
-    ' GlDeE: Replace account (Konto) with debtor number (invoices only)
-    If Config.ReplaceAccountWithDebtor And m_InvMod Then
-        If DebNr > 0 Then KSoSt = CStr(DebNr)
     End If
 
     ' Get cost center
@@ -4864,8 +4931,12 @@ On Error GoTo ErrHandler
     ' Field 15: Postensperre (empty, Text)
     Fields(14) = m_EmptyQuoted
 
-    ' Field 16: Diverse Adressnummer
-    Fields(15) = QuoteField(PaNum)
+    ' Field 16: Diverse Adressnummer (leer, wenn Feld 7 ein Debitoren-Personenkonto ist)
+    If m_InvMod And DebNr > 0 Then
+        Fields(15) = m_EmptyQuoted
+    Else
+        Fields(15) = QuoteField(PaNum)
+    End If
 
     ' Field 17: Geschaeftspartnerbank (empty, Text)
     Fields(16) = m_EmptyQuoted
@@ -6483,6 +6554,21 @@ Private Function CalculateDebtorNumber(ByVal PatientID As Long, _
     Else
         CalculateDebtorNumber = 1000000 + PatientID
     End If
+End Function
+
+'--------------------------------------------------------------------------------
+' GetPatientDebtor - DATEV-Debitorenkonto fuer eine Debitorenrechnung
+'--------------------------------------------------------------------------------
+' Liest die Patientennummer aus dem Patientenstamm ([Mandant] ueber qryAdrIdx,
+' wie der bisherige DATEV-Export in basDatRe) und bildet daraus per
+' DATEV_DebtorAccount das Personenkonto. PatId = ID0 der Rechnung.
+' Returns 0, wenn kein gueltiges Debitorenkonto gebildet werden kann.
+'--------------------------------------------------------------------------------
+Private Function GetPatientDebtor(ByVal PatId As Long, _
+                                  ByVal FourDigit As Boolean) As Long
+    GetPatientDebtor = 0
+    If PatId <= 0 Then Exit Function
+    GetPatientDebtor = DATEV_DebtorAccount(S_AdIdx(PatId, "Mandant"), FourDigit)
 End Function
 
 '--------------------------------------------------------------------------------
