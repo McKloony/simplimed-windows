@@ -4945,6 +4945,24 @@ If AnzPo > 1 Then
         End If
     Next AktZa
 
+    If KtNum = 0 Then 'Standarderloeskonto im aktiven Kontenrahmen nicht gefunden
+        For AktZa = 1 To UBound(GlErK) 'ersatzweise das erste Erloeskonto verwenden
+            If GlErK(AktZa, 0) <> vbNullString Then
+                KtNum = GlErK(AktZa, 0)
+                KtStr = GlErK(AktZa, 2)
+                KtIDI = GlErK(AktZa, 3) '[IDI]
+                Exit For
+            End If
+        Next AktZa
+    End If
+
+    If KtNum = 0 Then 'ohne Erloeskonto keine Buchung - sonst stuende [IDK] auf 0
+        Screen.MousePointer = vbNormal
+        SPopu "Kein Erlöskonto", "Es konnte kein Erlöskonto ermittelt werden!", IC48_Forbidden
+        Set RpSel = Nothing
+        Exit Sub
+    End If
+
     Load frmStatus
     frmStatus.Caption = "Buchungen Generieren"
     Set Lbl01 = frmStatus.lblLab01
