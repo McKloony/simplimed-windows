@@ -9,3 +9,9 @@ Optionen.ini
 CLAUDE.md
 AGENTS.md
 .claude/
+
+# Laufzeit-Assets, gehoeren nicht in die Quellhistorie
+Belege/
+Hilfe/
+Skins/
+Styles/
