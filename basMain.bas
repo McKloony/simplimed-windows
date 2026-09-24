@@ -32659,6 +32659,7 @@ If LiIts.Count > 0 Then
     End Select
 End If
 
+STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
 GlTSV = False 'Speichern Textverarbeitung
 GlTxN = False
 GlTxS = False
@@ -32903,6 +32904,7 @@ Set TxCoN = FM.TexCont1
 Set CmAcs = CmBrs.Actions
 
 GlTDa = vbNullString
+GlTxF = vbNullString 'Filname fuer Textcontrol Error
 
 GlTxB = False 'Beispiele in Datenfeldern anzeigen
 
@@ -33448,6 +33450,8 @@ End With
 DoEvents
 
 TxCoN.Save FilNa, 0, 3
+GlTxF = FilNa 'Filname fuer Textcontrol Error
+STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
 DoEvents 'Speichern des neuen Dokumentes
 
 GlTSV = False 'Speichern Textverarbeitung
@@ -34024,6 +34028,35 @@ If GlDbg = True Then MsgBox Err.Description, 48, "STxRz " & Err.Number
 Resume Next
 
 End Sub
+Public Function STxMo(Optional ByVal ZuRue As Boolean = False) As Boolean
+On Error GoTo MoErr
+'Meldet, ob das Textcontrol seit Laden/Speichern geaendert wurde
+'Spaete Bindung: fehlt die Eigenschaft, gilt das bisherige Verhalten (immer True)
+
+Dim TxObj As Object
+
+Set TxObj = frmMain.TexCont1
+
+If ZuRue = True Then
+    TxObj.Changed = False
+    STxMo = False
+Else
+    STxMo = CBool(TxObj.Changed)
+End If
+
+Set TxObj = Nothing
+
+Exit Function
+
+MoErr:
+If ZuRue = True Then
+    STxMo = False
+Else
+    STxMo = True
+End If
+Set TxObj = Nothing
+
+End Function
 Public Function STxSa(Optional ByVal KeiAk As Boolean = False) As Boolean
 On Error GoTo SuErr
 'Überprüft, ob das aktuelle Dokument gespeichert werden muss
@@ -34044,6 +34077,7 @@ Dim Posit As Integer
 Dim Lange As Integer
 Dim AnzPo As Integer
 Dim Frage As Integer
+Dim AktDa As String
 Dim SeiPo As Variant
 
 If InSav = True Then
@@ -34068,6 +34102,22 @@ Screen.MousePointer = vbHourglass
 DoEvents
 
 If GlTSV = True Then 'Speichern Textverarbeitung
+    If GlTDa = vbNullString And GlTxN = False And GlTxM = False Then
+        'Die Dokumentidentitaet geht bei einem Modulwechsel verloren (GlTDa wird
+        'an rund 39 Stellen geleert). Dateinamen aus dem tatsaechlich geladenen
+        'Dokument zurueckholen, statt still eine zweite Dokumentation anzulegen.
+        If GlTxF <> vbNullString Then
+            Posit = InStrRev(GlTxF, "\", Len(GlTxF), 1)
+            If Posit > 0 Then
+                AktDa = Mid$(GlTxF, Posit + 1)
+            Else
+                AktDa = GlTxF
+            End If
+            If Left$(AktDa, 8) = "TD" & Format$(GlAdr, "000000") Then
+                GlTDa = AktDa 'Textverarbeitung Dateiname
+            End If
+        End If
+    End If
     If GlTDa <> vbNullString Then 'Textverarbeitung Dateiname
         DaNam = GlTDa
         NeuDa = False
@@ -34171,6 +34221,8 @@ If GlTSV = True Then 'Speichern Textverarbeitung
         DoEvents
         .Save FiNam, 0, 3
     End With
+    GlTxF = FiNam 'Filname fuer Textcontrol Error
+    STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
     DoEvents
 
     If KeiAk = False Then

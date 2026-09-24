@@ -8062,6 +8062,7 @@ Case Tex_DatLoa:
             End With
         End Select
         DoEvents
+        STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
         GlTxN = False 'Kein neues Dokument mehr
         GlTxS = False
         GlTSV = False 'Speichern Textverarbeitung
@@ -8122,6 +8123,7 @@ Case Tex_DatSpV:
         DoEvents
     End If
 
+    STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
     GlTSV = False 'Speichern Textverarbeitung
     GlTxN = False 'Kein neues Dokument mehr
     GlTxS = False
@@ -8184,6 +8186,7 @@ Case Tex_DatSav:
         DoEvents
     End If
 
+    STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
     GlTSV = False 'Speichern Textverarbeitung
     GlTxN = False 'Kein neues Dokument mehr
     GlTxS = False
@@ -8311,6 +8314,13 @@ Case Tex_DatKop:
                         End If
                         DoEvents
                         S_KrLa
+                        For Each LiItm In LiIts 'Kopie zur Bearbeitung oeffnen
+                            If LiItm.Tag = DaNam Then
+                                LiItm.Selected = True
+                                Exit For
+                            End If
+                        Next LiItm
+                        STxLa DaNam
                         GlAkt = AltAkt
                         KopSet = False
                         KopOk = True
@@ -16291,7 +16301,9 @@ End Sub
 Private Sub TexCont1_PosChange()
     If GlAkt = False Then
         If Me.TexCont1.Text <> vbNullString Then
-            GlTSV = True 'Speichern Textverarbeitung
+            If STxMo() = True Then 'Nur bei echter Aenderung Speicherbedarf melden
+                GlTSV = True 'Speichern Textverarbeitung
+            End If
             STxFo
         End If
     End If
