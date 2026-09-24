@@ -17962,17 +17962,6 @@ With CmCon
     Set CmCon = .CommandBar.Controls.Add(xtpControlButton, SY_TL_Terminliste_Importieren, "Termine Importieren")
     CmCon.IconId = IC16_Calendar_Import
 End With
-Set CmCon = RbGrp.Add(xtpControlButtonPopup, SY_TL_Terminliste_TermReset, "Termin Reset")
-With CmCon
-    .IconId = IC32_Calendar_Earth
-    .Width = GlRib
-    Set CmCon = .CommandBar.Controls.Add(xtpControlButton, SY_TL_Terminliste_SyncReset, "Synchronisations-Reset")
-    CmCon.IconId = IC16_Calendar_Check
-    Set CmCon = .CommandBar.Controls.Add(xtpControlButton, SY_TL_Terminliste_OnTeReset, "Online-Termine-Reset")
-    CmCon.IconId = IC16_Calendar_Check
-    Set CmCon = .CommandBar.Controls.Add(xtpControlButton, SY_TL_Terminliste_Terminfar, "Terminfarbneuzuordnung")
-    CmCon.IconId = IC16_Calendar_Check
-End With
 Set CmCon = RbGrp.Add(xtpControlButton, SY_TL_Terminliste_Listendruck, "Termine Drucken")
 With CmCon
     .IconId = IC32_Printer_Ink
@@ -20270,7 +20259,7 @@ Case RibTab_Adressen:
             CmCon.BeginGroup = True
             Set CmCon = .Add(xtpControlButton, ME_Adresse_Exchange, "Exchange Reset")
             CmCon.IconId = IC16_Data_Import
-            CmCon.Enabled = GlESy 'CalDAV / CardDAV / Exchange Synchronisation
+            CmCon.Enabled = GlESy 'CalDAV / CardDAV Synchronisation
         End With
     Case 2:
         Set CmCoS = CmBar.Controls
@@ -21203,14 +21192,10 @@ Case RibTab_Tex_Dokumt:
     Case 1:
         Set CmCoS = CmBar.Controls
         With CmCoS
-            Set CmCon = .Add(xtpControlButton, Tex_DatKop, "Dokument Kopieren")
-            CmCon.IconId = IC16_Copy
             Set CmCon = .Add(xtpControlButton, Tex_DatLoe, "Dokument Entfernen")
             CmCon.IconId = IC16_Doc_Del
-            CmCon.BeginGroup = True
             Set CmCon = .Add(xtpControlButton, Tex_DocExp, "Dokument Exportieren")
             CmCon.IconId = IC16_Document_Disk
-            CmCon.BeginGroup = True
             Set CmCon = .Add(xtpControlButton, Tex_DocMa1, "Dokument Emailversand")
             CmCon.IconId = IC16_Paperclip
             CmCon.BeginGroup = True
@@ -21220,6 +21205,8 @@ Case RibTab_Tex_Dokumt:
             Set CmCon = .Add(xtpControlButton, Tex_Eigens, "Dokument Eigenschaften")
             CmCon.IconId = IC16_Doc_Note
             CmCon.BeginGroup = True
+            Set CmCon = .Add(xtpControlButton, Tex_DatKop, "Dokument Kopieren")
+            CmCon.IconId = IC16_Copy
         End With
     Case 2:
         Set CmCoS = CmBar.Controls
@@ -21235,14 +21222,10 @@ Case RibTab_Tex_Vorlag:
     Case 1:
         Set CmCoS = CmBar.Controls
         With CmCoS
-            Set CmCon = .Add(xtpControlButton, Tex_DatKop, "Dokument Kopieren")
-            CmCon.IconId = IC16_Copy
             Set CmCon = .Add(xtpControlButton, Tex_DatLoe, "Dokument Entfernen")
             CmCon.IconId = IC16_Doc_Del
-            CmCon.BeginGroup = True
             Set CmCon = .Add(xtpControlButton, Tex_DocExp, "Dokument Exportieren")
             CmCon.IconId = IC16_Document_Disk
-            CmCon.BeginGroup = True
             Set CmCon = .Add(xtpControlButton, Tex_DocMa1, "Dokument Emailversand")
             CmCon.IconId = IC16_Paperclip
             CmCon.BeginGroup = True
@@ -21252,6 +21235,8 @@ Case RibTab_Tex_Vorlag:
             Set CmCon = .Add(xtpControlButton, Tex_Eigens, "Dokument Eigenschaften")
             CmCon.IconId = IC16_Doc_Note
             CmCon.BeginGroup = True
+            Set CmCon = .Add(xtpControlButton, Tex_DatKop, "Dokument Kopieren")
+            CmCon.IconId = IC16_Copy
         End With
     Case 2:
         Set CmCoS = CmBar.Controls
@@ -21265,24 +21250,22 @@ Case RibTab_Tex_Vorlag:
 Case RibTab_Tex_Rezept:
     Set CmCoS = CmBar.Controls
     With CmCoS
-        Set CmCon = .Add(xtpControlButton, Tex_DatKop, "Dokument Kopieren")
-        CmCon.IconId = IC16_Copy
-        Set CmCon = .Add(xtpControlButton, Tex_DatLoe, "Dokument Entfernen")
-        CmCon.IconId = IC16_Doc_Del
-        CmCon.BeginGroup = True
-        Set CmCon = .Add(xtpControlButton, Tex_DocExp, "Dokument Exportieren")
-        CmCon.IconId = IC16_Document_Disk
-        CmCon.BeginGroup = True
-        Set CmCon = .Add(xtpControlButton, Tex_DocMa1, "Dokument Emailversand")
-        CmCon.IconId = IC16_Paperclip
-        CmCon.BeginGroup = True
-        Set CmCon = .Add(xtpControlButton, Tex_DocSe1, "Dokument Downloadlink")
-        CmCon.IconId = IC16_Earth_Mail
-        CmCon.BeginGroup = True
-        Set CmCon = .Add(xtpControlButton, Tex_Eigens, "Dokument Eigenschaften")
-        CmCon.IconId = IC16_Doc_Note
-        CmCon.BeginGroup = True
-    End With
+            Set CmCon = .Add(xtpControlButton, Tex_DatLoe, "Dokument Entfernen")
+            CmCon.IconId = IC16_Doc_Del
+            Set CmCon = .Add(xtpControlButton, Tex_DocExp, "Dokument Exportieren")
+            CmCon.IconId = IC16_Document_Disk
+            Set CmCon = .Add(xtpControlButton, Tex_DocMa1, "Dokument Emailversand")
+            CmCon.IconId = IC16_Paperclip
+            CmCon.BeginGroup = True
+            Set CmCon = .Add(xtpControlButton, Tex_DocSe1, "Dokument Downloadlink")
+            CmCon.IconId = IC16_Earth_Mail
+            CmCon.BeginGroup = True
+            Set CmCon = .Add(xtpControlButton, Tex_Eigens, "Dokument Eigenschaften")
+            CmCon.IconId = IC16_Doc_Note
+            CmCon.BeginGroup = True
+            Set CmCon = .Add(xtpControlButton, Tex_DatKop, "Dokument Kopieren")
+            CmCon.IconId = IC16_Copy
+        End With
 Case RibTab_Tex_NewsLe:
      Set CmCoS = CmBar.Controls
     With CmCoS
@@ -23860,20 +23843,22 @@ If UBound(InAry) > 0 Then
     If SReSu("TeZeAn") = vbNullString Then IniSetVal "TerSys", "TeZeAn", -1
     If SReSu("TerVer") = vbNullString Then IniSetVal "TerSys", "TerVer", -1
     If SReSu("ZeiRas") = vbNullString Then IniSetVal "TerSys", "ZeiRas", 2
-    If SReSu("DomNam") = vbNullString Then IniSetVal "TerSys", "DomNam", "onlinetermine.simplimed.org/service.aspx"
+    If SReSu("OnlSto") = vbNullString Then IniSetVal "TerSys", "OnlSto", 24
     If SReSu("TerSyn") = vbNullString Then IniSetVal "TerSys", "TerSyn", 0
     If SReSu("OTSRei") = vbNullString Then IniSetVal "TerSys", "OTSRei", 0
     If SReSu("OTSUse") = vbNullString Then IniSetVal "TerSys", "OTSUse", vbNullString
     If SReSu("OTSPas") = vbNullString Then IniSetVal "TerSys", "OTSPas", vbNullString
+    If SReSu("OTSAGB") = vbNullString Then IniSetVal "TerSys", "OTSAGB", vbNullString
     If SReSu("ExTeSy") = vbNullString Then IniSetVal "TerSys", "ExTeSy", 0
     If SReSu("MitPla") = vbNullString Then IniSetVal "TerSys", "MitPla", -1
     If SReSu("KeFaRa") = vbNullString Then IniSetVal "TerSys", "KeFaRa", 0
     If SReSu("TeLeAk") = vbNullString Then IniSetVal "TerSys", "TeLeAk", 0
     If SReSu("ProxVe") = vbNullString Then IniSetVal "TerSys", "ProxVe", 0
+    If SReSu("OTSAnz") = vbNullString Then IniSetVal "TerSys", "OTSAnz", "T6"
     If SReSu("ProxNa") = vbNullString Then IniSetVal "TerSys", "ProxNa", "proxy.simplimed.int"
     If SReSu("SMSGat") = vbNullString Then IniSetVal "TerSys", "SMSGat", vbNullString
     If SReSu("SMSAbs") = vbNullString Then IniSetVal "TerSys", "SMSAbs", "SMSAbsender"
-    If SReSu("OtsImp") = vbNullString Then IniSetVal "TerSys", "OtsImp", vbNullString
+    If SReSu("OtsPfl") = vbNullString Then IniSetVal "TerSys", "OtsPfl", 0
     If SReSu("SMSKey") = vbNullString Then IniSetVal "TerSys", "SMSKey", "xxxxxxxxxx"
     If SReSu("LeiAnz") = vbNullString Then IniSetVal "TerSys", "LeiAnz", 0
     If SReSu("ICSFil") = vbNullString Then IniSetVal "TerSys", "ICSFil", -1
@@ -23882,7 +23867,7 @@ If UBound(InAry) > 0 Then
     If SReSu("TerBet") = vbNullString Then IniSetVal "TerSys", "TerBet", 0
     If SReSu("RauMan") = vbNullString Then IniSetVal "TerSys", "RauMan", 0
     If SReSu("OtsPIN") = vbNullString Then IniSetVal "TerSys", "OtsPIN", -1
-    If SReSu("OtsSto") = vbNullString Then IniSetVal "TerSys", "OtsSto", 0
+    If SReSu("OtsSto") = vbNullString Then IniSetVal "TerSys", "OtsSto", -1
     If SReSu("OtsWar") = vbNullString Then IniSetVal "TerSys", "OtsWar", -1
     If SReSu("OtsLoe") = vbNullString Then IniSetVal "TerSys", "OtsLoe", 0
     If SReSu("ReTeSe") = vbNullString Then IniSetVal "TerSys", "ReTeSe", 0
@@ -23899,7 +23884,7 @@ If UBound(InAry) > 0 Then
     If SReSu("OtsBHo") = vbNullString Then IniSetVal "TerSys", "OtsBHo", 9868950
     If SReSu("OtsBDi") = vbNullString Then IniSetVal "TerSys", "OtsBDi", 15790320
     If SReSu("OtsLas") = vbNullString Then IniSetVal "TerSys", "OtsLas", vbNullString
-    If SReSu("OtsLin") = vbNullString Then IniSetVal "TerSys", "OtsLin", "https://simplimed.de/software/Datenschutz.htm"
+    If SReSu("OtsAnL") = vbNullString Then IniSetVal "TerSys", "OtsAnL", 1
     If SReSu("OtsAdr") = vbNullString Then IniSetVal "TerSys", "OtsAdr", 0
     If SReSu("TeLaAk") = vbNullString Then IniSetVal "TerSys", "TeLaAk", 0
     If SReSu("TeLaAd") = vbNullString Then IniSetVal "TerSys", "TeLaAd", "https://www.terminland.de/"
@@ -24301,15 +24286,15 @@ GlSet(0, 8) = "2850#Format der Adressenkurzbezeichnung"
 GlSet(0, 9) = "1903#Benutzeranmeldung beim Start"
 GlSet(0, 10) = "2824#Separierter Mandanten Rechnungsnummernkreis"
 GlSet(0, 11) = "2842#Separierter Mandanten Belegnummernkreis"
-GlSet(0, 12) = "2858#Online-Terminbuchungs Sytem Aktivieren"
+GlSet(0, 12) = "2858#Online-Termine Aktivieren"
 GlSet(0, 13) = "2916#Online-Terminbuchungs Sytem Dialogreihenfolge"
-GlSet(0, 14) = "2652#Online-Terminbuchungs Benutzername"
-GlSet(0, 15) = "2653#Online-Terminbuchungs Passwort"
-GlSet(0, 16) = "2853#Online-Terminbuchungs Provider"
-GlSet(0, 17) = "2893#CalDAV / CardDAV / Exchange Synchronisation"
+GlSet(0, 14) = "2652#Online-Termine Kategorie der Terminvergabe"
+GlSet(0, 15) = "2653#Online-Termine URL zu AGBs"
+GlSet(0, 16) = "2853#Online-Termine Stornierungshorizont"
+GlSet(0, 17) = "2893#CalDAV und CardDAV Synchronisation"
 GlSet(0, 18) = "1108#Standard-Laborkatalog"
 GlSet(0, 19) = "2894#Standard-Dezimaltrennzeichen"
-GlSet(0, 20) = "1109#Online-Terminbuchungs Sytem Stornierungs-Dialog"
+GlSet(0, 20) = "1109#Online-Termine Stornierungs-Dialog"
 GlSet(0, 21) = "1103#Standard-Zahlungsziel"
 GlSet(0, 22) = "2905#Steuersatzspalte"
 GlSet(0, 23) = "1505#Standard-Kontenrahmen"
@@ -24327,9 +24312,9 @@ GlSet(0, 34) = "2918#Mandantenbezogene Vorgabenbenutzung"
 GlSet(0, 35) = "2840#Die Raumzuordnung numerisch sortiert anzeigen"
 GlSet(0, 36) = "2910#SMS Account-ID"
 GlSet(0, 37) = "2911#SMS Absenderkennung"
-GlSet(0, 38) = "2912#Online-Terminbuchungs System Link für Impressum"
+GlSet(0, 38) = "2912#Online-Termine Pflichtfeldreduzierung"
 GlSet(0, 39) = "2913#SMS Produkt Token"
-GlSet(0, 40) = "2922#Online-Terminbuchungs Sytem PIN Dialog"
+GlSet(0, 40) = "2922#Online-Termine PIN / E-Mail-Dialog"
 GlSet(0, 41) = "2881#Proxyserver Verwenden"
 GlSet(0, 42) = "2882#Proxyserver Name"
 GlSet(0, 43) = "2825#Rechnungsexport mit benanntem Gebührenkatalog"
@@ -24341,18 +24326,18 @@ GlSet(0, 48) = "1508#DATEV Beraternummer"
 GlSet(0, 49) = "1509#DATEV Mandantennummer"
 GlSet(0, 50) = "2926#Mandant der neuen Rechnung"
 GlSet(0, 51) = "2627#Terminzeit aus dem Terminbetreff verwenden"
-GlSet(0, 52) = "2928#Online-Terminbuchungs System zeige belegte Buchungszeiten"
-GlSet(0, 53) = "2929#Online-Terminbuchungs System ICS Datei bei Emailbestätigung"
-GlSet(0, 54) = "2930#Online-Terminbuchungs System Schriftart"
-GlSet(0, 55) = "2931#Online-Terminbuchungs System allgemeine Textfarbe"
-GlSet(0, 56) = "2932#Online-Terminbuchungs System allgemeine Hintergrundfarbe"
-GlSet(0, 57) = "2933#Online-Terminbuchungs System allgemeine Textgröße"
-GlSet(0, 58) = "2934#Online-Terminbuchungs System Button Hintergrundfarbe"
-GlSet(0, 59) = "2935#Online-Terminbuchungs System Button Textfarbe"
-GlSet(0, 60) = "2936#Online-Terminbuchungs System Button Hooverfarbe"
-GlSet(0, 61) = "2937#Online-Terminbuchungs System Button Deaktiviertfarbe"
-GlSet(0, 62) = "2938#Online-Terminbuchungs System Link Anschlussseite"
-GlSet(0, 63) = "2938#Online-Terminbuchungs System Link Datenschutzerklärung"
+GlSet(0, 52) = "2928#Online-Termine belegte Terminzeiten"
+GlSet(0, 53) = "2929#Online-Termine ICS bei Emailbestätigung"
+GlSet(0, 54) = "2930#Online-Termine allgemeine Schriftart"
+GlSet(0, 55) = "2931#Online-Termine allgemeine Schriftfarbe"
+GlSet(0, 56) = "2932#Online-Termine allgemeine Hintergrundfarbe"
+GlSet(0, 57) = "2933#Online-Termine E-Mail-Bestätigungstext"
+GlSet(0, 58) = "2934#Online-Termine Button Hintergrundfarbe"
+GlSet(0, 59) = "2935#Online-Termine Button Schriftfarbe"
+GlSet(0, 60) = "2936#Online-Termine Button Hooverfarbe"
+GlSet(0, 61) = "2937#Online-Termine Button Deaktiviertfarbe"
+GlSet(0, 62) = "2938#Online-Termine URL zu Folgeseite"
+GlSet(0, 63) = "2938#Online-Termine Leistungenen pro Buchungsvorgang"
 GlSet(0, 64) = "1104#Standard-Steuersatz"
 GlSet(0, 65) = "2940#Mandantenbezogene Datenbegrenzung"
 GlSet(0, 66) = "1602#LDT Import-Zeichensatz"
@@ -24368,7 +24353,7 @@ GlSet(0, 75) = "2947#Starre oder flexible Sprechzeiten aktivieren"
 GlSet(0, 76) = "2948#Einfache Buchführung verwenden"
 GlSet(0, 77) = "2949#Datenbankscripting aktivieren"
 GlSet(0, 78) = "2950#Standardsteuerkonto"
-GlSet(0, 79) = "2953#Online-Terminbuchungs Sytem Adressenerfassung"
+GlSet(0, 79) = "2953#Online-Termine Adressen-Dialog"
 GlSet(0, 80) = "2945#Terminnachricht auch an BCC"
 GlSet(0, 81) = "2954#Terminland WebCAL (ICS) aktivieren"
 GlSet(0, 82) = "2955#Neuaufnahmeformular-Webadresse"
@@ -24378,9 +24363,9 @@ GlSet(0, 85) = "2958#Krankenblatt Dokumentenimport"
 GlSet(0, 86) = "2959#Konstante Krankenblattsortierung"
 GlSet(0, 87) = "2960#Prüfung auf doppelte Diagnosen"
 GlSet(0, 88) = "2961#Automatische E-Mail Terminerinnerung"
-GlSet(0, 89) = "2963#Online-Terminbuchungs Sytem Warteliste-Dialog"
+GlSet(0, 89) = "2963#Online-Termine Wartelisten-Dialog"
 GlSet(0, 90) = "2964#Automatische SMS Terminerinnerung"
-GlSet(0, 91) = "2965#Online-Terminbuchungs System autom. Aktualisierung"
+GlSet(0, 91) = "2965#Online-Termine Anzahl Anz. buchbarer Termine"
 GlSet(0, 92) = "2966#Anzeige stornierter Termine in den Termindetails"
 GlSet(0, 93) = "2967#TSE Kennung"
 GlSet(0, 94) = "2968#TSE Laufwerk"
@@ -24397,7 +24382,7 @@ GlSet(0, 104) = "2977#SMTP Praxisname"
 GlSet(0, 105) = "2978#SMTP IP-Adresse"
 GlSet(0, 106) = "2979#SMTP SocksProxyServer"
 GlSet(0, 107) = "2980#SMTP SocksProxyPort"
-GlSet(0, 108) = "2981#Online-Terminbuchungs Sytem Stornierte Entfernen"
+GlSet(0, 108) = "2981#Online-Termine Stornierte Entfernen"
 GlSet(0, 109) = "2982#Termindetails mit Mitarbeitername"
 
 GlSet(1, 0) = vbNullString
@@ -24414,9 +24399,9 @@ GlSet(1, 10) = vbNullString
 GlSet(1, 11) = vbNullString
 GlSet(1, 12) = vbNullString
 GlSet(1, 13) = vbNullString
-GlSet(1, 14) = vbNullString
+GlSet(1, 14) = "T6"
 GlSet(1, 15) = vbNullString
-GlSet(1, 16) = "onlinetermine.simplimed.org/service.aspx"
+GlSet(1, 16) = vbNullString
 GlSet(1, 17) = vbNullString
 GlSet(1, 18) = vbNullString
 GlSet(1, 19) = StaTr
@@ -24457,13 +24442,13 @@ GlSet(1, 53) = vbNullString
 GlSet(1, 54) = "Roboto"
 GlSet(1, 55) = vbNullString
 GlSet(1, 56) = vbNullString
-GlSet(1, 57) = vbNullString
+GlSet(1, 57) = "C5"
 GlSet(1, 58) = vbNullString
 GlSet(1, 59) = vbNullString
 GlSet(1, 60) = vbNullString
 GlSet(1, 61) = vbNullString
 GlSet(1, 62) = vbNullString
-GlSet(1, 63) = "https://simplimed.de/software/Datenschutz.htm"
+GlSet(1, 63) = vbNullString
 GlSet(1, 64) = vbNullString
 GlSet(1, 65) = vbNullString
 GlSet(1, 66) = "X2"
@@ -24527,7 +24512,7 @@ GlSet(2, 12) = 0
 GlSet(2, 13) = 0
 GlSet(2, 14) = 0
 GlSet(2, 15) = 0
-GlSet(2, 16) = 0
+GlSet(2, 16) = 24
 GlSet(2, 17) = 0
 GlSet(2, 18) = 1
 GlSet(2, 19) = 0
@@ -24566,15 +24551,15 @@ GlSet(2, 51) = 0
 GlSet(2, 52) = 0
 GlSet(2, 53) = 0
 GlSet(2, 54) = 0
-GlSet(2, 55) = 4207920
+GlSet(2, 55) = 3355443 '4207920
 GlSet(2, 56) = 16777215
-GlSet(2, 57) = 13
-GlSet(2, 58) = 14671839
-GlSet(2, 59) = 4207920
-GlSet(2, 60) = 9868950
-GlSet(2, 61) = 15790320
+GlSet(2, 57) = 0
+GlSet(2, 58) = 3684408 '14671839
+GlSet(2, 59) = 16777215 '4207920
+GlSet(2, 60) = 1710618 '9868950
+GlSet(2, 61) = 15790320 '15790320
 GlSet(2, 62) = 0
-GlSet(2, 63) = 0
+GlSet(2, 63) = 1
 GlSet(2, 64) = 1
 GlSet(2, 65) = 1
 GlSet(2, 66) = 0
@@ -24602,7 +24587,7 @@ GlSet(2, 87) = 0
 GlSet(2, 88) = 0
 GlSet(2, 89) = 0
 GlSet(2, 90) = 0
-GlSet(2, 91) = 0
+GlSet(2, 91) = 1
 GlSet(2, 92) = 0
 GlSet(2, 93) = 0
 GlSet(2, 94) = 0
@@ -24859,9 +24844,9 @@ If SeSet = True Then
     IniSetVal "System", "BuMaKr", GlSet(4, 11)
     IniSetVal "TerSys", "TerSyn", GlSet(4, 12)
     IniSetVal "TerSys", "OTSRei", GlSet(4, 13)
-    IniSetVal "TerSys", "OTSUse", GlSet(1, 14)
-    IniSetVal "TerSys", "OTSPas", GlSet(1, 15)
-    IniSetVal "TerSys", "DomNam", GlSet(1, 16)
+    IniSetVal "TerSys", "OTSAnz", GlSet(1, 14)
+    IniSetVal "TerSys", "OTSAGB", GlSet(1, 15)
+    IniSetVal "TerSys", "OnlSto", GlSet(2, 16)
     IniSetVal "TerSys", "ExTeSy", GlSet(1, 17)
     IniSetVal "Vorgabe", "StaLab", GlSet(2, 18)
     IniSetVal "Vorgabe", "StaDez", GlSet(1, 19)
@@ -24883,7 +24868,7 @@ If SeSet = True Then
     IniSetVal "TerSys", "RmuSor", GlSet(3, 35)
     IniSetVal "TerSys", "SMSGat", GlSet(1, 36)
     IniSetVal "TerSys", "SMSAbs", GlSet(1, 37)
-    IniSetVal "TerSys", "OtsImp", GlSet(1, 38)
+    IniSetVal "TerSys", "OtsPfl", GlSet(4, 38)
     IniSetVal "TerSys", "SMSKey", GlSet(1, 39)
     IniSetVal "TerSys", "OtsPIN", GlSet(4, 40)
     IniSetVal "TerSys", "ProxVe", GlSet(4, 41)
@@ -24902,13 +24887,13 @@ If SeSet = True Then
     IniSetVal "TerSys", "OtsGWF", GlSet(1, 54)
     IniSetVal "TerSys", "OtsFTe", GlSet(2, 55)
     IniSetVal "TerSys", "OtsFBa", GlSet(2, 56)
-    IniSetVal "TerSys", "OtsFSi", GlSet(2, 57)
+    IniSetVal "TerSys", "OTSBes", GlSet(1, 57)
     IniSetVal "TerSys", "OtsBBa", GlSet(2, 58)
     IniSetVal "TerSys", "OtsBTe", GlSet(2, 59)
     IniSetVal "TerSys", "OtsBHo", GlSet(2, 60)
     IniSetVal "TerSys", "OtsBDi", GlSet(2, 61)
     IniSetVal "TerSys", "OtsLas", GlSet(1, 62)
-    IniSetVal "TerSys", "OtsLin", GlSet(1, 63)
+    IniSetVal "TerSys", "OtsAnL", GlSet(1, 63)
     IniSetVal "Vorgabe", "StaStu", GlSet(2, 64)
     IniSetVal "Vorgabe", "StMaRe", GlSet(4, 65)
     IniSetVal "System", "ImpFor", GlSet(1, 66)
@@ -24936,7 +24921,7 @@ If SeSet = True Then
     IniSetVal "System", "EriEma", GlSet(4, 88)
     IniSetVal "TerSys", "OtsWar", GlSet(1, 89)
     IniSetVal "System", "EriSMS", GlSet(4, 90)
-    IniSetVal "System", "OtsAut", GlSet(4, 91)
+    IniSetVal "TerSys", "OtsSer", GlSet(2, 91)
     IniSetVal "TerSys", "ZeStTe", GlSet(4, 92)
     IniSetVal "System", "TSEKas", GlSet(1, 93)
     IniSetVal "System", "TSEDrv", GlSet(1, 94)
@@ -25026,20 +25011,20 @@ Else
     Else
         GlSet(4, 13) = CBool(IniGetVal("TerSys", "OTSRei"))
     End If
-    If IniGetVal("TerSys", "OTSUse") = vbNullString Then
-        IniSetVal "TerSys", "OTSUse", GlSet(1, 14)
+    If IniGetVal("TerSys", "OTSAnz") = vbNullString Then
+        IniSetVal "TerSys", "OTSAnz", GlSet(1, 14)
     Else
-        GlSet(1, 14) = CStr(IniGetVal("System", "OTSUse"))
+        GlSet(1, 14) = CStr(IniGetVal("TerSys", "OTSAnz"))
     End If
-    If IniGetVal("TerSys", "OTSPas") = vbNullString Then
-        IniSetVal "TerSys", "OTSPas", GlSet(1, 15)
+    If IniGetVal("TerSys", "OTSAGB") = vbNullString Then
+        IniSetVal "TerSys", "OTSAGB", GlSet(1, 15)
     Else
-        GlSet(1, 15) = CStr(IniGetVal("System", "OTSPas"))
+        GlSet(1, 15) = CStr(IniGetVal("TerSys", "OTSAGB"))
     End If
-    If IniGetVal("TerSys", "DomNam") = vbNullString Then
-        IniSetVal "TerSys", "DomNam", GlSet(1, 16)
+    If IniGetVal("TerSys", "OnlSto") = vbNullString Then
+        IniSetVal "TerSys", "OnlSto", GlSet(2, 16)
     Else
-        GlSet(1, 16) = CStr(IniGetVal("TerSys", "DomNam"))
+        GlSet(2, 16) = CLng(IniGetVal("TerSys", "OnlSto"))
     End If
     If IniGetVal("TerSys", "ExTeSy") = vbNullString Then
         IniSetVal "TerSys", "ExTeSy", GlSet(4, 17)
@@ -25146,10 +25131,10 @@ Else
     Else
         GlSet(1, 37) = CStr(IniGetVal("TerSys", "SMSAbs"))
     End If
-    If IniGetVal("TerSys", "OtsImp") = vbNullString Then
-        IniSetVal "TerSys", "OtsImp", GlSet(1, 38)
+    If IniGetVal("TerSys", "OtsPfl") = vbNullString Then
+        IniSetVal "TerSys", "OtsPfl", GlSet(4, 38)
     Else
-        GlSet(1, 38) = CStr(IniGetVal("TerSys", "OtsImp"))
+        GlSet(4, 38) = CBool(IniGetVal("TerSys", "OtsPfl"))
     End If
     If IniGetVal("TerSys", "SMSKey") = vbNullString Then
         IniSetVal "TerSys", "SMSKey", GlSet(1, 39)
@@ -25241,10 +25226,10 @@ Else
     Else
         GlSet(2, 56) = CLng(IniGetVal("TerSys", "OtsFBa"))
     End If
-    If IniGetVal("TerSys", "OtsFSi") = vbNullString Then
-        IniSetVal "TerSys", "OtsFSi", GlSet(2, 57)
+    If IniGetVal("TerSys", "OTSBes") = vbNullString Then
+        IniSetVal "TerSys", "OTSBes", GlSet(1, 57)
     Else
-        GlSet(2, 57) = CLng(IniGetVal("TerSys", "OtsFSi"))
+        GlSet(1, 57) = CStr(IniGetVal("TerSys", "OTSBes"))
     End If
     If IniGetVal("TerSys", "OtsBBa") = vbNullString Then
         IniSetVal "TerSys", "OtsBBa", GlSet(2, 58)
@@ -25271,10 +25256,10 @@ Else
     Else
         GlSet(1, 62) = CStr(IniGetVal("TerSys", "OtsLas"))
     End If
-    If IniGetVal("TerSys", "OtsLin") = vbNullString Then
-        IniSetVal "TerSys", "OtsLin", GlSet(1, 63)
+    If IniGetVal("TerSys", "OtsAnL") = vbNullString Then
+        IniSetVal "TerSys", "OtsAnL", GlSet(2, 63)
     Else
-        GlSet(1, 63) = CStr(IniGetVal("TerSys", "OtsLin"))
+        GlSet(2, 63) = CLng(IniGetVal("TerSys", 63))
     End If
     If IniGetVal("Vorgabe", "StaStu") = vbNullString Then
         IniSetVal "Vorgabe", "StaStu", GlSet(2, 64)
@@ -25411,10 +25396,10 @@ Else
     Else
         GlSet(4, 90) = CBool(IniGetVal("System", "EriSMS"))
     End If
-    If IniGetVal("System", "OtsAut") = vbNullString Then
-        IniSetVal "System", "OtsAut", GlSet(4, 91)
+    If IniGetVal("TerSys", "OtsSer") = vbNullString Then
+        IniSetVal "TerSys", "OtsSer", GlSet(2, 91)
     Else
-        GlSet(4, 91) = CBool(IniGetVal("System", "OtsAut"))
+        GlSet(2, 91) = CBool(IniGetVal("TerSys", "OtsSer"))
     End If
     If IniGetVal("TerSys", "ZeStTe") = vbNullString Then
         IniSetVal "TerSys", "ZeStTe", GlSet(4, 92)
@@ -25694,7 +25679,7 @@ GlS03(0, 4) = "2918#Mandantenbezogene Vorgabenbenutzung"
 GlS03(0, 5) = "2840#Die Raumzuordnung numerisch sortiert anzeigen"
 GlS03(0, 6) = "2910#SMS Account-ID"
 GlS03(0, 7) = "2911#SMS Absenderkennung"
-GlS03(0, 8) = "2912#Online-Terminbuchungs System Link für Impressum"
+GlS03(0, 8) = "2912#Online-Termine Pflichtfeldreduzierung"
 GlS03(0, 9) = "2913#SMS Produkt Token"
 
 GlS03(1, 0) = "R"
@@ -25750,7 +25735,7 @@ If SeSet = True Then
     IniSetVal "TerSys", "RmuSor", GlS03(3, 5)
     IniSetVal "TerSys", "SMSGat", GlS03(1, 6)
     IniSetVal "TerSys", "SMSAbs", GlS03(1, 7)
-    IniSetVal "TerSys", "OtsImp", GlS03(1, 8)
+    IniSetVal "TerSys", "OtsPfl", GlS03(4, 8)
     IniSetVal "TerSys", "SMSKey", GlS03(1, 9)
 Else
     If IniGetVal("Vorgabe", "StaRet") = vbNullString Then
@@ -25793,10 +25778,10 @@ Else
     Else
         GlS03(1, 7) = CStr(IniGetVal("TerSys", "SMSAbs"))
     End If
-    If IniGetVal("TerSys", "OtsImp") = vbNullString Then
-        IniSetVal "TerSys", "OtsImp", GlS03(1, 8)
+    If IniGetVal("TerSys", "OtsPfl") = vbNullString Then
+        IniSetVal "TerSys", "OtsPfl", GlS03(4, 8)
     Else
-        GlS03(1, 8) = CStr(IniGetVal("TerSys", "OtsImp"))
+        GlS03(4, 8) = CBool(IniGetVal("TerSys", "OtsPfl"))
     End If
     If IniGetVal("TerSys", "SMSKey") = vbNullString Then
         IniSetVal "TerSys", "SMSKey", GlS03(1, 9)
@@ -25818,7 +25803,7 @@ On Error GoTo InErr
 
 ReDim GlS04(5, 24)
 
-GlS04(0, 0) = "2922#Online-Terminbuchungs Sytem PIN Dialog"
+GlS04(0, 0) = "2922#Online-Termine PIN / E-Mail-Dialog"
 GlS04(0, 1) = "2881#Proxyserver Verwenden"
 GlS04(0, 2) = "2882#Proxyserver Name"
 GlS04(0, 3) = "2825#Rechnungsexport mit benanntem Gebührenkatalog"
@@ -25830,18 +25815,18 @@ GlS04(0, 8) = "1508#DATEV Beraternummer"
 GlS04(0, 9) = "1509#DATEV Mandantennummer"
 GlS04(0, 10) = "2926#Mandant der neuen Rechnung"
 GlS04(0, 11) = "2627#Terminzeit aus dem Terminbetreff verwenden"
-GlS04(0, 12) = "2928#Online-Terminbuchungs System zeige belegte Buchungszeiten"
-GlS04(0, 13) = "2929#Online-Terminbuchungs System ICS Datei bei Emailbestätigung"
-GlS04(0, 14) = "2930#Online-Terminbuchungs System Schriftart"
-GlS04(0, 15) = "2931#Online-Terminbuchungs System allgemeine Textfarbe"
-GlS04(0, 16) = "2932#Online-Terminbuchungs System allgemeine Hintergrundfarbe"
-GlS04(0, 17) = "2933#Online-Terminbuchungs System allgemeine Textgröße"
-GlS04(0, 18) = "2934#Online-Terminbuchungs System Button Hintergrundfarbe"
-GlS04(0, 19) = "2935#Online-Terminbuchungs System Button Textfarbe"
-GlS04(0, 20) = "2936#Online-Terminbuchungs System Button Hooverfarbe"
-GlS04(0, 21) = "2937#Online-Terminbuchungs System Button Deaktiviertfarbe"
-GlS04(0, 22) = "2938#Online-Terminbuchungs System Link Anschlussseite"
-GlS04(0, 23) = "2938#Online-Terminbuchungs System Link Datenschutzerklärung"
+GlS04(0, 12) = "2928#Online-Termine belegte Terminzeiten"
+GlS04(0, 13) = "2929#Online-Termine ICS bei Emailbestätigung"
+GlS04(0, 14) = "2930#Online-Termine allgemeine Schriftart"
+GlS04(0, 15) = "2931#Online-Termine allgemeine Schriftfarbe"
+GlS04(0, 16) = "2932#Online-Termine allgemeine Hintergrundfarbe"
+GlS04(0, 17) = "2933#Online-Termine E-Mail-Bestätigungstext"
+GlS04(0, 18) = "2934#Online-Termine Button Hintergrundfarbe"
+GlS04(0, 19) = "2935#Online-Termine Button Schriftfarbe"
+GlS04(0, 20) = "2936#Online-Termine Button Hooverfarbe"
+GlS04(0, 21) = "2937#Online-Termine Button Deaktiviertfarbe"
+GlS04(0, 22) = "2938#Online-Termine URL zu Folgeseite"
+GlS04(0, 23) = "2938#Online-Termine Leistungenen pro Buchungsvorgang"
 
 GlS04(1, 0) = vbNullString
 GlS04(1, 1) = vbNullString
@@ -25860,13 +25845,13 @@ GlS04(1, 13) = vbNullString
 GlS04(1, 14) = "Roboto"
 GlS04(1, 15) = vbNullString
 GlS04(1, 16) = vbNullString
-GlS04(1, 17) = vbNullString
+GlS04(1, 17) = "C5"
 GlS04(1, 18) = vbNullString
 GlS04(1, 19) = vbNullString
 GlS04(1, 20) = vbNullString
 GlS04(1, 21) = vbNullString
 GlS04(1, 22) = vbNullString
-GlS04(1, 23) = "https://simplimed.de/software/Datenschutz.htm"
+GlS04(1, 23) = vbNullString
 
 GlS04(2, 0) = 0
 GlS04(2, 1) = 0
@@ -25885,13 +25870,13 @@ GlS04(2, 13) = 0
 GlS04(2, 14) = 0
 GlS04(2, 15) = 4207920
 GlS04(2, 16) = 16777215
-GlS04(2, 17) = 13
+GlS04(2, 17) = 0
 GlS04(2, 18) = 14671839
 GlS04(2, 19) = 4207920
 GlS04(2, 20) = 9868950
 GlS04(2, 21) = 15790320
 GlS04(2, 22) = 0
-GlS04(2, 23) = 0
+GlS04(2, 23) = 1
 
 GlS04(3, 0) = 0
 GlS04(3, 1) = 0
@@ -25961,13 +25946,13 @@ If SeSet = True Then
     IniSetVal "TerSys", "OtsGWF", GlS04(1, 14)
     IniSetVal "TerSys", "OtsFTe", GlS04(2, 15)
     IniSetVal "TerSys", "OtsFBa", GlS04(2, 16)
-    IniSetVal "TerSys", "OtsFSi", GlS04(2, 17)
+    IniSetVal "TerSys", "OTSBes", GlS04(1, 17)
     IniSetVal "TerSys", "OtsBBa", GlS04(2, 18)
     IniSetVal "TerSys", "OtsBTe", GlS04(2, 19)
     IniSetVal "TerSys", "OtsBHo", GlS04(2, 20)
     IniSetVal "TerSys", "OtsBDi", GlS04(2, 21)
     IniSetVal "TerSys", "OtsLas", GlS04(1, 22)
-    IniSetVal "TerSys", "OtsLin", GlS04(1, 23)
+    IniSetVal "TerSys", "OtsAnL", GlS04(2, 23)
 Else
     If IniGetVal("TerSys", "OtsPIN") = vbNullString Then
         IniSetVal "TerSys", "OtsPIN", GlS04(4, 0)
@@ -26054,10 +26039,10 @@ Else
     Else
         GlS04(2, 16) = CLng(IniGetVal("TerSys", "OtsFBa"))
     End If
-    If IniGetVal("TerSys", "OtsFSi") = vbNullString Then
-        IniSetVal "TerSys", "OtsFSi", GlS04(2, 17)
+    If IniGetVal("TerSys", "OTSBes") = vbNullString Then
+        IniSetVal "TerSys", "OTSBes", GlS04(1, 17)
     Else
-        GlS04(2, 17) = CLng(IniGetVal("TerSys", "OtsFSi"))
+        GlS04(1, 17) = CStr(IniGetVal("TerSys", "OTSBes"))
     End If
     If IniGetVal("TerSys", "OtsBBa") = vbNullString Then
         IniSetVal "TerSys", "OtsBBa", GlS04(2, 18)
@@ -26084,10 +26069,10 @@ Else
     Else
         GlS04(1, 22) = CStr(IniGetVal("TerSys", "OtsLas"))
     End If
-    If IniGetVal("TerSys", "OtsLin") = vbNullString Then
-        IniSetVal "TerSys", "OtsLin", GlS04(1, 23)
+    If IniGetVal("TerSys", "OtsAnL") = vbNullString Then
+        IniSetVal "TerSys", "OtsAnL", GlS04(2, 23)
     Else
-        GlS04(1, 23) = CStr(IniGetVal("TerSys", "OtsLin"))
+        GlS04(2, 23) = CLng(IniGetVal("TerSys", "OtsAnL"))
     End If
 End If
 
@@ -26273,7 +26258,7 @@ GlS07(0, 0) = "2947#Starre oder flexible Sprechzeiten aktivieren"
 GlS07(0, 1) = "2948#Einfache Buchführung verwenden"
 GlS07(0, 2) = "2949#Datenbankscripting aktivieren"
 GlS07(0, 3) = "2950#Standardsteuerkonto"
-GlS07(0, 4) = "2953#Online-Terminbuchungs Sytem Adressenerfassung"
+GlS07(0, 4) = "2953#Online-Termine Adressen-Dialog"
 
 GlS07(1, 0) = vbNullString
 GlS07(1, 1) = vbNullString
@@ -26355,7 +26340,7 @@ GlS08(0, 5) = "2958#Krankenblatt Dokumentenimport"
 GlS08(0, 6) = "2959#Konstante Krankenblattsortierung"
 GlS08(0, 7) = "2960#Prüfung auf doppelte Diagnosen"
 GlS08(0, 8) = "2961#Automatische Patienten-Terminerinnerung"
-GlS08(0, 9) = "2963#Online-Terminbuchungs Sytem Warteliste-Dialog"
+GlS08(0, 9) = "2963#Online-Termine Wartelisten-Dialog"
 
 GlS08(1, 0) = vbNullString
 GlS08(1, 1) = vbNullString
@@ -26479,7 +26464,7 @@ On Error GoTo InErr
 ReDim GlS09(5, 6)
 
 GlS09(0, 0) = "2964#Automatische SMS Terminerinnerung"
-GlS09(0, 1) = "2965#Online-Terminbuchungs System autom. Aktualisierung"
+GlS09(0, 1) = "2965#Online-Termine Anzahl Anz. buchbarer Termine"
 GlS09(0, 2) = "2966#Anzeige stornierter Termine in den Termindetails"
 GlS09(0, 3) = "2967#TSE Kennung"
 GlS09(0, 4) = "2968#TSE Laufwerk"
@@ -26493,7 +26478,7 @@ GlS09(1, 4) = "e:"
 GlS09(1, 5) = CreateID("K")
 
 GlS09(2, 0) = 0
-GlS09(2, 1) = 0
+GlS09(2, 1) = 1
 GlS09(2, 2) = 0
 GlS09(2, 3) = 0
 GlS09(2, 4) = 0
@@ -26515,7 +26500,7 @@ GlS09(4, 5) = 0
 
 If SeSet = True Then
     IniSetVal "System", "EriSMS", GlS09(4, 0)
-    IniSetVal "System", "OtsAut", GlS09(4, 1)
+    IniSetVal "TerSys", "OtsSer", GlS09(2, 1)
     IniSetVal "TerSys", "ZeStTe", GlS09(4, 2)
     IniSetVal "System", "TSEKas", GlS09(1, 3)
     IniSetVal "System", "TSEDrv", GlS09(1, 4)
@@ -26526,10 +26511,10 @@ Else
     Else
         GlS09(4, 0) = CBool(IniGetVal("System", "EriSMS"))
     End If
-    If IniGetVal("System", "OtsAut") = vbNullString Then
-        IniSetVal "System", "OtsAut", GlS09(4, 1)
+    If IniGetVal("TerSys", "OtsSer") = vbNullString Then
+        IniSetVal "TerSys", "OtsSer", GlS09(2, 1)
     Else
-        GlS09(4, 1) = CBool(IniGetVal("System", "OtsAut"))
+        GlS09(2, 1) = CInt(IniGetVal("TerSys", "OtsSer"))
     End If
     If IniGetVal("TerSys", "ZeStTe") = vbNullString Then
         IniSetVal "TerSys", "ZeStTe", GlS09(4, 2)
@@ -26640,7 +26625,7 @@ GlS11(0, 4) = "2977#SMTP Praxisname"
 GlS11(0, 5) = "2978#SMTP IP-Adresse"
 GlS11(0, 6) = "2979#SMTP SocksProxyServer"
 GlS11(0, 7) = "2980#SMTP SocksProxyPort"
-GlS11(0, 8) = "2981#Online-Terminbuchungs Sytem Stornierte Entfernen"
+GlS11(0, 8) = "2981#Online-Termine Stornierte Entfernen"
 GlS11(0, 9) = "2982#Termindetails mit Mitarbeitername"
 
 GlS11(1, 0) = vbNullString

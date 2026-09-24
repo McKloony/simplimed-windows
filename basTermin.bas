@@ -6594,12 +6594,6 @@ PuBu8.Icon = ImMan.Icons.GetImage(IC16_Telephone, 16)
 PuBu9.Icon = ImMan.Icons.GetImage(IC16_Earth_Mail, 16)
 If GlRDP = True Then PuBu9.Enabled = False
 
-If GlOTS = True Then 'Online-Terminbuchungs Sytem
-    If GlOTK = False Then 'Online-Terminbuchungs System autom. Aktualisierung
-        TxOrt.Enabled = False
-    End If
-End If
-
 TxDa2.Enabled = Not GlOTS 'Online-Terminbuchungs Sytem
 PuBu2.Enabled = Not GlOTS 'Online-Terminbuchungs Sytem
 

@@ -8,7 +8,7 @@ Begin VB.Form frmMandant
    ClientHeight    =   12090
    ClientLeft      =   60
    ClientTop       =   345
-   ClientWidth     =   17880
+   ClientWidth     =   21885
    ControlBox      =   0   'False
    Icon            =   "frmMandant.frx":0000
    LinkTopic       =   "Form1"
@@ -16,7 +16,7 @@ Begin VB.Form frmMandant
    MaxButton       =   0   'False
    MinButton       =   0   'False
    ScaleHeight     =   12090
-   ScaleWidth      =   17880
+   ScaleWidth      =   21885
    Begin XtremeSuiteControls.GroupBox frmRahm7 
       Height          =   3800
       Left            =   11000
@@ -46,25 +46,10 @@ Begin VB.Form frmMandant
          Style           =   2
          Text            =   "ComboBox1"
       End
-      Begin XtremeSuiteControls.CheckBox chkDefra 
-         Height          =   255
-         Left            =   7800
-         TabIndex        =   96
-         TabStop         =   0   'False
-         Tag             =   "0Versand"
-         Top             =   3040
-         Width           =   2700
-         _Version        =   1048579
-         _ExtentX        =   4762
-         _ExtentY        =   450
-         _StockProps     =   79
-         Caption         =   "Multi-Terminbetreff Auswahl"
-         UseVisualStyle  =   -1  'True
-      End
       Begin XtremeSuiteControls.CheckBox chkKaAus 
          Height          =   255
          Left            =   7800
-         TabIndex        =   98
+         TabIndex        =   96
          TabStop         =   0   'False
          Tag             =   "0Gesperrt"
          Top             =   3040
@@ -700,7 +685,7 @@ Begin VB.Form frmMandant
          Left            =   8940
          TabIndex        =   91
          TabStop         =   0   'False
-         Top             =   740
+         Top             =   1180
          Width           =   1400
          _Version        =   1048579
          _ExtentX        =   2461
@@ -714,7 +699,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbVorLa 
          Height          =   315
          Left            =   8940
-         TabIndex        =   93
+         TabIndex        =   92
          TabStop         =   0   'False
          Top             =   1640
          Width           =   1395
@@ -730,7 +715,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.CheckBox chkOnlTe 
          Height          =   255
          Left            =   7800
-         TabIndex        =   95
+         TabIndex        =   94
          TabStop         =   0   'False
          Tag             =   "0OnlTer"
          Top             =   2660
@@ -745,7 +730,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbRast2 
          Height          =   315
          Left            =   8940
-         TabIndex        =   97
+         TabIndex        =   95
          TabStop         =   0   'False
          Top             =   300
          Width           =   1400
@@ -759,26 +744,10 @@ Begin VB.Form frmMandant
          Text            =   "ComboBox1"
          DropDownItemCount=   12
       End
-      Begin XtremeSuiteControls.ComboBox cmbMaxPa 
-         Height          =   315
-         Left            =   8940
-         TabIndex        =   92
-         TabStop         =   0   'False
-         Top             =   1180
-         Width           =   1400
-         _Version        =   1048579
-         _ExtentX        =   2461
-         _ExtentY        =   556
-         _StockProps     =   77
-         ForeColor       =   0
-         BackColor       =   16777215
-         Style           =   2
-         Text            =   "ComboBox1"
-      End
       Begin XtremeSuiteControls.ComboBox cmbBuRad 
          Height          =   315
          Left            =   8940
-         TabIndex        =   94
+         TabIndex        =   93
          TabStop         =   0   'False
          Top             =   2080
          Width           =   1400
@@ -794,64 +763,50 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab82 
          Height          =   255
          Left            =   7600
-         TabIndex        =   229
+         TabIndex        =   226
          Top             =   780
          Width           =   1270
          _Version        =   1048579
          _ExtentX        =   2240
          _ExtentY        =   450
          _StockProps     =   79
-         Caption         =   "Emailerinnerung :"
+         Caption         =   "Erinnerung :"
          Alignment       =   1
          Transparent     =   -1  'True
       End
       Begin XtremeSuiteControls.Label lblLab80 
          Height          =   255
          Left            =   7600
-         TabIndex        =   226
+         TabIndex        =   223
          Top             =   2140
          Width           =   1270
          _Version        =   1048579
          _ExtentX        =   2240
          _ExtentY        =   450
          _StockProps     =   79
-         Caption         =   "Buchungsradius :"
-         Alignment       =   1
-         Transparent     =   -1  'True
-      End
-      Begin XtremeSuiteControls.Label lblLab74 
-         Height          =   255
-         Left            =   7600
-         TabIndex        =   211
-         Top             =   1220
-         Width           =   1270
-         _Version        =   1048579
-         _ExtentX        =   2240
-         _ExtentY        =   450
-         _StockProps     =   79
-         Caption         =   "Max / Patient :"
+         Caption         =   "Horizont :"
          Alignment       =   1
          Transparent     =   -1  'True
       End
       Begin XtremeSuiteControls.Label lblLab72 
          Height          =   255
          Left            =   7600
-         TabIndex        =   197
+         TabIndex        =   195
          Top             =   1680
          Width           =   1270
          _Version        =   1048579
          _ExtentX        =   2240
          _ExtentY        =   450
          _StockProps     =   79
-         Caption         =   "Vorlaufstunden :"
+         Caption         =   "Vorlauf :"
          Alignment       =   1
          Transparent     =   -1  'True
       End
       Begin XtremeSuiteControls.Label lblLab71 
          Height          =   255
          Left            =   7600
-         TabIndex        =   196
-         Top             =   780
+         TabIndex        =   194
+         Top             =   1220
          Width           =   1270
          _Version        =   1048579
          _ExtentX        =   2240
@@ -867,7 +822,7 @@ Begin VB.Form frmMandant
          Caption         =   "Zeitraster :"
          Height          =   240
          Left            =   7600
-         TabIndex        =   190
+         TabIndex        =   188
          Top             =   340
          Width           =   1270
       End
@@ -877,7 +832,7 @@ Begin VB.Form frmMandant
          Caption         =   "Sonntag von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   187
+         TabIndex        =   185
          Top             =   3040
          Width           =   1240
       End
@@ -887,7 +842,7 @@ Begin VB.Form frmMandant
          Caption         =   "Dienstag von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   186
+         TabIndex        =   184
          Top             =   780
          Width           =   1240
       End
@@ -897,7 +852,7 @@ Begin VB.Form frmMandant
          Caption         =   "Montag von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   185
+         TabIndex        =   183
          Top             =   340
          Width           =   1240
       End
@@ -907,7 +862,7 @@ Begin VB.Form frmMandant
          Caption         =   "Donnerstag von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   184
+         TabIndex        =   182
          Top             =   1680
          Width           =   1240
       End
@@ -917,7 +872,7 @@ Begin VB.Form frmMandant
          Caption         =   "Freitag von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   183
+         TabIndex        =   181
          Top             =   2140
          Width           =   1240
       End
@@ -927,7 +882,7 @@ Begin VB.Form frmMandant
          Caption         =   "Samstag von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   182
+         TabIndex        =   180
          Top             =   2580
          Width           =   1240
       End
@@ -937,7 +892,7 @@ Begin VB.Form frmMandant
          Caption         =   "Mittwoch von :"
          Height          =   240
          Left            =   100
-         TabIndex        =   181
+         TabIndex        =   179
          Top             =   1220
          Width           =   1240
       End
@@ -947,7 +902,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   180
+         TabIndex        =   178
          Top             =   3040
          Width           =   300
       End
@@ -957,7 +912,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   179
+         TabIndex        =   177
          Top             =   780
          Width           =   300
       End
@@ -967,7 +922,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   178
+         TabIndex        =   176
          Top             =   340
          Width           =   300
       End
@@ -977,7 +932,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   177
+         TabIndex        =   175
          Top             =   1680
          Width           =   300
       End
@@ -987,7 +942,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   176
+         TabIndex        =   174
          Top             =   2140
          Width           =   300
       End
@@ -997,7 +952,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   175
+         TabIndex        =   173
          Top             =   2580
          Width           =   300
       End
@@ -1007,7 +962,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   2730
-         TabIndex        =   174
+         TabIndex        =   172
          Top             =   1220
          Width           =   300
       End
@@ -1017,7 +972,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   173
+         TabIndex        =   171
          Top             =   3040
          Width           =   300
       End
@@ -1027,7 +982,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   172
+         TabIndex        =   170
          Top             =   780
          Width           =   300
       End
@@ -1037,7 +992,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   171
+         TabIndex        =   169
          Top             =   340
          Width           =   300
       End
@@ -1047,7 +1002,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   170
+         TabIndex        =   168
          Top             =   1680
          Width           =   300
       End
@@ -1057,7 +1012,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   169
+         TabIndex        =   167
          Top             =   2140
          Width           =   300
       End
@@ -1067,7 +1022,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   168
+         TabIndex        =   166
          Top             =   2580
          Width           =   300
       End
@@ -1077,7 +1032,7 @@ Begin VB.Form frmMandant
          Caption         =   "bis :"
          Height          =   240
          Left            =   6150
-         TabIndex        =   167
+         TabIndex        =   165
          Top             =   1220
          Width           =   300
       End
@@ -1087,7 +1042,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   166
+         TabIndex        =   164
          Top             =   3040
          Width           =   700
       End
@@ -1097,7 +1052,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   165
+         TabIndex        =   163
          Top             =   780
          Width           =   700
       End
@@ -1107,7 +1062,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   164
+         TabIndex        =   162
          Top             =   340
          Width           =   700
       End
@@ -1117,7 +1072,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   163
+         TabIndex        =   161
          Top             =   1680
          Width           =   700
       End
@@ -1127,7 +1082,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   162
+         TabIndex        =   160
          Top             =   2140
          Width           =   700
       End
@@ -1137,7 +1092,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   161
+         TabIndex        =   159
          Top             =   2580
          Width           =   700
       End
@@ -1147,7 +1102,7 @@ Begin VB.Form frmMandant
          Caption         =   "und von :"
          Height          =   240
          Left            =   4120
-         TabIndex        =   160
+         TabIndex        =   158
          Top             =   1220
          Width           =   700
       End
@@ -1155,7 +1110,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.GroupBox frmRahm8 
       Height          =   3800
       Left            =   120
-      TabIndex        =   191
+      TabIndex        =   189
       Top             =   8400
       Visible         =   0   'False
       Width           =   11000
@@ -1168,7 +1123,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtKoste 
          Height          =   350
          Left            =   6970
-         TabIndex        =   121
+         TabIndex        =   119
          Tag             =   "0AbrBereich"
          Top             =   2620
          Width           =   2000
@@ -1182,7 +1137,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtS3F02 
          Height          =   600
          Left            =   1800
-         TabIndex        =   122
+         TabIndex        =   120
          Tag             =   "0Anamnese"
          Top             =   3100
          Width           =   8700
@@ -1199,7 +1154,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbGbKat 
          Height          =   315
          Left            =   6970
-         TabIndex        =   116
+         TabIndex        =   114
          Tag             =   "0StaGeb"
          Top             =   300
          Width           =   3500
@@ -1215,7 +1170,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbGbKet 
          Height          =   315
          Left            =   6970
-         TabIndex        =   117
+         TabIndex        =   115
          Tag             =   "0StaKet"
          Top             =   760
          Width           =   3500
@@ -1231,7 +1186,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbSteue 
          Height          =   315
          Left            =   6970
-         TabIndex        =   120
+         TabIndex        =   118
          Tag             =   "0StaStu"
          Top             =   2160
          Width           =   3500
@@ -1247,7 +1202,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbKtoRa 
          Height          =   315
          Left            =   1800
-         TabIndex        =   110
+         TabIndex        =   108
          Tag             =   "0StaRam"
          Top             =   300
          Width           =   3500
@@ -1263,7 +1218,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbKtoEr 
          Height          =   315
          Left            =   1800
-         TabIndex        =   111
+         TabIndex        =   109
          Tag             =   "0StaKon"
          Top             =   760
          Width           =   3500
@@ -1279,7 +1234,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbReTyp 
          Height          =   315
          Left            =   6970
-         TabIndex        =   119
+         TabIndex        =   117
          Tag             =   "0SteRet"
          Top             =   1690
          Width           =   3500
@@ -1295,7 +1250,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbKtoEk 
          Height          =   315
          Left            =   1800
-         TabIndex        =   112
+         TabIndex        =   110
          Tag             =   "0StaKo2"
          Top             =   1230
          Width           =   3500
@@ -1311,7 +1266,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbGeKt1 
          Height          =   315
          Left            =   1800
-         TabIndex        =   113
+         TabIndex        =   111
          Tag             =   "0StaGk1"
          Top             =   1690
          Width           =   3500
@@ -1327,7 +1282,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbGeKt2 
          Height          =   315
          Left            =   1800
-         TabIndex        =   114
+         TabIndex        =   112
          Tag             =   "0StaGk2"
          Top             =   2160
          Width           =   3500
@@ -1343,7 +1298,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbKtoSt 
          Height          =   315
          Left            =   1800
-         TabIndex        =   115
+         TabIndex        =   113
          Tag             =   "0StStKt"
          Top             =   2620
          Width           =   3500
@@ -1359,7 +1314,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.ComboBox cmbGbKe2 
          Height          =   315
          Left            =   6970
-         TabIndex        =   118
+         TabIndex        =   116
          Tag             =   "0Kanton"
          Top             =   1230
          Width           =   3500
@@ -1378,14 +1333,14 @@ Begin VB.Form frmMandant
          Caption         =   "Gebührenkette 2 :"
          Height          =   240
          Left            =   5270
-         TabIndex        =   231
+         TabIndex        =   228
          Top             =   1290
          Width           =   1605
       End
       Begin XtremeSuiteControls.Label lblLab83 
          Height          =   255
          Left            =   100
-         TabIndex        =   230
+         TabIndex        =   227
          Top             =   2660
          Width           =   1600
          _Version        =   1048579
@@ -1399,7 +1354,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab81 
          Height          =   240
          Left            =   5270
-         TabIndex        =   228
+         TabIndex        =   225
          Top             =   2660
          Width           =   1600
          _Version        =   1048579
@@ -1416,7 +1371,7 @@ Begin VB.Form frmMandant
          Caption         =   "Geldkonto (Kasse) :"
          Height          =   240
          Left            =   100
-         TabIndex        =   209
+         TabIndex        =   207
          Top             =   2200
          Width           =   1600
       End
@@ -1426,7 +1381,7 @@ Begin VB.Form frmMandant
          Caption         =   "Geldkonto (Bank) :"
          Height          =   240
          Left            =   100
-         TabIndex        =   208
+         TabIndex        =   206
          Top             =   1750
          Width           =   1600
       End
@@ -1436,7 +1391,7 @@ Begin VB.Form frmMandant
          Caption         =   "Erlöskonto (Kasse) :"
          Height          =   240
          Left            =   100
-         TabIndex        =   207
+         TabIndex        =   205
          Top             =   1290
          Width           =   1600
       End
@@ -1446,7 +1401,7 @@ Begin VB.Form frmMandant
          Caption         =   "Steuersatz :"
          Height          =   240
          Left            =   5270
-         TabIndex        =   206
+         TabIndex        =   204
          Top             =   2200
          Width           =   1600
       End
@@ -1456,7 +1411,7 @@ Begin VB.Form frmMandant
          Caption         =   "Rechnungstyp :"
          Height          =   240
          Left            =   5270
-         TabIndex        =   205
+         TabIndex        =   203
          Top             =   1750
          Width           =   1600
       End
@@ -1466,7 +1421,7 @@ Begin VB.Form frmMandant
          Caption         =   "Erlöskonto (Bank) :"
          Height          =   240
          Left            =   100
-         TabIndex        =   204
+         TabIndex        =   202
          Top             =   800
          Width           =   1600
       End
@@ -1476,7 +1431,7 @@ Begin VB.Form frmMandant
          Caption         =   "Kontenrahmen :"
          Height          =   240
          Left            =   100
-         TabIndex        =   203
+         TabIndex        =   201
          Top             =   360
          Width           =   1600
       End
@@ -1486,7 +1441,7 @@ Begin VB.Form frmMandant
          Caption         =   "Gebührenkette 1 :"
          Height          =   240
          Left            =   5270
-         TabIndex        =   202
+         TabIndex        =   200
          Top             =   800
          Width           =   1600
       End
@@ -1496,7 +1451,7 @@ Begin VB.Form frmMandant
          Caption         =   "Gebührenkatalog :"
          Height          =   240
          Left            =   5270
-         TabIndex        =   201
+         TabIndex        =   199
          Top             =   360
          Width           =   1600
       End
@@ -1506,7 +1461,7 @@ Begin VB.Form frmMandant
          Caption         =   "Therapientexte :"
          Height          =   240
          Left            =   100
-         TabIndex        =   200
+         TabIndex        =   198
          Top             =   3100
          Width           =   1600
       End
@@ -1528,7 +1483,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F20 
       Height          =   300
       Left            =   4080
-      TabIndex        =   123
+      TabIndex        =   121
       TabStop         =   0   'False
       Tag             =   "0R_Briefanrede"
       Top             =   12300
@@ -1545,7 +1500,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F19 
       Height          =   300
       Left            =   3720
-      TabIndex        =   124
+      TabIndex        =   122
       TabStop         =   0   'False
       Tag             =   "0R_Ort"
       Top             =   12300
@@ -1562,7 +1517,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F18 
       Height          =   300
       Left            =   3360
-      TabIndex        =   125
+      TabIndex        =   123
       TabStop         =   0   'False
       Tag             =   "0R_PLZ"
       Top             =   12300
@@ -1579,7 +1534,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F16 
       Height          =   300
       Left            =   3000
-      TabIndex        =   126
+      TabIndex        =   124
       TabStop         =   0   'False
       Tag             =   "0R_Straße"
       Top             =   12300
@@ -1596,7 +1551,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F15 
       Height          =   300
       Left            =   2280
-      TabIndex        =   127
+      TabIndex        =   125
       TabStop         =   0   'False
       Tag             =   "0R_Name"
       Top             =   12300
@@ -1613,7 +1568,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F14 
       Height          =   300
       Left            =   5160
-      TabIndex        =   128
+      TabIndex        =   126
       TabStop         =   0   'False
       Tag             =   "0R_Vorname"
       Top             =   12300
@@ -1630,7 +1585,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F13 
       Height          =   300
       Left            =   4440
-      TabIndex        =   129
+      TabIndex        =   127
       TabStop         =   0   'False
       Tag             =   "0R_Titel"
       Top             =   12300
@@ -1647,7 +1602,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F12 
       Height          =   300
       Left            =   4800
-      TabIndex        =   130
+      TabIndex        =   128
       TabStop         =   0   'False
       Tag             =   "0R_Anrede"
       Top             =   12300
@@ -1664,7 +1619,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS1F01 
       Height          =   300
       Left            =   2640
-      TabIndex        =   131
+      TabIndex        =   129
       TabStop         =   0   'False
       Tag             =   "0Firma1"
       Top             =   12300
@@ -1914,7 +1869,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab18 
          Height          =   240
          Left            =   100
-         TabIndex        =   216
+         TabIndex        =   213
          Top             =   800
          Width           =   1200
          _Version        =   1048579
@@ -1928,7 +1883,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab16 
          Height          =   240
          Left            =   100
-         TabIndex        =   215
+         TabIndex        =   212
          Top             =   3140
          Width           =   1200
          _Version        =   1048579
@@ -1942,7 +1897,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab15 
          Height          =   240
          Left            =   100
-         TabIndex        =   214
+         TabIndex        =   211
          Top             =   2200
          Width           =   1200
          _Version        =   1048579
@@ -1956,7 +1911,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab13 
          Height          =   240
          Left            =   100
-         TabIndex        =   213
+         TabIndex        =   210
          Top             =   1290
          Width           =   1200
          _Version        =   1048579
@@ -1970,7 +1925,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab14 
          Height          =   240
          Left            =   100
-         TabIndex        =   212
+         TabIndex        =   209
          Top             =   1750
          Width           =   1200
          _Version        =   1048579
@@ -1987,14 +1942,14 @@ Begin VB.Form frmMandant
          Caption         =   "Nummer :"
          Height          =   240
          Left            =   3140
-         TabIndex        =   199
+         TabIndex        =   197
          Top             =   2670
          Width           =   700
       End
       Begin XtremeSuiteControls.Label lblLab17 
          Height          =   240
          Left            =   100
-         TabIndex        =   133
+         TabIndex        =   131
          Top             =   360
          Width           =   1200
          _Version        =   1048579
@@ -2012,7 +1967,7 @@ Begin VB.Form frmMandant
          Caption         =   "Geboren :"
          Height          =   240
          Left            =   100
-         TabIndex        =   132
+         TabIndex        =   130
          Top             =   2670
          Width           =   1200
       End
@@ -2153,7 +2108,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab79 
          Height          =   240
          Left            =   100
-         TabIndex        =   225
+         TabIndex        =   222
          Top             =   2200
          Width           =   1200
          _Version        =   1048579
@@ -2167,7 +2122,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab78 
          Height          =   240
          Left            =   100
-         TabIndex        =   224
+         TabIndex        =   221
          Top             =   1750
          Width           =   1200
          _Version        =   1048579
@@ -2181,7 +2136,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab77 
          Height          =   240
          Left            =   100
-         TabIndex        =   223
+         TabIndex        =   220
          Top             =   1290
          Width           =   1200
          _Version        =   1048579
@@ -2195,7 +2150,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab76 
          Height          =   240
          Left            =   100
-         TabIndex        =   222
+         TabIndex        =   219
          Top             =   800
          Width           =   1200
          _Version        =   1048579
@@ -2209,7 +2164,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab75 
          Height          =   240
          Left            =   100
-         TabIndex        =   221
+         TabIndex        =   218
          Top             =   360
          Width           =   1200
          _Version        =   1048579
@@ -2223,7 +2178,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab22 
          Height          =   240
          Left            =   100
-         TabIndex        =   220
+         TabIndex        =   217
          Top             =   2670
          Width           =   1200
          _Version        =   1048579
@@ -2327,7 +2282,7 @@ Begin VB.Form frmMandant
       End
       Begin XtremeSuiteControls.FlatEdit txtS1F23 
          Height          =   350
-         Left            =   1360
+         Left            =   1350
          TabIndex        =   22
          TabStop         =   0   'False
          Tag             =   "0Postfach"
@@ -2379,7 +2334,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab20 
          Height          =   240
          Left            =   100
-         TabIndex        =   218
+         TabIndex        =   215
          Top             =   2200
          Width           =   1200
          _Version        =   1048579
@@ -2393,7 +2348,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab24 
          Height          =   240
          Left            =   100
-         TabIndex        =   195
+         TabIndex        =   193
          Top             =   2670
          Width           =   1200
          _Version        =   1048579
@@ -2410,7 +2365,7 @@ Begin VB.Form frmMandant
          Caption         =   "Telefax :"
          Height          =   240
          Left            =   100
-         TabIndex        =   137
+         TabIndex        =   135
          Top             =   800
          Width           =   1200
       End
@@ -2420,7 +2375,7 @@ Begin VB.Form frmMandant
          Caption         =   "Telefon :"
          Height          =   240
          Left            =   100
-         TabIndex        =   136
+         TabIndex        =   134
          Top             =   360
          Width           =   1200
       End
@@ -2430,7 +2385,7 @@ Begin VB.Form frmMandant
          Caption         =   "Internet :"
          Height          =   240
          Left            =   100
-         TabIndex        =   135
+         TabIndex        =   133
          Top             =   1750
          Width           =   1200
       End
@@ -2440,7 +2395,7 @@ Begin VB.Form frmMandant
          Caption         =   "Email :"
          Height          =   240
          Left            =   100
-         TabIndex        =   134
+         TabIndex        =   132
          Top             =   1290
          Width           =   1200
       End
@@ -2609,7 +2564,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab19 
          Height          =   240
          Left            =   100
-         TabIndex        =   217
+         TabIndex        =   214
          Top             =   360
          Width           =   1200
          _Version        =   1048579
@@ -2626,7 +2581,7 @@ Begin VB.Form frmMandant
          Caption         =   "Vorname :"
          Height          =   240
          Left            =   100
-         TabIndex        =   144
+         TabIndex        =   142
          Top             =   1290
          Width           =   1200
       End
@@ -2636,7 +2591,7 @@ Begin VB.Form frmMandant
          Caption         =   "PLZ / Ort :"
          Height          =   240
          Left            =   100
-         TabIndex        =   143
+         TabIndex        =   141
          Top             =   2670
          Width           =   1200
       End
@@ -2646,7 +2601,7 @@ Begin VB.Form frmMandant
          Caption         =   "Straße :"
          Height          =   240
          Left            =   100
-         TabIndex        =   142
+         TabIndex        =   140
          Top             =   2200
          Width           =   1200
       End
@@ -2656,7 +2611,7 @@ Begin VB.Form frmMandant
          Caption         =   "Nachname :"
          Height          =   240
          Left            =   100
-         TabIndex        =   141
+         TabIndex        =   139
          Top             =   1750
          Width           =   1200
       End
@@ -2666,7 +2621,7 @@ Begin VB.Form frmMandant
          Caption         =   "Anrede :"
          Height          =   240
          Left            =   100
-         TabIndex        =   140
+         TabIndex        =   138
          Top             =   800
          Width           =   1200
       End
@@ -2676,7 +2631,7 @@ Begin VB.Form frmMandant
          Caption         =   "Titel :"
          Height          =   240
          Left            =   2700
-         TabIndex        =   139
+         TabIndex        =   137
          Top             =   800
          Width           =   600
       End
@@ -2686,7 +2641,7 @@ Begin VB.Form frmMandant
          Caption         =   "Berufsbezeich.:"
          Height          =   240
          Left            =   100
-         TabIndex        =   138
+         TabIndex        =   136
          Top             =   3140
          Width           =   1200
       End
@@ -2694,7 +2649,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F27 
       Height          =   300
       Left            =   5520
-      TabIndex        =   145
+      TabIndex        =   143
       TabStop         =   0   'False
       Tag             =   "0Datum"
       Top             =   12300
@@ -2711,7 +2666,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F22 
       Height          =   300
       Left            =   1200
-      TabIndex        =   146
+      TabIndex        =   144
       TabStop         =   0   'False
       Tag             =   "0R_Land"
       Top             =   12300
@@ -2728,7 +2683,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS2F25 
       Height          =   300
       Left            =   6240
-      TabIndex        =   147
+      TabIndex        =   145
       TabStop         =   0   'False
       Tag             =   "0R_Geboren"
       Top             =   12300
@@ -2745,7 +2700,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS3F01 
       Height          =   300
       Left            =   6600
-      TabIndex        =   148
+      TabIndex        =   146
       TabStop         =   0   'False
       Tag             =   "0Anschrift"
       Top             =   12300
@@ -2762,7 +2717,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS1F20 
       Height          =   195
       Left            =   720
-      TabIndex        =   149
+      TabIndex        =   147
       TabStop         =   0   'False
       Tag             =   "0DuSie"
       Top             =   13000
@@ -2779,7 +2734,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.ComboBox cmbS1F10 
       Height          =   315
       Left            =   7800
-      TabIndex        =   150
+      TabIndex        =   148
       TabStop         =   0   'False
       Tag             =   "0Briefanrede"
       Top             =   12300
@@ -2797,7 +2752,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtGesch 
       Height          =   195
       Left            =   240
-      TabIndex        =   151
+      TabIndex        =   149
       TabStop         =   0   'False
       Tag             =   "0Geschlecht"
       Top             =   12300
@@ -2813,7 +2768,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtS4F01 
       Height          =   300
       Left            =   5880
-      TabIndex        =   152
+      TabIndex        =   150
       TabStop         =   0   'False
       Tag             =   "0Kontoinhaber"
       Top             =   12300
@@ -2830,7 +2785,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.ComboBox cmbS1F08 
       Height          =   315
       Left            =   8500
-      TabIndex        =   153
+      TabIndex        =   151
       TabStop         =   0   'False
       Tag             =   "0GeschlTyp"
       Top             =   12300
@@ -2862,7 +2817,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtGIDNr 
          Height          =   350
          Left            =   1360
-         TabIndex        =   109
+         TabIndex        =   107
          Tag             =   "0GID"
          Top             =   2620
          Width           =   3500
@@ -2877,7 +2832,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtBICN2 
          Height          =   350
          Left            =   1360
-         TabIndex        =   108
+         TabIndex        =   106
          Tag             =   "0BIC2"
          Top             =   2160
          Width           =   3500
@@ -2892,7 +2847,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtIBAN2 
          Height          =   350
          Left            =   1360
-         TabIndex        =   107
+         TabIndex        =   105
          Tag             =   "0IBAN2"
          Top             =   1690
          Width           =   3500
@@ -2907,7 +2862,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtBLZ02 
          Height          =   350
          Left            =   1360
-         TabIndex        =   104
+         TabIndex        =   102
          Tag             =   "0BLZ2"
          Top             =   300
          Width           =   2000
@@ -2923,7 +2878,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtKont2 
          Height          =   350
          Left            =   1360
-         TabIndex        =   105
+         TabIndex        =   103
          Tag             =   "0Konto2"
          Top             =   760
          Width           =   3500
@@ -2939,7 +2894,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtBank2 
          Height          =   350
          Left            =   1360
-         TabIndex        =   106
+         TabIndex        =   104
          Tag             =   "0Bank2"
          Top             =   1230
          Width           =   3500
@@ -2955,7 +2910,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab23 
          Height          =   240
          Left            =   100
-         TabIndex        =   194
+         TabIndex        =   192
          Top             =   2670
          Width           =   1200
          _Version        =   1048579
@@ -2969,7 +2924,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label Label33 
          Height          =   240
          Left            =   100
-         TabIndex        =   193
+         TabIndex        =   191
          Top             =   2200
          Width           =   1200
          _Version        =   1048579
@@ -2986,7 +2941,7 @@ Begin VB.Form frmMandant
          Caption         =   "Kreditinstitut :"
          Height          =   240
          Left            =   100
-         TabIndex        =   158
+         TabIndex        =   156
          Top             =   1290
          Width           =   1200
       End
@@ -2996,7 +2951,7 @@ Begin VB.Form frmMandant
          Caption         =   "Bankleitzahl :"
          Height          =   240
          Left            =   100
-         TabIndex        =   157
+         TabIndex        =   155
          Top             =   360
          Width           =   1200
       End
@@ -3006,7 +2961,7 @@ Begin VB.Form frmMandant
          Caption         =   "Kontoinhaber :"
          Height          =   240
          Left            =   100
-         TabIndex        =   156
+         TabIndex        =   154
          Top             =   800
          Width           =   1200
       End
@@ -3016,7 +2971,7 @@ Begin VB.Form frmMandant
          Caption         =   "IBAN :"
          Height          =   240
          Left            =   100
-         TabIndex        =   155
+         TabIndex        =   153
          Top             =   1750
          Width           =   1200
       End
@@ -3037,7 +2992,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtS1F10 
          Height          =   350
          Left            =   1360
-         TabIndex        =   100
+         TabIndex        =   98
          Tag             =   "0Firma2"
          Top             =   760
          Width           =   3500
@@ -3052,7 +3007,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtS2F23 
          Height          =   350
          Left            =   1360
-         TabIndex        =   102
+         TabIndex        =   100
          TabStop         =   0   'False
          Tag             =   "0Telefon6"
          Top             =   2620
@@ -3067,7 +3022,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtS1F11 
          Height          =   350
          Left            =   1360
-         TabIndex        =   99
+         TabIndex        =   97
          Tag             =   "0IDKurz"
          Top             =   300
          Width           =   3500
@@ -3083,7 +3038,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.PushButton btnSign1 
          Height          =   350
          Left            =   4550
-         TabIndex        =   103
+         TabIndex        =   101
          TabStop         =   0   'False
          ToolTipText     =   "Ordnen dem Mitarbeiter eine Signaturdatei zu"
          Top             =   2620
@@ -3097,7 +3052,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.FlatEdit txtEmSig 
          Height          =   1230
          Left            =   1360
-         TabIndex        =   101
+         TabIndex        =   99
          Tag             =   "0Objekt"
          Top             =   1230
          Width           =   3500
@@ -3115,7 +3070,7 @@ Begin VB.Form frmMandant
       Begin XtremeSuiteControls.Label lblLab21 
          Height          =   240
          Left            =   100
-         TabIndex        =   219
+         TabIndex        =   216
          Top             =   2670
          Width           =   1200
          _Version        =   1048579
@@ -3132,7 +3087,7 @@ Begin VB.Form frmMandant
          Caption         =   "Verkehrsname :"
          Height          =   240
          Left            =   100
-         TabIndex        =   210
+         TabIndex        =   208
          Top             =   800
          Width           =   1200
       End
@@ -3142,7 +3097,7 @@ Begin VB.Form frmMandant
          Caption         =   "Emailsignatur :"
          Height          =   240
          Left            =   100
-         TabIndex        =   192
+         TabIndex        =   190
          Top             =   1290
          Width           =   1200
       End
@@ -3152,7 +3107,7 @@ Begin VB.Form frmMandant
          Caption         =   "Anzeigename :"
          Height          =   240
          Left            =   100
-         TabIndex        =   159
+         TabIndex        =   157
          Top             =   360
          Width           =   1200
       End
@@ -3160,7 +3115,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtZeit1 
       Height          =   300
       Left            =   6960
-      TabIndex        =   188
+      TabIndex        =   186
       TabStop         =   0   'False
       Tag             =   "0Sprechzeiten"
       Top             =   12300
@@ -3177,7 +3132,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtAdrGr 
       Height          =   200
       Left            =   0
-      TabIndex        =   189
+      TabIndex        =   187
       TabStop         =   0   'False
       Tag             =   "0AdrGruppe"
       Top             =   12000
@@ -3193,7 +3148,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.FlatEdit txtZeit2 
       Height          =   300
       Left            =   7340
-      TabIndex        =   198
+      TabIndex        =   196
       TabStop         =   0   'False
       Tag             =   "0Buchungszeiten"
       Top             =   12300
@@ -3210,7 +3165,7 @@ Begin VB.Form frmMandant
    Begin XtremeCalendarControl.DatePicker dtpDatu1 
       Height          =   615
       Left            =   17640
-      TabIndex        =   227
+      TabIndex        =   224
       TabStop         =   0   'False
       Top             =   840
       Width           =   615
@@ -3224,7 +3179,7 @@ Begin VB.Form frmMandant
    Begin XtremeSuiteControls.Label lblLab01 
       Height          =   735
       Left            =   240
-      TabIndex        =   154
+      TabIndex        =   152
       Top             =   480
       Width           =   11175
       _Version        =   1048579
@@ -3281,7 +3236,6 @@ Private Rahm6 As XtremeSuiteControls.GroupBox
 Private Rahm7 As XtremeSuiteControls.GroupBox
 Private Rahm8 As XtremeSuiteControls.GroupBox
 Private ChKaAu As XtremeSuiteControls.CheckBox
-Private ChDefr As XtremeSuiteControls.CheckBox
 Private ChOnTe As XtremeSuiteControls.CheckBox
 Private Labl71 As XtremeSuiteControls.Label
 Private Labl72 As XtremeSuiteControls.Label
@@ -3347,7 +3301,6 @@ Private cmSteu As XtremeSuiteControls.ComboBox
 Private cmRas1 As XtremeSuiteControls.ComboBox
 Private cmRas2 As XtremeSuiteControls.ComboBox
 Private cmMaxT As XtremeSuiteControls.ComboBox
-Private cmMaxP As XtremeSuiteControls.ComboBox
 Private cmVorl As XtremeSuiteControls.ComboBox
 Private cmBuRa As XtremeSuiteControls.ComboBox
 Private cmNoti As XtremeSuiteControls.ComboBox
@@ -3425,17 +3378,6 @@ End Sub
 
 Private Sub btnSign1_Click()
     FOpn
-End Sub
-
-Private Sub chkDefra_Click()
-
-TagWe = Mid$(Me.chkDefra.Tag, 2, Len(Me.chkDefra.Tag) - 1)
-
-If GlAdL = False Then
-    Me.chkDefra.Tag = "1" & TagWe
-    GlAdS = True
-End If
-
 End Sub
 
 Private Sub chkKaAus_Click()
@@ -3712,11 +3654,7 @@ Private Sub cmbKtoSt_KeyPress(KeyAscii As Integer)
         FSeKy vbKeyTab
     End If
 End Sub
-Private Sub cmbMaxPa_Click()
-    If GlAdL = False Then
-        GlAdS = True
-    End If
-End Sub
+
 Private Sub cmbMaxTe_Click()
     If GlAdL = False Then
         GlAdS = True
@@ -4512,14 +4450,12 @@ Set Rahm8 = FM.frmRahm8
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
 Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
 Set cmRahm = FM.cmbKtoRa
 Set cmKata = FM.cmbGbKat
 Set ChOnTe = FM.chkOnlTe
-Set ChDefr = FM.chkDefra
 Set ChKaAu = FM.chkKaAus
 Set Labl71 = FM.lblLab71
 Set Labl72 = FM.lblLab72
@@ -4562,7 +4498,6 @@ Case RibTab_Adr_Dokum:
     cmRas1.Visible = True
     cmRas2.Visible = False
     cmMaxT.Visible = False
-    cmMaxP.Visible = False
     cmVorl.Visible = False
     cmBuRa.Visible = False
     cmNoti.Visible = True
@@ -4572,7 +4507,6 @@ Case RibTab_Adr_Dokum:
     Labl80.Visible = False
     Labl82.Visible = True
     ChOnTe.Visible = True
-    ChDefr.Visible = False
     ChKaAu.Visible = True
     Select Case GlBut
     Case RibTab_Mandanten: Rahm7.Caption = "Sprechzeiten"
@@ -4601,7 +4535,6 @@ Case RibTab_Adr_Booki:
     cmRas1.Visible = False
     cmRas2.Visible = True
     cmMaxT.Visible = True
-    cmMaxP.Visible = True
     cmVorl.Visible = True
     cmBuRa.Visible = True
     cmNoti.Visible = False
@@ -4611,7 +4544,6 @@ Case RibTab_Adr_Booki:
     Labl80.Visible = True
     Labl82.Visible = False
     ChOnTe.Visible = False
-    ChDefr.Visible = True
     ChKaAu.Visible = False
     Rahm7.Caption = "Buchungszeiten"
 End Select
@@ -4883,12 +4815,10 @@ Set cmFach = FM.cmbKatal
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
 Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
 Set ChKaAu = FM.chkKaAus
-Set ChDefr = FM.chkDefra
 Set ChOnTe = FM.chkOnlTe
 
 TmStr = FSaZe
@@ -4920,12 +4850,6 @@ If GlMId < 0 Then
         MaxTe = cmMaxT.ItemData(cmMaxT.ListIndex)
     Else
         MaxTe = 0
-    End If
-    
-    If cmMaxP.Text <> vbNullString Then
-        MaxPa = cmMaxP.ItemData(cmMaxP.ListIndex)
-    Else
-        MaxPa = 1
     End If
 
     If cmVorl.Text <> vbNullString Then
@@ -5005,11 +4929,6 @@ If GlMId < 0 Then
         IniSetVal "Adress", "ATmPl", True
     Else
         IniSetVal "Adress", "ATmPl", False
-    End If
-    If ChDefr.Value = xtpChecked Then
-        IniSetVal "Adress", "ADefr", True
-    Else
-        IniSetVal "Adress", "ADefr", False
     End If
     If ChOnTe.Value = xtpChecked Then
         IniSetVal "Adress", "AOnTe", True
@@ -5211,7 +5130,6 @@ Set TxDum = FM.txtDummy
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
 Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
@@ -5266,13 +5184,7 @@ If GlAdS = True Then
     Else
         MaxTe = 0
     End If
-    
-    If cmMaxP.Text <> vbNullString Then
-        MaxPa = cmMaxP.ItemData(cmMaxP.ListIndex)
-    Else
-        MaxPa = 1
-    End If
-    
+            
     If cmVorl.Text <> vbNullString Then
         Vorla = cmVorl.ItemData(cmVorl.ListIndex)
     Else

@@ -151,6 +151,7 @@ Private clNet As clsNetz
 Private clWor As clsWord
 Private clLiz As clsLizenz
 Private clXRe As clsXRechnung
+Private clGeI As clsGenInv
 
 Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal hwnd As Long, ByVal wMsg As Long, ByVal wParam As Long, lParam As Any) As Long
 Public Sub S_AbChi(ByVal PaRec As XtremeReportControl.ReportRecord, ByVal IdxNr As Long, ByVal IdTyp As Integer)
@@ -1987,7 +1988,7 @@ If AnzSe > 0 Then
                 End With
                 AktZa = AktZa + 1
                 DoEvents
-                If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                     DBCmEx1 "qrySimAdRe1", "@IdxNr", RS122.Fields("ID0").Value
                 End If
             End If
@@ -6579,7 +6580,7 @@ For Each RpRow In RpSel
                     End If
                     
                     If GlBuL = True Then 'Echtes Lˆschen erlauben
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", 1, IdxNr
                             DBCmEx1 "qryTerRep1", "@IdxNr", IdxNr
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -6588,7 +6589,7 @@ For Each RpRow In RpSel
                         End If
                     Else
                         DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", 1, IdxNr
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qryTerRep1", "@IdxNr", IdxNr
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         End If
@@ -6699,7 +6700,7 @@ For Each RpRow In RpSel
                     End If
                     
                     If GlBuL = True Then
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", 1, IdxNr
                             DBCmEx1 "qryTerRep1", "@IdxNr", IdxNr
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -6708,7 +6709,7 @@ For Each RpRow In RpSel
                         End If
                     Else
                         DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", -1, IdxNr
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qryTerRep1", "@IdxNr", IdxNr
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         End If
@@ -6806,7 +6807,7 @@ For Each RpRow In RpSel
                     End If
                     
                     If GlBuL = True Then 'Echtes Lˆschen erlauben
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", 1, IdxNr
                             DBCmEx1 "qryTerRep1", "@IdxNr", IdxNr
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -6815,7 +6816,7 @@ For Each RpRow In RpSel
                         End If
                     Else
                         DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", -1, IdxNr
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qryTerRep1", "@IdxNr", IdxNr
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         End If
@@ -16399,7 +16400,7 @@ Dim ReNum As Long
 Dim PaNum As Long
 Dim RowNr As Long   'Zeilennummer
 Dim ReDat As Date
-Dim Diagn As String 'Diagnosen
+Dim DiagN As String 'Diagnosen
 Dim ReStr As String
 Dim TmGui As String
 Dim PatNa As String
@@ -20169,6 +20170,9 @@ End If
 If AnzRe > 0 Then
     ReDim GloRe(AnzRe)
 End If
+If AnzRe > 1 Then 'Dateiliste immer dimensionieren, auch im Dialogfall
+    ReDim FilNa(AnzRe - 1)
+End If
 
 If Right$(ExpOr, 1) <> "\" Then
     ExpOr = ExpOr & "\"
@@ -20237,7 +20241,7 @@ End If
 
 frmStatus.Show
 DoEvents
-frmStatus.Caption = "PAD/PVS Export"
+frmStatus.Caption = "X-Rechnung Export"
 Set PrBr1 = frmStatus.prbStat1
 Set PrBr2 = frmStatus.prbStat2
 Set TxDum = frmStatus.txtDummy
@@ -20530,21 +20534,20 @@ For Each RpRow In RpSel
                 If IsNull(RS126.Fields("Gesamtbetrag").Value) = False Then
                     If RS126.Fields("Gesamtbetrag").Value > 0 Then
                         LeCod = "C62" 'C62=Einheit/Stick H87=St¸ck
-                        LePos = RS126.Fields("Position").Value
-                        LeAnz = RS126.Fields("Anzahl").Value
+                        LePos = CLng(SFeNum(RS126, "Position"))
+                        LeAnz = SFeNum(RS126, "Anzahl")
                         LeBez = RS126.Fields("Behandlungsdatum").Value & " " & RS126.Fields("Bezeichnung").Value & " " & RS126.Fields("Ziffer").Value
-                        LeStu = RS126.Fields("Steuersatz").Value
-                        LeEin = RS126.Fields("Einzelbetrag").Value
+                        LeStu = SFeNum(RS126, "Steuersatz")
+                        LeEin = SFeNum(RS126, "Einzelbetrag")
                         LeGes = RS126.Fields("Gesamtbetrag").Value
                         If GlSpl = False Then 'Steuerspalte eingeblendet
                             LeStu = ReStu
                         End If
-                        If LeStu > 0 Then
-                            LeEin = LeEin - Round(LeEin * (LeStu / 100#), 2)
-                            LeGes = LeGes - Round(LeGes * (LeStu / 100#), 2)
+                        If LeStu > 0 Then 'Nettopreis aus dem Bruttopreis herausrechnen
+                            LeEin = SRund4(LeEin / (1 + LeStu / 100#))
                         End If
                         
-                        LeGes = Format(LeAnz * LeEin, "0.00")
+                        LeGes = SRund2(LeAnz * LeEin)
                         GesRe = GesRe + LeGes
                         
                         RetPo = clXRe.AddInvoiceLine(LePos, LeBez, LeAnz, LeCod, LeEin, LeGes, LeStu, NeuRe)
@@ -20563,24 +20566,19 @@ For Each RpRow In RpSel
             Set RS126 = Nothing
             DoEvents
         
-            StBet = Round(ReBet * (ReStu / 100#), 2)
             NeBet = GesRe
-
-            StBet = Round(NeBet * (ReStu / 100#), 2)
-            ReBet = NeBet + StBet
+            StBet = SRund2(NeBet * ReStu / 100#)
+            ReBet = SRund2(NeBet + StBet)
             
             If Dialo = False Then
                 DaNam = "XRechnung_Beleg_" & ReStr & ".xml"
                 FiNam = ExpOr & DaNam
-                If AnzRe > 1 Then
-                    ReDim Preserve FilNa(AktRe)
-                    FilNa(AktRe) = FiNam
-                End If
-            Else
-                If AnzRe > 1 Then
-                    DaNam = "XRechnung_Beleg_" & ReStr & ".xml"
-                    FiNam = ExpOr & DaNam
-                End If
+            ElseIf AnzRe > 1 Then
+                DaNam = "XRechnung_Beleg_" & ReStr & ".xml"
+                FiNam = ExpOr & DaNam
+            End If
+            If AnzRe > 1 Then 'Dateiliste fuer den Sammelversand
+                FilNa(AktRe) = FiNam
             End If
 
             With clFil
@@ -20591,26 +20589,18 @@ For Each RpRow In RpSel
             End With
             DoEvents
             
-            If ReRab > "0" Then
+            If ReRab > 0 Then 'Rabatt auf die Nettosumme
                 GeRab = GesRe
-                NeBet = Format(GeRab - Format((NeBet / 100) * ReRab, "0.00"), "0.00")
-                ReRab = Format(GeRab - NeBet, "0.00")
-                ReBet = NeBet
+                ReRab = SRund2(GeRab * ReRab / 100#)
+                NeBet = SRund2(GeRab - ReRab)
+                StBet = SRund2(NeBet * ReStu / 100#)
+                ReBet = SRund2(NeBet + StBet)
             Else
                 GeRab = NeBet
             End If
             
-            If ReRab > "0" And ReStu > "0" Then
-            StBet = Format((NeBet / 100) * ReStu, "0.00")
-            ReBet = Format(NeBet + StBet, "0.00")
-            End If
-            
-            NeBet = Format(NeBet, "0.00")
-            StBet = Format(StBet, "0.00")
-            ReBet = Format(ReBet, "0.00")
-            
             With clXRe
-                .PrepaidAmount = BeBet
+                .PrepaidAmount = SRund2(BeBet)
                 .InvoiceNumber = ReStr
                 .InvoiceTax = ReStu
                 .InvoiceTaxCategory = StTyp
@@ -20655,7 +20645,7 @@ For Each RpRow In RpSel
                 .LineExtensionAmount = GeRab 'Summe aller Nettobetr‰ge
                 .TaxExclusiveAmount = NeBet
                 .TaxInclusiveAmount = ReBet
-                .PayableAmount = ReBet - BeBet
+                .PayableAmount = SRund2(ReBet - BeBet)
                 .GenerateXMLFile FiNam
             End With
             
@@ -20774,21 +20764,28 @@ If GlDru.EmVer > 0 Then 'Emailversand
                         End With
                         EmTex = SEmTx()
                         MeTex = vbCrLf & EmBrf & vbCrLf & vbCrLf & EmTex
-                        If AnzRe > 1 Then
+                        If AnzRe > 1 Then 'alle erzeugten Dateien anhaengen, ohne Dublette
+                            FiNam = vbNullString
                             For AktRe = 0 To AnzRe - 1
-                                FiNam = FiNam & ";" & FilNa(AktRe)
+                                If FilNa(AktRe) <> vbNullString Then
+                                    If FiNam = vbNullString Then
+                                        FiNam = FilNa(AktRe)
+                                    Else
+                                        FiNam = FiNam & ";" & FilNa(AktRe)
+                                    End If
+                                End If
                             Next AktRe
                         End If
                         SMaNe PatNr, PaEma, , MeTex, EmBet, FiNam
                     End If
                 ElseIf GlDru.EmVer = 6 Then
                     If AnzRe > 1 Then
-                        ReDim DowSt(AktRe)
+                        ReDim DowSt(AnzRe - 1)
                         For AktRe = 0 To AnzRe - 1
                             DowSt(AktRe) = SMCUp(FilNa(AktRe), PatNr) 'Downloadlink
                             DoEvents
                         Next AktRe
-                        DoStr = DowSt(AktRe)
+                        DoStr = DowSt(AnzRe - 1)
                     Else
                         DoStr = SMCUp(FiNam, PatNr) 'Downloadlink
                         DoEvents
@@ -20851,6 +20848,1068 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_ReExX " & Err.Number
 Exit Function
 
 End Function
+Public Function S_ReExZ(Optional ByVal Dialo As Boolean = False, Optional ByVal EmSen As Boolean = False) As Boolean
+On Error GoTo LiErr
+'Exportiert die selektierten Rechnungen im Format generalInvoice XML 5.0
+'(Forum Datenaustausch, Namespace http://www.forum-datenaustausch.ch/invoice,
+' Schema generalInvoiceRequest_500.xsd).
+'Der eigentliche XML-Aufbau erfolgt in clsGenInv; dort werden Zahlen, Datums-
+'werte und Zeichenkodierung landeseinstellungsunabhaengig erzeugt.
+
+Dim RetWe As Long
+Dim RowNr As Long
+Dim ManNr As Long
+Dim MitNr As Long
+Dim ReNum As Long   'Aktuelle Rechnung
+Dim PatNr As Long
+Dim ZahlZi As Long  'Zahlungsfrist in Tagen
+Dim ReDat As Date   'Rechnungsdatum
+Dim FaDat As Date   'Faelligkeitsdatum
+Dim GebDat As Date  'Geburtsdatum
+Dim FalDat As Date  'Falldatum
+Dim LeDat As Date   'Leistungsdatum
+Dim ExpOr As String 'Exportordner
+Dim DaNam As String 'Dateinamen
+Dim FiNam As String
+Dim ReStr As String
+Dim TyStr As String
+Dim EmBet As String
+Dim EmTex As String
+Dim EmBrf As String
+Dim EmSig As String
+Dim MeTex As String
+Dim DoStr As String
+Dim DoLnk As String
+Dim PoLnk As String
+Dim MeldSt As String 'Sammelmeldung fuer den Anwender
+Dim MaReg As String 'Mandant Kennung
+Dim MaFrm As String 'Mandant Firma
+Dim MaAbt As String 'Mandant Abteilung
+Dim MaNam As String 'Mandant Name
+Dim MaVor As String 'Mandant Vorname
+Dim MaStr As String 'Mandant Strasse
+Dim MaPLZ As String 'Mandant PLZ
+Dim MaOrt As String 'Mandant Ort
+Dim MaIBA As String 'Mandant IBAN
+Dim MaTel As String 'Mandant Telefon
+Dim MaEma As String 'Mandant Email
+Dim MaGLN As String 'Mandant GLN
+Dim MaZSR As String 'Mandant ZSR
+Dim MaKan As String 'Mandant Kanton (Kuerzel)
+Dim MaMwS As String 'Mandant MWST-Nummer
+Dim MiGLN As String 'Mitarbeiter GLN
+Dim MiZSR As String 'Mitarbeiter ZSR
+Dim MiNam As String 'Mitarbeiter Name
+Dim MiVor As String 'Mitarbeiter Vorname
+Dim MiEma As String 'Mitarbeiter Email
+Dim PaStr As String 'Patient Strasse
+Dim PaHnr As String 'Patient Hausnummer
+Dim PaPLZ As String 'Patient PLZ
+Dim PaOrt As String 'Patient Ort
+Dim PaLnd As String 'Patient Land
+Dim PaLKZ As String 'Patient Laenderkennzeichen
+Dim PaKan As String 'Patient Kanton (Kuerzel)
+Dim PaReg As String 'Patient Kennung
+Dim PaNam As String 'Patient Name
+Dim PaVor As String 'Patient Vorname
+Dim PaAnr As String 'Patient Anrede
+Dim PaTit As String 'Patient Titel
+Dim PaFrm As String 'Patient Firma
+Dim PaEma As String 'Patient E-Mail-Adresse
+Dim PaTel As String 'Patient Telefon
+Dim PaGes As String 'Patient Geschlecht
+Dim PaSsn As String 'AHV-Nummer
+Dim RcStr As String 'Rechnungsempfaenger Strasse
+Dim RcHnr As String  'Rechnungsempfaenger Hausnummer
+Dim RcPlz As String  'Rechnungsempfaenger PLZ
+Dim RcOrt As String  'Rechnungsempfaenger Ort
+Dim RcLnd As String  'Rechnungsempfaenger Land
+Dim RcLkz As String  'Rechnungsempfaenger Laenderkennzeichen
+Dim RcNam As String  'Rechnungsempfaenger Name
+Dim RcVor As String  'Rechnungsempfaenger Vorname
+Dim RcAnr As String  'Rechnungsempfaenger Anrede
+Dim RcTit As String  'Rechnungsempfaenger Titel
+Dim RcFrm As String  'Rechnungsempfaenger Firma
+Dim VerNam As String 'Versicherer
+Dim GesTy As String  'Gesetz
+Dim TieTy As String  'Verguetungsart (Tiers Garant / Tiers Payant)
+Dim BeGrd As String  'Behandlungsgrund
+Dim DiaSt As String  'Diagnose
+Dim VerNr As String  'Versichertennummer
+Dim FalNr As String  'Fallnummer
+Dim WaeSt As String  'Waehrung des Rechnungsdatensatzes
+Dim SubTy As String  'Rechnungsart (normal / storno)
+Dim LeBez As String  'Leistungsbezeichnung
+Dim LeCod As String  'Leistungscode
+Dim LeKom As String  'Leistungskommentar
+Dim LeTar As String  'Tarifcode
+Dim PatID As String  'Patientenidentifikation
+Dim SorSt As String  'Sortierdatum JJJJMMTT
+Dim GiRol As String  'Rolle des Leistungserbringers
+Dim GiOrt As String  'Ort der Leistungserbringung
+Dim GiTar As String  'Standardtarif
+Dim GiEmp As String  'GLN des Empfaengers
+Dim GiSpr As String  'Sprache
+Dim GiMod As String  'Modus (production / test)
+Dim GiGes As String  'Standardgesetz
+Dim LePos As Integer 'Leistungsposition
+Dim AktRe As Integer 'Aktuelle Rechnung
+Dim AnzRe As Integer 'Selektierte Rechnungen
+Dim AnzPo As Integer 'Anzahl Leistungspositionen
+Dim ZaTyp As Integer
+Dim AktPo As Integer
+Dim RetPo As Integer
+Dim AktZa As Integer
+Dim AktNu As Integer
+Dim MitZa As Integer
+Dim Lange As Integer
+Dim Posit As Integer
+Dim KanNu As Integer
+Dim GruNu As Integer
+Dim ManOK As Boolean
+Dim EmRet As Boolean 'Email erfolgreich versandt
+Dim ExpOK As Boolean 'Mindestens eine Datei geschrieben
+Dim NeuRe As Boolean
+Dim ReBet As Currency 'Rechnungsbetrag
+Dim BeBet As Currency 'Bezahlbetrag
+Dim ReRab As Currency 'Rabatt / Minderung in Prozent
+Dim ReStu As Currency 'Steuersatz Rechnung
+Dim LeStu As Currency 'Steuersatz Leistung
+Dim LeEin As Currency 'Einzelpreis
+Dim LeAnz As Currency 'Leistungsanzahl
+Dim FilNa() As String
+Dim DowSt() As String
+
+Dim RpCo3 As XtremeReportControl.ReportControl
+Dim RpCo4 As XtremeReportControl.ReportControl
+Dim RpCls As XtremeReportControl.ReportColumns
+Dim RpRow As XtremeReportControl.ReportRow
+
+Set FM = frmMain
+Set CoDia = FM.comDialo
+Set RpCo4 = FM.repCont4
+Set RpCo3 = FM.repCont3
+
+Set clFil = New clsFile
+Set clGeI = New clsGenInv
+clFil.hwnd = FM.hwnd
+
+Select Case GlBut
+Case RibTab_Abrechnung:
+    Set RpCls = RpCo3.Columns
+    Set RpSel = RpCo3.SelectedRows
+Case RibTab_Rechnungen:
+    Set RpCls = RpCo4.Columns
+    Set RpSel = RpCo4.SelectedRows
+End Select
+
+AnzRe = RpSel.Count
+
+If AnzRe = 0 Then
+    Set CoDia = Nothing
+    Set RpSel = Nothing
+    Set RpCls = Nothing
+    Set RpCo3 = Nothing
+    Set RpCo4 = Nothing
+    Set clGeI = Nothing
+    Set clFil = Nothing
+    Exit Function
+End If
+
+Set RpRow = RpSel(0)
+If RpRow.GroupRow = False Then
+    Set RpCol = RpCls.Find(Rec_RechNr)
+    ReStr = RpRow.Record(RpCol.ItemIndex).Value
+End If
+
+'Vorgaben; ueber die INI anpassbar
+GiRol = IniGetVal("GenInv", "Rolle")
+If GiRol = vbNullString Then GiRol = "naturopathictherapist"
+GiOrt = IniGetVal("GenInv", "Ort")
+If GiOrt = vbNullString Then GiOrt = "practice"
+GiTar = IniGetVal("GenInv", "Tarif")
+If GiTar = vbNullString Then GiTar = "590"
+GiEmp = IniGetVal("GenInv", "EmpfGLN")
+If GiEmp = vbNullString Then GiEmp = "2006666666008"
+GiSpr = IniGetVal("GenInv", "Sprache")
+If GiSpr = vbNullString Then GiSpr = "de"
+GiMod = IniGetVal("GenInv", "Modus")
+If GiMod = vbNullString Then GiMod = "production"
+GiGes = IniGetVal("GenInv", "Gesetz")
+If GiGes = vbNullString Then GiGes = "VVG"
+
+If GlRDP = True Then
+    If LCase(GlEPf) = LCase(GlIPf) Then
+        ExpOr = GlDpf & "Export\"
+    Else
+        ExpOr = GlEPf
+    End If
+Else
+    ExpOr = GlEPf
+End If
+
+If AnzRe > 0 Then
+    ReDim GloRe(AnzRe)
+End If
+If AnzRe > 1 Then 'Dateiliste immer dimensionieren, auch im Dialogfall
+    ReDim FilNa(AnzRe - 1)
+End If
+
+If Right$(ExpOr, 1) <> "\" Then
+    ExpOr = ExpOr & "\"
+End If
+
+If Dialo = True Then
+    If AnzRe > 1 Then
+        With CoDia
+            .CancelError = True
+            .DialogStyle = 1
+            .DialogTitle = "Bitte Ordner der Rechnungsdateien angeben"
+            .FileName = ExpOr
+            RetWe = .ShowBrowseFolder
+            ExpOr = .FileName
+            If RetWe = 0 Then
+                Set CoDia = Nothing
+                Set RpSel = Nothing
+                Set RpCls = Nothing
+                Set RpCo3 = Nothing
+                Set RpCo4 = Nothing
+                Set clGeI = Nothing
+                Set clFil = Nothing
+                Exit Function
+            End If
+            If Right$(ExpOr, 1) <> "\" Then
+                ExpOr = ExpOr & "\"
+            End If
+        End With
+    Else
+        DaNam = "generalInvoice_Beleg_" & ReStr & ".xml"
+        With CoDia
+            .CancelError = True
+            .DialogStyle = 1
+            .DefaultExt = "*.xml"
+            .Filter = "generalInvoice 5.0 Dateien (*.xml)|*.xml|Alle Dateien (*.*)|*.*"
+            .DialogTitle = "Bitte Name und Ordner der Rechnungsdatei angeben"
+            .FileName = ExpOr & DaNam
+            .InitDir = ExpOr
+            .ShowSave
+            FiNam = .FileName
+            If .FileTitle = vbNullString Then
+                Set CoDia = Nothing
+                Set RpSel = Nothing
+                Set RpCls = Nothing
+                Set RpCo3 = Nothing
+                Set RpCo4 = Nothing
+                Set clGeI = Nothing
+                Set clFil = Nothing
+                Exit Function
+            End If
+        End With
+        If LCase(Right$(FiNam, 4)) <> ".xml" Then
+            FiNam = FiNam & ".xml"
+        End If
+    End If
+End If
+
+If EmSen = True Then
+    With GlDru
+        .EmVer = 1
+        .EmSep = False
+        .GoBDk = True
+        .ReAbs = True
+    End With
+End If
+
+SErLog "generalInvoice Export gestartet: " & CStr(AnzRe) & " Rechnung(en), Zielordner " & ExpOr
+
+frmStatus.Show
+DoEvents
+frmStatus.Caption = "generalInvoice 5.0 Export"
+Set PrBr1 = frmStatus.prbStat1
+Set PrBr2 = frmStatus.prbStat2
+Set TxDum = frmStatus.txtDummy
+PrBr1.Min = 0
+PrBr1.Max = AnzRe
+
+For Each RpRow In RpSel
+    RetPo = 0
+    AktPo = 0
+    NeuRe = True
+    ManOK = False
+
+    If RpRow.GroupRow = False Then
+        RowNr = RpRow.Index
+        GloRe(AktRe) = RowNr
+
+        Set RpCol = RpCls.Find(Rec_ID1)
+        ReNum = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_IDP)
+        ManNr = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_IDM)
+        MitNr = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_ID0)
+        PatNr = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_Type)
+        TyStr = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_RechNr)
+        ReStr = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_Datum)
+        ReDat = CDate(RpRow.Record(RpCol.ItemIndex).Value)
+        Set RpCol = RpCls.Find(Rec_Fallig)
+        FaDat = CDate(RpRow.Record(RpCol.ItemIndex).Value)
+        Set RpCol = RpCls.Find(Rec_Betrag)
+        ReBet = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_Bezahlt)
+        BeBet = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_Rabatt)
+        ReRab = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_Steuer)
+        ReStu = RpRow.Record(RpCol.ItemIndex).Value
+        Set RpCol = RpCls.Find(Rec_IDZ)
+        ZaTyp = RpRow.Record(RpCol.ItemIndex).Value
+
+        For AktZa = 1 To UBound(GlThe) 'Mandanten
+            If ManNr = GlThe(AktZa, 0) Then
+                ManOK = True
+                Exit For
+            End If
+        Next AktZa
+        If ManOK = False Then
+            AktZa = GlSMa
+        End If
+
+        MaFrm = GlThe(AktZa, 19)
+        MaVor = GlThe(AktZa, 1)
+        MaNam = GlThe(AktZa, 2)
+        MaStr = GlThe(AktZa, 3)
+        MaPLZ = GlThe(AktZa, 4)
+        MaOrt = GlThe(AktZa, 5)
+        MaIBA = GlThe(AktZa, 18)
+        MaGLN = GlThe(AktZa, 40)
+        MaZSR = GlThe(AktZa, 41)
+        MaAbt = vbNullString
+        If GlThe(AktZa, 6) <> vbNullString Then
+            MaTel = GlThe(AktZa, 6)
+        Else
+            MaTel = GlThe(AktZa, 7)
+        End If
+        MaEma = GlThe(AktZa, 16)
+        MaMwS = GlThe(AktZa, 48)
+        If clGeI.GiIstMwSt(MaMwS) = False Then
+            MaMwS = GlThe(AktZa, 11)
+        End If
+
+        MaKan = vbNullString
+        If GlThe(AktZa, 44) <> vbNullString Then 'Kanton des Mandanten
+            For AktNu = 0 To UBound(GlKtn)
+                If GlKtn(AktNu, 0) = GlThe(AktZa, 44) Then
+                    MaKan = GlKtn(AktNu, 1)
+                    Exit For
+                End If
+            Next AktNu
+        End If
+
+        If MaFrm <> vbNullString Then
+            MaReg = MaFrm
+        ElseIf MaNam <> vbNullString Then
+            If MaVor <> vbNullString Then
+                MaReg = MaVor & Space$(1) & MaNam
+            Else
+                MaReg = MaNam
+            End If
+        ElseIf MaVor <> vbNullString Then
+            MaReg = MaVor
+        Else
+            MaReg = GlThe(AktZa, 13)
+        End If
+
+        'Leistungserbringer (Mitarbeiter) ermitteln
+        MiGLN = vbNullString
+        MiZSR = vbNullString
+        MiNam = vbNullString
+        MiVor = vbNullString
+        MiEma = vbNullString
+        For MitZa = 1 To UBound(GlMiA)
+            If MitNr = GlMiA(MitZa, 2) Then
+                MiNam = GlMiA(MitZa, 3)
+                MiVor = GlMiA(MitZa, 4)
+                MiEma = GlMiA(MitZa, 22)
+                MiGLN = GlMiA(MitZa, 31)
+                MiZSR = GlMiA(MitZa, 32)
+                Exit For
+            End If
+        Next MitZa
+        If clGeI.GiIstGln(MiGLN) = False Then
+            MiGLN = MaGLN
+        End If
+        If MiZSR = vbNullString Then
+            MiZSR = MaZSR
+        End If
+        If MiEma = vbNullString Then
+            MiEma = MaEma
+        End If
+
+        If GlMiA(GlSmI, 11) <> vbNullString Then
+            EmSig = GlMiA(GlSmI, 11)
+        Else
+            EmSig = GlMiA(GlSmI, 1)
+        End If
+
+        Set RS125 = New ADODB.Recordset
+        RS125.CursorLocation = adUseClient
+        Set RS125 = DBCmRe1("qryPrSimRe1", "@IdStr", ReNum)
+
+        If RS125.RecordCount > 0 Then
+            'Rechnungsempfaenger
+            RcFrm = SFeStr(RS125, "R_Firma1")
+            RcNam = SFeStr(RS125, "R_Name")
+            RcVor = SFeStr(RS125, "R_Vorname")
+            RcAnr = SFeStr(RS125, "R_Anrede")
+            RcTit = SFeStr(RS125, "R_Titel")
+            RcStr = SFeStr(RS125, "R_Straﬂe")
+            RcHnr = SFeStr(RS125, "R_HausNr")
+            RcPlz = SFeStr(RS125, "R_PLZ")
+            RcOrt = SFeStr(RS125, "R_Ort")
+            RcLnd = SFeStr(RS125, "R_Land")
+            RcLkz = SFeStr(RS125, "R_LK")
+
+            'Patient
+            PaFrm = SFeStr(RS125, "Firma1")
+            PaNam = SFeStr(RS125, "Name")
+            PaVor = SFeStr(RS125, "Vorname")
+            PaAnr = SFeStr(RS125, "Anrede")
+            PaTit = SFeStr(RS125, "Titel")
+            PaStr = SFeStr(RS125, "Straﬂe")
+            PaHnr = vbNullString
+            PaPLZ = SFeStr(RS125, "PLZ")
+            PaOrt = SFeStr(RS125, "Ort")
+            PaLnd = SFeStr(RS125, "Land")
+            PaLKZ = SFeStr(RS125, "LK")
+            PaGes = SFeStr(RS125, "Geschlecht")
+            PaTel = SFeStr(RS125, "Telefon1")
+            If PaTel = vbNullString Then
+                PaTel = SFeStr(RS125, "Telefon2")
+            End If
+
+            If RcNam = vbNullString And RcFrm = vbNullString Then
+                'Kein separater Rechnungsempfaenger hinterlegt
+                RcFrm = PaFrm
+                RcNam = PaNam
+                RcVor = PaVor
+                RcAnr = PaAnr
+                RcTit = PaTit
+                RcStr = PaStr
+                RcHnr = PaHnr
+                RcPlz = PaPLZ
+                RcOrt = PaOrt
+                RcLnd = PaLnd
+                RcLkz = PaLKZ
+            End If
+
+            'Anzeigename des Rechnungsempfaengers (fuer den Emailversand)
+            If RcFrm <> vbNullString Then
+                PaReg = RcFrm
+            ElseIf RcNam <> vbNullString Then
+                If RcVor <> vbNullString Then
+                    PaReg = RcVor & Space$(1) & RcNam
+                Else
+                    PaReg = RcNam
+                End If
+            ElseIf RcVor <> vbNullString Then
+                PaReg = RcVor
+            Else
+                PaReg = SFeStr(RS125, "Kurzbezeichnung")
+            End If
+
+            GebDat = 0
+            If IsDate(SFeStr(RS125, "Geburtsdatum")) = True Then
+                GebDat = CDate(RS125.Fields("Geburtsdatum").Value)
+            End If
+
+            FalDat = 0
+            If IsDate(SFeStr(RS125, "Falldatum")) = True Then
+                FalDat = CDate(RS125.Fields("Falldatum").Value)
+            End If
+
+            EmBrf = SFeStr(RS125, "R_Briefanrede")
+            If EmBrf = vbNullString Then
+                EmBrf = SFeStr(RS125, "Briefanrede")
+            End If
+            If EmBrf = vbNullString Then
+                EmBrf = "Sehr geehrte Damen und Herren"
+            End If
+
+            PaEma = SFeStr(RS125, "Telefon5")
+            If PaEma = vbNullString Then
+                PaEma = SFeStr(RS125, "Telefon6")
+            End If
+
+            PaSsn = SFeStr(RS125, "AHVNummer")
+            If PaSsn = vbNullString Then
+                PaSsn = SFeStr(RS125, "Versichertennummer")
+            End If
+            If PaSsn = vbNullString Then
+                PaSsn = CStr(PatNr)
+            End If
+
+            VerNr = SFeStr(RS125, "Versichertennummer")
+            If VerNr = vbNullString Then
+                VerNr = SFeStr(RS125, "AHVNummer")
+            End If
+            'law/@case_id wird vorerst nicht gefuellt: Das Feld Zusatz, das
+            'qryPrSimRe1 als Vertragsnummer liefert, enthaelt keine Fallnummer.
+            'Zum Aktivieren hier das gewuenschte Feld einlesen.
+            FalNr = vbNullString
+            VerNam = SFeStr(RS125, "Versicherer")
+            DiaSt = SFeStr(RS125, "Diagnose")
+            WaeSt = SFeStr(RS125, "W‰hrung")
+
+            GesTy = UCase$(SFeStr(RS125, "Gesetz"))
+            If GesTy = vbNullString Then
+                GesTy = GiGes
+            End If
+
+            TieTy = "garant"
+            If UCase$(Left$(SFeStr(RS125, "Verguetungsart") & "  ", 2)) = "TP" Then
+                TieTy = "payant"
+            End If
+
+            'Kanton des Patienten (Index in GlKtn)
+            PaKan = vbNullString
+            If IsNumeric(SFeStr(RS125, "Kanton")) = True Then
+                KanNu = CInt(RS125.Fields("Kanton").Value)
+                If KanNu > 0 And KanNu <= UBound(GlKtn) Then
+                    PaKan = GlKtn(KanNu, 1)
+                End If
+            End If
+            If PaKan = vbNullString Then
+                PaKan = MaKan
+            End If
+
+            'Behandlungsgrund (Index der Auswahlliste GlThG)
+            GruNu = -1
+            If IsNumeric(SFeStr(RS125, "Grund")) = True Then
+                GruNu = CInt(RS125.Fields("Grund").Value)
+            End If
+            Select Case GruNu
+            Case 1: BeGrd = "accident"      'Unfall
+            Case 2: BeGrd = "maternity"     'Schwangerschaft
+            Case 3: BeGrd = "prevention"    'Praevention
+            Case 4: BeGrd = "birthdefect"   'Gebrechen
+            Case 6: BeGrd = "unknown"       'Unbekannt
+            Case Else: BeGrd = "disease"    'Krankheit / Rehabilitation
+            End Select
+
+            If TyStr = "U" Then
+                SubTy = "storno"            'Gutschrift
+            Else
+                SubTy = "normal"
+            End If
+
+            ZahlZi = 0
+            If FaDat > ReDat Then
+                ZahlZi = DateDiff("d", ReDat, FaDat)
+            End If
+
+            PatID = Format$(PatNr, "00000000")
+
+            'Stammdaten an den Generator uebergeben
+            With clGeI
+                .LeerePositionen
+                .Sprache = GiSpr
+                .Modus = GiMod
+                .GuidStr = CreateID(vbNullString)
+                .TiersTyp = TieTy
+                .Rolle = GiRol
+                .OrtTyp = GiOrt
+                .RollenTitel = MaReg
+                .AnfrageTyp = "invoice"
+                .AnfrageSubTyp = SubTy
+                .AnfrageNr = ReStr
+                .AnfrageDatum = ReDat
+                .Bemerkung = SFeStr(RS125, "Rechnungskommentar")
+                .GeneratorName = "SimpliMed generalInvoice"
+                .GeneratorVers = 500
+                .PaketName = "SimpliMed"
+
+                .TransportVon = MaGLN
+                .TransportZu = GiEmp
+
+                .StelGln = MaGLN
+                .StelZsr = MaZSR
+                .ErbrGln = MiGLN
+                .ErbrGlnOrt = MaGLN
+                .ErbrZsr = MiZSR
+                .DebiGln = .GiBaueGln(CStr(PatNr))
+                .GaraGln = .GiBaueGln(CStr(PatNr))
+
+                .PatGeschlecht = PaGes
+                .PatGeburt = GebDat
+                .PatSsn = PaSsn
+
+                .ZahlIban = MaIBA
+                .ZahlFristTage = ZahlZi
+                .ZahlGrund = "Rechnung " & ReStr
+
+                .GesetzTyp = GesTy
+                .GesetzVersNr = VerNr
+                .GesetzFallNr = FalNr
+                .GesetzFallDatum = FalDat
+
+                .BehKanton = PaKan
+                .BehGrund = BeGrd
+                .BehArt = "ambulatory"
+                .BehPatId = PatID
+                .BehFallId = ReStr
+                .DiagTyp = "freetext"
+                .DiagText = DiaSt
+
+                .Waehrung = WaeSt
+                .MwStNummer = MaMwS
+                .BetragBezahlt = BeBet
+                .RabattProzent = ReRab
+                .RabattText = "Rabatt"
+                .RabattCode = "RABATT"
+
+                .SetzeSteller MaFrm, MaAbt, vbNullString, vbNullString, MaNam, MaVor, _
+                              MaStr, vbNullString, MaPLZ, MaOrt, MaKan, vbNullString, vbNullString, MaTel, MaEma
+                .SetzeErbringer MaFrm, MaAbt, vbNullString, vbNullString, MiNam, MiVor, _
+                              MaStr, vbNullString, MaPLZ, MaOrt, MaKan, vbNullString, vbNullString, MaTel, MiEma
+                .SetzeZahlEmpf MaFrm, MaAbt, vbNullString, vbNullString, MaNam, MaVor, _
+                              MaStr, vbNullString, MaPLZ, MaOrt, MaKan, vbNullString, vbNullString, MaTel, MaEma
+                .SetzeDebitor RcFrm, vbNullString, RcAnr, RcTit, RcNam, RcVor, _
+                              RcStr, RcHnr, RcPlz, RcOrt, PaKan, RcLnd, RcLkz, PaTel, PaEma
+                .SetzeGarant RcFrm, vbNullString, RcAnr, RcTit, RcNam, RcVor, _
+                              RcStr, RcHnr, RcPlz, RcOrt, PaKan, RcLnd, RcLkz, PaTel, PaEma
+                .SetzePatient PaAnr, PaTit, PaNam, PaVor, _
+                              PaStr, PaHnr, PaPLZ, PaOrt, PaKan, PaLnd, PaLKZ, PaTel, PaEma
+                .SetzeVersicherer VerNam, vbNullString, vbNullString, vbNullString, vbNullString, vbNullString, _
+                          vbNullString, vbNullString, vbNullString, vbNullString, vbNullString, vbNullString, vbNullString, vbNullString, vbNullString
+            End With
+
+            'Leistungspositionen
+            Set RS126 = New ADODB.Recordset
+            RS126.CursorLocation = adUseClient
+            Set RS126 = DBCmRe1("qryPrSimRe2", "@IdStr", ReNum)
+            AnzPo = RS126.RecordCount
+            If AnzPo > 0 Then
+                PrBr2.Min = 0
+                PrBr2.Max = AnzPo
+                Do 'Leistungen
+                If IsNull(RS126.Fields("Gesamtbetrag").Value) = False Then
+                    If RS126.Fields("Gesamtbetrag").Value > 0 Then
+                        LePos = RS126.Fields("Position").Value
+                        LeAnz = RS126.Fields("Anzahl").Value
+                        If LeAnz = 0 Then
+                            LeAnz = 1
+                        End If
+                        LeBez = SFeStr(RS126, "Bezeichnung")
+                        LeCod = SFeStr(RS126, "Ziffer")
+                        LeKom = SFeStr(RS126, "Kommentar")
+                        LeStu = RS126.Fields("Steuersatz").Value
+                        LeEin = RS126.Fields("Einzelbetrag").Value
+                        If GlSpl = False Then 'Steuerspalte ausgeblendet
+                            LeStu = ReStu
+                        End If
+                        If LeCod = vbNullString Then
+                            LeCod = CStr(LePos)
+                        End If
+                        If LeBez = vbNullString Then
+                            LeBez = LeCod
+                        End If
+                        LeTar = GiTar
+
+                        'Behandlungsdatum aus dem Sortierfeld JJJJMMTT uebernehmen.
+                        'Das Feld Behandlungsdatum liegt im Format TT.MM.JJJJ vor und
+                        'waere von den regionalen Einstellungen abhaengig.
+                        LeDat = ReDat
+                        SorSt = SFeStr(RS126, "Sortierung")
+                        If Len(SorSt) = 8 Then
+                            If IsNumeric(SorSt) = True Then
+                                LeDat = DateSerial(CInt(Left$(SorSt, 4)), CInt(Mid$(SorSt, 5, 2)), CInt(Mid$(SorSt, 7, 2)))
+                            End If
+                        End If
+
+                        RetPo = clGeI.AddInvoiceLine(LeTar, LeCod, LeBez, LeAnz, LeEin, LeStu, LeDat, LeKom, NeuRe)
+                        NeuRe = False
+                        DoEvents
+                    End If
+                End If
+                AktPo = AktPo + 1
+                If AktPo < AnzPo Then
+                    PrBr2.Value = AktPo
+                End If
+                RS126.MoveNext
+                Loop Until RS126.EOF
+            End If
+            RS126.Close
+            Set RS126 = Nothing
+            DoEvents
+
+            If GlDbg = True Then 'Diagnosedaten fuer den generalInvoice-Export
+                SErLog "generalInvoice Rechnung " & ReStr & " (ID " & CStr(ReNum) & _
+                       "): Waehrung=[" & WaeSt & "] Positionen=" & CStr(RetPo) & " von " & CStr(AnzPo) & _
+                       " Tiers=" & TieTy & " Gesetz=" & GesTy & " Kanton=[" & PaKan & "]" & _
+                       " IBAN=" & SIbMsk(MaIBA) & " GLN-Mandant=[" & MaGLN & "] GLN-Mitarbeiter=[" & MiGLN & "]" & _
+                       " ZSR=[" & MaZSR & "] MwStNr=[" & MaMwS & "] Betrag=" & CStr(ReBet) & _
+                       " Bezahlt=" & CStr(BeBet) & " Rabatt=" & CStr(ReRab)
+            End If
+
+            If Dialo = False Then
+                DaNam = "generalInvoice_Beleg_" & ReStr & ".xml"
+                FiNam = ExpOr & DaNam
+            ElseIf AnzRe > 1 Then
+                DaNam = "generalInvoice_Beleg_" & ReStr & ".xml"
+                FiNam = ExpOr & DaNam
+            End If
+            If AnzRe > 1 Then 'Dateiliste fuer den Sammelversand
+                FilNa(AktRe) = FiNam
+            End If
+
+            With clFil
+                If .FilVor(FiNam) = True Then
+                    .DaLoe = FiNam & vbNullChar
+                    .FilLoe
+                End If
+            End With
+            DoEvents
+
+            If clGeI.GenerateXMLFile(FiNam) = True Then
+                ExpOK = True
+                SErLog "generalInvoice Rechnung " & ReStr & " geschrieben: " & FiNam & _
+                       " (" & CStr(SDatGr(FiNam)) & " Bytes)"
+                If clGeI.Hinweise <> vbNullString Then
+                    MeldSt = MeldSt & "Rechnung " & ReStr & ":" & vbCrLf & clGeI.Hinweise
+                    If GlDbg = True Then
+                        SErLog "generalInvoice Rechnung " & ReStr & " Hinweise: " & Replace(clGeI.Hinweise, vbCrLf, " | ")
+                    End If
+                End If
+            Else
+                MeldSt = MeldSt & "Rechnung " & ReStr & " wurde nicht exportiert:" & vbCrLf & clGeI.Fehler & vbCrLf
+                SErLog "generalInvoice Rechnung " & ReStr & " NICHT exportiert: " & Replace(clGeI.Fehler, vbCrLf, " | ")
+            End If
+            DoEvents
+
+            If GlDru.EmVer > 0 Then 'Emailversand
+                If GlDru.EmSep = True Then 'Emailempfaengerseparation
+                    If GlDru.EmVer = 3 Then 'Emailversand
+                        If PaEma <> vbNullString Then
+                            With GlTxV
+                                .TxStr = GlEmT(1, 3)
+                                .DaStr = ReDat
+                                .Datum = ReDat
+                                .ReStr = ReStr
+                                .MitNr = MitNr
+                                .ManNr = ManNr
+                                .PatNr = PatNr
+                            End With
+                            EmBet = SEmTx()
+                            With GlTxV
+                                .TxStr = GlEmT(1, 1)
+                                .Datum = ReDat
+                                .DaStr = ReDat
+                                .ReStr = ReStr
+                                .MitNr = MitNr
+                                .ManNr = ManNr
+                                .PatNr = PatNr
+                            End With
+                            EmTex = SEmTx()
+                            MeTex = vbCrLf & EmBrf & vbCrLf & vbCrLf & EmTex & vbCrLf & vbCrLf & EmSig
+                            EmRet = SEmSe(PaEma, EmBet, MeTex, FiNam, , PaReg, False, True)
+                        End If
+                    ElseIf GlDru.EmVer = 6 Then
+                        DoStr = SMCUp(FiNam, PatNr) 'Downloadlink
+                        DoEvents
+                        If DoStr <> vbNullString Then
+                            Lange = Len(DoStr)
+                            Posit = InStr(1, DoStr, ";", 1)
+                            If Posit > 0 Then
+                                DoLnk = Left$(DoStr, Posit - 1)
+                                PoLnk = Mid$(DoStr, Posit + 1, Lange - Posit)
+                                With GlTxV
+                                    .TxStr = GlEmT(12, 3)
+                                    .Datum = ReDat
+                                    .DaStr = ReDat
+                                    .ReStr = ReStr
+                                    .MitNr = MitNr
+                                    .ManNr = ManNr
+                                    .PatNr = PatNr
+                                End With
+                                EmBet = SEmTx()
+                                With GlTxV
+                                    .TxStr = GlEmT(12, 1)
+                                    .Datum = ReDat
+                                    .DaStr = ReDat
+                                    .ReStr = ReStr
+                                    .MitNr = MitNr
+                                    .ManNr = ManNr
+                                    .PatNr = PatNr
+                                    .DoLnk = DoLnk
+                                    .PoLnk = PoLnk
+                                    .DoLan = GlVrw
+                                End With
+                                EmTex = SEmTx()
+                                MeTex = vbCrLf & EmBrf & vbCrLf & vbCrLf & EmTex & vbCrLf & vbCrLf & EmSig
+                                EmRet = SEmSe(PaEma, EmBet, MeTex, , , PaReg, False, True)
+                            End If
+                        End If
+                    End If
+                End If
+            End If
+
+        End If
+        RS125.Close
+        Set RS125 = Nothing
+    End If
+
+    AktRe = AktRe + 1
+    If AktRe < AnzRe Then
+        PrBr1.Value = AktRe
+    End If
+Next RpRow
+
+Unload frmStatus
+Set frmStatus = Nothing
+DoEvents
+
+If GlDru.EmVer > 0 Then 'Emailversand
+    If GlDru.EmSep = False Then 'Emailempfaengerseparation
+        If GlDru.GoBDk = True Then
+            If GlDru.ReAbs = True Then
+                If GlDru.EmVer = 1 Then 'Emailversand
+                    If PaEma <> vbNullString Then
+                        With GlTxV
+                            .TxStr = GlEmT(1, 3)
+                            .DaStr = ReDat
+                            .Datum = ReDat
+                            .ReStr = ReStr
+                            .MitNr = MitNr
+                            .ManNr = ManNr
+                            .PatNr = PatNr
+                        End With
+                        EmBet = SEmTx()
+                        With GlTxV
+                            .TxStr = GlEmT(1, 1)
+                            .Datum = ReDat
+                            .DaStr = ReDat
+                            .ReStr = ReStr
+                            .MitNr = MitNr
+                            .ManNr = ManNr
+                            .PatNr = PatNr
+                        End With
+                        EmTex = SEmTx()
+                        MeTex = vbCrLf & EmBrf & vbCrLf & vbCrLf & EmTex
+                        If AnzRe > 1 Then 'alle erzeugten Dateien anhaengen, ohne Dublette
+                            FiNam = vbNullString
+                            For AktRe = 0 To AnzRe - 1
+                                If FilNa(AktRe) <> vbNullString Then
+                                    If FiNam = vbNullString Then
+                                        FiNam = FilNa(AktRe)
+                                    Else
+                                        FiNam = FiNam & ";" & FilNa(AktRe)
+                                    End If
+                                End If
+                            Next AktRe
+                        End If
+                        SMaNe PatNr, PaEma, , MeTex, EmBet, FiNam
+                    End If
+                ElseIf GlDru.EmVer = 6 Then
+                    If AnzRe > 1 Then
+                        ReDim DowSt(AnzRe - 1)
+                        For AktRe = 0 To AnzRe - 1
+                            DowSt(AktRe) = SMCUp(FilNa(AktRe), PatNr) 'Downloadlink
+                            DoEvents
+                        Next AktRe
+                        DoStr = DowSt(AnzRe - 1)
+                    Else
+                        DoStr = SMCUp(FiNam, PatNr) 'Downloadlink
+                        DoEvents
+                    End If
+                    If DoStr <> vbNullString Then
+                        Lange = Len(DoStr)
+                        Posit = InStr(1, DoStr, ";", 1)
+                        If Posit > 0 Then
+                            DoLnk = Left$(DoStr, Posit - 1)
+                            PoLnk = Mid$(DoStr, Posit + 1, Lange - Posit)
+                            With GlTxV
+                                .TxStr = GlEmT(12, 3)
+                                .Datum = ReDat
+                                .DaStr = ReDat
+                                .ReStr = ReStr
+                                .MitNr = MitNr
+                                .ManNr = ManNr
+                                .PatNr = PatNr
+                            End With
+                            EmBet = SEmTx()
+                            With GlTxV
+                                .TxStr = GlEmT(12, 1)
+                                .Datum = ReDat
+                                .DaStr = ReDat
+                                .ReStr = ReStr
+                                .MitNr = MitNr
+                                .ManNr = ManNr
+                                .PatNr = PatNr
+                                .DoLnk = DoLnk
+                                .PoLnk = PoLnk
+                                .DoLan = GlVrw
+                            End With
+                            EmTex = SEmTx()
+                            MeTex = vbCrLf & EmBrf & vbCrLf & vbCrLf & EmTex
+                            SMaNe PatNr, PaEma, , MeTex, EmBet
+                        End If
+                    End If
+                End If
+                S_ReExZ = True
+            Else
+                SPopu "Rechnung abschlieﬂen", "Die Rechnungsdruckoptionen stehen nicht auf abschlieﬂen!", IC48_Forbidden
+            End If
+        End If
+    End If
+End If
+
+If ExpOK = True Then
+    S_ReExZ = True
+End If
+
+If MeldSt <> vbNullString Then
+    If Len(MeldSt) > 1200 Then
+        MeldSt = Left$(MeldSt, 1200) & vbCrLf & "..."
+    End If
+    SPopu "generalInvoice 5.0 Export", MeldSt, IC48_Warning
+End If
+
+Set CoDia = Nothing
+Set RpSel = Nothing
+Set RpCls = Nothing
+Set RpCo3 = Nothing
+Set RpCo4 = Nothing
+
+Set clFil = Nothing
+Set clGeI = Nothing
+
+Exit Function
+
+LiErr:
+SErLog "generalInvoice Abbruch in S_ReExZ: " & Err.Description & " (" & CStr(Err.Number) & ")"
+If GlDbg = True Then MsgBox Err.Description, 48, "S_ReExZ " & Err.Number
+On Error Resume Next
+If Not RS126 Is Nothing Then
+    RS126.Close
+    Set RS126 = Nothing
+End If
+If Not RS125 Is Nothing Then
+    RS125.Close
+    Set RS125 = Nothing
+End If
+Unload frmStatus
+Set frmStatus = Nothing
+Set CoDia = Nothing
+Set RpSel = Nothing
+Set RpCls = Nothing
+Set clFil = Nothing
+Set clGeI = Nothing
+If MeldSt <> vbNullString Then
+    SPopu "generalInvoice 5.0 Export", MeldSt, IC48_Warning
+End If
+Exit Function
+
+End Function
+
+Private Function SFeStr(RsDat As ADODB.Recordset, ByVal FelNa As String) As String
+On Error GoTo FeErr
+'Liest ein Recordsetfeld nullsicher als getrimmte Zeichenkette
+
+If IsNull(RsDat.Fields(FelNa).Value) = False Then
+    SFeStr = Trim$(RsDat.Fields(FelNa).Value & vbNullString)
+Else
+    SFeStr = vbNullString
+End If
+
+Exit Function
+
+FeErr:
+SFeStr = vbNullString
+Exit Function
+
+End Function
+
+Private Function SFeNum(RsDat As ADODB.Recordset, ByVal FelNa As String) As Currency
+On Error GoTo FnErr
+'Liest ein Recordsetfeld nullsicher als Zahl; Null und Leerwerte ergeben 0
+
+If IsNull(RsDat.Fields(FelNa).Value) = False Then
+    If IsNumeric(RsDat.Fields(FelNa).Value) = True Then
+        SFeNum = CCur(RsDat.Fields(FelNa).Value)
+    Else
+        SFeNum = 0
+    End If
+Else
+    SFeNum = 0
+End If
+
+Exit Function
+
+FnErr:
+SFeNum = 0
+Exit Function
+
+End Function
+
+Private Function SRund2(ByVal Wert As Currency) As Currency
+'Kaufmaennische Rundung auf zwei Nachkommastellen.
+'VB6 Round() rundet bankmaessig und ist fuer Geldbetraege ungeeignet.
+
+If Wert < 0 Then
+    SRund2 = -(Int((-Wert) * 100 + 0.5) / 100)
+Else
+    SRund2 = Int(Wert * 100 + 0.5) / 100
+End If
+
+End Function
+
+Private Function SRund4(ByVal Wert As Currency) As Currency
+'Kaufmaennische Rundung auf vier Nachkommastellen.
+'EN16931 laesst fuer den Netto-Einzelpreis (BT-146) vier Stellen zu; damit
+'bleibt die Summe der Positionen mit dem Bruttobetrag des Belegs identisch.
+
+If Wert < 0 Then
+    SRund4 = -(Int((-Wert) * 10000 + 0.5) / 10000)
+Else
+    SRund4 = Int(Wert * 10000 + 0.5) / 10000
+End If
+
+End Function
+
+Private Function SIbMsk(ByVal IbaSt As String) As String
+'Maskiert eine IBAN fuer das Logfile: Laenderkennung, Laenge, letzte vier Stellen
+
+Dim TmpSt As String
+
+TmpSt = Replace(UCase$(Trim$(IbaSt)), Chr$(32), vbNullString)
+If TmpSt = vbNullString Then
+    SIbMsk = "[leer]"
+ElseIf Len(TmpSt) < 8 Then
+    SIbMsk = "[" & TmpSt & "]"
+Else
+    SIbMsk = "[" & Left$(TmpSt, 4) & "..." & Right$(TmpSt, 4) & " Laenge " & CStr(Len(TmpSt)) & "]"
+End If
+
+End Function
+
+Private Function SDatGr(ByVal FiNam As String) As Long
+On Error GoTo GrErr
+'Groesse einer Datei; -1 wenn sie nicht gelesen werden kann
+
+SDatGr = FileLen(FiNam)
+
+Exit Function
+
+GrErr:
+SDatGr = -1
+Exit Function
+
+End Function
+
 Public Sub S_ReFi()
 On Error GoTo LiErr
 'Filtert Rechnungen nach bestimmten Kriterien
@@ -23180,7 +24239,7 @@ Dim ZSRNm As String
 Dim ReDat As String
 Dim ReStr As String
 Dim BeDat As String
-Dim PLZSt As String
+Dim PlzSt As String
 Dim PLZNm As String
 Dim TmStr As String
 Dim GesBe As Single
@@ -23213,16 +24272,16 @@ If RS118.RecordCount > 0 Then
     
     If IsNull(RS118.Fields("PLZ").Value) = False Then
         If RS118.Fields("PLZ").Value <> vbNullString Then
-            PLZSt = RS118.Fields("PLZ").Value
+            PlzSt = RS118.Fields("PLZ").Value
         Else
-            PLZSt = "0000"
+            PlzSt = "0000"
         End If
     Else
-        PLZSt = "0000"
+        PlzSt = "0000"
     End If
-    For AktZa = 1 To Len(PLZSt) 'Buchstaben rausfiltern
-        If IsNumeric(Mid$(PLZSt, AktZa, 1)) = True Then
-            PLZNm = PLZNm & Mid$(PLZSt, AktZa, 1)
+    For AktZa = 1 To Len(PlzSt) 'Buchstaben rausfiltern
+        If IsNumeric(Mid$(PlzSt, AktZa, 1)) = True Then
+            PLZNm = PLZNm & Mid$(PlzSt, AktZa, 1)
         End If
     Next AktZa
     If Len(PLZNm) > 4 Then
@@ -23552,18 +24611,18 @@ DoEvents '‹bertrag ID1 Feld in IDR
 DBCmEx2 "qrySimReSet", "@IdNum", "@IdxNr", NeuRe, NeuRe
 DoEvents
 
-Set RS115 = New ADODB.Recordset 'alle Positionen dieser Rechnung
-RS115.CursorLocation = adUseClient
-Set RS115 = DBCmRe1("qrySimAbIdx", "@IdxNr", NeuRe)
-If RS115.RecordCount > 0 Then
-    DBCmEx1 "qrySimAbLoR", "@IdxNr", NeuRe
-End If
-RS115.Close
-Set RS115 = Nothing
-DoEvents
-
 If GlNeR.ReTyp <> 4 Then 'keine Gutschrift
     If NeuRe > 0 Then
+        'Set RS115 = New ADODB.Recordset 'alle Positionen dieser Rechnung
+        'RS115.CursorLocation = adUseClient
+        'Set RS115 = DBCmRe1("qrySimAbIdx", "@IdxNr", NeuRe)
+        'If RS115.RecordCount > 0 Then
+        '    DBCmEx1 "qrySimAbLoR", "@IdxNr", NeuRe
+        'End If
+        'RS115.Close
+        'Set RS115 = Nothing
+        'DoEvents
+    
         If LetRe > 0 Then
             If GlDiR = True Then 'Rechnungsdiagnose ¸bernehmen
                 Set RS125 = New ADODB.Recordset
@@ -31293,12 +32352,11 @@ If GesZa > 0 Then
                 If GlSpl = False Then 'Steuerspalte eingeblendet
                     LeStu = ReStu
                 End If
-                If LeStu > 0 Then
-                    LeEin = LeEin - Round(LeEin * (LeStu / 100#), 2)
-                    LeGes = LeGes - Round(LeGes * (LeStu / 100#), 2)
+                If LeStu > 0 Then 'Nettopreis aus dem Bruttopreis herausrechnen
+                    LeEin = SRund4(LeEin / (1 + LeStu / 100#))
                 End If
                 
-                LeGes = Format(LeAnz * LeEin, "0.00")
+                LeGes = SRund2(LeAnz * LeEin)
                 GesRe = GesRe + LeGes
                 
                 RetWe = clXRe.AddInvoiceLine(LePos, LeBez, LeAnz, LeCod, LeEin, LeGes, LeStu, NeuRe)
@@ -31311,32 +32369,22 @@ If GesZa > 0 Then
     End If
     DoEvents
 
-    StBet = Round(ReBet * (ReStu / 100#), 2)
     NeBet = GesRe
+    StBet = SRund2(NeBet * ReStu / 100#)
+    ReBet = SRund2(NeBet + StBet)
 
-    StBet = Round(NeBet * (ReStu / 100#), 2)
-    ReBet = NeBet + StBet
-
-    If ReRab > "0" Then
+    If ReRab > 0 Then 'Rabatt auf die Nettosumme
         GeRab = GesRe
-        NeBet = Format(GeRab - Format((NeBet / 100) * ReRab, "0.00"), "0.00")
-        ReRab = Format(GeRab - NeBet, "0.00")
-        ReBet = NeBet
+        ReRab = SRund2(GeRab * ReRab / 100#)
+        NeBet = SRund2(GeRab - ReRab)
+        StBet = SRund2(NeBet * ReStu / 100#)
+        ReBet = SRund2(NeBet + StBet)
     Else
         GeRab = NeBet
     End If
     
-    If ReRab > "0" And ReStu > "0" Then
-    StBet = Format((NeBet / 100) * ReStu, "0.00")
-    ReBet = Format(NeBet + StBet, "0.00")
-    End If
-    
-    NeBet = Format(NeBet, "0.00")
-    StBet = Format(StBet, "0.00")
-    ReBet = Format(ReBet, "0.00")
-    
     With clXRe
-        .PrepaidAmount = BeBet
+        .PrepaidAmount = SRund2(BeBet)
         .InvoiceNumber = ReStr
         .InvoiceTax = ReStu
         .InvoiceTaxCategory = StTyp
@@ -31380,7 +32428,7 @@ If GesZa > 0 Then
         .LineExtensionAmount = GeRab 'Summe aller Nettobetr‰ge
         .TaxExclusiveAmount = NeBet
         .TaxInclusiveAmount = ReBet
-        .PayableAmount = ReBet - BeBet
+        .PayableAmount = SRund2(ReBet - BeBet)
         .GenerateXMLFile FiNam
     End With
 End If

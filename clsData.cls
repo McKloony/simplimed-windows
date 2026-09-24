@@ -639,7 +639,7 @@ End If
 If IniGetVal("Adress", "ASpr1") <> vbNullString Then
     GlThe(1, 24) = IniGetVal("Adress", "ASpr1")
 Else
-    GlThe(1, 24) = GlSZe 'Sprechzietenstring
+    GlThe(1, 24) = GlSZe 'Sprechzeitenstring
 End If
 If IniGetVal("Adress", "ARas1") <> vbNullString Then
     GlThe(1, 26) = Right$(IniGetVal("Adress", "ARas1"), 1)

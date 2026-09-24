@@ -406,7 +406,7 @@ If RpSel.Count > 0 Then
                     DBCmEx2 "qryAdrKo9", "@IdPas", "@IdxNr", -1, PatNr '[Passiv]
                 Case 2:
                     DBCmEx2 "qryAdrKo9", "@IdPas", "@IdxNr", 0, PatNr '[Passiv]
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         DBCmEx1 "qryAdrKo7", "@IdxNr", PatNr '[LastModification]
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 0, Now, PatNr
                     End If
@@ -2286,23 +2286,23 @@ If RpSel.Count > 0 Then
                                 Case "IDKurz": RS127.Fields(FL101.Name).Value = IdStr
                                 Case "Geändert": RS127.Fields(FL101.Name).Value = Date
                                 Case "Replicated":
-                                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                         RS127.Fields(FL101.Name).Value = 1
                                     Else
                                         RS127.Fields(FL101.Name).Value = 0
                                     End If
                                 Case "DAVChange":
-                                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                         RS127.Fields(FL101.Name).Value = 1
                                     Else
                                         RS127.Fields(FL101.Name).Value = 0
                                     End If
                                 Case "LastModification":
-                                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                         RS127.Fields(FL101.Name).Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
                                     End If
                                 Case "DAVDate":
-                                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                         RS127.Fields(FL101.Name).Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
                                     End If
                                 Case Else:
@@ -2681,7 +2681,7 @@ For Each RpRow In RpSel
         Select Case GlBut
         Case RibTab_Adressen:
                 If GlBuL = True Then 'Echtes Löschen erlauben
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         DoEvents
@@ -2697,7 +2697,7 @@ For Each RpRow In RpSel
                     If Passi = False Then
                         DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                         DoEvents
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qrySimAdRe1", "@IdxNr", IdxNr
                             DBCmEx2 "qryAdrKo3", "@IdEdi", "@IdxNr", 1, IdxNr
                             DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -2740,7 +2740,7 @@ For Each RpRow In RpSel
                         DoEvents
                         DBCmEx1 "qrySimOPLoP", "@IdxNr", IdxNr
                         DoEvents
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                             DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                             DoEvents
@@ -2762,7 +2762,7 @@ For Each RpRow In RpSel
                             DoEvents
                             DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                             DoEvents
-                            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                 DBCmEx1 "qrySimAdRe1", "@IdxNr", IdxNr
                                 DBCmEx2 "qryAdrKo3", "@IdEdi", "@IdxNr", 1, IdxNr
                                 DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -2797,7 +2797,7 @@ For Each RpRow In RpSel
                     DoEvents
                     DBCmEx1 "qrySimOPLoP", "@IdxNr", IdxNr
                     DoEvents
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         DoEvents
@@ -2819,7 +2819,7 @@ For Each RpRow In RpSel
                         DoEvents
                         DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                         DoEvents
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qrySimAdRe1", "@IdxNr", IdxNr
                             DBCmEx2 "qryAdrKo3", "@IdEdi", "@IdxNr", 1, IdxNr
                             DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -2853,7 +2853,7 @@ For Each RpRow In RpSel
                     DoEvents
                     DBCmEx1 "qrySimOPLoP", "@IdxNr", IdxNr
                     DoEvents
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                         DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
                         DoEvents
@@ -2875,7 +2875,7 @@ For Each RpRow In RpSel
                         DoEvents
                         DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, IdxNr
                         DoEvents
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qrySimAdRe1", "@IdxNr", IdxNr
                             DBCmEx2 "qryAdrKo3", "@IdEdi", "@IdxNr", 1, IdxNr
                             DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, IdxNr
@@ -4928,7 +4928,7 @@ If AnzPo > 1 Then
     DoEvents
 
     For AktZa = 1 To UBound(GlErK) 'Erlï¿½skonten
-        If GlErK(AktZa, 0) = GlSE2 Then 'Standarderlï¿½skonto Bankkonto
+        If GlErK(AktZa, 0) = GlSE2 Then 'Standarderlöskonto Bankkonto
             KtNum = GlErK(AktZa, 0)
             KtStr = GlErK(AktZa, 2)
             KtIDI = GlErK(AktZa, 3) '[IDI]
@@ -22749,7 +22749,7 @@ On Error GoTo SuErr
 Dim NeuDa As Date
 Dim ReNum As String
 Dim TmpNr As String
-Dim RchNr As String
+Dim RcHnr As String
 Dim Posit As Integer
 
 Set RS121 = New ADODB.Recordset
@@ -22765,14 +22765,14 @@ End With
 
 If RS121.RecordCount > 0 Then
     Do
-    RchNr = RS121.Fields("RechNr").Value
+    RcHnr = RS121.Fields("RechNr").Value
     NeuDa = RS121.Fields("Datum").Value
-    Posit = InStrRev(RchNr, "-", -1, 1)
+    Posit = InStrRev(RcHnr, "-", -1, 1)
     If Posit > 0 Then
-        TmpNr = Mid$(RchNr, Posit + 1, Len(RchNr))
+        TmpNr = Mid$(RcHnr, Posit + 1, Len(RcHnr))
         If Len(TmpNr) > 6 Then TmpNr = Right$(TmpNr, 6)
     Else
-        TmpNr = Right$(RchNr, 3)
+        TmpNr = Right$(RcHnr, 3)
     End If
     ReNum = Format$(TmpNr, "00000000")
     RS121.Fields("PLZ").Value = ReNum
@@ -27603,6 +27603,8 @@ If CmEmp.Text = vbNullString Then
     Exit Sub
 Else
     EmpAd = CmEmp.Text
+    EmpAd = LTrim$(EmpAd)
+    EmpAd = RTrim$(EmpAd)
     If Len(EmpAd) > 250 Then
         EmpAd = Left$(EmpAd, 250)
     End If
@@ -35147,7 +35149,7 @@ If AnzPo > 0 Then
 
             If ChRep.Value = xtpChecked Then
                 If CmRep.ListIndex = 0 Then
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         DBCmEx1 "qryTerRep2", "@IdxNr", TerNr
                         DBCmEx1 "qryTerRep3", "@IdxNr", TerNr '[LastModification]
                     Else
@@ -35177,7 +35179,7 @@ If AnzPo > 0 Then
                         DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", -1, TerNr '[Passiv]
                     Case 2:
                         DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", 0, TerNr
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                             DBCmEx1 "qryTerRep2", "@IdxNr", TerNr
                             DBCmEx1 "qryTerRep3", "@IdxNr", TerNr '[LastModification]
                             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, TerNr
@@ -35551,51 +35553,6 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_TeAu " & Err.Number
 Resume Next
 
 End Sub
-Private Function S_TeBa(ByVal PrTyp As String, ByVal TmStr As String, ByVal UsNam As String, ByVal UsPas As String, ByVal UseId As String, ByVal MitNr As String) As Integer
-On Error GoTo LiErr '~~~
-'Senden der Informationen für den OTS Reset
-
-Dim RetW3 As String
-Dim Stat3 As String
-Dim ReTr3 As String
-Dim AkZa2 As Integer
-Dim ReStA As Boolean
-Dim AryLo() As String
-
-Dim clCal As New clsCalendar
-
-Set FS = frmStatus
-Set Lbl01 = FS.lblLab01
-
-AryLo = Split(TmStr, "#")
-
-For AkZa2 = 0 To UBound(AryLo)
-    If AryLo(AkZa2) <> vbNullString Then ' create a log file
-        If AryLo(AkZa2) <> vbNullString Then
-            clCal.SendLogFile PrTyp, UsNam, UsPas, AryLo(AkZa2), Stat3, RetW3, ReTr3, UseId ' send the log file
-            ReStA = CBool(Stat3)
-            If ReStA = False Then
-                Lbl01.Caption = "Feher: " & PrTyp & " " & RetW3 & " " & ReTr3
-                If GlDbg = True Then
-                    SErLog "S_TeBa" & " " & PrTyp & " " & TmStr & Chr$(10) & RetW3 & Chr$(10) & ReTr3 & Chr$(10) & Chr$(10)
-                End If
-            End If
-        End If
-    End If
-Next
-
-S_TeBa = AkZa2
-
-Exit Function
-
-LiErr:
-If GlDbg = True Then
-    SPopu "S_TeBa " & Err.Number, Err.Description, IC48_Warning
-    SErLog Err.Description & " S_TeBa " & Err.Number & " - " & Err.Source
-End If
-Resume Next
-
-End Function
 Public Sub S_TeBe()
 On Error GoTo GrErr
 'Termin bereinigen
@@ -36197,69 +36154,6 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_TeEx " & Err.Number
 Resume Next
 
 End Sub
-Private Function S_TeIb(ByVal ReSt2 As String, AryZe() As String, AryFe() As String) As Integer '~~~
-On Error GoTo LiErr
-'Abrufen der O Records (Uploadbestätigungen)
-
-Dim AktZe As Long 'Aktuelle Zeile
-Dim AnzZe As Long 'Anzahl Zeilen
-Dim GuiID As String
-
-If ReSt2 <> vbNullString Then
-    AryZe = Split(ReSt2, "#") 'Zeilen aufsplitten
-    AnzZe = UBound(AryZe) 'Anzahl O Protokolle
-    For AktZe = 0 To AnzZe
-        AryFe = Split(AryZe(AktZe), ";") 'Felder aufsplitten
-        If UBound(AryFe) > 0 Then
-            GuiID = AryFe(1)
-            DBCmEx3 "qryTerOnBo", "@OnBok", "@OnSyn", "@IdStr", Now, Now, GuiID
-        End If
-    Next AktZe
-    S_TeIb = AnzZe
-End If
-
-Exit Function
-
-LiErr:
-If GlDbg = True Then
-    SPopu "S_TeIb " & Err.Number, Err.Description, IC48_Warning
-End If
-Resume Next
-
-End Function
-Private Function S_TeIl(ByVal ReSt2 As String, AryZe() As String, AryFe() As String) As Integer '~~~
-On Error GoTo LiErr
-'Abrufen der L Records (Stornierungsanfragen)
-
-Dim AktZe As Long 'Aktuelle Zeile
-Dim AnzZe As Long 'Anzahl Zeilen
-Dim GuiID As String
-
-If ReSt2 <> vbNullString Then
-    AryZe = Split(ReSt2, "#") 'Zeilen aufsplitten
-    AnzZe = UBound(AryZe) 'Anzahl L Protokolle
-    For AktZe = 0 To AnzZe
-        AryFe = Split(AryZe(AktZe), ";") 'Felder aufsplitten
-        If UBound(AryFe) > 0 Then
-            GuiID = AryFe(1)
-            DBCmEx2 "qryTerStGu", "@IdSta", "@IdGui", 1, GuiID 'Status ändern auf abgesagt
-            DoEvents
-            DBCmEx3 "qryTerOnBo", "@OnBok", "@OnSyn", "@IdStr", Now, Now, GuiID
-            DoEvents
-        End If
-    Next AktZe
-    S_TeIl = AnzZe
-End If
-
-Exit Function
-
-LiErr:
-If GlDbg = True Then
-    SPopu "S_TeIl " & Err.Number, Err.Description, IC48_Warning
-End If
-Resume Next
-
-End Function
 Public Sub S_TeImO(ByVal ManNr As Long, ByVal MitNr As Long)
 On Error GoTo LiErr
 'Terminimport
@@ -36932,555 +36826,6 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_TeImT " & Err.Number
 Exit Sub
 
 End Sub
-Private Function S_TeIn(ByVal ReSt2 As String, AryZe() As String, AryFe() As String, MaNum As Long) As Integer '~~~
-On Error GoTo LiErr
-'Abrufen der A Recors
-
-Dim AktZe As Long 'Aktuelle Zeile
-Dim AnzZe As Long 'Anzahl Zeilen
-Dim GesZa As Long
-Dim PatNr As Long
-Dim PaNum As Long
-Dim IdxNr As Long
-Dim TerNr As Long
-Dim Datu1 As Date
-Dim Datu2 As Date
-Dim Datu3 As Date
-Dim Datu4 As Date
-Dim ZeiSt As Date
-Dim ZeiEn As Date
-Dim NotDa As Date
-Dim NotZe As Date
-Dim AdrID As String
-Dim KuEn1 As String
-Dim KuEn2 As String
-Dim PaSt1 As String
-Dim PaSt2 As String
-Dim PaStr As String
-Dim KoStr As String
-Dim TmBet As String
-Dim GuiID As String
-Dim DaTim As String
-Dim Gesch As String
-Dim PrGui As String
-Dim PrStr As String
-Dim MitNa As String
-Dim AktZa As Integer
-Dim MaIdx As Integer
-Dim GeTyp As Integer
-Dim NotVa As Integer
-Dim TeNeu As Boolean
-Dim FFirm As Variant
-Dim FAnre As Variant
-Dim FTite As Variant
-Dim FName As Variant
-Dim FVorn As Variant
-Dim FStra As Variant
-Dim FPOst As Variant
-Dim FOrte As Variant
-Dim FLand As Variant
-Dim FGebo As Variant
-Dim FEmai As Variant
-Dim FTeTy As Variant
-Dim FTele As Variant
-Dim FKomm As Variant
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    NotVa = GlMiO(GlSMo, 39) 'Standardmitarbeiter Online-Terminbuchungs Sytem
-Else
-    NotVa = GlMaO(GlSMa, 25)
-End If
-
-If NotVa = 0 Then
-    NotVa = 24
-End If
-
-If ReSt2 <> vbNullString Then
-    Set RS121 = New ADODB.Recordset 'Termine
-    With RS121
-        .CursorLocation = adUseClient
-        .Source = "qryTerNeu"
-        .ActiveConnection = DB1
-        .CursorType = adOpenKeyset
-        .LockType = adLockOptimistic
-        .Open Options:=adCmdTableDirect
-    End With
-    If RS121.Supports(adAddNew) Then
-        AryZe = Split(ReSt2, "#") 'Zeilen aufsplitten
-        AnzZe = UBound(AryZe) 'Anzahl A Protokolle
-        For AktZe = 0 To AnzZe
-            AryFe = Split(AryZe(AktZe), ";") 'Felder aufsplitten
-            If UBound(AryFe) > 0 Then
-                If IsDate(AryFe(2)) Then
-                    AdrID = vbNullString
-                    KoStr = vbNullString
-                    PaSt1 = vbNullString
-                    PaSt2 = vbNullString
-                    TmBet = vbNullString
-                    GuiID = vbNullString
-                    PaStr = vbNullString
-                    TeNeu = True
-                    PatNr = 0
-                    PaNum = 0
-
-                    GuiID = AryFe(1)
-                    Datu1 = AryFe(2)
-                    Datu2 = AryFe(3)
-                    ZeiSt = AryFe(4)
-                    ZeiEn = AryFe(5)
-                    TmBet = Replace(AryFe(6), "_", " ", 1, , 1)
-                    FFirm = Replace(AryFe(7), Chr$(34), vbNullString, 1, , 1)
-                    FAnre = Replace(AryFe(8), Chr$(34), vbNullString, 1, , 1)
-                    FTite = Replace(AryFe(9), Chr$(34), vbNullString, 1, , 1)
-                    FName = Replace(AryFe(10), Chr$(34), vbNullString, 1, , 1)
-                    FVorn = Replace(AryFe(11), Chr$(34), vbNullString, 1, , 1)
-                    FStra = Replace(AryFe(12), Chr$(34), vbNullString, 1, , 1)
-                    FPOst = Replace(AryFe(13), Chr$(34), vbNullString, 1, , 1)
-                    FOrte = Replace(AryFe(14), Chr$(34), vbNullString, 1, , 1)
-                    FLand = Replace(AryFe(15), Chr$(34), vbNullString, 1, , 1)
-                    FGebo = Replace(AryFe(16), Chr$(34), vbNullString, 1, , 1)
-                    FTele = Replace(AryFe(17), Chr$(34), vbNullString, 1, , 1)
-                    FTeTy = Replace(AryFe(18), Chr$(34), vbNullString, 1, , 1)
-                    FEmai = Replace(AryFe(19), Chr$(34), vbNullString, 1, , 1)
-                    FKomm = Replace(AryFe(20), Chr$(34), vbNullString, 1, , 1)
-                    AdrID = AryFe(21)
-                    Datu3 = AryFe(22)
-                    Datu4 = AryFe(23)
-
-                    If Len(TmBet) > 250 Then
-                        TmBet = Left$(TmBet, 250)
-                    End If
-                    
-                    DaTim = Format$(Datu3, "dd.mm.yyyy") & " " & Format$(Datu4, "hh:mm:ss")
-
-                    If AdrID <> vbNullString Then
-                        PaNum = CLng(Val(AdrID)) 'Buchung über PIN
-
-                        Set RS148 = New ADODB.Recordset
-                        RS148.CursorLocation = adUseClient
-                        Set RS148 = DBCmRe1("qrySimAdIdx", "@IdxNr", PaNum)
-                        GesZa = RS148.RecordCount
-                        If GesZa > 0 Then
-                            PatNr = RS148.Fields("ID0").Value
-                            FFirm = RS148.Fields("Firma1").Value
-                            FAnre = RS148.Fields("Anrede").Value
-                            FTite = RS148.Fields("Titel").Value
-                            FName = RS148.Fields("Name").Value
-                            FVorn = RS148.Fields("Vorname").Value
-                            FStra = RS148.Fields("Straße").Value
-                            FPOst = RS148.Fields("PLZ").Value
-                            FOrte = RS148.Fields("Ort").Value
-                            FLand = RS148.Fields("Land").Value
-                            FGebo = RS148.Fields("Geboren").Value
-                            FTele = RS148.Fields("Telefon1").Value
-                            PaStr = RS148.Fields("IDKurz").Value
-                        End If
-                        RS148.Close
-                        Set RS148 = Nothing
-                        
-                        If FName = vbNullString Then
-                            Set RS148 = New ADODB.Recordset
-                            RS148.CursorLocation = adUseClient
-                            Set RS148 = DBCmRe1("qryAdrIdx", "@IdxNr", PaNum)
-                            GesZa = RS148.RecordCount
-                            If GesZa > 0 Then
-                                PatNr = RS148.Fields("ID0").Value
-                                FFirm = RS148.Fields("Firma1").Value
-                                FAnre = RS148.Fields("Anrede").Value
-                                FTite = RS148.Fields("Titel").Value
-                                FName = RS148.Fields("Name").Value
-                                FVorn = RS148.Fields("Vorname").Value
-                                FStra = RS148.Fields("Straße").Value
-                                FPOst = RS148.Fields("PLZ").Value
-                                FOrte = RS148.Fields("Ort").Value
-                                FLand = RS148.Fields("Land").Value
-                                FGebo = RS148.Fields("Geboren").Value
-                                FTele = RS148.Fields("Telefon1").Value
-                                PaStr = RS148.Fields("IDKurz").Value
-                            End If
-                            RS148.Close
-                            Set RS148 = Nothing
-                        End If
-                    End If
-                        
-                    '----
-                    
-                    If FName <> vbNullString Then
-                        If Len(FTite) > 1 Then
-                            If Left$(FTite, 3) = "Dr." Then
-                                FTite = "Dr."
-                            ElseIf Left$(FTite, 3) = "Prof" Then
-                                FTite = "Prof."
-                            ElseIf Left$(FTite, 3) = "Dip" Then
-                                FTite = vbNullString
-                            ElseIf FTite = "HP" Or FTite = "Hp" Then
-                                FTite = vbNullString
-                                If FAnre = "Herrn und Frau" Then
-                                    FAnre = "Herrn und Frau HP"
-                                ElseIf FAnre Like "*Herr*" Then
-                                    FAnre = "Herrn HP"
-                                ElseIf FAnre Like "*Frau*" Then
-                                    FAnre = "Frau HP"
-                                End If
-                            End If
-                        End If
-                        
-                        If Len(FGebo) > 1 Then
-                            KuEn1 = Mid$(Trim$(FGebo), 1, 10)
-                            If Len(FOrte) > 1 Then
-                                KuEn2 = Mid$(Trim$(FOrte), 1, 10)
-                            Else
-                                KuEn2 = vbNullString
-                            End If
-                        Else
-                            If Len(FOrte) > 1 Then
-                                KuEn1 = Mid$(Trim$(FOrte), 1, 10)
-                                KuEn2 = Mid$(Trim$(FOrte), 1, 10)
-                            Else
-                                KuEn1 = vbNullString
-                                KuEn2 = vbNullString
-                            End If
-                        End If
-    
-                        If Len(FName) > 1 Then
-                            If Len(KuEn1) > 1 Then
-                                PaSt1 = Mid$(Trim$(FName), 1, 25) & ", " & "(" & KuEn1 & ")"
-                                PaSt2 = Mid$(Trim$(FName), 1, 25) & ", " & "(" & KuEn2 & ")"
-                            Else
-                                PaSt1 = Mid$(Trim$(FName), 1, 25)
-                                PaSt2 = Mid$(Trim$(FName), 1, 25)
-                            End If
-                        Else
-                            If Len(FFirm) > 1 Then
-                                If Len(KuEn1) > 1 Then
-                                    PaSt1 = Mid$(Trim$(FFirm), 1, 25) & ", " & "(" & KuEn1 & ")"
-                                    PaSt2 = Mid$(Trim$(FFirm), 1, 25) & ", " & "(" & KuEn2 & ")"
-                                Else
-                                    If Len(FVorn) > 1 Then
-                                        If Len(KuEn1) > 1 Then
-                                            PaSt1 = Mid$(Trim$(FVorn), 1, 25) & ", " & "(" & KuEn1 & ")"
-                                            PaSt2 = Mid$(Trim$(FVorn), 1, 25) & ", " & "(" & KuEn2 & ")"
-                                        Else
-                                            PaSt1 = Mid$(Trim$(FVorn), 1, 25)
-                                            PaSt2 = Mid$(Trim$(FVorn), 1, 25)
-                                        End If
-                                    End If
-                                End If
-                            End If
-                        End If
-                        
-                        If Len(FVorn) > 1 Then
-                            If Len(FName) > 1 Then
-                                If Len(KuEn1) > 1 Then
-                                    PaSt1 = Mid$(Trim$(FName), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15) & ", " & "(" & KuEn1 & ")"
-                                    PaSt2 = Mid$(Trim$(FName), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15) & ", " & "(" & KuEn2 & ")"
-                                Else
-                                    PaSt1 = Mid$(Trim$(FName), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15)
-                                    PaSt2 = Mid$(Trim$(FName), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15)
-                                End If
-                            Else
-                                If Len(FFirm) > 1 Then
-                                    If Len(KuEn1) > 1 Then
-                                        PaSt1 = Mid$(Trim$(FFirm), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15) & ", " & "(" & KuEn1 & ")"
-                                        PaSt2 = Mid$(Trim$(FFirm), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15) & ", " & "(" & KuEn2 & ")"
-                                    Else
-                                        PaSt1 = Mid$(Trim$(FFirm), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15)
-                                        PaSt2 = Mid$(Trim$(FFirm), 1, 20) & ", " & Mid$(Trim$(FVorn), 1, 15)
-                                    End If
-                                Else
-                                    If Len(KuEn1) > 1 Then
-                                        PaSt1 = Mid$(Trim$(FVorn), 1, 30) & ", " & "(" & KuEn1 & ")"
-                                        PaSt2 = Mid$(Trim$(FVorn), 1, 30) & ", " & "(" & KuEn2 & ")"
-                                    Else
-                                        PaSt1 = Mid$(Trim$(FVorn), 1, 30)
-                                        PaSt2 = Mid$(Trim$(FVorn), 1, 30)
-                                    End If
-                                End If
-                            End If
-                        End If
-                    End If
-                    
-                    '----
-
-                    If PatNr = 0 Then
-                        If PaSt1 <> vbNullString Then
-                            Set RS148 = New ADODB.Recordset
-                            RS148.CursorLocation = adUseClient
-                            Set RS148 = DBCmRe1("qrySimAdKur", "@IdStr", PaSt1 & "%")
-                            GesZa = RS148.RecordCount
-                            If GesZa > 0 Then
-                                PatNr = RS148.Fields("ID0").Value
-                                PaStr = RS149.Fields("IDKurz").Value
-                            End If
-                            RS148.Close
-                            Set RS148 = Nothing
-                        End If
-                    End If
-                    
-                    If PatNr = 0 Then
-                        If PaSt2 <> vbNullString Then
-                            Set RS148 = New ADODB.Recordset
-                            RS148.CursorLocation = adUseClient
-                            Set RS148 = DBCmRe1("qrySimAdKur", "@IdStr", PaSt2 & "%")
-                            GesZa = RS148.RecordCount
-                            If GesZa > 0 Then
-                                PatNr = RS148.Fields("ID0").Value
-                                PaStr = RS149.Fields("IDKurz").Value
-                            End If
-                            RS148.Close
-                            Set RS148 = Nothing
-                        End If
-                    End If
-
-                    If PatNr = 0 Then
-                        If FEmai <> vbNullString Then
-                            Set RS149 = New ADODB.Recordset
-                            RS149.CursorLocation = adUseClient
-                            Set RS149 = DBCmRe2("qrySimAdEm3", "@IdStr", "@IdNam", "%" & FEmai & "%", "%" & FVorn & "%")
-                            If RS149.RecordCount > 0 Then
-                                PatNr = RS149.Fields("ID0").Value
-                                PaStr = RS149.Fields("IDKurz").Value
-                            End If
-                            RS149.Close
-                            Set RS149 = Nothing
-                        End If
-                    End If
-
-                    If PatNr = 0 Then
-                        If FEmai <> vbNullString Then
-                            Set RS150 = New ADODB.Recordset
-                            RS150.CursorLocation = adUseClient
-                            Set RS150 = DBCmRe2("qrySimAdEm4", "@IdStr", "@IdNam", "%" & FEmai & "%", "%" & FVorn & "%")
-                            If RS150.RecordCount > 0 Then
-                                PatNr = RS150.Fields("ID0").Value
-                                PaStr = RS149.Fields("IDKurz").Value
-                            End If
-                            RS150.Close
-                            Set RS150 = Nothing
-                        End If
-                    End If
-
-                    If FKomm <> vbNullString Then
-                        KoStr = SUmw(FKomm)
-                    End If
-                    
-                    If Len(KoStr) > 250 Then
-                        KoStr = Left$(KoStr, 250)
-                    End If
-
-                    If FAnre <> vbNullString Then
-                        If FAnre = "Herrn" Then
-                            Gesch = "M"
-                            GeTyp = 2
-                        ElseIf FAnre = "Frau" Then
-                            Gesch = "W"
-                            GeTyp = 3
-                        Else
-                            Gesch = "W"
-                            GeTyp = 1
-                        End If
-                    Else
-                        Gesch = "W"
-                        GeTyp = 1
-                    End If
-
-                    If Format$(ZeiSt, "hh:mm") Like "00:00" Then
-                        If Format$(ZeiEn, "hh:mm") Like "00:00" Then
-                            TeNeu = False 'Warteliste
-                        End If
-                    End If
-
-                    Set RS115 = New ADODB.Recordset
-                    RS115.CursorLocation = adUseClient
-                    Set RS115 = DBCmRe1("qryTerGui3", "@IdStr", GuiID)
-                    If RS115.RecordCount > 0 Then
-                        TeNeu = False 'Termin bereits in Datenbakn vorhanden
-                    End If
-                    RS115.Close
-                    Set RS115 = Nothing
-                    DoEvents
-
-                    If TeNeu = True Then
-                        If PaSt1 = vbNullString Then
-                            If PaNum > 0 Then
-                                PaStr = "PIN: " & Format$(PaNum, "000000") & " " & PaStr
-                            End If
-                        Else
-                            If PaStr = vbNullString Then
-                                PaStr = PaSt1
-                            End If
-                        End If
-
-                        RS121.AddNew
-                        If GlTyp < 2 Then
-                            RS121.Fields("VonDat").Value = Format$(Datu1, "dd.mm.yyyy") & Chr$(32) & Format$(ZeiSt, "hh:mm:ss")
-                            RS121.Fields("BisDat").Value = Format$(Datu2, "dd.mm.yyyy") & Chr$(32) & Format$(ZeiEn, "hh:mm:ss")
-                            RS121.Fields("ZeiVon").Value = Format$(Datu1, "dd.mm.yyyy") & Chr$(32) & Format$(ZeiSt, "hh:mm:ss")
-                            RS121.Fields("ZeiBis").Value = Format$(Datu2, "dd.mm.yyyy") & Chr$(32) & Format$(ZeiEn, "hh:mm:ss")
-                        Else
-                            RS121.Fields("VonDat").Value = Format$(Datu1, "dd.mm.yyyy")
-                            RS121.Fields("BisDat").Value = Format$(Datu2, "dd.mm.yyyy")
-                            RS121.Fields("ZeiVon").Value = Format$(ZeiSt, "hh:mm:ss")
-                            RS121.Fields("ZeiBis").Value = Format$(ZeiEn, "hh:mm:ss")
-                        End If
-                        RS121.Fields("ID0").Value = PatNr
-                        RS121.Fields("GuiID").Value = GuiID
-                        RS121.Fields("IDKurz").Value = TmBet
-                        RS121.Fields("Patient").Value = PaStr
-                        RS121.Fields("Kommentar").Value = KoStr
-                        RS121.Fields("IDSer").Value = 5
-                        RS121.Fields("Geschlecht").Value = GeTyp
-                        RS121.Fields("Firma1").Value = FFirm
-                        RS121.Fields("Anrede").Value = FAnre
-                        If Len(FTite) > 1 Then
-                            RS121.Fields("Titel").Value = FTite
-                        End If
-                        RS121.Fields("Vorname").Value = FVorn
-                        RS121.Fields("Name").Value = FName
-                        RS121.Fields("Straße").Value = FStra
-                        RS121.Fields("PLZ").Value = FPOst
-                        RS121.Fields("Ort").Value = FOrte
-                        RS121.Fields("Land").Value = FLand
-                        RS121.Fields("Telefon1").Value = FTele
-                        RS121.Fields("Telefon5").Value = FEmai
-                        If FGebo <> vbNullString Then
-                            If IsDate(FGebo) = True Then
-                                RS121.Fields("Geboren").Value = CDate(FGebo)
-                            End If
-                        End If
-                        If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-                            RS121.Fields("IDM").Value = MaNum
-                            RS121.Fields("IDP").Value = GlMan(GlSMa, 2)
-                        Else
-                            RS121.Fields("IDM").Value = GlMiA(GlSmI, 2)
-                            RS121.Fields("IDP").Value = MaNum
-                        End If
-                        RS121.Fields("IDR").Value = GlRmu(1, 2)
-                        RS121.Fields("Priorität").Value = 2 'Priorität Normal
-                        RS121.Fields("OnlTer").Value = 0
-                        If GlOTS = True Then 'Online-Terminbuchungs System
-                            RS121.Fields("OnlGes").Value = -1 'WICHTIG!
-                        End If
-                        If PatNr = 0 Then
-                            RS121.Fields("Farbtyp").Value = 2
-                        Else
-                            RS121.Fields("Farbtyp").Value = 3
-                        End If
-                        If GlTyp < 2 Then
-                            RS121.Fields("Datum").Value = Now
-                        Else
-                            RS121.Fields("Datum").Value = Date
-                        End If
-                        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
-                            RS121.Fields("Replicated").Value = 1
-                            RS121.Fields("DAVChange").Value = 1
-                            RS121.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
-                            RS121.Fields("DAVDate").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
-                        Else
-                            RS121.Fields("Replicated").Value = 0
-                            RS121.Fields("DAVChange").Value = 0
-                        End If
-                        NotDa = CDate(DateAdd("h", -NotVa, Datu1 & Chr$(32) & ZeiSt))
-                        NotZe = TimeValue(DateAdd("h", -NotVa, Datu1 & Chr$(32) & ZeiSt))
-                        RS121.Fields("NotifyValue").Value = NotVa
-                        RS121.Fields("NotifySetDate").Value = NotDa
-                        RS121.Fields("NotifySetTime").Value = NotDa
-                        If GlTeE = True Then 'Email-Termin-Erinnerung
-                            RS121.Fields("NotifyStatus").Value = 3 'Senden
-                        End If
-                        RS121.Update
-                        DoEvents
-                        
-                        Set RS115 = New ADODB.Recordset
-                        RS115.CursorLocation = adUseClient
-                        Set RS115 = DBCmRe1("qryTerGui3", "@IdStr", GlTeG)
-                        If RS115.RecordCount > 0 Then
-                            TerNr = RS115.Fields("ID2").Value
-                        Else
-                            TerNr = 0
-                        End If
-                        RS115.Close
-                        Set RS115 = Nothing
-
-                        PrGui = CreateID("P")
-                        MitNa = GlMiA(GlSmI, 1)
-                        PrStr = "Onlinetermineabruf"
-                        DBCmEx7 "qryTerPrAd", "@IdxNr", "@GuiId", "@TerId", "@IdDat", "@IdZei", "@IdStr", "@IdKom", TerNr, PrGui, GuiID, Now, Now, PrStr, MitNa
-                                            Else
-                        If PatNr > 0 Then
-                            If KoStr <> vbNullString Then
-                                KoStr = KoStr & " " & TmBet
-                            Else
-                                KoStr = TmBet
-                            End If
-                            If Len(KoStr) > 250 Then
-                                KoStr = Left$(KoStr, 250)
-                            End If
-                            If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-                                Ter_Edi PatNr, True, MaNum, GlMan(GlSMa, 2) 'Warteliste
-                            Else
-                                Ter_Edi PatNr, True, GlMiA(GlSmI, 2), MaNum 'Warteliste
-                            End If
-                            DoEvents
-                            DBCmEx2 "qrySimAdWaA", "@IdStr", "@IdxNr", KoStr, PatNr
-                            DoEvents
-                            P_List "TeDe", 0, 2 'Warteliste aktualisieren
-                        End If
-                    End If
-                    DoEvents
-
-                    If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-                        For AktZa = 1 To UBound(GlMiK) 'Alle Mitarbeiter
-                            If MaNum = GlMiK(AktZa, 2) Then
-                                MaIdx = AktZa
-                                Exit For
-                            End If
-                        Next AktZa
-                    Else
-                        For AktZa = 1 To UBound(GlMan)
-                            If MaNum = GlMan(AktZa, 2) Then
-                                MaIdx = AktZa
-                                Exit For
-                            End If
-                        Next AktZa
-                    End If
-
-                    With GlSyn
-                        .PrTyp = "B" 'Termin Hinzugefügt
-                        .DatSt = Format$(Datu1, "dd.mm.yyyy")
-                        .DatEn = Format$(Datu2, "dd.mm.yyyy")
-                        .ZeiSt = Format$(ZeiSt, "hh:mm:ss")
-                        .ZeiEn = Format$(ZeiEn, "hh:mm:ss")
-                        .TeBet = vbNullString
-                        .GuiID = GuiID
-                        .MaIdx = MaIdx
-                        .MaNum = MaNum
-                        .DaTim = DaTim
-                        .GnzTa = 0
-                    End With
-                    S_TeSy
-                End If
-            End If
-Skip:
-        Next AktZe
-    End If
-    RS121.Close
-    Set RS121 = Nothing
-
-    S_TeIn = AnzZe
-End If
-
-Exit Function
-
-LiErr:
-
-If GlDbg = True Then
-    SPopu "S_TeIn " & Err.Number, Err.Description, IC48_Warning
-    SErLog Err.Description & " S_TeIn " & Err.Number & " - " & Err.Source
-End If
-Resume Next
-
-End Function
 Public Sub S_TeKe(ByVal KetNr As Long, ByVal PatNr As Long)
 On Error GoTo AdErr
 'Terminkette einfügen
@@ -37516,7 +36861,7 @@ Dim PrGui As String
 Dim RmuNr As Integer
 Dim AdMin As Integer
 Dim Nachl As Integer
-Dim TeLen As Integer
+Dim TeleN As Integer
 Dim AnzPo As Integer
 Dim AktTe As Integer
 Dim AktZa As Integer
@@ -37667,9 +37012,9 @@ If AnzPo > 0 Then
                         TmBet = vbNullString
                     End If
                     If RpRow.Record(Ket_Preis).Value <> vbNullString Then
-                        TeLen = Left$(RpRow.Record(Ket_Preis).Value, 3)
+                        TeleN = Left$(RpRow.Record(Ket_Preis).Value, 3)
                     Else
-                        TeLen = 1
+                        TeleN = 1
                     End If
                     For AktZa = 1 To UBound(GlBtr)
                         If IdxNr = GlBtr(AktZa, 0) Then
@@ -37721,14 +37066,14 @@ If AnzPo > 0 Then
     
                     If AktTe = 1 Then
                         DaSta = GlDay
-                        DaEnd = DateAdd("n", TeLen, GlDay)
+                        DaEnd = DateAdd("n", TeleN, GlDay)
                     Else
                         If Nachl > 0 Then
                             DaSta = DateAdd("n", Nachl, DaEnd)
                         Else
                             DaSta = DaEnd
                         End If
-                        DaEnd = DateAdd("n", TeLen, DaSta)
+                        DaEnd = DateAdd("n", TeleN, DaSta)
                     End If
     
                     If RpRow.Record(Ket_Zeit).Value <> vbNullString Then
@@ -37736,7 +37081,7 @@ If AnzPo > 0 Then
                     Else
                         Nachl = 0
                     End If
-                    AdMin = AdMin + (TeLen + Nachl)
+                    AdMin = AdMin + (TeleN + Nachl)
     
                     RS137.AddNew
                     RS137.Fields("ID0").Value = PatNr
@@ -37793,7 +37138,7 @@ If AnzPo > 0 Then
                     If GlOTS = True Then 'Online-Terminbuchungs System
                         RS137.Fields("OnlGes").Value = 0
                     End If
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         RS137.Fields("Replicated").Value = 1
                         RS137.Fields("DAVChange").Value = 1
                         RS137.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -37839,8 +37184,6 @@ If AnzPo > 0 Then
                                     .MaNum = ManNr
                                 End If
                             End With
-                            S_TeSy
-                            DoEvents
                         End If
                     End If
                     
@@ -38176,7 +37519,7 @@ If ClEin = True Then 'aus Array einfügen
                 If GlOTS = True Then 'Online-Terminbuchungs System
                     RS137.Fields("OnlGes").Value = 0
                 End If
-                If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                     RS137.Fields("Replicated").Value = 1
                     RS137.Fields("DAVChange").Value = 1
                     RS137.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -38259,8 +37602,6 @@ If ClEin = True Then 'aus Array einfügen
                             .MaNum = ManNr
                         End If
                     End With
-                    S_TeSy
-                    DoEvents
                 End If
             End If
 
@@ -39415,1027 +38756,6 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_TeNu " & Err.Number
 Resume Next
 
 End Sub
-Public Sub S_TeOn() '~~~
-On Error GoTo OpErr
-'Onlinetermine Reset
-
-Dim Datu1 As Date
-Dim Datu2 As Date
-Dim AnzTe As Long
-Dim ManNr As Long
-Dim MitNr As Long
-Dim MitNa As String
-Dim ManNa As String
-Dim Zeit1 As String
-Dim Zeit2 As String
-Dim TmNam As String
-Dim TmVor As String
-Dim TmTit As String
-Dim TmSpr As String
-Dim TmMit As String
-Dim TmAnz As String
-Dim TmEma As String
-Dim TmBet As String
-Dim TmMai As String
-Dim TmPar As String
-Dim TmGui As String
-Dim TmUID As String
-Dim TeTit As String
-Dim TeMai As String
-Dim TeInh As String
-Dim TeFus As String
-Dim TiDef As String
-Dim TeDau As String
-Dim GuiID As String
-Dim DatSt As String
-Dim DatEn As String
-Dim DlgMi As String
-Dim DlgPn As String
-Dim DlgSt As String
-Dim DlgWa As String
-Dim DlgAd As String
-Dim DlgZe As String
-Dim StoLo As String
-Dim VoLau As String
-Dim WoTag As String
-Dim MaICS As String
-Dim TmSig As String
-Dim EmDat As String
-Dim mSMTP As String
-Dim mUsNa As String
-Dim mUsPa As String
-Dim mSeAd As String
-Dim mSeNa As String
-Dim mSeRe As String
-Dim MitId As Integer
-Dim ManId As Integer
-Dim mTLSs As Integer
-Dim mPort As Integer
-Dim AktZa As Integer
-Dim AktMk As Integer
-Dim AktBe As Integer
-Dim AktMi As Integer
-Dim AktMa As Integer
-Dim AnzGe As Integer
-Dim AnzBe As Integer
-Dim mAuUs As Integer
-Dim mEmKo As Boolean
-Dim mBeVo As Boolean
-Dim RetWe As Boolean
-Dim Tit1, Mld1 As String
-
-Tit1 = "Online-Termine Reset"
-TeTit = "Online-Termine Reset"
-TeMai = "Soll jetzt ein Reset auf dem Online-Termine Server durchgeführt werden?"
-TeInh = "Bei einem Reset auf dem Online-Termine Server werden alle dort gespeicherten Termine gelöscht. Danach werden erneut alle aktuellen in SimpliMed gespeicherten Termine mit dem Online-Termine Server synchronisiert."
-TeFus = "HINWEIS! Das Löschen und erneute Synchronisieren der Termine kann mehrere Sekunden in Anspruch nehmen, je nachdem wieviel Termine in SimpliMed gespeichert sind."
-
-If GlODi = True Then 'Online-Terminbuchungs System Mitarbeiterwahl
-    DlgMi = "D00"
-Else
-    DlgMi = "D01"
-End If
-
-If GlOTA = True Then 'Online-Terminbuchungs System Adressenerfassung
-    DlgAd = "A01"
-Else
-    DlgAd = "A00"
-End If
-
-If GlPin = True Then 'Online-Terminbuchungs System PIN
-    DlgPn = "P01"
-Else
-    DlgPn = "P00"
-End If
-
-If GlOtD = True Then 'Online-Terminbuchungs System Stornodialog
-    DlgSt = "S01"
-Else
-    DlgSt = "S00"
-End If
-
-If GlOtE = True Then 'Online-Terminbuchungs System Storno Entfernen
-    StoLo = "B01"
-Else
-    StoLo = "B00"
-End If
-
-If GlOtW = True Then 'Online-Terminbuchungs System Warteliste
-    DlgWa = "W01"
-Else
-    DlgWa = "W00"
-End If
-
-If GlBel = True Then 'Online-Terminbuchungs System zeige belegte Buchungszeiten
-    DlgZe = "E01"
-Else
-    DlgZe = "E00"
-End If
-
-If GlOIC = True Then 'Online-Terminbuchungs System ICS Datei
-    MaICS = "F01"
-Else
-    MaICS = "F00"
-End If
-
-If GlOBV = 0 Then 'OTS-Betreffs vorhanden
-    TeTit = "Online-Termine Reset"
-    TeMai = "Es sind keine OTS-Betreffs vorhanden"
-    TeInh = "Damit ein Patient einen Termin buchen kann, ist es erforderlich mind. einen Betreff für das Online-Terminbuchungs System hinzuzufügen und diesem einen Mitarbeiter zuzuordnen."
-    TeFus = "Um Online-Terminbuchungs System Betreffs hinzuzufügen, öffnen Sie die Einstellungen und Systemtabellen und klicken links auf OTS-Betreffs."
-    SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
-    Exit Sub
-End If
-
-If GlEKV = False Then 'Emailkonten vorhanden
-    TeTit = "Online-Termine Reset"
-    TeMai = "Es ist kein E-Mail-Konto vorhanden"
-    TeInh = "Um nach einer erfolgreichen Buchung eine E-Mail-Bestätigung versenden zu können, ist es erforderlich für den Mitarbeiter ein E-Mail-Konto hinzuzufügen."
-    TeFus = "Um einem Mitarbeiter ein E-Mail-Konto hinzuzufügen, wechseln Sie in das Modul: Textverarbeitung und dann oben auf Emails. Dort klicken Sie auf die Schaltfläche Emailkonten."
-    SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
-    Exit Sub
-End If
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    For AktMi = 1 To UBound(GlMiO) 'OTS-Mitarbeiter
-        MitNa = GlMiO(AktMi, 1)
-        MitNr = GlMiO(AktMi, 2)
-        RetWe = WindowArry(GlMkt(), 1, MitNr, vbNullString) 'Emailkonten
-        If RetWe = False Then
-            TeTit = "Online-Termine Reset"
-            TeMai = "Für: " & MitNa & " ist kein E-Mail-Konto vorhanden"
-            TeInh = "Um nach einer erfolgreichen Buchung eine E-Mail-Bestätigung versenden zu können, ist es erforderlich für diesen Mitarbeiter ein E-Mail-Konto hinzuzufügen."
-            TeFus = "Um einem Mitarbeiter ein E-Mail-Konto hinzuzufügen, wechseln Sie in das Modul: Textverarbeitung und dann oben auf Emails. Dort klicken Sie auf die Schaltfläche Emailkonten."
-            SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
-            Exit Sub
-        End If
-    Next AktMi
-End If
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    For AktMi = 1 To UBound(GlMiO) 'OTS-Mitarbeiter
-        MitId = GlMiO(AktMi, 0)
-        MitNa = GlMiO(AktMi, 1)
-        RetWe = WindowArry(GlOTB(), 1, MitId, vbNullString) 'OTS-Betreffs
-        If RetWe = False Then
-            TeTit = "Online-Termine Reset"
-            TeMai = "Für: " & MitNa & " ist keine Terminbetreff vorhanden"
-            TeInh = MitNa & " wurde für das Online-Terminbuchungs System aktiviert, diesem wurde aber keinem Terminbetreff zugeordnet."
-            TeFus = "Um diesen Mitarbeiter einen Terminbetreff zuzuordnen, öffnen Sie die Einstellungen und Systemtabellen und klicken links auf OTS-Betreffs."
-            SMeFr TeTit, TeMai, TeInh, TeFus, False, 0, True, FM.hwnd
-            Exit Sub
-        End If
-    Next AktMi
-Else
-    For AktMa = 1 To UBound(GlMaO) 'OTS-Mandanten
-        MitId = GlMaO(AktMa, 0)
-        MitNa = GlMaO(AktMa, 1)
-        RetWe = WindowArry(GlOTB(), 2, MitId, vbNullString) 'OTS-Betreffs
-        If RetWe = False Then
-            TeTit = "Online-Termine Reset"
-            TeMai = "Für: " & MitNa & " ist keine Terminbetreff vorhanden"
-            TeInh = MitNa & " wurde für das Online-Terminbuchungs System aktiviert, diesem wurde aber keinem Terminbetreff zugeordnet."
-            TeFus = "Um diesen Mandanten einen Terminbetreff zuzuordnen, öffnen Sie die Einstellungen und Systemtabellen und klicken links auf OTS-Betreffs."
-            SMeFr TeTit, TeMai, TeInh, TeFus, False, 0, True, FM.hwnd
-            Exit Sub
-        End If
-    Next AktMa
-End If
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    For AktBe = 1 To UBound(GlOTB) 'OTS-Betreffs
-        MitId = GlOTB(AktBe, 1)
-        RetWe = WindowArry(GlMiO(), 0, MitId, vbNullString) 'OTS-Mitarbeiter
-        If RetWe = False Then
-            TeTit = "Online-Termine Reset"
-            TeMai = "Es sind nicht zugeordnete Terminbetreffs vorhanden"
-            TeInh = "Es wurde festgestellt, dass es mind. einen Terminbetreff gibt, dem keiner der für das Online-Terminbuchungs System aktivieren Mitarbeiter zugeordnet wurde."
-            TeFus = "Um Mitarbeiter den Terminbetreffs zuzuordnen öffnen Sie die Einstellungen und Systemtabellen und klicken links auf OTS-Betreffs."
-            SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
-            Exit Sub
-        End If
-    Next AktBe
-Else
-    For AktBe = 1 To UBound(GlOTB) 'OTS-Betreffs
-        ManId = GlOTB(AktBe, 2)
-        RetWe = WindowArry(GlMaO(), 0, ManId, vbNullString) 'OTS-Mandanten
-        If RetWe = False Then
-            TeTit = "Online-Termine Reset"
-            TeMai = "Es sind nicht zugeordnete Terminbetreffs vorhanden"
-            TeInh = "Es wurde festgestellt, dass es mind. einen Terminbetreff gibt, dem keiner der für das Online-Terminbuchungs System aktivieren Mandanten zugeordnet wurde."
-            TeFus = "Um Mandanten den Terminbetreffs zuzuordnen öffnen Sie die Einstellungen und Systemtabellen und klicken links auf OTS-Betreffs."
-            SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
-            Exit Sub
-        End If
-    Next AktBe
-End If
-
-SMeFr TeTit, TeMai, TeInh, TeFus, False, 0, False, FM.hwnd
-If GlMes = 33565 Then
-    Screen.MousePointer = vbHourglass
-    
-    DBCmEx0 "qryWarPrLoe"
-    DoEvents
-    S_TeSz True 'Absenden
-    DoEvents
-    If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-
-        For AktZa = 1 To UBound(GlMiO) 'OTS-Mitarbeiter
-            MitNr = 0
-            TmBet = vbNullString
-            TmMai = vbNullString
-            TmPar = vbNullString
-            TmSpr = vbNullString
-            TmMit = vbNullString
-            TmAnz = vbNullString
-            TmEma = vbNullString
-            TmNam = vbNullString
-            TmVor = vbNullString
-            TmTit = vbNullString
-            Zeit1 = vbNullString
-            Zeit2 = vbNullString
-            TeDau = vbNullString
-            VoLau = vbNullString
-            WoTag = vbNullString
-            EmDat = vbNullString
-                                
-            MitId = GlMiO(AktZa, 0)
-            MitNr = GlMiO(AktZa, 2)
-            MitNa = GlMiO(AktZa, 1)
-            DatSt = DateAdd("d", -1, Date)
-            DatEn = DateAdd("m", 12, Date)
-            DatSt = DatSt & " 00:00:00" 'Kompatibilität zu SQL Server
-            DatEn = DatEn & " 23:59:00"
-            
-            If GlMiO(AktZa, 20) <> vbNullString Then 'UserID
-                If TmUID = vbNullString Then
-                    TmUID = SNaFi(GlMiO(AktZa, 20))
-                Else
-                    TmUID = TmUID & "_" & SNaFi(GlMiO(AktZa, 20))
-                End If
-            End If
-
-            Set RS156 = New ADODB.Recordset
-            RS156.CursorLocation = adUseClient
-            Set RS156 = DBCmRe3("qryTerCaMi", "@IdSta", "@IdEnd", "@IdxNr", DatSt, DatEn, MitNr) 'Aktive Mitarbeiter + Terminspalte
-            AnzTe = RS156.RecordCount
-            If AnzTe > 0 Then
-                Do
-                Datu1 = CDate(RS156.Fields("VonDat").Value)
-                Datu2 = CDate(RS156.Fields("BisDat").Value)
-                If RS156.Fields("ZeiVon").Value <> vbNullString Then
-                    Zeit1 = CDate(RS156.Fields("ZeiVon").Value)
-                Else
-                    Zeit1 = "00:00:00"
-                End If
-                If RS156.Fields("ZeiBis").Value <> vbNullString Then
-                    Zeit2 = CDate(RS156.Fields("ZeiBis").Value)
-                Else
-                    Zeit2 = "00:00:00"
-                End If
-                If RS156.Fields("GuiID").Value <> vbNullString Then
-                    GuiID = RS156.Fields("GuiID").Value
-                Else
-                    GuiID = CreateID("T")
-                End If
-                With GlSyn
-                    .PrTyp = "B" 'Termin Hinzugefügt
-                    .DatSt = Format$(Datu1, "dd.mm.yyyy")
-                    .DatEn = Format$(Datu2, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Zeit1, "hh:mm:ss")
-                    .ZeiEn = Format$(Zeit2, "hh:mm:ss")
-                    .TeBet = vbNullString
-                    .GuiID = GuiID
-                    .MaIdx = AktZa
-                    .MaNum = MitNr
-                    .GnzTa = 0
-                End With
-                S_TeSy
-                RS156.MoveNext
-                Loop Until RS156.EOF
-            End If
-            RS156.Close
-            Set RS156 = Nothing
-            DoEvents
-
-            TmGui = CreateID("T")
-            With GlSyn
-                .PrTyp = "G" 'Reset
-                .DatSt = Format$(Date, "dd.mm.yyyy")
-                .DatEn = Format$(Date, "dd.mm.yyyy")
-                .ZeiSt = Format$(Now, "hh:mm:ss")
-                .ZeiEn = Format$(Now, "hh:mm:ss")
-                .GuiID = TmGui
-                .MaIdx = AktZa
-                .MaNum = MitNr
-                .GnzTa = False
-            End With
-            S_TeSy
-            DoEvents
-
-            Set RS155 = New ADODB.Recordset
-            RS155.CursorLocation = adUseClient
-            Set RS155 = DBCmRe1("qryTerOnMi", "@IdxNr", MitId) 'Terminbetreff Mitarbeiter
-            AnzBe = RS155.RecordCount
-            If AnzBe > 0 Then
-                Do
-                If IsNull(RS155.Fields("DauMin").Value) = True Then
-                    TeDau = "C00"
-                Else
-                    If RS155.Fields("DauMin").Value = vbNullString Then
-                        TeDau = "C00"
-                    Else
-                        TeDau = "C" & Format$(RS155.Fields("DauMin").Value, "00")
-                    End If
-                End If
-                If IsNull(RS155.Fields("Selekt").Value) = True Then
-                    TiDef = "D00"
-                Else
-                    If CBool(RS155.Fields("Selekt").Value) = True Then
-                        TiDef = "D01"
-                    Else
-                        TiDef = "D00"
-                    End If
-                End If
-                If IsNull(RS155.Fields("Vorlauf").Value) = True Then
-                    VoLau = "F000"
-                Else
-                    If RS155.Fields("Vorlauf").Value = vbNullString Then
-                        VoLau = "F000"
-                    Else
-                        VoLau = "F" & Format$(RS155.Fields("Vorlauf").Value, "000")
-                    End If
-                End If
-                If IsNull(RS155.Fields("WoTage").Value) = True Then
-                    WoTag = "G1111111"
-                ElseIf RS155.Fields("WoTage").Value = vbNullString Then
-                    WoTag = "G1111111"
-                ElseIf Len(RS155.Fields("WoTage").Value) < 7 Then
-                    WoTag = "G1111111"
-                Else
-                    WoTag = "G" & Left$(RS155.Fields("WoTage").Value, 7)
-                End If
-                If RS155.Fields("IDKurz").Value <> vbNullString Then
-                    TmBet = RS155.Fields("IDKurz").Value
-                Else
-                    TmBet = "kein Terminbetreff"
-                End If
-                If RS155.Fields("Email").Value <> vbNullString Then
-                    TmMai = Trim$(RS155.Fields("Email").Value)
-                    TmMai = Replace(TmMai, Chr$(13), Space$(1), 1)
-                    TmMai = Replace(TmMai, Chr$(10), Space$(1), 1)
-                    If GlTyp < 2 Then
-                        If Len(TmMai) > 512 Then
-                            TmMai = Left$(TmMai, 512)
-                        End If
-                    Else
-                        If Len(TmMai) > 180 Then
-                            TmMai = Left$(TmMai, 180)
-                        End If
-                    End If
-                Else
-                    TmMai = "hiermit bestätige ich die Terminbuchung für: {PATIENT} am {DATUM} um {STARTZEIT} Uhr."
-                End If
-                TmPar = TeDau & "_" & TiDef & "_" & VoLau & "_" & WoTag
-
-                TmGui = CreateID("T")
-                With GlSyn
-                    .PrTyp = "F" 'Onlineterminbetreffs
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = TmBet
-                    .MaIdx = AktZa
-                    .MaNum = MitNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-                With GlSyn
-                    .PrTyp = "O" 'Terminbetreffeigenschaften
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = TmPar
-                    .MaIdx = AktZa
-                    .MaNum = MitNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-                With GlSyn
-                    .PrTyp = "J" 'Emailbestätigungstext
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = TmMai
-                    .MaIdx = AktZa
-                    .MaNum = MitNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-
-                RS155.MoveNext
-                Loop Until RS155.EOF
-            End If
-            RS155.Close
-            Set RS155 = Nothing
-
-            TmNam = Replace$(GlMiO(AktZa, 3), ";", vbNullString)  'Name
-            TmVor = Replace$(GlMiO(AktZa, 4), ";", vbNullString)  'Vorname
-            TmEma = Replace$(GlMiO(AktZa, 22), ";", vbNullString) 'Emailadresse
-            TmTit = Replace$(GlMiO(AktZa, 23), ";", vbNullString) 'Titel
-            TmSig = SNaUm(GlMiO(AktZa, 11)) 'Signatur
-            TmAnz = SUmw(GlMiO(AktZa, 27), False, False) 'Anzeigename
-            If Len(TmSig) > 160 Then TmSig = Left(TmSig, 160)
-            If Len(TmAnz) > 30 Then TmAnz = Left(TmAnz, 30)
-            
-            For AktMk = 1 To UBound(GlMkt)
-                If GlMkt(AktMk, 1) = MitNr Then
-                    mEmKo = True 'Emaildaten komplett
-                    If GlMkt(AktMk, 7) <> vbNullString Then
-                        mSMTP = GlMkt(AktMk, 7)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 9) <> vbNullString Then
-                        mPort = GlMkt(AktMk, 9)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 10) <> vbNullString Then
-                        mUsNa = GlMkt(AktMk, 10)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 11) <> vbNullString Then
-                        mUsPa = GlMkt(AktMk, 11)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 12) <> vbNullString Then
-                        mSeNa = GlMkt(AktMk, 12)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 13) <> vbNullString Then
-                        mSeAd = GlMkt(AktMk, 13)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 14) <> vbNullString Then
-                        mSeRe = GlMkt(AktMk, 14)
-                    Else
-                        mEmKo = False
-                        Exit For
-                    End If
-                    If GlMkt(AktMk, 4) <> vbNullString Then
-                        mTLSs = CInt(GlMkt(AktMk, 4))
-                    Else
-                        mTLSs = 1
-                    End If
-                    If CBool(GlMkt(AktMk, 15)) = True Then
-                        mAuUs = 1
-                    Else
-                        mAuUs = 0
-                    End If
-                    If InStr(1, mUsPa, "#", 1) > 0 Then
-                        SPopu "E-Mail-Passwort prüfen", "Das E-Mail-Passwort enthält ein '#' Zeichen und muss ersetzt werden.", IC48_Warning
-                    End If
-                    If InStr(1, mUsPa, ";", 1) > 0 Then
-                        SPopu "E-Mail-Passwort prüfen", "Das E-Mail-Passwort enthält ein ';' Zeichen und muss ersetzt werden.", IC48_Warning
-                    End If
-                    Exit For
-                End If
-            Next AktMk
-
-            TmSpr = GlMiO(AktZa, 24) & "_" & "C" & GlMiO(AktZa, 26) & "_" & "M" & GlMiO(AktZa, 15) & "_" & "A" & GlMiO(AktZa, 16) & "_" & "P" & GlMiO(AktZa, 17) & "_" & "N" & GlMiO(AktZa, 28) & "_" & "R" & GlMiO(AktZa, 37)   'Buchungszeiten, Onlinezeitrasterindex, 'Multiterminbetreffauswahl, Maximalanzal, Vorlaufzeit, MaxPatient, Buchungsradius
-            TmGui = CreateID("T")
-            With GlSyn
-                .PrTyp = "E" 'Mitarbeiterdaten
-                .DatSt = Format$(Date, "dd.mm.yyyy")
-                .DatEn = Format$(Date, "dd.mm.yyyy")
-                .ZeiSt = Format$(Now, "hh:mm:ss")
-                .ZeiEn = Format$(Now, "hh:mm:ss")
-                .GuiID = TmGui
-                .TeBet = TmSpr
-                .MaIdx = AktZa
-                .MaNum = MitNr
-                .GnzTa = False
-            End With
-            S_TeSy
-            DoEvents
-
-            TmMit = TmNam & ";" & TmVor & ";" & TmTit & ";" & TmEma & ";" & TmAnz & ";" & TmSig 'Name, Vorname, Titel, Emailadresse, Anzeigename, Signatur
-            TmGui = CreateID("T")
-            With GlSyn
-                .PrTyp = "H" 'Mitarbeiterdaten 2
-                .DatSt = Format$(Date, "dd.mm.yyyy")
-                .DatEn = Format$(Date, "dd.mm.yyyy")
-                .ZeiSt = Format$(Now, "hh:mm:ss")
-                .ZeiEn = Format$(Now, "hh:mm:ss")
-                .GuiID = TmGui
-                .TeBet = TmMit
-                .MaIdx = AktZa
-                .MaNum = MitNr
-                .GnzTa = False
-            End With
-            S_TeSy
-            DoEvents
-
-            If mEmKo = True Then 'Mailkonto
-                EmDat = mSMTP & ";" & mPort & ";" & mUsNa & ";" & mUsPa & ";" & mSeNa & ";" & mSeAd & ";" & mSeRe & ";" & mTLSs & ";" & mAuUs
-                TmGui = CreateID("T")
-                With GlSyn
-                    .PrTyp = "M" 'Emailaccount
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = EmDat
-                    .MaIdx = AktZa
-                    .MaNum = MitNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-            End If
-        Next AktZa
-
-    Else '------------------------------------------------------------------------------------------------------------------------
-
-        For AktZa = 1 To UBound(GlMaO) 'OTS Mandanten
-            ManNr = 0
-            TmBet = vbNullString
-            TmMai = vbNullString
-            TmPar = vbNullString
-            TmSpr = vbNullString
-            TmMit = vbNullString
-            TmAnz = vbNullString
-            TmEma = vbNullString
-            TmNam = vbNullString
-            TmVor = vbNullString
-            TmTit = vbNullString
-            Zeit1 = vbNullString
-            Zeit2 = vbNullString
-            TeDau = vbNullString
-            VoLau = vbNullString
-            WoTag = vbNullString
-            EmDat = vbNullString
-
-            ManId = GlMaO(AktZa, 0)
-            ManNr = GlMaO(AktZa, 2)
-            ManNa = GlMaO(AktZa, 1)
-            DatSt = DateAdd("d", -1, Date)
-            DatEn = DateAdd("m", 12, Date)
-            DatSt = DatSt & " 00:00:00" 'Kompatibilität zu SQL Server
-            DatEn = DatEn & " 23:59:00"
-    
-            If GlMaO(AktZa, 17) <> vbNullString Then 'UserID
-                If TmUID = vbNullString Then
-                    TmUID = SNaFi(GlMaO(AktZa, 17))
-                Else
-                    TmUID = TmUID & "_" & SNaFi(GlMaO(AktZa, 17))
-                End If
-            End If
-
-            Set RS156 = New ADODB.Recordset
-            RS156.CursorLocation = adUseClient
-            Set RS156 = DBCmRe3("qryTerCaMa", "@IdSta", "@IdEnd", "@IdxNr", DatSt, DatEn, ManNr) 'Aktive Mitarbeiter + Terminspalte
-            AnzTe = RS156.RecordCount
-            If AnzTe > 0 Then
-                Do
-                Datu1 = CDate(RS156.Fields("VonDat").Value)
-                Datu2 = CDate(RS156.Fields("BisDat").Value)
-                If RS156.Fields("ZeiVon").Value <> vbNullString Then
-                    Zeit1 = CDate(RS156.Fields("ZeiVon").Value)
-                Else
-                    Zeit1 = "00:00:00"
-                End If
-                If RS156.Fields("ZeiBis").Value <> vbNullString Then
-                    Zeit2 = CDate(RS156.Fields("ZeiBis").Value)
-                Else
-                    Zeit2 = "00:00:00"
-                End If
-                If RS156.Fields("GuiID").Value <> vbNullString Then
-                    GuiID = RS156.Fields("GuiID").Value
-                Else
-                    GuiID = CreateID("T")
-                End If
-                With GlSyn
-                    .PrTyp = "B" 'Termin Hinzugefügt
-                    .DatSt = Format$(Datu1, "dd.mm.yyyy")
-                    .DatEn = Format$(Datu2, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Zeit1, "hh:mm:ss")
-                    .ZeiEn = Format$(Zeit2, "hh:mm:ss")
-                    .TeBet = vbNullString
-                    .GuiID = GuiID
-                    .MaIdx = AktZa
-                    .MaNum = ManNr
-                    .GnzTa = 0
-                End With
-                S_TeSy
-                RS156.MoveNext
-                Loop Until RS156.EOF
-            End If
-            RS156.Close
-            Set RS156 = Nothing
-            DoEvents
-
-            TmGui = CreateID("T")
-            With GlSyn
-                .PrTyp = "G" 'Reset
-                .DatSt = Format$(Date, "dd.mm.yyyy")
-                .DatEn = Format$(Date, "dd.mm.yyyy")
-                .ZeiSt = Format$(Now, "hh:mm:ss")
-                .ZeiEn = Format$(Now, "hh:mm:ss")
-                .GuiID = TmGui
-                .MaIdx = AktZa
-                .MaNum = ManNr
-                .GnzTa = False
-            End With
-            S_TeSy
-            DoEvents
-
-            Set RS155 = New ADODB.Recordset
-            RS155.CursorLocation = adUseClient
-            Set RS155 = DBCmRe1("qryTerOnMa", "@IdxNr", ManId)  'Terminbetreff Mandant
-            AnzBe = RS155.RecordCount
-            If AnzBe > 0 Then
-                Do
-                If IsNull(RS155.Fields("DauMin").Value) = True Then
-                    TeDau = "C00"
-                Else
-                    If RS155.Fields("DauMin").Value = vbNullString Then
-                        TeDau = "C00"
-                    Else
-                        TeDau = "C" & Format$(RS155.Fields("DauMin").Value, "00")
-                    End If
-                End If
-                If IsNull(RS155.Fields("Selekt").Value) = True Then
-                    TiDef = "D00"
-                Else
-                    If CBool(RS155.Fields("Selekt").Value) = True Then
-                        TiDef = "D01"
-                    Else
-                        TiDef = "D00"
-                    End If
-                End If
-                If IsNull(RS155.Fields("Vorlauf").Value) = True Then
-                    VoLau = "F000"
-                Else
-                    If RS155.Fields("Vorlauf").Value = vbNullString Then
-                        VoLau = "F000"
-                    Else
-                        VoLau = "F" & Format$(RS155.Fields("Vorlauf").Value, "000")
-                    End If
-                End If
-                If IsNull(RS155.Fields("WoTage").Value) = True Then
-                    WoTag = "G1111111"
-                ElseIf RS155.Fields("WoTage").Value = vbNullString Then
-                    WoTag = "G1111111"
-                ElseIf Len(RS155.Fields("WoTage").Value) < 7 Then
-                    WoTag = "G1111111"
-                Else
-                    WoTag = "G" & Left$(RS155.Fields("WoTage").Value, 7)
-                End If
-                If RS155.Fields("IDKurz").Value <> vbNullString Then
-                    TmBet = RS155.Fields("IDKurz").Value
-                Else
-                    TmBet = "kein Terminbetreff"
-                End If
-                If RS155.Fields("Email").Value <> vbNullString Then
-                    TmMai = Trim$(RS155.Fields("Email").Value)
-                    TmMai = Replace(TmMai, Chr$(13), Space$(1), 1)
-                    TmMai = Replace(TmMai, Chr$(10), Space$(1), 1)
-                    If GlTyp < 2 Then
-                        If Len(TmMai) > 512 Then
-                            TmMai = Left$(TmMai, 512)
-                        End If
-                    Else
-                        If Len(TmMai) > 180 Then
-                            TmMai = Left$(TmMai, 180)
-                        End If
-                    End If
-                Else
-                    TmMai = "hiermit bestätige ich die Terminbuchung für: {PATIENT} am {DATUM} um {STARTZEIT} Uhr."
-                End If
-                TmPar = TeDau & "_" & TiDef & "_" & VoLau & "_" & WoTag
-                
-                TmGui = CreateID("T")
-                With GlSyn
-                    .PrTyp = "F" 'Onlineterminbetreffs
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = TmBet
-                    .MaIdx = AktZa
-                    .MaNum = ManNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-                With GlSyn
-                    .PrTyp = "O" 'Terminbetreffeigenschaften
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = TmPar
-                    .MaIdx = AktZa
-                    .MaNum = ManNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-                With GlSyn
-                    .PrTyp = "J" 'Emailbestätigungstext
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = TmMai
-                    .MaIdx = AktZa
-                    .MaNum = ManNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-                
-                RS155.MoveNext
-                Loop Until RS155.EOF
-            End If
-            RS155.Close
-            Set RS155 = Nothing
-
-            TmNam = Replace$(GlMaO(AktZa, 3), ";", vbNullString)  'Name
-            TmVor = Replace$(GlMaO(AktZa, 4), ";", vbNullString)  'Vorname
-            TmEma = Replace$(GlMaO(AktZa, 19), ";", vbNullString) 'Email
-            TmTit = Replace$(GlMaO(AktZa, 20), ";", vbNullString) 'Titel
-            TmSig = SNaUm(GlMaO(AktZa, 1)) 'Signatur
-            TmAnz = SUmw(GlMaO(AktZa, 32), False, False) 'Anzeigename
-            If Len(TmSig) > 160 Then TmSig = Left(TmSig, 160)
-            If Len(TmAnz) > 30 Then TmAnz = Left(TmAnz, 30)
-
-            mEmKo = True 'Emaildaten komplett
-            If GlMkt(1, 7) <> vbNullString Then
-                mSMTP = GlMkt(1, 7)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 9) <> vbNullString Then
-                mPort = GlMkt(1, 9)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 10) <> vbNullString Then
-                mUsNa = GlMkt(1, 10)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 11) <> vbNullString Then
-                mUsPa = GlMkt(1, 11)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 12) <> vbNullString Then
-                mSeNa = GlMkt(1, 12)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 13) <> vbNullString Then
-                mSeAd = GlMkt(1, 13)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 14) <> vbNullString Then
-                mSeRe = GlMkt(1, 14)
-            Else
-                mEmKo = False
-            End If
-            If GlMkt(1, 4) <> vbNullString Then
-                mTLSs = CInt(GlMkt(1, 4))
-            Else
-                mTLSs = 1
-            End If
-            If CBool(GlMkt(1, 15)) = True Then
-                mAuUs = 1
-            Else
-                mAuUs = 0
-            End If
-            If InStr(1, mUsPa, "#", 1) > 0 Then
-                SPopu "E-Mail-Passwort prüfen", "Das E-Mail-Passwort enthält ein '#' Zeichen und muss ersetzt werden.", IC48_Warning
-            End If
-            If InStr(1, mUsPa, ";", 1) > 0 Then
-                SPopu "E-Mail-Passwort prüfen", "Das E-Mail-Passwort enthält ein ';' Zeichen und muss ersetzt werden.", IC48_Warning
-            End If
-
-            TmSpr = GlMaO(AktZa, 21) & "_" & "C" & GlMaO(AktZa, 31) & "_" & "M" & GlMaO(AktZa, 14) & "_" & "A" & GlMaO(AktZa, 15) & "_" & "P" & GlMaO(AktZa, 16) & "_" & "N" & GlMaO(AktZa, 34) & "_" & "R" & GlMaO(AktZa, 36)   'Buchungszeitenstring, Zeitrasterindex, Multiterminbetreffauswahl, Maximalanzal, Vorlaufzeit, MaxPatient, Buchungsradius
-            TmGui = CreateID("T")
-            With GlSyn
-                .PrTyp = "E" 'Mandatendaten
-                .DatSt = Format$(Date, "dd.mm.yyyy")
-                .DatEn = Format$(Date, "dd.mm.yyyy")
-                .ZeiSt = Format$(Now, "hh:mm:ss")
-                .ZeiEn = Format$(Now, "hh:mm:ss")
-                .GuiID = TmGui
-                .TeBet = TmSpr
-                .MaIdx = AktZa
-                .MaNum = ManNr
-                .GnzTa = False
-            End With
-            S_TeSy
-            DoEvents
-
-            TmMit = TmNam & ";" & TmVor & ";" & TmTit & ";" & TmEma & ";" & TmAnz & ";" & TmSig 'Name, Vorname, Titel, Emailadresse, Anzeigename, Signatur
-            TmGui = CreateID("T")
-            With GlSyn
-                .PrTyp = "H" 'Additional Userinformation
-                .DatSt = Format$(Date, "dd.mm.yyyy")
-                .DatEn = Format$(Date, "dd.mm.yyyy")
-                .ZeiSt = Format$(Now, "hh:mm:ss")
-                .ZeiEn = Format$(Now, "hh:mm:ss")
-                .GuiID = TmGui
-                .TeBet = TmMit
-                .MaIdx = AktZa
-                .MaNum = ManNr
-                .GnzTa = False
-            End With
-            S_TeSy
-            DoEvents
-
-            If mEmKo = True Then 'Mailkonto
-                EmDat = mSMTP & ";" & mPort & ";" & mUsNa & ";" & mUsPa & ";" & mSeNa & ";" & mSeAd & ";" & mSeRe & ";" & mTLSs & ";" & mAuUs
-                TmGui = CreateID("T")
-                With GlSyn
-                    .PrTyp = "M" 'Emailaccount
-                    .DatSt = Format$(Date, "dd.mm.yyyy")
-                    .DatEn = Format$(Date, "dd.mm.yyyy")
-                    .ZeiSt = Format$(Now, "hh:mm:ss")
-                    .ZeiEn = Format$(Now, "hh:mm:ss")
-                    .GuiID = TmGui
-                    .TeBet = EmDat
-                    .MaIdx = AktZa
-                    .MaNum = ManNr
-                    .GnzTa = False
-                End With
-                S_TeSy
-                DoEvents
-            End If
-        Next AktZa
-    End If
-
-'------------------------------------------------------------------------------------------------------------------------
-
-    If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-            If TmUID <> vbNullString Then
-                TmGui = CreateID("T")
-                For AktZa = 1 To UBound(GlMiO)
-                    If GlMiO(AktZa, 21) <> vbNullString Then
-                        If CBool(GlMiO(AktZa, 21)) = True Then 'Online-Terminbuchungs System
-                            With GlSyn
-                                .PrTyp = "I" 'UserIDs
-                                .DatSt = Format$(Date, "dd.mm.yyyy")
-                                .DatEn = Format$(Date, "dd.mm.yyyy")
-                                .ZeiSt = Format$(Now, "hh:mm:ss")
-                                .ZeiEn = Format$(Now, "hh:mm:ss")
-                                .GuiID = TmGui
-                                .TeBet = TmUID
-                                .MaIdx = AktZa
-                                .MaNum = MitNr
-                                .GnzTa = False
-                            End With
-                            S_TeSy
-                            DoEvents
-                        End If
-                    End If
-                Next AktZa
-            Else
-                SPopu "Fehlende ID Mitarbeiter", "Für die Mitarbeiter können keine IDs generiert werden", IC48_Warning
-            End If
-        Else
-            If TmUID <> vbNullString Then
-                TmGui = CreateID("T")
-                For AktZa = 1 To UBound(GlMaO)
-                    If GlMaO(AktZa, 18) <> vbNullString Then
-                        If CBool(GlMaO(AktZa, 18)) = True Then 'Online-Terminbuchungs System
-                            With GlSyn
-                                .PrTyp = "I" 'UserIDs
-                                .DatSt = Format$(Date, "dd.mm.yyyy")
-                                .DatEn = Format$(Date, "dd.mm.yyyy")
-                                .ZeiSt = Format$(Now, "hh:mm:ss")
-                                .ZeiEn = Format$(Now, "hh:mm:ss")
-                                .GuiID = TmGui
-                                .TeBet = TmUID
-                                .MaIdx = AktZa
-                                .MaNum = ManNr
-                                .GnzTa = False
-                            End With
-                            S_TeSy
-                            DoEvents
-                        End If
-                    End If
-                Next AktZa
-            Else
-                SPopu "Fehlende ID Mitarbeiter", "Für die Mitarbeiter können keine IDs generiert werden", IC48_Warning
-            End If
-        End If
-
-'------------------------------------------------------------------------------------------------------------------------
-
-    TmGui = CreateID("T")
-    With GlSyn
-        .PrTyp = "K" 'additional dialog information
-        .DatSt = Format$(Date, "dd.mm.yyyy")
-        .DatEn = Format$(Date, "dd.mm.yyyy")
-        .ZeiSt = Format$(Now, "hh:mm:ss")
-        .ZeiEn = Format$(Now, "hh:mm:ss")
-        .GuiID = TmGui
-        .TeBet = DlgMi & ";" & DlgPn & ";" & DlgZe & ";" & MaICS & ";" & DlgSt & ";" & DlgWa & ";" & DlgAd & ";" & StoLo & ";" & Format$(GlOTr, "00000000") & ";" & Format$(GlOHF, "00000000") & ";" & Format$(GlOTG, "00") & ";" & Format$(GlOBH, "00000000") & ";" & Format$(GlOBT, "00000000") & ";" & Format$(GlOBO, "00000000") & ";" & Format$(GlOBD, "00000000") & ";'" & GlGWF & "'"
-        .MaIdx = 1
-        If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-            .MaNum = MitNr
-        Else
-            .MaNum = ManNr
-        End If
-        .GnzTa = False
-    End With
-    S_TeSy
-    DoEvents
-
-    TmGui = CreateID("T")
-    With GlSyn
-        .PrTyp = "L" 'additional dialog Data
-        .DatSt = Format$(Date, "dd.mm.yyyy")
-        .DatEn = Format$(Date, "dd.mm.yyyy")
-        .ZeiSt = Format$(Now, "hh:mm:ss")
-        .ZeiEn = Format$(Now, "hh:mm:ss")
-        .GuiID = TmGui
-        .TeBet = "'" & "Datenschutz" & "';'" & GlOtL & "'" 'Online-Terminbuchungs System Beschriftung und Link Datenschutzerklärung
-        .MaIdx = 1
-        If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-            .MaNum = MitNr
-        Else
-            .MaNum = ManNr
-        End If
-        .GnzTa = False
-    End With
-    S_TeSy
-    DoEvents
-
-'------------------------------------------------------------------------------------------------------------------------
-
-    S_TeSz True 'Absenden
-    DoEvents
-    
-    GlNeK = GlKoX 'Protokolleintrag
-    With GlNeK
-        .PatNr = GlMaO(GlSMa, 2)
-        .IdxNr = 0
-        .EiDat = Format$(Date, "dd.mm.yyyy")
-        .EiZei = TimeValue(Now)
-        .EiTyp = 104
-        .TeStr = "Online-Termine System RESET"
-        .ZiStr = Format$(Now, "hh:mm") & " Uhr"
-        .NeuEi = True
-        .KeiAk = True
-        .Mitar = GlMiA(GlSmI, 2)
-    End With
-    S_Prot
-    
-    Screen.MousePointer = vbNormal
-End If
-    
-Exit Sub
-
-OpErr:
-
-If GlDbg = True Then
-    SPopu "S_TeOn " & Err.Number, Err.Description, IC48_Warning
-    SErLog Err.Description & " S_TeOn " & Err.Number & " " & DatSt & " " & DatEn
-End If
-Resume Next
-
-End Sub
-
 Public Sub S_TePi()
 On Error GoTo SuErr
 'Kalndermarker setzen
@@ -41023,8 +39343,6 @@ Case 1: 'Duplizieren
                 .MaIdx = MaIdx
                 .MaNum = MaNum
             End With
-            S_TeSy
-            DoEvents
         End If
     End If
     
@@ -41084,7 +39402,7 @@ Case 2: 'Einzeltermine löschen
     DoEvents
 
     If GlBuL = True Then 'echtes Löschen erlauben
-        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
             DBCmEx2 "qryTerPaSe", "@IdPas", "@IdxNr", 1, TerNr
             DBCmEx1 "qryTerRep1", "@IdxNr", TerNr
             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, TerNr
@@ -41105,7 +39423,7 @@ Case 2: 'Einzeltermine löschen
             DBCmEx7 "qryTerPrAd", "@IdxNr", "@GuiId", "@TerId", "@IdDat", "@IdZei", "@IdStr", "@IdKom", TerNr, PrGui, TmGui, Now, Now, PrStr, MitNa
             DoEvents
         End If
-        If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+        If GlESy = True Then 'CalDAV / CardDAV Synchronisation
             DBCmEx1 "qryTerRep1", "@IdxNr", TerNr
             DBCmEx3 "qryDAVTeCh3", "@IdSet", "@IdDat", "@IdxNr", 1, Now, TerNr
         End If
@@ -41145,8 +39463,6 @@ Case 2: 'Einzeltermine löschen
                 .MaIdx = MaIdx
                 .MaNum = MaNum
             End With
-            S_TeSy
-            DoEvents
         End If
     End If
     
@@ -41204,8 +39520,6 @@ Case 3: 'Serientermine löschen
                     .MaIdx = MaIdx
                     .MaNum = MaNum
                 End With
-                S_TeSy
-                DoEvents
             End If
             RS137.MoveNext
             Loop Until RS137.EOF
@@ -41270,8 +39584,6 @@ Case 4: 'die ganze Terminserie löschen
                     .MaIdx = MaIdx
                     .MaNum = MaNum
                 End With
-                S_TeSy
-                DoEvents
             End If
         End If
         RS137.MoveNext
@@ -41520,7 +39832,7 @@ If GlTrM = True Or GlTrB = True Then 'Terminbearbeitung direkt im Kalender
                 RS139.Fields("OnlGes").Value = 0
             End If
 
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 RS139.Fields("Replicated").Value = 1
                 RS139.Fields("DAVChange").Value = 1
                 RS139.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -41677,7 +39989,7 @@ If GlTrM = True Or GlTrB = True Then 'Terminbearbeitung direkt im Kalender
                 RS139.Fields("OnlGes").Value = 0
             End If
 
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 RS139.Fields("Replicated").Value = 1
                 RS139.Fields("DAVChange").Value = 1
                 RS139.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -41749,8 +40061,6 @@ If GlTrM = True Or GlTrB = True Then 'Terminbearbeitung direkt im Kalender
                     End If
                 End If
             End With
-            S_TeSy
-            DoEvents
         End If
     End If
     DoEvents
@@ -41922,529 +40232,6 @@ If GlDbg = True Then SErLog Err.Description & " S_TeSpl " & Err.Number
 Resume Next
 
 End Sub
-Public Sub S_TeSy() '~~~
-On Error GoTo SaErr
-'Generates a protocoll record in table: Tabelle_Abre with type [ID1] = 800
-
-Dim PatNr As Long
-Dim IdxNr As Long
-Dim ManNr As Long
-Dim MitNr As Long
-Dim ZeiSt As String
-Dim DaSta As String
-Dim DaEnd As String
-Dim ZeSta As String
-Dim ZeEnd As String
-Dim TmStr As String
-Dim BeStr As String
-Dim KoStr As String
-Dim TerSt As String
-Dim LanSt As String
-Dim DaTim As String
-Dim AktZa As Integer
-Dim ZeiPl As Integer
-Dim MinSt As Integer
-Dim MinEn As Integer
-
-If GlSyn.DaTim <> vbNullString Then
-    DaTim = GlSyn.DaTim
-Else
-    DaTim = Format$(Date, "dd.mm.yyyy") & " " & Format$(Now, "hh:mm:ss")
-End If
-
-If GlSyn.PatNr > 0 Then
-    PatNr = GlSyn.PatNr
-Else
-    If GlMan(GlSMa, 2) > 0 Then
-        PatNr = GlMan(GlSMa, 2)
-    Else
-        PatNr = 0
-    End If
-End If
-
-ZeiSt = Format$(Now, "hh:mm:ss")
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    If GlSyn.MaNum > 0 Then
-        IdxNr = GlSyn.MaNum
-    Else
-        IdxNr = 0
-    End If
-    For AktZa = 1 To UBound(GlMiA)
-        If IdxNr = GlMiA(AktZa, 2) Then
-            Exit For
-        End If
-    Next AktZa
-    If AktZa <= UBound(GlMiA) Then
-        If GlMiA(AktZa, 26) <> vbNullString Then
-            If GlMiA(AktZa, 26) > 0 Then 'Onlinezeitrasterindex
-                ZeiPl = GlMiA(AktZa, 26)
-            Else
-                ZeiPl = GlZeR 'Zeitrasterindex
-            End If
-        Else
-            ZeiPl = GlZeR 'Zeitrasterindex
-        End If
-        If GlMiA(AktZa, 2) <> vbNullString Then
-            If GlMiA(AktZa, 2) > 0 Then
-                MitNr = GlMiA(AktZa, 2)
-            Else
-                MitNr = GlMiA(GlSmI, 2)
-            End If
-        Else
-            MitNr = GlMiA(GlSmI, 2)
-        End If
-    End If
-    ManNr = GlMan(GlSMa, 2)
-Else
-    If GlSyn.MaNum > 0 Then
-        IdxNr = GlSyn.MaNum
-    Else
-        IdxNr = 0
-    End If
-    For AktZa = 1 To UBound(GlMan)
-        If IdxNr = GlMan(AktZa, 2) Then
-            Exit For
-        End If
-    Next AktZa
-    If AktZa <= UBound(GlMan) Then
-        If GlMan(AktZa, 31) <> vbNullString Then
-            If GlMan(AktZa, 31) > 0 Then 'Onlinezeitrasterindex
-                ZeiPl = GlMan(AktZa, 31)
-            Else
-                ZeiPl = GlZeR 'Zeitrasterindex
-            End If
-        Else
-            ZeiPl = GlZeR 'Zeitrasterindex
-        End If
-        If GlMan(AktZa, 2) <> vbNullString Then
-            If GlMan(AktZa, 2) > 0 Then
-                ManNr = GlMan(AktZa, 2)
-            Else
-                ManNr = GlMan(GlSMa, 2)
-            End If
-        Else
-            ManNr = GlMan(GlSMa, 2)
-        End If
-    End If
-    MitNr = GlMiA(GlSmI, 2)
-End If
-
-If GlSyn.GnzTa = False Then
-    MinSt = DatePart("n", GlSyn.ZeiSt, vbMonday)
-    MinEn = DatePart("n", GlSyn.ZeiEn, vbMonday)
-    ZeSta = Format$(GlSyn.ZeiSt, "hh:mm:ss")
-    ZeEnd = Format$(GlSyn.ZeiEn, "hh:mm:ss")
-Else
-    ZeSta = "00:00:00"
-    ZeEnd = "00:00:00"
-End If
-
-DaSta = Format$(GlSyn.DatSt, "dd.mm.yyyy")
-DaEnd = Format$(GlSyn.DatEn, "dd.mm.yyyy")
-
-If GlSyn.TeBet <> vbNullString Then
-    KoStr = GlSyn.TeBet
-    KoStr = Replace(KoStr, "  ", vbNullString, 1)
-    BeStr = Replace(KoStr, "#", Space$(1), 1)
-    If GlSyn.PrTyp = "H" Or GlSyn.PrTyp = "J" Then
-        If GlTyp < 2 Then
-            If Len(BeStr) > 400 Then 'WICHTIG!
-                BeStr = Left$(BeStr, 400)
-            End If
-        Else
-            If Len(BeStr) > 180 Then 'WICHTIG!
-                BeStr = Left$(BeStr, 180)
-            End If
-        End If
-     End If
-    TmStr = GlSyn.PrTyp & ";" & GlSyn.GuiID & ";;;;;" & BeStr & ";;;;;;;;;;;;;"
-Else
-    TmStr = GlSyn.PrTyp & ";" & GlSyn.GuiID & ";" & DaSta & ";" & DaEnd & ";" & Format$(ZeSta, "hh:mm:ss") & ";" & Format$(ZeEnd, "hh:mm:ss") & ";" & vbNullString & ";;;;;;;;;;;;;"
-End If
-
-LanSt = Format$(Len(TmStr) + 4, "000")
-
-TerSt = TmStr & LanSt & "#"
-
-If AktZa > 0 Then
-    If DaTim <> vbNullString Then
-        DBCmEx9 "qrySimAbAnf9", "@IdMan", "@IdxNr", "@IdMit", "@IdStr", "@IdGui", "@IdDat", "@IdPat", "@IdZif", "@IdKom", ManNr, 800, MitNr, TerSt, GlSyn.GuiID, Date, PatNr, ZeiSt, DaTim
-    Else
-        DBCmEx8 "qrySimAbAnf8", "@IdMan", "@IdxNr", "@IdMit", "@IdStr", "@IdGui", "@IdDat", "@IdPat", "@IdZif", ManNr, 800, MitNr, TerSt, GlSyn.GuiID, Date, PatNr, ZeiSt
-    End If
-End If
-
-GlSyn = GlSyx
-
-Exit Sub
-
-SaErr:
-If GlDbg = True Then
-    SPopu "S_TeSy " & Err.Number, Err.Description, IC48_Warning
-    SErLog Err.Description & " S_TeSy " & Err.Number & " " & ManNr & " " & MitNr & " " & TerSt & " " & GlSyn.GuiID & " " & Date & " " & PatNr & " " & ZeiSt
-End If
-Resume Next
-
-End Sub
-Public Sub S_TeSz(Optional ByVal ZuSet As Boolean) '~~~
-On Error GoTo SaErr
-'Synchronisiert die Termine mit dem OTS
-
-Dim AktZe As Long
-Dim AktFe As Long
-Dim MitNr As Long
-Dim ManNr As Long
-Dim Datu1 As Date
-Dim Datu2 As Date
-Dim ZeiEn As Date
-Dim FiNam As String
-Dim DoNam As String
-Dim UpNam As String
-Dim TmStr As String
-Dim UsNam As String
-Dim UsPas As String
-Dim UseId As String
-Dim ReSt1 As String
-Dim ReSt2 As String
-Dim ReSt3 As String
-Dim AdStr As String
-Dim TmBet As String
-Dim GuiID As String
-Dim Stat1 As String
-Dim Stat2 As String
-Dim Stat3 As String
-Dim RetW1 As String
-Dim RetW2 As String
-Dim RetW3 As String
-Dim ReTr1 As String
-Dim ReTr2 As String
-Dim ReTr3 As String
-Dim AnzPo As Integer
-Dim AkZa1 As Integer
-Dim AkZa2 As Integer
-Dim LauZa As Integer
-Dim RetwA As Integer
-Dim RetwB As Integer
-Dim RetwC As Integer
-Dim RetwD As Integer
-Dim RetwO As Integer
-Dim RetwK As Integer
-Dim RetwL As Integer
-Dim RetWe As Integer
-Dim RetwF As Integer
-Dim RetwJ As Integer
-Dim RetwG As Integer
-Dim RetwH As Integer
-Dim RetwI As Integer
-Dim RetwM As Integer
-Dim RetVa As Boolean
-Dim TeNeu As Boolean
-Dim AryZe() As String
-Dim AryFe() As String
-Dim AryLo() As String
-Dim RetIFile As String
-
-Dim clCal As New clsCalendar
-
-Set FM = frmMain
-Set FS = frmStatus
-Set clFil = New clsFile
-clFil.hwnd = FM.hwnd
-
-Set PrBr1 = FS.prbStat1
-Set PrBr2 = FS.prbStat2
-Set Lbl01 = FS.lblLab01
-FS.Caption = "Online-Terminbuchungs System"
-
-With PrBr1
-    .Appearance = xtpAppearanceOffice2013
-    .Scrolling = xtpProgressBarMarquee
-    .UseVisualStyle = True
-    .MarqueeDelay = 60
-    .Max = 100
-    .Min = 0
-End With
-
-With PrBr2
-    .Appearance = xtpAppearanceOffice2013
-    .Scrolling = xtpProgressBarMarquee
-    .UseVisualStyle = True
-    .MarqueeDelay = 50
-    .Max = 100
-    .Min = 0
-End With
-
-FS.Show
-DoEvents
-
-UsNam = GlOTU 'Online-Terminbuchungs Sytem Username
-UsPas = GlOTP 'Online-Terminbuchungs Sytem Password
-
-If ZuSet = True Then 'Reset
-    If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-        For AkZa1 = 1 To UBound(GlMiO) 'Aktive Mitarbeiter
-            If GlMiO(AkZa1, 21) <> vbNullString Then
-                If CBool(GlMiO(AkZa1, 21)) = True Then 'Online-Terminbuchungs System
-                    UseId = SNaFi(GlMiO(AkZa1, 20)) 'UserID
-                    MitNr = GlMiO(AkZa1, 2)  'UserNr
-                    TmStr = vbNullString
-                    RetwI = RetwI + S_TeLg("I", TmStr, MitNr) 'Employee IDs
-                    RetVa = RetVa + S_TeBa("I", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwG = RetwG + S_TeLg("G", TmStr, MitNr) 'Reset
-                    RetVa = RetVa + S_TeBa("G", TmStr, UsNam, UsPas, UseId, MitNr)
-                End If
-            End If
-        Next AkZa1
-    Else
-        For AkZa1 = 1 To UBound(GlMaO) 'Mandanten
-            If GlMaO(AkZa1, 18) <> vbNullString Then
-                If CBool(GlMaO(AkZa1, 18)) = True Then 'Online-Terminbuchungs System
-                    UseId = SNaFi(GlMaO(AkZa1, 17)) 'UserID
-                    ManNr = GlMaO(AkZa1, 2)  'UserNr
-                    TmStr = vbNullString
-                    RetwI = RetwI + S_TeLg("I", TmStr, ManNr) 'Employee IDs
-                    RetVa = RetVa + S_TeBa("I", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwG = RetwG + S_TeLg("G", TmStr, ManNr) 'Reset
-                    RetVa = RetVa + S_TeBa("G", TmStr, UsNam, UsPas, UseId, ManNr)
-                End If
-            End If
-        Next AkZa1
-    End If
-End If
-
-If ZuSet = True Then 'Reset
-    If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-        For AkZa1 = 1 To UBound(GlMiO) 'Aktive Mitarbeiter
-            If GlMiO(AkZa1, 21) <> vbNullString Then
-                If CBool(GlMiO(AkZa1, 21)) = True Then 'Online-Terminbuchungs System
-                    UseId = SNaFi(GlMiO(AkZa1, 20)) 'UserID
-                    MitNr = GlMiO(AkZa1, 2)  'UserNr
-                    TmStr = vbNullString
-                    RetWe = RetWe + S_TeLg("E", TmStr, MitNr) 'Employee Data 1
-                    RetVa = RetVa + S_TeBa("E", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwH = RetwH + S_TeLg("H", TmStr, MitNr) 'Employee Data 2
-                    RetVa = RetVa + S_TeBa("H", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwM = RetwM + S_TeLg("M", TmStr, MitNr) 'Employee Data 3 (Email)
-                    RetVa = RetVa + S_TeBa("M", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwF = RetwF + S_TeLg("F", TmStr, MitNr) 'Subject Data 1
-                    RetVa = RetVa + S_TeBa("F", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwO = RetwO + S_TeLg("O", TmStr, MitNr) 'Subject Data 2
-                    RetVa = RetVa + S_TeBa("O", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwJ = RetwJ + S_TeLg("J", TmStr, MitNr) 'Subject Data 2
-                    RetVa = RetVa + S_TeBa("J", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwK = RetwK + S_TeLg("K", TmStr, MitNr) 'Intefcae Data 1
-                    RetVa = RetVa + S_TeBa("K", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                    RetwL = RetwL + S_TeLg("L", TmStr, MitNr) 'Intefcae Data 2
-                    RetVa = RetVa + S_TeBa("L", TmStr, UsNam, UsPas, UseId, MitNr)
-                    TmStr = vbNullString
-                End If
-            End If
-        Next AkZa1
-    Else
-        For AkZa1 = 1 To UBound(GlMaO) 'Mandanten
-            If GlMaO(AkZa1, 18) <> vbNullString Then
-                If CBool(GlMaO(AkZa1, 18)) = True Then 'Online-Terminbuchungs System
-                    UseId = SNaFi(GlMaO(AkZa1, 17)) 'UserID
-                    ManNr = GlMaO(AkZa1, 2)  'UserNr
-                    TmStr = vbNullString
-                    RetWe = RetWe + S_TeLg("E", TmStr, ManNr) 'Employee Data 1
-                    RetVa = RetVa + S_TeBa("E", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwH = RetwH + S_TeLg("H", TmStr, ManNr) 'Employee Data 2
-                    RetVa = RetVa + S_TeBa("H", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwM = RetwM + S_TeLg("M", TmStr, ManNr) 'Employee Data 3 (Email)
-                    RetVa = RetVa + S_TeBa("M", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwF = RetwF + S_TeLg("F", TmStr, ManNr) 'Subject Data 1
-                    RetVa = RetVa + S_TeBa("F", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwO = RetwO + S_TeLg("O", TmStr, ManNr) 'Subject Data 2
-                    RetVa = RetVa + S_TeBa("O", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwJ = RetwJ + S_TeLg("J", TmStr, ManNr) 'Subject Data 2
-                    RetVa = RetVa + S_TeBa("J", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwK = RetwK + S_TeLg("K", TmStr, ManNr) 'Intefcae Data 1
-                    RetVa = RetVa + S_TeBa("K", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                    RetwL = RetwL + S_TeLg("L", TmStr, ManNr) 'Intefcae Data 2
-                    RetVa = RetVa + S_TeBa("L", TmStr, UsNam, UsPas, UseId, ManNr)
-                    TmStr = vbNullString
-                End If
-            End If
-        Next AkZa1
-    End If
-End If
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    For AkZa1 = 1 To UBound(GlMiO) 'Aktive Mitarbeiter
-        If GlMiO(AkZa1, 21) <> vbNullString Then
-            If CBool(GlMiO(AkZa1, 21)) = True Then 'Online-Terminbuchungs System
-                UseId = SNaFi(GlMiO(AkZa1, 20)) 'UserID
-                MitNr = GlMiO(AkZa1, 2)  'UserNr
-                                
-                clCal.GetLogFile "A", UsNam, UsPas, ReSt1, Stat1, RetW1, ReTr1, UseId 'Download A Records
-                If CBool(Stat1) = False Then ' show error
-                    Lbl01.Caption = "Fehler: " & RetW1 & " " & ReTr1
-                    If GlDbg = True Then SErLog "S_TeSz" & " " & RetW1 & " " & ReTr1
-                Else
-                    Lbl01.Caption = "Bitte warten..."
-                End If
-                RetwA = S_TeIn(ReSt1, AryZe, AryFe, MitNr) 'Speichern A Records
-                DoEvents
-                
-                TmStr = vbNullString
-                RetwB = RetwB + S_TeLg("B", TmStr, MitNr)
-                RetVa = RetVa + S_TeBa("B", TmStr, UsNam, UsPas, UseId, MitNr)
-                TmStr = vbNullString
-                RetwC = RetwC + S_TeLg("C", TmStr, MitNr)
-                RetVa = RetVa + S_TeBa("C", TmStr, UsNam, UsPas, UseId, MitNr)
-                TmStr = vbNullString
-                RetwD = RetwD + S_TeLg("D", TmStr, MitNr)
-                RetVa = RetVa + S_TeBa("D", TmStr, UsNam, UsPas, UseId, MitNr)
-                TmStr = vbNullString
-                DoEvents
-
-                clCal.GetLogFile "O", UsNam, UsPas, ReSt2, Stat2, RetW2, ReTr2, UseId 'Download 0 Records
-                If CBool(Stat2) = False Then ' show error
-                    Lbl01.Caption = "Fehler: " & RetW2 & " " & ReTr2
-                    If GlDbg = True Then SErLog "S_TeSz" & " " & RetW2 & " " & ReTr2
-                Else
-                    Lbl01.Caption = "Bitte warten..."
-                End If
-                RetwA = S_TeIb(ReSt2, AryZe, AryFe) 'Speichern O Records (Uploadbestätigungen)
-                DoEvents
-
-                clCal.GetLogFile "L", UsNam, UsPas, ReSt3, Stat3, RetW3, ReTr3, UseId 'Download L Records
-                If CBool(Stat3) = False Then ' show error
-                    Lbl01.Caption = "Fehler: " & RetW3 & " " & ReTr3
-                    If GlDbg = True Then SErLog "S_TeSz" & " " & RetW3 & " " & ReTr3
-                Else
-                    Lbl01.Caption = "Bitte warten..."
-                End If
-                RetwA = S_TeIl(ReSt3, AryZe, AryFe) 'Speichern L Records (Stornierungsanfragen)
-                DoEvents
-            End If
-        End If
-    Next AkZa1
-Else
-    For AkZa1 = 1 To UBound(GlMaO) 'Mandanten
-        If GlMaO(AkZa1, 18) <> vbNullString Then
-            If CBool(GlMaO(AkZa1, 18)) = True Then 'Online-Terminbuchungs System
-                UseId = SNaFi(GlMaO(AkZa1, 17)) 'UserID
-                ManNr = GlMaO(AkZa1, 2)  'UserNr
-            
-                clCal.GetLogFile "A", UsNam, UsPas, ReSt1, Stat1, RetW1, ReTr1, UseId 'Download A Records
-                If CBool(Stat1) = False Then ' show error
-                    Lbl01.Caption = "Fehler: " & RetW1 & " " & ReTr1
-                    If GlDbg = True Then SErLog "S_TeSz" & " " & RetW1 & " " & ReTr1
-                Else
-                    Lbl01.Caption = "Bitte warten..."
-                End If
-                RetwA = S_TeIn(ReSt1, AryZe, AryFe, ManNr) 'Speichern neuer A Records
-                DoEvents
-
-                TmStr = vbNullString
-                RetwB = RetwB + S_TeLg("B", TmStr, ManNr)
-                RetVa = RetVa + S_TeBa("B", TmStr, UsNam, UsPas, UseId, ManNr)
-                TmStr = vbNullString
-                RetwC = RetwC + S_TeLg("C", TmStr, ManNr)
-                RetVa = RetVa + S_TeBa("C", TmStr, UsNam, UsPas, UseId, ManNr)
-                TmStr = vbNullString
-                RetwD = RetwD + S_TeLg("D", TmStr, ManNr)
-                RetVa = RetVa + S_TeBa("D", TmStr, UsNam, UsPas, UseId, ManNr)
-                TmStr = vbNullString
-                DoEvents
-
-                clCal.GetLogFile "O", UsNam, UsPas, ReSt2, Stat2, RetW2, ReTr2, UseId 'Download A Records
-                If CBool(Stat2) = False Then ' show error
-                    Lbl01.Caption = "Fehler: " & RetW2 & " " & ReTr2
-                    If GlDbg = True Then SErLog "S_TeSz" & " " & RetW2 & " " & ReTr2
-                Else
-                    Lbl01.Caption = "Bitte warten..."
-                End If
-                RetwA = S_TeIb(ReSt2, AryZe, AryFe) 'Speichern neuer O Records (Uploadbestätigungen)
-                DoEvents
-                
-                clCal.GetLogFile "L", UsNam, UsPas, ReSt3, Stat3, RetW3, ReTr3, UseId
-                If CBool(Stat3) = False Then ' show error
-                    Lbl01.Caption = "Fehler: " & RetW3 & " " & ReTr3
-                    If GlDbg = True Then SErLog "S_TeSz" & " " & RetW3 & " " & ReTr3
-                Else
-                    Lbl01.Caption = "Bitte warten..."
-                End If
-                RetwA = S_TeIl(ReSt3, AryZe, AryFe) 'Download und Speichern neuer L Records (Stornierungsanfragen)
-                DoEvents
-            End If
-        End If
-    Next AkZa1
-End If
-
-If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-    For AkZa1 = 1 To UBound(GlMiO) 'Aktive Mitarbeiter
-        If GlMiO(AkZa1, 21) <> vbNullString Then
-            If CBool(GlMiO(AkZa1, 21)) = True Then 'Online-Terminbuchungs System
-                MitNr = GlMiO(AkZa1, 2)  'UserNr
-                DBCmEx2 "qrySimAbTe6", "@IdxNr", "@IdMit", 800, MitNr
-            End If
-        End If
-    Next AkZa1
-Else
-    For AkZa1 = 1 To UBound(GlMaO) 'Mandanten
-        If GlMaO(AkZa1, 18) <> vbNullString Then
-            If CBool(GlMaO(AkZa1, 18)) = True Then 'Online-Terminbuchungs System
-                ManNr = GlMaO(AkZa1, 2)  'UserNr
-                DBCmEx2 "qrySimAbTe5", "@IdxNr", "@IdMan", 800, ManNr
-            End If
-        End If
-    Next AkZa1
-End If
-
-Unload FS
-Set FS = Nothing
-
-If (RetwA + RetwB + RetwC + RetwD) > 0 Then
-    SPopu "Online-Terminsystem", "A" & Format$(RetwA, "00") & " - " & "B" & Format$(RetwB, "00") & " - " & "C" & Format$(RetwC, "00") & " - " & "D" & Format$(RetwD, "00"), IC48_Information
-End If
-
-GlNeK = GlKoX 'Protokolleintrag
-With GlNeK
-    .PatNr = GlMaO(GlSMa, 2)
-    .IdxNr = 0
-    .EiDat = Format$(Date, "dd.mm.yyyy")
-    .EiZei = TimeValue(Now)
-    .EiTyp = 104
-    .TeStr = "Online-Termine System ABRUF"
-    .ZiStr = Format$(Now, "hh:mm") & " Uhr"
-    .NeuEi = True
-    .KeiAk = True
-    .Mitar = GlMiA(GlSmI, 2)
-End With
-S_Prot
-
-Set clFil = Nothing
-
-Exit Sub
-
-SaErr:
-If GlDbg = True Then
-    SPopu "S_TeSz " & Err.Number, Err.Description, IC48_Warning
-End If
-Resume Next
-
-End Sub
-
 Public Function S_TeTa(ByVal PatNr As Long, ByVal TeDat As Date) As Integer
 On Error GoTo LiErr
 'Wieviel Termine hat der Patient am selben Tag

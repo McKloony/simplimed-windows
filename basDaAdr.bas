@@ -2283,23 +2283,23 @@ If RS40.RecordCount > 0 Then
             Case "Diagnose":
             Case "upsize_ts":
             Case "Replicated":
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         RS40.Fields(FL101.Name).Value = 1
                     Else
                         RS40.Fields(FL101.Name).Value = 0
                     End If
             Case "DAVChange":
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         RS40.Fields(FL101.Name).Value = 1
                     Else
                         RS40.Fields(FL101.Name).Value = 0
                     End If
             Case "LastModification":
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         RS40.Fields(FL101.Name).Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
                     End If
             Case "DAVDate":
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         RS40.Fields(FL101.Name).Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
                     End If
             Case "GuiID":
@@ -2787,7 +2787,7 @@ If GlAdN = False Then
             DoEvents
             DBCmEx2 "qrySimAdPas", "@IdPas", "@IdxNr", True, GlAId
             DoEvents
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 DBCmEx1 "qrySimAdRe1", "@IdxNr", GlAId
                 DBCmEx2 "qryAdrKo3", "@IdEdi", "@IdxNr", 1, GlAId
                 DBCmEx3 "qryDAVAdCh2", "@IdSet", "@IdDat", "@IdxNr", 1, Now, GlAId
@@ -4059,7 +4059,7 @@ If RS40.Supports(adAddNew) Then
     Else
         RS40.Fields("Kopien").Value = 1
     End If
-    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
         RS40.Fields("Replicated").Value = 1
         RS40.Fields("DAVChange").Value = 1
         RS40.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -4456,7 +4456,7 @@ If FeKur.Text <> vbNullString Then
             Else
                 RS40.Fields("Kopien").Value = 1
             End If
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 RS40.Fields("Replicated").Value = 1
                 RS40.Fields("DAVChange").Value = 1
                 RS40.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -9080,7 +9080,6 @@ Dim ChTeSp As XtremeSuiteControls.CheckBox
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 Dim cmNoti As XtremeSuiteControls.ComboBox
@@ -9112,7 +9111,6 @@ Set cmKant = FM.cmbKanto
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
 Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
@@ -9393,7 +9391,6 @@ If RS40.RecordCount > 0 Then
     Next AktZa
 
     cmMaxT.ListIndex = MaxTe
-    cmMaxP.ListIndex = MaxPa
     cmVorl.ListIndex = Vorla - 1
     cmBuRa.ListIndex = BuRad - 1
     cmNoti.ListIndex = Notif
@@ -9438,7 +9435,6 @@ Dim TxZei2 As XtremeSuiteControls.FlatEdit
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 Dim cmNoti As XtremeSuiteControls.ComboBox
@@ -9465,7 +9461,6 @@ Set cmFach = FM.cmbKatal
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
 Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
@@ -9487,13 +9482,13 @@ Set RpRcs = RpCo5.Records
 If TxZei1.Text <> vbNullString Then
     ZeiAr = TxZei1.Text
 Else
-    ZeiAr = GlSZe 'Sprechzietenstring
+    ZeiAr = GlSZe 'Sprechzeitenstring
 End If
 
 If TxZei2.Text <> vbNullString Then
     ZeiBu = TxZei2.Text
 Else
-    ZeiBu = GlSZe 'Sprechzietenstring
+    ZeiBu = GlSZe 'Sprechzeitenstring
 End If
 
 If cmFach.Text <> vbNullString Then
@@ -9518,12 +9513,6 @@ If cmMaxT.Text <> vbNullString Then
     MaxTe = cmMaxT.ItemData(cmMaxT.ListIndex)
 Else
     MaxTe = 0
-End If
-
-If cmMaxP.Text <> vbNullString Then
-    MaxPa = cmMaxP.ItemData(cmMaxP.ListIndex)
-Else
-    MaxPa = 1
 End If
 
 If cmVorl.Text <> vbNullString Then
@@ -9770,7 +9759,6 @@ Dim TxZei2 As XtremeSuiteControls.FlatEdit
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 Dim cmNoti As XtremeSuiteControls.ComboBox
@@ -9794,7 +9782,6 @@ Set cmFach = FM.cmbKatal
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
 Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
@@ -9815,13 +9802,13 @@ Set RpRcs = RpCo5.Records
 If TxZei1.Text <> vbNullString Then
     ZeiAr = TxZei1.Text
 Else
-    ZeiAr = GlSZe 'Sprechzietenstring
+    ZeiAr = GlSZe 'Sprechzeitenstring
 End If
 
 If TxZei2.Text <> vbNullString Then
     ZeiBu = TxZei2.Text
 Else
-    ZeiBu = GlSZe 'Sprechzietenstring
+    ZeiBu = GlSZe 'Sprechzeitenstring
 End If
 
 If cmFach.Text <> vbNullString Then
@@ -9846,12 +9833,6 @@ If cmMaxT.Text <> vbNullString Then
     MaxTe = cmMaxT.ItemData(cmMaxT.ListIndex)
 Else
     MaxTe = 0
-End If
-
-If cmMaxP.Text <> vbNullString Then
-    MaxPa = cmMaxP.ItemData(cmMaxP.ListIndex)
-Else
-    MaxPa = 1
 End If
 
 If cmVorl.Text <> vbNullString Then
@@ -10194,13 +10175,13 @@ If RS43.RecordCount > 0 Then
         If RS43.Fields("Sprechzeiten").Value <> vbNullString Then
             TmStr = RS43.Fields("Sprechzeiten").Value
         Else
-            TmStr = GlSZe 'Sprechzietenstring
+            TmStr = GlSZe 'Sprechzeitenstring
         End If
     Case RibTab_Adr_Booki:
         If RS43.Fields("Buchungszeiten").Value <> vbNullString Then
             TmStr = RS43.Fields("Sprechzeiten").Value
         Else
-            TmStr = GlSZe 'Sprechzietenstring
+            TmStr = GlSZe 'Sprechzeitenstring
         End If
     End Select
 End If
@@ -11049,29 +11030,12 @@ If RS46.RecordCount > 0 Then
         RpItm.Tag = "_IDKurz"
         Set RpItm = RpRec.AddItem(RS46.Fields("DauMin").Value)
         RpItm.Tag = "_DauMin"
-        Set RpItm = RpRec.AddItem(vbNullString)
-        RpItm.Tag = "_Selekt"
-        RpItm.HasCheckbox = True
-        If RS46.Fields("Selekt").Value = -1 Then
-            RpItm.Checked = True
+        If RS46.Fields("IDM").Value <> vbNullString Then
+            Set RpItm = RpRec.AddItem(RS46.Fields("IDM").Value)
         Else
-            RpItm.Checked = False
+            Set RpItm = RpRec.AddItem(0)
         End If
-        If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-            If RS46.Fields("IDM").Value <> vbNullString Then
-                Set RpItm = RpRec.AddItem(RS46.Fields("IDM").Value)
-            Else
-                Set RpItm = RpRec.AddItem(0)
-            End If
-            RpItm.Tag = "_IDM"
-        Else
-            If RS46.Fields("IDP").Value <> vbNullString Then
-                Set RpItm = RpRec.AddItem(RS46.Fields("IDP").Value)
-            Else
-                Set RpItm = RpRec.AddItem(0)
-            End If
-            RpItm.Tag = "_IDP"
-        End If
+        RpItm.Tag = "_IDM"
     Case "K25": 'Onlinetermin-Eigenschaften
         If RS46.Fields("WoTage").Value = vbNullString Then
             WoTag = "1111111"
@@ -11088,16 +11052,7 @@ If RS46.RecordCount > 0 Then
         RpItm.Tag = "_GuiID"
         Set RpItm = RpRec.AddItem(RS46.Fields("IDKurz").Value)
         RpItm.Tag = "_IDKurz"
-        If RS46.Fields("Vorlauf").Value = vbNullString Then
-            Set RpItm = RpRec.AddItem(0)
-        Else
-            If IsNull(RS46.Fields("Vorlauf").Value) = True Then
-                Set RpItm = RpRec.AddItem(0)
-            Else
-                Set RpItm = RpRec.AddItem(RS46.Fields("Vorlauf").Value)
-            End If
-        End If
-        RpItm.Tag = "_Vorlauf"
+        RpItm.Editable = False
         Set RpItm = RpRec.AddItem(WoTag)
         RpItm.Tag = "_WoTage"
         Set RpItm = RpRec.AddItem(vbNullString) 'Mo
@@ -11271,6 +11226,7 @@ If GlDbg = True Then MsgBox Err.Description, 48, "Opt_Lad " & Err.Number
 Resume Next
         
 End Sub
+
 Public Sub Opt_Loe()
 On Error GoTo ReErr
 'Löscht einen Eintrag
@@ -11690,9 +11646,8 @@ If RS46.Supports(adAddNew) Then
         RS46.Fields("IDKurz").Value = TmGui
         RS46.Fields("DauMin") = 4
         RS46.Fields("WoTage") = "1111111"
-        RS46.Fields("Selekt") = 0
         RS46.Fields("IDM") = GlMiO(GlSMo, 0) 'Standardmitarbeiter Online-Terminbuchungs Sytem
-        RS46.Fields("IDP") = GlMaO(GlSMa, 0)
+        RS46.Fields("Selekt").Value = 0
     Case "K25": 'Onlinetermin-Eigenschaften
 
     Case "K26": 'Onlinetermin-Emailbestätigung
@@ -11807,7 +11762,7 @@ Set clFen = Nothing
 Exit Sub
 
 ReErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "Opt_Neu " & Err.Number
+MsgBox Err.Description, 48, "Opt_Neu " & Err.Number   'DBG-TEMP: Guard entfernt
 Resume Next
         
 End Sub
@@ -12142,18 +12097,18 @@ Public Function Opt_Prf(ByVal IdxNr As Long) As Boolean
 On Error GoTo ReErr
 
 Dim TmStr As String
-Dim BetNr As Integer
+Dim LeiNr As Integer
 
 Set RS109 = New ADODB.Recordset
 RS109.CursorLocation = adUseClient
 Set RS109 = DBCmRe1("qryTerOnDo", "@IdxNr", IdxNr)
 If RS109.RecordCount > 0 Then
-    BetNr = RS109.Fields("ID5").Value
-    TmStr = RS109.Fields("IDKurz").Value & " #" & BetNr & "#"
+    LeiNr = RS109.Fields("ID5").Value
+    TmStr = RS109.Fields("IDKurz").Value & " #" & LeiNr & "#"
     If Len(TmStr) > 150 Then
         TmStr = Left$(TmStr, 150)
     End If
-    DBCmEx2 "qryTerOnAn", "@IdStr", "@IdxNr", TmStr, BetNr
+    DBCmEx2 "qryTerOnAn", "@IdStr", "@IdxNr", TmStr, LeiNr
     Opt_Prf = True
     SPopu "Doppelter Terminbetreff", "Dieser Terminbetreff existiert bereits für den zugeordneten Mitarbeiter.", IC48_Warning
 End If
@@ -12246,6 +12201,7 @@ If RS46.RecordCount > 0 Then
                             Case "K30": TmStr = SUmw(RpItm.Value, False, False, False, False)
                             Case Else: TmStr = SUmw(RpItm.Value, True, False, True, False)
                             End Select
+                            TmStr = RTrim$(TmStr)
                             RS46.Fields(TmTag).Value = TmStr
                         End If
                     End If
@@ -12716,57 +12672,43 @@ With RpCls
                     .EditOptions.Constraints.Add GlTku(AktZa, 2), AktZa
                 Next AktZa
             End With
-            Set RpCol = .Add(4, "D", 25, False)
-            RpCol.Alignment = xtpAlignmentCenter
-            RpCol.HeaderAlignment = xtpAlignmentVCenter
-            If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-                Set RpCol = .Add(5, "Mitarbeiter", 110, False)
-            Else
-                Set RpCol = .Add(5, "Mandant", 110, False)
-            End If
+            Set RpCol = .Add(4, "Mitarbeiter", 110, False)
             With RpCol
                 .EditOptions.AllowEdit = True
                 .EditOptions.AddComboButton
                 .EditOptions.ConstraintEdit = True
                 .EditOptions.EditControlStyle = xtpEditStyleAutoVScroll
-                If GlMPl = True Then 'Mitarbeiterplan anstelle von Mandantenplan
-                    For AktZa = 1 To UBound(GlMiO) 'Aktive Mitarbeiter + Terminspalte
-                        .EditOptions.Constraints.Add GlMiO(AktZa, 1), GlMiO(AktZa, 0)
-                    Next AktZa
-                Else
-                    For AktZa = 1 To UBound(GlMaO) 'Aktive Mandanten + Terminplan
-                        .EditOptions.Constraints.Add GlMaO(AktZa, 1), GlMaO(AktZa, 0)
-                    Next AktZa
-                End If
+                For AktZa = 1 To UBound(GlMiO) 'Aktive Mitarbeiter + Terminspalte
+                    .EditOptions.Constraints.Add GlMiO(AktZa, 1), GlMiO(AktZa, 0)
+                Next AktZa
             End With
     Case "K25": 'Onlinetermin-Eigenschaften
             Set RpCol = .Add(0, "ID5", 0, False)
             Set RpCol = .Add(1, "GuiID", 0, False)
             Set RpCol = .Add(2, "Onlineterminbetreff", 80, False)
             RpCol.AutoSize = True
-            Set RpCol = .Add(3, "Vorlauftage", 50, False)
-            RpCol.Alignment = xtpAlignmentCenter
-            Set RpCol = .Add(4, "WoTage", 0, False)
+            RpCol.Editable = False
+            Set RpCol = .Add(3, "WoTage", 0, False)
             RpCol.EditOptions.EditControlStyle = xtpEditStyleNumber
-            Set RpCol = .Add(5, "Mo", 25, False)
+            Set RpCol = .Add(4, "Mo", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
-            Set RpCol = .Add(6, "Di", 25, False)
+            Set RpCol = .Add(5, "Di", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
-            Set RpCol = .Add(7, "Mi", 25, False)
+            Set RpCol = .Add(6, "Mi", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
-            Set RpCol = .Add(8, "Do", 25, False)
+            Set RpCol = .Add(7, "Do", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
-            Set RpCol = .Add(9, "Fr", 25, False)
+            Set RpCol = .Add(8, "Fr", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
-            Set RpCol = .Add(10, "Sa", 25, False)
+            Set RpCol = .Add(9, "Sa", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
-            Set RpCol = .Add(11, "So", 25, False)
+            Set RpCol = .Add(10, "So", 25, False)
             RpCol.Alignment = xtpAlignmentCenter
             RpCol.HeaderAlignment = xtpAlignmentVCenter
     Case "K26": 'Onlinetermin-Emailbestätigung
@@ -17672,7 +17614,7 @@ If Frage = 6 Then
             RS40.Fields("Mandant").Value = Format$(AdPIN, "000000")
             RS40.Fields("GeschlTyp").Value = Gesch
             RS40.Fields("Versicherung").Value = "Adresse des Leistungsträgers"
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 RS40.Fields("Replicated").Value = 1
                 RS40.Fields("DAVChange").Value = 1
                 RS40.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -23342,7 +23284,7 @@ For AktTa = 0 To AnzTa
             If GlOTS = True Then 'Online-Terminbuchungs System
                 RS40.Fields("OnlGes").Value = 0
             End If
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 RS40.Fields("Replicated").Value = 1
                 RS40.Fields("DAVChange").Value = 1
                 RS40.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -23395,8 +23337,6 @@ For AktTa = 0 To AnzTa
                         .MaNum = ManNr
                     End If
                 End With
-                S_TeSy
-                DoEvents
             End If
         End If
     
@@ -23950,7 +23890,7 @@ If TeAnd = True Then
             If GlOTS = True Then 'Online-Terminbuchungs System
                 RS40.Fields("OnlGes").Value = 0
             End If
-            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                 If MaIdx <> OlIdx Then 'If Doctor was changed
                     RS40.Fields("IDM").Value = OlMit
                     RS40.Fields("IDP").Value = OlMan
@@ -23993,7 +23933,6 @@ If TeAnd = True Then
                         .MaNum = OlMan
                     End If
                 End With
-                S_TeSy
             Else
                 With GlSyn
                     .PrTyp = "C" 'Termin Geändert
@@ -24010,13 +23949,12 @@ If TeAnd = True Then
                         .MaNum = ManNr
                     End If
                 End With
-                S_TeSy
             End If
             DoEvents
         End If
     End If
     
-    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
         If MaIdx <> OlIdx Then
             TmGui = CreateID("T")
             DBCmEx2 "qryTerKop", "@IdxNr", "@GuiSt", TerNr, TmGui 'Copy Procedure
@@ -24046,7 +23984,6 @@ If TeAnd = True Then
                             .MaNum = ManNr
                         End If
                     End With
-                    S_TeSy
                 End If
             End If
         End If
@@ -24150,7 +24087,7 @@ Resume Next
 End Function
 Public Sub Ter_SeD()
 On Error GoTo DaErr
-'Listet alle Termine auf, die dieselbe Seriennummer haben
+'Terminprotokoll
 
 Dim GesZa As Long
 Dim TerNr As Long
@@ -24427,7 +24364,7 @@ If AnzRe > 0 Then
                                 RS45.Fields("NotifyStatus").Value = 3 'Senden
                                 RS45.Fields("NotifyValue").Value = NotVa
                             End If
-                            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                 RS45.Fields("Replicated").Value = 1
                                 RS45.Fields("DAVChange").Value = 1
                                 RS45.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -24915,7 +24852,7 @@ If AnzTe > 0 Then
                         RS45.Fields("NotifySetDate").Value = CDate(Left$(RpRec.Item(11).Value, 10))
                         RS45.Fields("NotifySetTime").Value = TimeValue(Right$(RpRec.Item(11).Value, 5))
                     End If
-                    If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                    If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                         RS45.Fields("Replicated").Value = 1
                         RS45.Fields("DAVChange").Value = 1
                         RS45.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -25003,8 +24940,6 @@ If AnzTe > 0 Then
                                     .MaNum = ManNr
                                 End If
                             End With
-                            S_TeSy
-                            DoEvents
                         End If
                     End If
     
@@ -25945,7 +25880,7 @@ If RS45.Supports(adAddNew) Then
                     RS45.Fields("NotifySetDate").Value = CDate(Left$(RpRec.Item(11).Value, 10))
                     RS45.Fields("NotifySetTime").Value = TimeValue(Right$(RpRec.Item(11).Value, 5))
                 End If
-                If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                     RS45.Fields("Replicated").Value = 1
                     RS45.Fields("DAVChange").Value = 1
                     RS45.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -26054,8 +25989,6 @@ If RS45.Supports(adAddNew) Then
                         .MaNum = ManNr
                     End If
                 End With
-                S_TeSy
-                DoEvents
             End If
         End If
 

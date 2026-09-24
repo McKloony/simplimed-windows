@@ -30,6 +30,11 @@ Private m_TempPDFPath As String
 Private m_LogFile As String
 Private m_CurrentFile As String ' Store current filename for logging path
 Private m_OrderNumber As String ' Order number (Auftragsnummer) from LDT3 for PDF naming
+Private m_PdfNam As Collection  ' bereits vergebene PDF-Dateinamen dieses Laufs
+
+' LDT3-Befundbericht (Satzart 8205) auf die von Tabelle_Lab_SaArt bekannte LDT2-Satzart
+' abbilden - qryLabBeri verknuepft per INNER JOIN auf Tabelle_Lab_SaArt.Satzart.
+Private Const Ld3Sat As String = "8201"
 
 ' ==========================================================================================
 ' LOGGING HELPER
@@ -268,7 +273,7 @@ Private Sub L_Par2(ByRef Content As String)
     Do While Posit > 0
         LineCount = LineCount + 1
         ' Update progress every 1% of file parsed
-        CurPct = (StaWe * 100) \ Lange
+        If Lange > 0 Then CurPct = CLng((StaWe * 100#) / Lange)
         If CurPct > LastPct Then
             LastPct = CurPct
             L_Pct CurPct
@@ -307,13 +312,21 @@ Private Sub L_Par2(ByRef Content As String)
 End Sub
 
 Private Sub L_Par3(ByRef Content As String, ByVal OriginalPath As String)
-    ' LDT3 Parsing: Extract PDF and Map fields to Legacy codes for qryLdtDat
+    ' LDT3-Parsing: Feldkennungen auf Legacy-Codes fuer qryLdtDat abbilden,
+    ' Satzart-Grenzen durchreichen und je Befund die eingebettete PDF sichern.
     Dim Posit As Long, StaWe As Long, Lange As Long
     Dim FldKn As Long
     Dim FldIn As String, AkZei As String
-    Dim Base64Buffer As String
+    Dim B64Ary() As String
+    Dim B64Cnt As Long
     Dim InPdfBlock As Boolean
     Dim Folder As String
+    Dim TimCtx As Long
+    Dim ObjDep As Long
+    Dim PatDep As Long
+    Dim NrmDep As Long
+    Dim RepCnt As Long
+    Dim CurOrd As String
     Dim LineCount As Long
     Dim LastPct As Long, CurPct As Long
 
@@ -321,22 +334,31 @@ Private Sub L_Par3(ByRef Content As String, ByVal OriginalPath As String)
 
     m_TempPDFPath = ""
     m_OrderNumber = ""
+    Set m_PdfNam = New Collection
     Lange = Len(Content)
     StaWe = 1
     LineCount = 0
     LastPct = 0
+    RepCnt = 0
+    B64Cnt = 0
+    TimCtx = 0
+    ObjDep = 0
+    PatDep = 0
+    NrmDep = 0
+    InPdfBlock = False
+    ReDim B64Ary(1023)
+    Folder = Left$(OriginalPath, InStrRev(OriginalPath, "\"))
 
-    ' Initialize simulated headers for Legacy Logic
-    L_Add 8000, "8218" ' Start Report
-    L_Add 9212, "0003" ' Version Simulation
+    ' Version vorbelegen, der echte Wert kommt aus Feldkennung 0001 (siehe Select Case)
+    L_Add 9212, "LDT3"
 
     Posit = InStr(StaWe, Content, Chr$(10))
     If Posit = 0 Then Posit = InStr(StaWe, Content, Chr$(13))
 
     Do While Posit > 0
         LineCount = LineCount + 1
-        ' Update progress every 1% of file parsed
-        CurPct = (StaWe * 100) \ Lange
+        ' Fortschritt in Prozent, Double-Zwischenwert verhindert Long-Ueberlauf ab 21 MB
+        If Lange > 0 Then CurPct = CLng((StaWe * 100#) / Lange)
         If CurPct > LastPct Then
             LastPct = CurPct
             L_Pct CurPct
@@ -344,97 +366,178 @@ Private Sub L_Par3(ByRef Content As String, ByVal OriginalPath As String)
         AkZei = Mid$(Content, StaWe, Posit - StaWe)
         StaWe = Posit + 1
 
-        ' Minimal LDT structure check: Len(3) + Code(4)
+        ' Mindeststruktur LDT: Laenge(3) + Feldkennung(4)
         If Len(AkZei) >= 7 Then
              If IsNumeric(Mid$(AkZei, 4, 4)) Then
                 FldKn = CLng(Mid$(AkZei, 4, 4))
-                ' Extract Content (skip length 3 + code 4 = 7 chars)
                 FldIn = Mid$(AkZei, 8)
-                ' Cleanup CRLF if stuck at end
                 FldIn = Replace(FldIn, vbCr, "")
                 FldIn = Replace(FldIn, vbLf, "")
-                
-                ' --- PDF Extraction Logic ---
-                If FldKn = 6329 Then ' Embedded Base64 Content
-                    Base64Buffer = Base64Buffer & FldIn
+
+                ' --- PDF: Base64-Zeilen blockweise sammeln, nie fortlaufend verketten ---
+                If FldKn = 6329 Then
+                    If B64Cnt > UBound(B64Ary) Then ReDim Preserve B64Ary(B64Cnt * 2)
+                    B64Ary(B64Cnt) = FldIn
+                    B64Cnt = B64Cnt + 1
                     InPdfBlock = True
-                ElseIf InPdfBlock And FldKn <> 6329 Then
-                    ' End of PDF block detected
+                ElseIf InPdfBlock Then
+                    ' Blockende erreicht: PDF dieses Befunds sofort schreiben
+                    L_Pdf B64Ary, B64Cnt, Folder, CurOrd, RepCnt
                     InPdfBlock = False
                 End If
-                
-                ' --- Data Mapping to Legacy Codes ---
-                Select Case FldKn
-                    ' Patient
-                    Case 3101: L_Add 3101, FldIn ' Name
-                    Case 3102: L_Add 3102, FldIn ' Vorname
-                    Case 3103: L_Add 3103, FldIn ' DOB
-                    Case 3110: L_Add 3110, FldIn ' Geschlecht
 
-                    ' Order number (Auftragsnummer) - capture first non-empty value
+                Select Case FldKn
+                    ' LDT-Version aus dem Dateikopf
+                    Case 1: If FldIn <> "" Then L_Add 9212, FldIn
+
+                    ' Satzart: 8205 = Befundbericht, 8220/8221 = Datei-Kopf/-Abschluss
+                    Case 8000
+                        If FldIn = "8205" Then
+                            RepCnt = RepCnt + 1
+                            CurOrd = ""
+                            TimCtx = 0
+                            ObjDep = 0
+                            PatDep = 0
+                            NrmDep = 0
+                            L_Add 8000, Ld3Sat
+                        End If
+
+                    ' Objekt-Schachtelung mitfuehren: dieselben Feldkennungen kommen in
+                    ' mehreren Objekten vor (Patient, Einsender, befundender Arzt, Normalwert)
+                    Case 8002
+                        ObjDep = ObjDep + 1
+                        If FldIn = "Obj_0045" And PatDep = 0 Then PatDep = ObjDep
+                        If FldIn = "Obj_0042" And NrmDep = 0 Then NrmDep = ObjDep
+                    Case 8003
+                        If PatDep = ObjDep Then PatDep = 0
+                        If NrmDep = ObjDep Then NrmDep = 0
+                        If FldIn = "Obj_0054" Then TimCtx = 0
+                        If ObjDep > 0 Then ObjDep = ObjDep - 1
+
+                    ' Patient - nur aus Obj_0045, sonst gewinnt der zuletzt gelesene Arztname
+                    Case 3101: If PatDep > 0 Then L_Add 3101, FldIn ' Name
+                    Case 3102: If PatDep > 0 Then L_Add 3102, FldIn ' Vorname
+                    Case 3103: If PatDep > 0 Then L_Add 3103, FldIn ' Geburtsdatum
+                    Case 3110
+                        If PatDep > 0 Then
+                            ' LDT3 liefert M/W/X/D, L_Rep erwartet die LDT2-Codes 1/2
+                            Select Case UCase$(Trim$(FldIn))
+                                Case "M": L_Add 3110, "1"
+                                Case "W": L_Add 3110, "2"
+                                Case Else: L_Add 3110, FldIn
+                            End Select
+                        End If
+
+                    ' Auftragsnummern
                     Case 8310, 8311
                         L_Add FldKn, FldIn
+                        If FldKn = 8310 And CurOrd = "" Then CurOrd = Trim$(FldIn)
                         If m_OrderNumber = "" And FldIn <> "" Then
                             m_OrderNumber = Trim$(FldIn)
                             L_Log "Order number captured: " & m_OrderNumber
                         End If
 
-                    ' Labor
-                    Case 1250: L_Add 8300, FldIn ' Lab Name
-                    Case 7358: L_Add 203, FldIn  ' Arzt Name (Reporting)
-                    
-                    ' Values
-                    Case 8410: L_Add 8410, FldIn ' Test ID/Kuerzel
-                    Case 8411: L_Add 8411, FldIn ' Test Name
-                    Case 8420: L_Add 8420, FldIn ' Value
-                    Case 8421: L_Add 8421, FldIn ' Unit
-                    Case 8460: L_Add 8460, FldIn ' Normal Range / Text
-                    Case 8422: L_Add 8422, FldIn ' Status/Flag
-                    Case 7278: L_Add 8432, FldIn ' Date
-                    
-                    ' Comments
+                    ' Labor / befundender Arzt
+                    Case 1250: L_Add 8300, FldIn ' Laborname
+                    Case 7358: L_Add 203, FldIn  ' Arztname
+
+                    ' Messwerte
+                    Case 8410: L_Add 8410, FldIn ' Test-Ident
+                    Case 8411: L_Add 8411, FldIn ' Testbezeichnung
+                    Case 8420: L_Add 8420, FldIn ' Ergebniswert
+                    Case 8421
+                        ' Einheit nur aus dem Ergebnis, nicht aus dem Normalwert-Objekt
+                        If NrmDep = 0 Then L_Add 8421, FldIn
+                    Case 8422: L_Add 8422, FldIn ' Grenzwert-Indikator
+                    Case 8460: L_Add 8460, FldIn ' Normalwert-Text
+
+                    ' Timestamp-Kontext merken, Datum/Zeit folgen im naechsten Obj_0054
+                    Case 8214, 8215, 8216, 8219, 8220, 8225
+                        TimCtx = FldKn
+                    Case 7278
+                        Select Case TimCtx
+                            Case 8215: L_Add 8301, FldIn ' Auftragseingang Labor
+                            Case 8216: L_Add 8302, FldIn ' Berichtsdatum
+                            Case 8225: L_Add 8432, FldIn ' Abnahme-Datum des Tests
+                        End Select
+                    Case 7279
+                        If TimCtx = 8225 Then L_Add 8433, FldIn ' Abnahme-Zeit
+
+                    ' Kommentare
                     Case 8470: L_Add 8470, FldIn
 
-                    ' Billing fields
-                    Case 5001: L_Add 5001, FldIn ' Fee code (GONr/Gebührenziffer)
-                    Case 8406: L_Add 8406, FldIn ' Amount in cents (Betrag)
+                    ' Abrechnung
+                    Case 5001: L_Add 5001, FldIn ' Gebuehrenziffer
+                    Case 8406: L_Add 8406, FldIn ' Betrag in Cent
                 End Select
              End If
         End If
-        
+
         Posit = InStr(StaWe, Content, Chr$(10))
         If Posit = 0 Then Posit = InStr(StaWe, Content, Chr$(13))
     Loop
-    
-    ' Save extracted PDF if found - use order number in filename
-    If Len(Base64Buffer) > 0 Then
-        Folder = Left(OriginalPath, InStrRev(OriginalPath, "\"))
-        ' Build filename: ldt<OrderNumber>.pdf
-        Dim OrdNr As String
-        OrdNr = m_OrderNumber
-        If OrdNr = "" Then OrdNr = Format$(Now, "yyyymmddhhnnss") ' Fallback
-        ' Sanitize for filename
-        OrdNr = Replace(OrdNr, "/", "_")
-        OrdNr = Replace(OrdNr, "\", "_")
-        OrdNr = Replace(OrdNr, ":", "_")
-        OrdNr = Replace(OrdNr, "*", "_")
-        OrdNr = Replace(OrdNr, "?", "_")
-        OrdNr = Replace(OrdNr, """", "_")
-        OrdNr = Replace(OrdNr, "<", "_")
-        OrdNr = Replace(OrdNr, ">", "_")
-        OrdNr = Replace(OrdNr, "|", "_")
-        m_TempPDFPath = Folder & "ldt" & OrdNr & ".pdf"
-        If L_B64(Base64Buffer, m_TempPDFPath) = False Then
-            m_TempPDFPath = "" ' Failed
-            L_Log "Error: Base64 Decode failed"
-        Else
-            L_Log "PDF Extracted successfully to: " & m_TempPDFPath
-        End If
-    End If
-    
-    L_Add 8003, "8218" ' End Report
-    L_Log "Leaving L_Par3"
+
+    ' letzten offenen PDF-Block sichern
+    If B64Cnt > 0 Then L_Pdf B64Ary, B64Cnt, Folder, CurOrd, RepCnt
+
+    Set m_PdfNam = Nothing
+    L_Log "Leaving L_Par3 - Befundsaetze: " & RepCnt & ", Zeilen: " & LineCount
 End Sub
+
+Private Sub L_Pdf(ByRef B64Ary() As String, ByRef B64Cnt As Long, ByVal Folder As String, ByVal OrdNr As String, ByVal RepNr As Long)
+    ' Schreibt den gesammelten Base64-Block als eigene PDF-Datei.
+    ' Join$ statt fortlaufender Verkettung: linear statt quadratisch.
+    Dim Parts() As String
+    Dim Idx As Long
+    Dim B64Str As String
+    Dim BasNam As String
+    Dim OutPfa As String
+
+    If B64Cnt <= 0 Then Exit Sub
+
+    ReDim Parts(B64Cnt - 1)
+    For Idx = 0 To B64Cnt - 1
+        Parts(Idx) = B64Ary(Idx)
+    Next Idx
+    B64Cnt = 0
+    B64Str = Join(Parts, "")
+
+    BasNam = L_FiNa(OrdNr)
+    If BasNam = vbNullString Then BasNam = "R" & Format$(RepNr, "000")
+
+    ' Auftragsnummern sind nicht zwingend eindeutig, Folge-PDF bekommt den Satzindex
+    On Error Resume Next
+    m_PdfNam.Add BasNam, BasNam
+    If Err.Number <> 0 Then
+        Err.Clear
+        BasNam = BasNam & "_" & Format$(RepNr, "000")
+    End If
+    On Error GoTo 0
+
+    OutPfa = Folder & "ldt" & BasNam & ".pdf"
+    If L_B64(B64Str, OutPfa) Then
+        m_TempPDFPath = OutPfa
+        L_Log "PDF extrahiert: " & OutPfa & " (" & Len(B64Str) & " Zeichen Base64)"
+    Else
+        L_Log "Fehler: Base64-Dekodierung fehlgeschlagen fuer " & OutPfa
+    End If
+End Sub
+
+Private Function L_FiNa(ByVal RohSt As String) As String
+    ' Entfernt Zeichen, die in Windows-Dateinamen unzulaessig sind
+    Dim ErgSt As String
+    ErgSt = Trim$(RohSt)
+    ErgSt = Replace(ErgSt, "/", "_")
+    ErgSt = Replace(ErgSt, "\", "_")
+    ErgSt = Replace(ErgSt, ":", "_")
+    ErgSt = Replace(ErgSt, "*", "_")
+    ErgSt = Replace(ErgSt, "?", "_")
+    ErgSt = Replace(ErgSt, Chr$(34), "_")
+    ErgSt = Replace(ErgSt, "<", "_")
+    ErgSt = Replace(ErgSt, ">", "_")
+    ErgSt = Replace(ErgSt, "|", "_")
+    L_FiNa = ErgSt
+End Function
 
 Private Sub L_Add(ByVal code As Long, ByVal ValStr As String)
     ' Helper to populate qryLdtDat

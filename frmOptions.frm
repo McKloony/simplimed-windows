@@ -1196,6 +1196,9 @@ Case 1:
     Case "T1": FKon = "Arzt (GOÄ)"
     Case "T2": FKon = "Heilpraktiker (GebüH)"
     Case "T3": FKon = "Heilhilfsberufe"
+    Case "T5": FKon = "Konservative Terminvergabe"
+    Case "T6": FKon = "Progressive Terminvergabe"
+    Case "T7": FKon = "Sequenzielle Terminvergabe"
     Case "F2": FKon = "Jahr-Monat-000000"
     Case "F3": FKon = "JahrMonat-000000"
     Case "F4": FKon = "Jahr-000000"
@@ -1243,6 +1246,9 @@ Case 1:
     Case "C0": FKon = "Normalansicht"
     Case "C2": FKon = "Seitenansicht"
     Case "C3": FKon = "Fließtext"
+    Case "C5": FKon = "Standard Bestätigungstext"
+    Case "C6": FKon = "Ergänzender Bestätigungstext"
+    Case "C7": FKon = "Spezifischer Bestätigungstext"
     Case "N1": FKon = "Geburtstagsliste"
     Case "N2": FKon = "Terminliste"
     Case "N3": FKon = "Offene-Postenliste"
@@ -1323,6 +1329,9 @@ Case 2:
     Case "DOS-ASCII": FKon = "X2"
     Case "Windows-OEM": FKon = "X3"
     Case "Arzt (GOÄ)": FKon = "T1"
+    Case "Konservative Terminvergabe":  FKon = "T5"
+    Case "Progressive Terminvergabe": FKon = "T6":
+    Case "Sequenzielle Terminvergabe": FKon = "T7":
     Case "Heilpraktiker (GebüH)": FKon = "T2"
     Case "Heilhilfsberufe": FKon = "T3"
     Case "Jahr-Monat-000000": FKon = "F2"
@@ -1388,6 +1397,9 @@ Case 2:
     Case "Normalansicht": FKon = "C0"
     Case "Seitenansicht": FKon = "C2"
     Case "Fließtext": FKon = "C3"
+    Case "Standard Bestätigungstext": FKon = "C5"
+    Case "Ergänzender Bestätigungstext": FKon = "C6"
+    Case "Spezifischer Bestätigungstext": FKon = "C7"
     Case "Geburtstagsliste": FKon = "N1"
     Case "Terminliste": FKon = "N2"
     Case "Offene-Postenliste": FKon = "N3"
@@ -4149,126 +4161,151 @@ Set PrKat = PrGr1.AddCategory("Onlinedienste")
 PrKat.id = 2500
 PrKat.Description = IniGetOpt(KeyNa, PrKat.id)
 
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs Benutzername*", CStr(GlSet(1, 14)))
-PrItm.id = 2652
-PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
-
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs Sytem Passwort*", SCrypt(CStr(GlSet(1, 15)), False))
-PrItm.PasswordMask = True
-PrItm.id = 2653
-PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
-
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem Aktivieren*", CBool(GlSet(4, 12)))
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Mitarbeiter Aktivieren*", CBool(GlSet(4, 12)))
 PrBol.CheckBoxStyle = True
 PrBol.id = 2858
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
 
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem Mitarbeiterwahl*", CBool(GlSet(4, 13)))
-PrBol.CheckBoxStyle = True
-PrBol.id = 2916
-PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
-
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem Adressenerfassung*", CBool(GlSet(4, 79)))
-PrBol.CheckBoxStyle = True
-PrBol.id = 2953
-PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
-
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem PIN Dialog*", CBool(GlSet(4, 40)))
-PrBol.CheckBoxStyle = True
-PrBol.id = 2922
-PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
-
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem Storno-Dialog*", CBool(GlSet(4, 20)))
-PrBol.CheckBoxStyle = True
-PrBol.id = 2941
-PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
-
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem Warteliste-Dialog*", CBool(GlSet(4, 89)))
-PrBol.CheckBoxStyle = True
-PrBol.id = 2963
-PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
-
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs System belegte Buchungszeiten*", CBool(GlSet(4, 52)))
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine belegte Terminzeiten*", CBool(GlSet(4, 52)))
 PrBol.CheckBoxStyle = True
 PrBol.id = 2928
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
 
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs System ICS bei Emailbestätigung*", CBool(GlSet(4, 53)))
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine ICS bei Emailbestätigung*", CBool(GlSet(4, 53)))
 PrBol.CheckBoxStyle = True
 PrBol.id = 2929
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
 
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs Sytem Stornierte Entfernen*", CBool(GlSet(4, 108)))
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Mitarbeiter-Dialog*", CBool(GlSet(4, 13)))
+PrBol.CheckBoxStyle = True
+PrBol.id = 2916
+PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
+
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Adressen-Dialog*", CBool(GlSet(4, 79)))
+PrBol.CheckBoxStyle = True
+PrBol.id = 2953
+PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
+
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine PIN- / E-Mail-Dialog*", CBool(GlSet(4, 40)))
+PrBol.CheckBoxStyle = True
+PrBol.id = 2922
+PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
+
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Wartelisten-Dialog*", CBool(GlSet(4, 89)))
+PrBol.CheckBoxStyle = True
+PrBol.id = 2963
+PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
+
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Stornierungs-Dialog*", CBool(GlSet(4, 20)))
+PrBol.CheckBoxStyle = True
+PrBol.id = 2941
+PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
+
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Stornierte Entfernen*", CBool(GlSet(4, 108)))
 PrBol.CheckBoxStyle = True
 PrBol.id = 2981
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
 
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Terminbuchungs System autom. Aktualisierung*", CBool(GlSet(4, 91)))
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Online-Termine Pflichtfeldreduzierung*", CBool(GlSet(4, 38)))
 PrBol.CheckBoxStyle = True
-PrBol.id = 2965
+PrBol.id = 2912
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
 
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs System Schriftart*", CStr(GlSet(1, 54)))
+If GlSet(1, 14) = vbNullString Then
+    GlSet(1, 14) = "T6"
+    S_SeSe 15, "T6"
+End If
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine Kategorie der Terminvergabe*", FKon(GlSet(1, 14), 1))
 PrItm.flags = ItemHasComboButton
-For AktZa = 0 To UBound(GlOTF) - 1
-    PrItm.Constraints.Add GlOTF(AktZa)
-Next AktZa
-PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
-PrItm.id = 2930
-
-Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Terminbuchungs System allg. Textfarbe*", CLng(GlSet(2, 55)))
-PrItm.id = 2931
+PrItm.Constraints.Add "Konservative Terminvergabe"
+PrItm.Constraints.Add "Progressive Terminvergabe"
+PrItm.Constraints.Add "Sequenzielle Terminvergabe"
+PrItm.id = 2652
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 
-Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Terminbuchungs System allg. Hintergrundfarbe*", CLng(GlSet(2, 56)))
-PrItm.id = 2932
-PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
-
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs System allg. Textgröße*", CLng(GlSet(2, 57)))
+If GlSet(1, 57) = vbNullString Then
+    GlSet(1, 57) = "C5"
+    S_SeSe 58, "C5"
+End If
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine E-Mail-Bestätigungstext*", FKon(GlSet(1, 57), 1))
 PrItm.flags = ItemHasComboButton
-PrItm.Constraints.Add "10"
-PrItm.Constraints.Add "11"
-PrItm.Constraints.Add "12"
-PrItm.Constraints.Add "13"
-PrItm.Constraints.Add "14"
-PrItm.Constraints.Add "15"
+PrItm.Constraints.Add "Standard Bestätigungstext"
+PrItm.Constraints.Add "Ergänzender Bestätigungstext"
+PrItm.Constraints.Add "Spezifischer Bestätigungstext"
 PrItm.id = 2933
-PrItm.EditStyle = EditStyleNumber
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 
-Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Terminbuchungs System Button Hintergrundfarbe*", CLng(GlSet(2, 58)))
-PrItm.id = 2934
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine Stornierungshorizont*", CLng(GlSet(2, 16)))
+PrItm.id = 2853
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 
-Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Terminbuchungs System Button Textfarbe*", CLng(GlSet(2, 59)))
-PrItm.id = 2935
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine Anzahl buchbarer Termine*", CLng(GlSet(2, 91)))
+PrItm.flags = ItemHasComboButton
+PrItm.Constraints.Add "1"
+PrItm.Constraints.Add "2"
+PrItm.Constraints.Add "3"
+PrItm.Constraints.Add "4"
+PrItm.Constraints.Add "5"
+PrItm.Constraints.Add "5"
+PrItm.Constraints.Add "6"
+PrItm.Constraints.Add "7"
+PrItm.Constraints.Add "8"
+PrItm.Constraints.Add "9"
+PrItm.Constraints.Add "10"
+PrItm.id = 2965
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 
-Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Terminbuchungs System Button Hooverfarbe*", CLng(GlSet(2, 60)))
-PrItm.id = 2936
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine Leistungen pro Buchungsvorgang*", CLng(GlSet(2, 63)))
+PrItm.flags = ItemHasComboButton
+PrItm.Constraints.Add "1"
+PrItm.Constraints.Add "2"
+PrItm.Constraints.Add "3"
+PrItm.Constraints.Add "4"
+PrItm.id = 2939
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+If CBool(GlSet(4, 38)) = True Then
+    PrItm.ReadOnly = True
+End If
 
-Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Terminbuchungs System Button Deaktiviertfarbe*", CLng(GlSet(2, 61)))
-PrItm.id = 2937
-PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+'Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine allgemeine Schriftart*", CStr(GlSet(1, 54)))
+'PrItm.flags = ItemHasComboButton
+'For AktZa = 0 To UBound(GlOTF) - 1
+'    PrItm.Constraints.Add GlOTF(AktZa)
+'Next AktZa
+'PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+'PrItm.id = 2930
 
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs System Link Anschlussseite*", CStr(GlSet(1, 62)))
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine URL zu Folgeseite*", CStr(GlSet(1, 62)))
 PrItm.id = 2938
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 PrItm.ValueMetrics.MaxLength = 250
 
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs System Link Datenschutzerklärung*", CStr(GlSet(1, 63)))
-PrItm.id = 2939
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Termine URL zu AGBs*", CStr(GlSet(1, 15)))
+PrItm.id = 2653
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
-PrItm.ValueMetrics.MaxLength = 250
 
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs System Link für Impressum*", CStr(GlSet(1, 38)))
-PrItm.id = 2912
+Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Termine allgemeine Schriftfarbe*", CLng(GlSet(2, 55)))
+PrItm.id = 2931
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
-PrItm.ValueMetrics.MaxLength = 250
 
-Set PrItm = PrKat.AddChildItem(PropertyItemString, "Online-Terminbuchungs Provider*", CStr(GlSet(1, 16)))
-PrItm.id = 2853
+Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Termine allgemeine Hintergrundfarbe*", CLng(GlSet(2, 56)))
+PrItm.id = 2932
+PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+
+Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Termine Button Hintergrundfarbe*", CLng(GlSet(2, 58)))
+PrItm.id = 2934
+PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+
+Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Termine Button Schriftfarbe*", CLng(GlSet(2, 59)))
+PrItm.id = 2935
+PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+
+Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Termine Button Hooverfarbe*", CLng(GlSet(2, 60)))
+PrItm.id = 2936
+PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+
+Set PrItm = PrKat.AddChildItem(PropertyItemColor, "Online-Termine Button Deaktiviertfarbe*", CLng(GlSet(2, 61)))
+PrItm.id = 2937
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 
 TmFnt.Name = IniGetVal("Layout", "MaiFnt")
@@ -4325,7 +4362,7 @@ PrItm.id = 2911
 PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
 PrItm.ValueMetrics.MaxLength = 20
 
-Set PrBol = PrKat.AddChildItem(PropertyItemBool, "CalDAV / CardDAV / Exchange Synchronisation*", CBool(GlSet(4, 17)))
+Set PrBol = PrKat.AddChildItem(PropertyItemBool, "CalDAV und CardDAV Synchronisation*", CBool(GlSet(4, 17)))
 PrBol.CheckBoxStyle = True
 PrBol.id = 2893
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
@@ -4845,11 +4882,11 @@ Case 2868: 'Netzwerkdrucker auflisten
 Case 2901: 'Dublexdruck aktivieren
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "System", "DubDru", FKon(PrBol.Value, 2)
-Case 2922: 'Online-Terminbuchungs Sytem PIN Dialog
+Case 2922: 'Online-Termine PIN / E-Mail-Dialog
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsPIN", FKon(PrBol.Value, 2)
         S_SeSe 41, , , , CBool(PrBol.Value)
-Case 2941: 'Online-Terminbuchungs Sytem Storno-Dialog
+Case 2941: 'Online-Termine Stornierungs-Dialog
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsSto", FKon(PrBol.Value, 2)
         S_SeSe 21, , , , CBool(PrBol.Value)
@@ -4857,64 +4894,62 @@ Case 2964: 'SMS Terminerinnerung aktivieren
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "System", "EriSMS", FKon(PrBol.Value, 2)
         S_SeSe 91, , , , CBool(PrBol.Value)
-Case 2963: 'Online-Terminbuchungs Sytem Warteliste-Dialog
+Case 2963: 'Online-Termine Wartelisten-Dialog
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsWar", FKon(PrBol.Value, 2)
         S_SeSe 90, , , , CBool(PrBol.Value)
-Case 2928: 'Online-Terminbuchungs System zeige belegte Buchungszeiten
+Case 2928: 'Online-Termine belegte Terminzeiten
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsBel", FKon(PrBol.Value, 2)
         S_SeSe 53, , , , CBool(PrBol.Value)
-Case 2929: 'Online-Terminbuchungs System ICS Datei bei Emailbestätigung
+Case 2929: 'Online-Termine ICS bei Emailbestätigung
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsICS", FKon(PrBol.Value, 2)
         S_SeSe 54, , , , CBool(PrBol.Value)
-Case 2965: 'Online-Terminbuchungs System autom. Aktualisierung
-        Set PrBol = PrGr1.FindItem(TolId)
-        IniSetVal "System", "OtsAut", FKon(PrBol.Value, 2)
-        S_SeSe 92, , , , CBool(PrBol.Value)
-Case 2930: 'Online-Terminbuchungs System Schriftart
+Case 2965: 'Online-Termine Anzahl Anz. buchbarer Termine
         Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "TerSys", "OtsGWF", PrItm.Value
-        S_SeSe 55, CStr(PrItm.Value)
-Case 2931: 'Online-Terminbuchungs System allgemeine Textfarbe
+        IniSetVal "TerSys", "OtsSer", PrItm.Value
+        S_SeSe 92, , CLng(PrItm.Value)
+Case 2931: 'Online-Termine allgemeine Schriftfarbe
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsFTe", PrItm.Value
         S_SeSe 56, , CLng(PrItm.Value)
-Case 2932: 'Online-Terminbuchungs System allgemeine Hintergrundfarbe
+Case 2932: 'Online-Termine allgemeine Hintergrundfarbe
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsFBa", PrItm.Value
         S_SeSe 57, , CLng(PrItm.Value)
-Case 2933: 'Online-Terminbuchungs System allgemeine Textgröße
+'Case 2930: 'Online-Termine allgemeine Schriftart
+'        Set PrItm = PrGr1.FindItem(TolId)
+'        IniSetVal "TerSys", "OtsGWF", PrItm.Value
+'        S_SeSe 55, CStr(PrItm.Value)
+Case 2933: 'Online-Termine E-Mail-Bestätigungstext
         Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "TerSys", "OtsFSi", PrItm.Value
-        S_SeSe 58, , CLng(PrItm.Value)
-Case 2934: 'Online-Terminbuchungs System Button Hintergrundfarbe
+        IniSetVal "TerSys", "OTSBes", FKon(PrItm.Value, 2)
+        S_SeSe 58, FKon(PrItm.Value, 2)
+Case 2934: 'Online-Termine Button Hintergrundfarbe
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsBBa", PrItm.Value
         S_SeSe 59, , CLng(PrItm.Value)
-Case 2935: 'Online-Terminbuchungs System Button Textfarbe
+Case 2935: 'Online-Termine Button Schriftfarbe
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsBTe", PrItm.Value
         S_SeSe 60, , CLng(PrItm.Value)
-Case 2936: 'Online-Terminbuchungs System Button Hooverfarbe
+Case 2936: 'Online-Termine Button Hooverfarbe
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsBHo", PrItm.Value
         S_SeSe 61, , CLng(PrItm.Value)
-Case 2937: 'Online-Terminbuchungs System Button Deaktiviertfarbe
+Case 2937: 'Online-Termine Button Deaktiviertfarbe
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsBDi", PrItm.Value
         S_SeSe 62, , CLng(PrItm.Value)
-Case 2938: '"Online-Terminbuchungs System Link Anschlussseite
-        TmStr = PrItm.Value
-        If Len(TmStr) > 30 Then TmStr = Left$(TmStr, 30)
+Case 2938: '"Online-Termine URL zu Folgeseite
         Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "TerSys", "OtsLas", TmStr
-        S_SeSe 63, TmStr
-Case 2939: 'Online-Terminbuchungs System Link Datenschutzerklärung
+        S_SeSe 63, CStr(PrItm.Value)
+        IniSetVal "TerSys", "OtsLas", PrItm.Value
+Case 2939: 'Online-Termine Leistungenen pro Buchungsvorgang
         Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "TerSys", "OtsLin", PrItm.Value
-        S_SeSe 64, CStr(PrItm.Value)
+        IniSetVal "TerSys", "OtsAnL", PrItm.Value
+        S_SeSe 64, , CLng(PrItm.Value)
 Case 2904: 'Druckauftragsseparierung aktivieren
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "System", "DruSep", FKon(PrBol.Value, 2)
@@ -5542,39 +5577,31 @@ Case 2827: 'Emaildialog zeigen
 Case 2867: 'Absteigende Sortierung in Gruppen
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "System", "EmlSor", FKon(PrBol.Value, 2)
-Case 2858: 'Online-Terminbuchungs Sytem Aktivieren
+Case 2858: 'Online-Termine Aktivieren
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "TerSyn", FKon(PrBol.Value, 2)
         S_SeSe 13, , , , CBool(PrBol.Value)
-Case 2916: 'Online-Terminbuchungs Sytem Mitarbeiterwahl
+Case 2916: 'Online-Termine Mitarbeiter-Dialog
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OTSRei", FKon(PrBol.Value, 2)
         S_SeSe 14, , , , CBool(PrBol.Value)
-Case 2953: 'Online-Terminbuchungs Sytem Adressenerfassung
+Case 2953: 'Online-Termine Adressen-Dialog
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsAdr", FKon(PrBol.Value, 2)
         S_SeSe 80, , , , CBool(PrBol.Value)
-Case 2652: 'Online-Terminbuchungs Benutzername
+Case 2652: 'Online-Termine Kategorie der Terminvergabe
         Set PrItm = PrGr1.FindItem(TolId)
-        If SNaFi(PrItm.Value) = PrItm.Value Then
-            IniSetVal "TerSys", "OTSUse", PrItm.Value
-            S_SeSe 15, CStr(PrItm.Value)
-        Else
-            WindowMess "Der von Ihnen geänderte Eintrag darf keine Umlaute oder Sonderzeichen enthalten!", Dial2, "Keine Sonderzeichen", Me.hwnd
-        End If
-Case 2653: 'Online-Terminbuchungs Sytem Passwort
+        IniSetVal "TerSys", "OTSAnz", FKon(PrItm.Value, 2)
+        S_SeSe 15, FKon(PrItm.Value, 2)
+Case 2653: 'Online-Termine URL zu AGBs
         Set PrItm = PrGr1.FindItem(TolId)
-        S_SeSe 16, SCrypt(PrItm.Value, True)
-        If SNaFi(PrItm.Value) = PrItm.Value Then
-            IniSetVal "TerSys", "OTSPas", SCrypt(PrItm.Value, True)
-        Else
-            WindowMess "Der von Ihnen geänderte Eintrag darf keine Umlaute oder Sonderzeichen enthalten!", Dial2, "Keine Sonderzeichen", Me.hwnd
-        End If
-Case 2853: 'Online-Terminbuchungs Provider
+        S_SeSe 16, CStr(PrItm.Value)
+        IniSetVal "TerSys", "OTSAGB", PrItm.Value
+Case 2853: 'Online-Termine Stornierungshorizont
         Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "TerSys", "DomNam", PrItm.Value
-        S_SeSe 17, CStr(PrItm.Value)
-Case 2893: 'CalDAV / CardDAV / Exchange Synchronisation
+        IniSetVal "TerSys", "OnlSto", PrItm.Value
+        S_SeSe 17, , CLng(PrItm.Value)
+Case 2893: 'CalDAV und CardDAV Synchronisation
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "ExTeSy", FKon(PrBol.Value, 2)
         S_SeSe 18, , , , CBool(PrBol.Value)
@@ -5619,10 +5646,10 @@ Case 2910: 'SMS Account-ID
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "SMSGat", PrItm.Value
         S_SeSe 37, CStr(PrItm.Value)
-Case 2912: 'Online-Terminbuchungs System Link für Impressum
-        Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "TerSys", "OtsImp", PrItm.Value
-        S_SeSe 39, CStr(PrItm.Value)
+Case 2912: 'Online-Termine Pflichtfeldreduzierung
+        Set PrBol = PrGr1.FindItem(TolId)
+        IniSetVal "TerSys", "OtsPfl", FKon(PrBol.Value, 2)
+        S_SeSe 39, , , , CBool(PrBol.Value)
 Case 2911: 'SMS Absenderkennung
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "SMSAbs", PrItm.Value
@@ -5665,7 +5692,7 @@ Case 2980: 'SMTP SocksProxyPort
             IniSetVal "System", "SmPrPo", CInt(PrItm.Value)
             S_SeSe 108, , CInt(PrItm.Value)
         End If
-Case 2981: 'Online-Terminbuchungs Sytem Stornierte Entfernen
+Case 2981: 'Online-Termine Stornierte Entfernen
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "OtsLoe", PrBol.Value
         S_SeSe 109, , , , CBool(PrBol.Value)
@@ -5947,45 +5974,26 @@ Dim TmFar As Long    'Defaultfarbwert
 Dim TmBoD As Boolean 'Deufault Boolean Wert
 Dim TmBoV As Boolean 'Value Boolean Wert
 Dim AryIt() As String
+Dim PrIt1 As XtremePropertyGrid.PropertyGridItem
+Dim PrBo1 As XtremePropertyGrid.PropertyGridItemBool
+Dim PrBo2 As XtremePropertyGrid.PropertyGridItemBool
 
 Set PrGr1 = Me.prpGrid1
 Set PrIts = PrGr1.Categories
 
+Set PrBo1 = PrGr1.FindItem(2912) 'Terminverdichtung
+Set PrBo2 = PrGr1.FindItem(2652) 'Terminbündelung
+Set PrIt1 = PrGr1.FindItem(2939)
+
 For Each PrKat In PrIts
     For Each PrItm In PrKat.Childs
-        Select Case PrItm.Type
-        Case PropertyItemCategory:
-        
-        Case PropertyItemString:
-            If PrItm.defaultValue <> PrItm.Value Then
-                FRgSv PrItm.id
-            End If
-        Case PropertyItemNumber:
-            If PrItm.defaultValue <> PrItm.Value Then
-                FRgSv PrItm.id
-            End If
-        Case PropertyItemBool:
-            Set PrBol = PrItm
-            TmBoD = PrBol.defaultValue
-            TmBoV = PrBol.Value
-            If TmBoD <> TmBoV Then
-                FRgSv PrBol.id
-            End If
-        Case PropertyItemColor:
-            AryIt = Split(PrItm.defaultValue, ";")
-            TmFar = RGB(AryIt(0), AryIt(1), AryIt(2))
-            If TmFar <> PrItm.Value Then
-                FRgSv PrItm.id
-            End If
-        Case PropertyItemFont:
-            Set PrFnt = PrItm
-            If NeFn1 = True Then FRgSv PrFnt.id
-            If NeFn2 = True Then FRgSv PrFnt.id
-            If NeFn3 = True Then FRgSv PrFnt.id
-            If NeFn4 = True Then FRgSv PrFnt.id
-            If NeFn5 = True Then FRgSv PrFnt.id
-        Case PropertyItemDate:
-        
+        Select Case PrItm.id
+        Case 2912: 'Terminverdichtung
+            
+        Case 2652: 'Terminbündelung
+            
+        Case 2939:
+            
         End Select
     Next PrItm
 Next PrKat
@@ -6029,9 +6037,28 @@ End If
 
 End Sub
 Private Sub repCont2_InplaceButtonDown(ByVal Button As XtremeReportControl.IReportInplaceButton)
+On Error Resume Next
+
+Dim TreKy As String
+Dim Knots As XtremeSuiteControls.TreeViewNodes
+
+Set FM = frmOptions
+Set TrLi1 = FM.trvList1
+Set Knots = TrLi1.Nodes
+
+For Each Knote In Knots
+    If Knote.Selected = True Then
+        TreKy = Knote.Key
+        Exit For
+    End If
+Next Knote
+
+If TreKy <> "K24" Then
     If Button.Column.ItemIndex = 4 Then
         FCol
     End If
+End If
+
 End Sub
 
 Private Sub repCont2_ItemCheck(ByVal Row As XtremeReportControl.IReportRow, ByVal Item As XtremeReportControl.IReportRecordItem)
@@ -6065,54 +6092,54 @@ If TreKy = "K25" Then
     Set RpRow = RpSel(0)
     If RpRow.GroupRow = False Then
         TmStr = vbNullString
-        Set RpCol = RpCls.Find(5) 'Mo
+        Set RpCol = RpCls.Find(4) 'Mo
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = "1"
         Else
             TmStr = "2"
         End If
-        Set RpCol = RpCls.Find(6) 'Di
+        Set RpCol = RpCls.Find(5) 'Di
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = TmStr & "1"
         Else
             TmStr = TmStr & "2"
         End If
-        Set RpCol = RpCls.Find(7) 'Ni
+        Set RpCol = RpCls.Find(6) 'Ni
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = TmStr & "1"
         Else
             TmStr = TmStr & "2"
         End If
-        Set RpCol = RpCls.Find(8) 'Do
+        Set RpCol = RpCls.Find(7) 'Do
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = TmStr & "1"
         Else
             TmStr = TmStr & "2"
         End If
-        Set RpCol = RpCls.Find(9) 'Fr
+        Set RpCol = RpCls.Find(8) 'Fr
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = TmStr & "1"
         Else
             TmStr = TmStr & "2"
         End If
-        Set RpCol = RpCls.Find(10) 'Sa
+        Set RpCol = RpCls.Find(9) 'Sa
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = TmStr & "1"
         Else
             TmStr = TmStr & "2"
         End If
-        Set RpCol = RpCls.Find(11) 'So
+        Set RpCol = RpCls.Find(10) 'So
         If RpRow.Record(RpCol.ItemIndex).Checked = True Then
             TmStr = TmStr & "1"
         Else
             TmStr = TmStr & "2"
         End If
         DoEvents
-        RpRow.Record(4).Value = TmStr
-        TmTag = RpRow.Record(4).Tag
+        RpRow.Record(3).Value = TmStr
+        TmTag = RpRow.Record(3).Tag
         If TmTag <> vbNullString Then
             TmTag = Mid$(TmTag, 2, Len(TmTag) - 1)
-            RpRow.Record(4).Tag = "@" & TmTag
+            RpRow.Record(3).Tag = "@" & TmTag
         End If
     End If
 ElseIf TreKy = "K33" Then 'Zahlungstexte

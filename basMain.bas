@@ -828,7 +828,7 @@ Global GlKrM As Boolean 'Aufnahmemedikamente
 Global GlKrD As Boolean 'Aufnahmediagnosen
 Global GlKrB As Boolean 'Krankenblatt anzeigen
 Global GlOTS As Boolean 'Online-Terminbuchungs System aktivieren
-Global GlESy As Boolean 'CalDAV / CardDAV / Exchange Synchronisation
+Global GlESy As Boolean 'CalDAV / CardDAV Synchronisation
 Global GlKeM As Boolean 'Einträge im Ketteneinfügedialog markieren
 Global GlAtV As Boolean 'Emailanhang vorhanden
 Global GlEmS As Boolean 'Emailsortierung immer absteigend in Gruppen
@@ -911,9 +911,9 @@ Global GlOtD As Boolean 'Online-Terminbuchungs System Stornodialog
 Global GlOtE As Boolean 'Online-Terminbuchungs System Storno Entfernen
 Global GlOtW As Boolean 'Online-Terminbuchungs System Warteliste
 Global GlGbK As Boolean 'PAD Gebührenkatalog benennen
-Global GlBel As Boolean 'Online-Terminbuchungs System zeige belegte Buchungszeiten
-Global GlODi As Boolean 'Online-Terminbuchungs System Mitarbeiterwahl
-Global GlOTA As Boolean 'Online-Terminbuchungs System Adressenerfassung
+Global GlBel As Boolean 'Online-Termine belegte Terminzeiten
+Global GlODi As Boolean 'Online-Termine Mitarbeiter-Dialog
+Global GlOTA As Boolean 'Online-Termine Adressen-Dialog
 Global GlRst As Boolean 'Mandantenbezogene Datenbegrenzung
 Global GlTeW As Boolean 'Terminbelegungswarnung
 Global GlSeE As Boolean 'Setupdaten vorhanden
@@ -937,7 +937,6 @@ Global GlTmS As Boolean 'Terminkalender zeigt Stornierte
 Global GlRsK As Boolean 'Mandantenbezogene Datenbegrenzung für Krankenblatt
 Global GlDeT As Boolean 'Stornierte Termine Termindetails
 Global GlASM As Boolean 'Automatische SMS Terminerinnerung
-Global GlOTK As Boolean 'Online-Terminbuchungs System autom. Aktualisierung
 Global GlSpB As Boolean 'Umsatzsteuer Splittbuchung
 Global GlFDo As Boolean 'Fragebogen mit Dokument
 Global GlFrS As Boolean 'Fragebogen Stammdaten reduziert
@@ -1114,7 +1113,7 @@ Global GlIPf As String  'Importordner
 Global GlExO As String  'Exportordner
 Global GlImO As String  'Importordner
 Global GlFPf As String  'Filterordner
-Global GlSZe As String  'Sprechzietenstring
+Global GlSZe As String  'Sprechzeitenstring
 Global GlOpt As String  'INI-Datei der Tooltips
 Global GlTmp As String  'Temporärer Ordner
 Global GlTEx As String  'Termineordner
@@ -1127,13 +1126,10 @@ Global GlSeN As String 'Online-Terminbuchungs Sytem Servername
 Global GlOTU As String 'Online-Terminbuchungs Sytem Username
 Global GlOTP As String 'Online-Terminbuchungs Sytem Password
 Global GlTvM As String 'Terminvorschlagsmuster
-Global GlOIm As String 'Online-Terminbuchungs System Link für Impressum
 Global GlAbs As String 'SMS Absenderkennung
 Global GlTok As String 'SMS Produkt Token
 Global GlAcI As String 'SMS Account-ID
 Global GlGWF As String 'Online-Terminbuchungs System Google Web Font
-Global GlOSe As String 'Online-Terminbuchungs System Link Anschlussseite
-Global GlOtL As String 'Online-Terminbuchungs System Link Datenschutzerklärung
 Global GlGDn As String 'Dateiname der GDT Exportdatei
 Global GlTlD As String 'Terminland WebCAL Adresse
 Global GlTlB As String 'Terminland Benutzername
@@ -1211,13 +1207,12 @@ Global GlADi As Long   'Anzahl zuvgeordneter Diagnosen
 Global GlTaV As Long   'Behandlungstage vorhanden
 Global GlDvB As Long   'DATEV Beraternummer
 Global GlDvM As Long   'DATEV Mandantennummer
-Global GlOTr As Long   'Online-Terminbuchungs System allgemeine Textfarbe
-Global GlOHF As Long   'Online-Terminbuchungs System allgemeine Hintergrundfarbe
-Global GlOTG As Long   'Online-Terminbuchungs System allgemeine Textgröße
-Global GlOBH As Long   'Online-Terminbuchungs System Button Hintergrundfarbe
-Global GlOBT As Long   'Online-Terminbuchungs System Button Textfarbe
-Global GlOBO As Long   'Online-Terminbuchungs System Button Hooverfarbe
-Global GlOBD As Long   'Online-Terminbuchungs System Button Deaktiviertfarbe
+Global GlOTr As Long   'Online-Termine allgemeine Schriftfarbe
+Global GlOHF As Long   'Online-Termine allgemeine Hintergrundfarbe
+Global GlOBH As Long   'Online-Termine Button Hintergrundfarbe
+Global GlOBT As Long   'Online-Termine Button Schriftfarbe
+Global GlOBO As Long   'Online-Termine Button Hooverfarbe
+Global GlOBD As Long   'Online-Termine Button Deaktiviertfarbe
 Global GlTxE As Long   'Textcontrol Errorcode
 Global GlMaY As Long   'Emailflyoutfenster Mailindex
 Global GlTBn As Long   'Termin Behandlernummer
@@ -7923,6 +7918,8 @@ If KoGef = False Then
     Exit Function
 End If
 
+EmpAd = LTrim$(EmpAd)
+EmpAd = RTrim$(EmpAd)
 If SEmAd(EmpAd) = False Then
     Exit Function
 End If
@@ -10992,15 +10989,6 @@ Set FM = frmMain
 Set CmBrs = FM.comBar01
 Set CmAcs = CmBrs.Actions
 
-If GlOTS = True Then 'Online-Terminbuchungs Sytem
-    If GlOTK = False Then 'Online-Terminbuchungs System autom. Aktualisierung
-        GlTVe = False 'Terminverschiebung zulassen
-        CmAcs(SY_TE_Termin_GlTVe).Enabled = False
-    End If
-End If
-
-CmAcs(SY_TL_Terminliste_SyncReset).Enabled = GlESy 'CalDAV / CardDAV / Exchange Synchronisation
-CmAcs(SY_TL_Terminliste_OnTeReset).Enabled = GlOTS
 CmAcs(SY_TE_Termin_GlTVe).Checked = GlTVe
 CmAcs(SY_TE_Termin_GlTSt).Checked = GlSSt 'Starre Termintaktung
 CmAcs(SY_TE_Termin_GlDeT).Checked = GlDeT 'Stornierte Termine Termindetails
@@ -25141,7 +25129,9 @@ Dim Mld1, Tit1 As String
 Dim RbBar As XtremeCommandBars.RibbonBar
 Dim CmBrs As XtremeCommandBars.CommandBars
 Dim BaItm As XtremeShortcutBar.ShortcutBarItem
+Dim AltAkt As Boolean
 
+AltAkt = GlAkt
 Tit1 = "Dokument Speichern"
 Mld1 = "Soll das aktuelle Dokument gespeichert werden?"
 
@@ -25751,7 +25741,7 @@ End If
 
 Set clFen = Nothing
 
-GlAkt = False
+GlAkt = AltAkt
 
 If GlSHt = ShoCut_Texte Then
     If GlBut <> RibTab_Tex_Email Then
@@ -26332,13 +26322,6 @@ Screen.MousePointer = vbHourglass
 
 CmAcs(RibCon_Refresh).Enabled = False
 
-If GlOTS = True Then 'Online-Terminbuchungs System
-    If GlOTK = False Then 'Online-Terminbuchungs System autom. Aktualisierung
-        If OnlAk = True Then
-            S_TeSz
-        End If
-    End If
-End If
 If GlTlA = True Then 'Terminland WebCAL (ICS) aktivieren
     If OnlAk = True Then
         STeLa
@@ -31151,7 +31134,7 @@ If GlDbg = True Then MsgBox Err.Description, 48, "SToGr " & Err.Number
 Resume Next
 
 End Sub
-Public Sub STran(ByVal ImTyp As Integer, Optional ByVal Email As Boolean = False)
+Public Sub StraN(ByVal ImTyp As Integer, Optional ByVal Email As Boolean = False)
 On Error GoTo LdErr
 'Importieren / Exportieren von LDT-Dateien
 
@@ -32387,7 +32370,7 @@ Case 9: GlTxK = "Terminabsage"
 Case 10: GlTxK = "Terminvorschlag"
 End Select
 
-GlTxN = True 'Neues Dokument
+GlTxN = (GlTDa = vbNullString) 'Nur bis zur ersten Speicherung neu
 GlTxS = False
 
 clFen.FenDsk 3
@@ -34020,7 +34003,7 @@ If BelNr > 8 Then
 End If
 
 DoEvents
-GlTxN = True 'Neues Dokument
+GlTxN = (GlTDa = vbNullString) 'Nur bis zur ersten Speicherung neu
 GlTxS = False
 
 clFen.FenDsk 3
@@ -34045,6 +34028,9 @@ Public Function STxSa(Optional ByVal KeiAk As Boolean = False) As Boolean
 On Error GoTo SuErr
 'Überprüft, ob das aktuelle Dokument gespeichert werden muss
 
+Static InSav As Boolean
+Dim AltAkt As Boolean
+Dim NeuDa As Boolean
 Dim FiNam As String
 Dim BilNa As String
 Dim PfaNa As String
@@ -34060,6 +34046,16 @@ Dim AnzPo As Integer
 Dim Frage As Integer
 Dim SeiPo As Variant
 
+If InSav = True Then
+    STxSa = False
+    Exit Function
+End If
+
+AltAkt = GlAkt
+GlAkt = True
+InSav = True
+NeuDa = False
+
 Set FM = frmMain
 Set TxCoN = FM.TexCont1
 Set CoDia = FM.comDialo
@@ -34074,6 +34070,7 @@ DoEvents
 If GlTSV = True Then 'Speichern Textverarbeitung
     If GlTDa <> vbNullString Then 'Textverarbeitung Dateiname
         DaNam = GlTDa
+        NeuDa = False
     Else
         If GlTxM = True Then 'Serienbriefmodus
             DaNam = SDaNa()
@@ -34081,6 +34078,7 @@ If GlTSV = True Then 'Speichern Textverarbeitung
             DaNam = SDaNa(GlAdr)
         End If
         GlTDa = DaNam 'Textverarbeitung Dateiname
+        NeuDa = True
     End If
     BilNa = Left$(DaNam, Len(DaNam) - 3) & "bmp"
     DoEvents
@@ -34176,7 +34174,7 @@ If GlTSV = True Then 'Speichern Textverarbeitung
     DoEvents
 
     If KeiAk = False Then
-        If GlTxN = True Then 'neues Textdokument
+        If GlTxN = True And NeuDa = True Then 'neues Textdokument, erstmals gespeichert
             GlAkt = True 'WICHTIG!
             Set LiItm = LiIts.Add(, "T" & AnzPo + 1, TmpNa, IC16_Doc_Norm)
             LiItm.Tag = DaNam
@@ -34187,14 +34185,13 @@ If GlTSV = True Then 'Speichern Textverarbeitung
             End With
 
             LiItm.Selected = True
-            GlAkt = False
         End If
     End If
     
     STxSa = True
 End If
 
-If GlTxN = True Then 'Neues Textdokument
+If GlTxN = True And NeuDa = True Then 'Neues Textdokument, Erstspeicherung
     If GlTSV = True Then 'Speichern Textverarbeitung
         If DaNam <> vbNullString Then
             Lange = Len(DaNam)
@@ -34220,6 +34217,7 @@ If GlTxN = True Then 'Neues Textdokument
     End If
 End If
 
+GlAkt = True
 DoEvents
 Screen.MousePointer = vbNormal
 
@@ -34228,6 +34226,8 @@ GlTxN = False 'Neues Textdokument
 GlTxS = False 'Seriendokument
 
 Set CoDia = Nothing
+GlAkt = AltAkt
+InSav = False
 
 Exit Function
 
@@ -34579,7 +34579,7 @@ With TxCoN
 End With
 
 DoEvents
-GlTxN = True 'Neues Dokument
+GlTxN = (GlTDa = vbNullString) 'Nur bis zur ersten Speicherung neu
 GlTxS = False
 
 clFen.FenDsk 3
@@ -35560,7 +35560,7 @@ End If
 
 Screen.MousePointer = vbNormal
 
-GlTxN = True
+GlTxN = (GlTDa = vbNullString) 'Nur bis zur ersten Speicherung neu
 GlTSV = True 'Speichern Textverarbeitung
 GlTxS = False
 GlAkt = False

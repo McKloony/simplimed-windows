@@ -6698,7 +6698,6 @@ Dim cmKant As XtremeSuiteControls.ComboBox
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 Dim cmNoti As XtremeSuiteControls.ComboBox
@@ -6768,8 +6767,7 @@ Set ChOnT = FM.chkOnlTe
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
-Set cmVorl = FM.cmbVorLa
+Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
 Set cmBuLa = FM.cmbBuLnd
@@ -7153,16 +7151,6 @@ With cmMaxT
     .ListIndex = 0
 End With
 
-With cmMaxP
-    .AddItem "Alle Term."
-    .ItemData(0) = 0
-    For AktZa = 1 To 9
-        .AddItem AktZa & " Term."
-        .ItemData(AktZa) = AktZa
-    Next AktZa
-    .ListIndex = 1
-End With
-
 With cmVorl
     For AktZa = 1 To 24
         .AddItem Format$(AktZa, "00") & " Std."
@@ -7319,12 +7307,10 @@ Dim cmKant As XtremeSuiteControls.ComboBox
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 Dim cmNoti As XtremeSuiteControls.ComboBox
 Dim ChTeSp As XtremeSuiteControls.CheckBox
-Dim ChDefr As XtremeSuiteControls.CheckBox
 Dim ChOnTe As XtremeSuiteControls.CheckBox
 Dim cmKata As XtremeSuiteControls.ComboBox
 Dim cmKett As XtremeSuiteControls.ComboBox
@@ -7373,8 +7359,7 @@ Set cmFach = FM.cmbKatal
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
-Set cmVorl = FM.cmbVorLa
+Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
 Set cmKata = FM.cmbGbKat
@@ -7389,7 +7374,6 @@ Set cmStKt = FM.cmbKtoSt
 Set cmReTy = FM.cmbReTyp
 Set cmSteu = FM.cmbSteue
 Set ChTeSp = FM.chkKaAus
-Set ChDefr = FM.chkDefra
 Set ChOnTe = FM.chkOnlTe
 
 FM.AdAnd = True 'WICHTIG!
@@ -7573,16 +7557,6 @@ If IniGetVal("Adress", "ATmPl") <> vbNullString Then
     End If
 Else
     ChTeSp.Value = xtpUnchecked
-End If
-
-If IniGetVal("Adress", "ADefr") <> vbNullString Then
-    If CBool(IniGetVal("Adress", "ADefr")) = True Then
-        ChDefr.Value = xtpChecked
-    Else
-        ChDefr.Value = xtpUnchecked
-    End If
-Else
-    ChDefr.Value = xtpUnchecked
 End If
 
 If IniGetVal("Adress", "AOnTe") <> vbNullString Then
@@ -8781,7 +8755,6 @@ Dim cmKant As XtremeSuiteControls.ComboBox
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 Dim cmNoti As XtremeSuiteControls.ComboBox
@@ -8833,8 +8806,7 @@ Set TxRch = FM.txtS4F01
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
-Set cmVorl = FM.cmbVorLa
+Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 Set cmNoti = FM.cmbNotVa
 Set cmKata = FM.cmbGbKat
@@ -8908,7 +8880,6 @@ TxErs.Text = Date
 cmRas1.ListIndex = GlZeR - 1 'Zeitrasterindex
 cmRas2.ListIndex = GlZeR - 1 'Zeitrasterindex
 cmMaxT.ListIndex = 0
-cmMaxP.ListIndex = 1
 cmVorl.ListIndex = 1
 cmBuRa.ListIndex = 23
 cmNoti.ListIndex = 24
@@ -8925,8 +8896,8 @@ If DaNeu = True Then
     TxBri.Text = 2
     TxDum.Text = 0
     TxRch.Text = GlStR 'Rechtestring
-    TxZe1.Text = GlSZe 'Sprechzietenstring
-    TxZe2.Text = GlSZe 'Sprechzietenstring
+    TxZe1.Text = GlSZe 'Sprechzeitenstring
+    TxZe2.Text = GlSZe 'Sprechzeitenstring
     TxNum.Text = Format$(AdPIN, "000000")
     TxNum.Tag = "1Mandant"
     CmFch.ListIndex = GlFri - 1
@@ -9034,8 +9005,8 @@ Else
         GlAdG = CreateID("M")
         TxDum.Text = GlMId
         TxRch.Text = GlStR 'Rechtestring
-        TxZe1.Text = GlSZe 'Sprechzietenstring
-        TxZe2.Text = GlSZe 'Sprechzietenstring
+        TxZe1.Text = GlSZe 'Sprechzeitenstring
+        TxZe2.Text = GlSZe 'Sprechzeitenstring
         TxNum.Text = Format$(AdPIN, "000000")
         TxNum.Tag = "1Mandant"
         ChThe.Enabled = False
@@ -9341,7 +9312,7 @@ Case RibTab_Mitarbeit:
     RpCo5.Visible = True
     Labl17.Caption = "Rechte :"
     Labl19.Caption = "Firma/Instit.:"
-    Labl20.Caption = "Telefon :"
+    Labl20.Caption = "Onlinekennung :"
     Labl21.Visible = True
     Labl22.Visible = False
     Labl23.Visible = False
@@ -9745,7 +9716,6 @@ Dim TxZei2 As XtremeSuiteControls.FlatEdit
 Dim cmRas1 As XtremeSuiteControls.ComboBox
 Dim cmRas2 As XtremeSuiteControls.ComboBox
 Dim cmMaxT As XtremeSuiteControls.ComboBox
-Dim cmMaxP As XtremeSuiteControls.ComboBox
 Dim cmVorl As XtremeSuiteControls.ComboBox
 Dim cmBuRa As XtremeSuiteControls.ComboBox
 
@@ -9759,8 +9729,7 @@ Set TxZei2 = FM.txtZeit2
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
 Set cmMaxT = FM.cmbMaxTe
-Set cmMaxP = FM.cmbMaxPa
-Set cmVorl = FM.cmbVorLa
+Set cmVorl = FM.cmbVorla
 Set cmBuRa = FM.cmbBuRad
 
 Set ChS01 = FM.chkBox01
@@ -9828,7 +9797,7 @@ If SpStr <> vbNullString Then
     If Len(SpStr) > 50 Then
         TmStr = SpStr
     Else
-        TmStr = GlSZe 'Sprechzietenstring
+        TmStr = GlSZe 'Sprechzeitenstring
     End If
 Else
     Select Case TabId
@@ -9837,20 +9806,20 @@ Else
             If Len(TxZei1.Text) > 50 Then
                 TmStr = TxZei1.Text
             Else
-                TmStr = GlSZe 'Sprechzietenstring
+                TmStr = GlSZe 'Sprechzeitenstring
             End If
         Else
-            TmStr = GlSZe 'Sprechzietenstring
+            TmStr = GlSZe 'Sprechzeitenstring
         End If
     Case RibTab_Adr_Booki: 'Buchungszeiten
         If TxZei2.Text <> vbNullString Then
             If Len(TxZei2.Text) > 50 Then
                 TmStr = TxZei2.Text
             Else
-                TmStr = GlSZe 'Sprechzietenstring
+                TmStr = GlSZe 'Sprechzeitenstring
             End If
         Else
-            TmStr = GlSZe 'Sprechzietenstring
+            TmStr = GlSZe 'Sprechzeitenstring
         End If
     End Select
 End If

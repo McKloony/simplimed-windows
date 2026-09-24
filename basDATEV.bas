@@ -235,8 +235,9 @@ End Sub
 '              EmVer       - Email after export (0=No, 1=Yes)
 '              BelEx       - Export documents (Belege) and compress to ZIP
 '
-' Option A:    PDF Dateien + document.xml (einfaches Archivformat) + CSV
-' Option B:    PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten)
+' Option A:    ZIP = PDF Dateien + document.xml; EXTF-CSV liegt NEBEN dem ZIP
+'              (nicht im ZIP - DATEV Dok. 1022868, CSV-Import erfolgt separat in ReWe)
+' Option B:    ZIP = PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten)
 '
 ' Usage:       DATEV_Expor "A", EmlVe, BelEx  ' Dokumentenarchivierung
 '              DATEV_Expor "B", EmlVe, BelEx  ' Ledger-Integration
@@ -493,9 +494,10 @@ On Error GoTo ErrHandler
     Config.CompressOutput = BelEx
 
     ' Set export type based on ExTyp parameter
-    ' Option A "Buchungsstapel":  EXTF-CSV + document.xml (File-only) + PDFs - KEIN ledger.xml
-    ' Option B "Belegverwaltung": ledger.xml + document.xml (ledger+File) + PDFs - KEIN CSV
-    ' Hintergrund: DATEV-Importer toleriert keine Doppelung Buchungsstapel+ledger.xml im selben ZIP.
+    ' Option A "Buchungsstapel":  ZIP = document.xml (File-only) + PDFs; EXTF-CSV NEBEN dem ZIP - KEIN ledger.xml
+    ' Option B "Belegverwaltung": ZIP = ledger.xml + document.xml (ledger+File) + PDFs - KEIN CSV
+    ' Hintergrund: DATEV lehnt ZIPs mit Dateien ohne document.xml-Referenz ab (Dok. 1022868);
+    ' die EXTF-CSV wird separat in Kanzlei-Rechnungswesen importiert.
     Select Case UCase$(ExTyp)
     Case "A":
         ' Option A: Buchungsstapel-Export mit BEDI-Belegverknuepfung im CSV
@@ -621,8 +623,9 @@ End Sub
 '                            Already contains mandant filter (IDT) via caller
 '              BelEx       - Export documents (Belege) and compress to ZIP
 '
-' Option A:    PDF Dateien + document.xml (einfaches Archivformat) + CSV
-' Option B:    PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten)
+' Option A:    ZIP = PDF Dateien + document.xml; EXTF-CSV liegt NEBEN dem ZIP
+'              (nicht im ZIP - DATEV Dok. 1022868, CSV-Import erfolgt separat in ReWe)
+' Option B:    ZIP = PDF Dateien + document.xml + ledger.xml (strukturierte Belegsatzdaten)
 '
 ' Usage:       DATEV_BuEx "A", EmlVe, Krite, BelEx  ' Dokumentenarchivierung
 '              DATEV_BuEx "B", EmlVe, Krite, BelEx  ' Ledger-Integration
@@ -776,9 +779,10 @@ On Error GoTo ErrHandler
     Config.CompressOutput = BelEx
 
     ' Set export type based on ExTyp parameter
-    ' Option A "Buchungsstapel":  EXTF-CSV + document.xml (File-only) + PDFs - KEIN ledger.xml
-    ' Option B "Belegverwaltung": ledger.xml + document.xml (ledger+File) + PDFs - KEIN CSV
-    ' Hintergrund: DATEV-Importer toleriert keine Doppelung Buchungsstapel+ledger.xml im selben ZIP.
+    ' Option A "Buchungsstapel":  ZIP = document.xml (File-only) + PDFs; EXTF-CSV NEBEN dem ZIP - KEIN ledger.xml
+    ' Option B "Belegverwaltung": ZIP = ledger.xml + document.xml (ledger+File) + PDFs - KEIN CSV
+    ' Hintergrund: DATEV lehnt ZIPs mit Dateien ohne document.xml-Referenz ab (Dok. 1022868);
+    ' die EXTF-CSV wird separat in Kanzlei-Rechnungswesen importiert.
     Select Case UCase$(ExTyp)
     Case "A":
         ' Option A: Buchungsstapel-Export mit BEDI-Belegverknuepfung im CSV
@@ -1093,15 +1097,23 @@ On Error GoTo ErrHandler
 
         ' Write CSV file in ANSI/Windows-1252 encoding (DATEV EXTF requirement)
         ' Benutzer-gewaehlten Dateinamen verwenden falls vorhanden
-        If Len(Config.ExportFileName) > 0 Then
-            CSVFileName = Config.ExportPath & Config.ExportFileName & ".csv"
+        ' Die EXTF-CSV darf NICHT in den Beleg-Unterordner, der spaeter gezippt
+        ' wird: DATEV lehnt ZIPs mit Dateien ohne document.xml-Referenz ab
+        ' (DATEV Dok.-Nr. 1022868). CSV neben dem ZIP ablegen.
+        Dim CSVBasePath As String
+        If Config.CompressOutput And Len(m_SubNam) > 0 Then
+            CSVBasePath = m_OrgPfa
         Else
-            CSVFileName = Config.ExportPath & "EXTF_Buchungsstapel_" & Format$(Date, "YYYYMMDD") & "_" & Format$(Time, "HHMMSS") & ".csv"
+            CSVBasePath = Config.ExportPath
+        End If
+        If Len(Config.ExportFileName) > 0 Then
+            CSVFileName = CSVBasePath & Config.ExportFileName & ".csv"
+        Else
+            CSVFileName = CSVBasePath & "EXTF_Buchungsstapel_" & Format$(Date, "YYYYMMDD") & "_" & Format$(Time, "HHMMSS") & ".csv"
         End If
         If WriteCSVFileAnsi(CSVFileName, CSVContent) Then
             Result.CSVFilePath = CSVFileName
-            ' Add to ZIP list
-            AddToZipListRC CSVFileName
+            ' CSV bewusst NICHT in die ZIP-Liste (liegt ausserhalb des Beleg-Ordners)
         Else
             Result.ErrorMessage = "CSV-Datei konnte nicht geschrieben werden"
             Result.ErrorCode = 2001
@@ -1176,6 +1188,9 @@ On Error GoTo ErrHandler
         StartPhase PhaseNum, "ZIP Archiv", m_ZipFileCount
 
         frmStatus.Hide
+        ' Letzte Sicherung: keine Datei ohne document.xml-Referenz in das ZIP
+        ' (DATEV lehnt das gesamte Archiv sonst ab, Dok.-Nr. 1022868)
+        RemoveUnreferencedExportFiles Config.ExportPath
         Result.ZipFilePath = CreateZIPArchiveFromReportControl(Config)
 
         CompletePhase
@@ -2641,6 +2656,9 @@ On Error GoTo ErrHandler
             Next zz
         End If
         DoEvents
+        ' Letzte Sicherung: keine Datei ohne document.xml-Referenz in das ZIP
+        ' (DATEV lehnt das gesamte Archiv sonst ab, Dok.-Nr. 1022868)
+        RemoveUnreferencedExportFiles Config.ExportPath
         Result.ZipFilePath = CreateZIPArchive(Config, Result.CSVFilePath, Result.XMLFilePath)
         If GlLog = True Then SLogi "ZIP created: " & Result.ZipFilePath
         DoEvents
@@ -3137,6 +3155,127 @@ Cleanup:
 ErrHandler:
     LogError "ReconcileDocumentReferencesBeforeZip", Err.Number, Err.Description
     ReconcileDocumentReferencesBeforeZip = 0
+    Resume Cleanup
+End Function
+
+'================================================================================
+' RemoveUnreferencedExportFiles
+'--------------------------------------------------------------------------------
+' Verschiebt vor dem ZIP-Lauf alle Dateien aus dem Export-Unterordner in den
+' uebergeordneten Ordner, die in document.xml NICHT referenziert sind (weder
+' als File-Extension-Name noch als datafile-Verweis). DATEV lehnt das gesamte
+' ZIP-Archiv ab, wenn es eine Datei ohne document.xml-Eintrag enthaelt
+' (DATEV Dok.-Nr. 1022868: "Fuer diesen Beleg existiert kein Eintrag in der
+' Dokumenteninformation" - "Die ZIP-Datei ist fehlerhaft").
+' Faengt z.B. nicht umbenennbare Rechnung_Beleg_*.pdf aus
+' AddGeneratedPDFsToZipList ab. Verschieben statt Loeschen, damit keine Daten
+' verloren gehen. Laeuft nur im Unterordner-Modus (m_SubNam gesetzt).
+'================================================================================
+Private Function RemoveUnreferencedExportFiles(ByVal ExportPath As String) As Long
+On Error GoTo ErrHandler
+
+    Dim BasePath As String
+    Dim XMLPath As String
+    Dim xmlDoc As Object
+    Dim RefNodes As Object
+    Dim AllowedFiles As Object
+    Dim StrayFiles As Collection
+    Dim FileName As String
+    Dim AttVal As String
+    Dim TargetPath As String
+    Dim MovedCount As Long
+    Dim i As Long
+    Dim j As Long
+
+    RemoveUnreferencedExportFiles = 0
+
+    ' Nur den dedizierten Export-Unterordner bereinigen, nie einen allgemeinen
+    ' Exportordner (dort koennten fremde Dateien liegen)
+    If Len(m_SubNam) = 0 Then Exit Function
+    If Len(m_OrgPfa) = 0 Then Exit Function
+
+    BasePath = EnsureTrailingBackslash(ExportPath)
+    XMLPath = BasePath & "document.xml"
+
+    If m_clFil Is Nothing Then Set m_clFil = New clsFile
+    If Not m_clFil.FilVor(XMLPath) Then Exit Function
+
+    Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
+    xmlDoc.async = False
+    xmlDoc.validateOnParse = False
+    xmlDoc.resolveExternals = False
+    xmlDoc.setProperty "SelectionLanguage", "XPath"
+    xmlDoc.setProperty "SelectionNamespaces", _
+        "xmlns:d='" & XML_NAMESPACE & "' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'"
+
+    If Not xmlDoc.Load(XMLPath) Then
+        LogError "RemoveUnreferencedExportFiles", 3103, xmlDoc.parseError.Reason
+        GoTo Cleanup
+    End If
+
+    ' Whitelist: document.xml, ledger.xml und alle referenzierten Dateinamen
+    Set AllowedFiles = CreateObject("Scripting.Dictionary")
+    AllowedFiles.CompareMode = 1 ' TextCompare
+    AllowedFiles.Add "document.xml", True
+    AllowedFiles.Add "ledger.xml", True
+
+    Set RefNodes = xmlDoc.selectNodes("//d:extension[@name]")
+    For i = 0 To RefNodes.length - 1
+        AttVal = RefNodes.Item(i).getAttribute("name")
+        If Len(AttVal) > 0 Then
+            If Not AllowedFiles.Exists(AttVal) Then AllowedFiles.Add AttVal, True
+        End If
+    Next i
+    Set RefNodes = xmlDoc.selectNodes("//d:extension[@datafile]")
+    For i = 0 To RefNodes.length - 1
+        AttVal = RefNodes.Item(i).getAttribute("datafile")
+        If Len(AttVal) > 0 Then
+            If Not AllowedFiles.Exists(AttVal) Then AllowedFiles.Add AttVal, True
+        End If
+    Next i
+
+    ' Erst sammeln, dann verschieben (Dir$-Zustand wird durch Name/Kill zerstoert)
+    Set StrayFiles = New Collection
+    FileName = Dir$(BasePath & "*.*")
+    Do While FileName <> vbNullString
+        If Not AllowedFiles.Exists(FileName) Then
+            StrayFiles.Add FileName
+        End If
+        FileName = Dir$()
+    Loop
+
+    For i = 1 To StrayFiles.Count
+        FileName = StrayFiles.Item(i)
+        ' Zielname im uebergeordneten Ordner, bei Kollision numerisches Praefix
+        TargetPath = m_OrgPfa & FileName
+        j = 0
+        Do While m_clFil.FilVor(TargetPath) And j < 100
+            j = j + 1
+            TargetPath = m_OrgPfa & "_" & Format$(j, "00") & "_" & FileName
+        Loop
+        On Error Resume Next
+        Err.Clear
+        Name BasePath & FileName As TargetPath
+        If Err.Number = 0 Then
+            MovedCount = MovedCount + 1
+            If GlLog = True Then SLogi "DATEV: Nicht referenzierte Datei aus Beleg-ZIP-Ordner verschoben: " & FileName & " -> " & TargetPath
+        Else
+            If GlLog = True Then SLogi "DATEV: WARNUNG: Nicht referenzierte Datei konnte nicht verschoben werden: " & FileName & " (" & Err.Description & ") - DATEV lehnt das ZIP ab (Dok. 1022868)"
+        End If
+        On Error GoTo ErrHandler
+    Next i
+
+    RemoveUnreferencedExportFiles = MovedCount
+
+Cleanup:
+    Set RefNodes = Nothing
+    Set AllowedFiles = Nothing
+    Set StrayFiles = Nothing
+    Set xmlDoc = Nothing
+    Exit Function
+
+ErrHandler:
+    LogError "RemoveUnreferencedExportFiles", Err.Number, Err.Description
     Resume Cleanup
 End Function
 
@@ -4411,8 +4550,8 @@ On Error GoTo ErrHandler
 
     ' Write file using clFil
     If WriteCSVFile(CSVFilePath, FinalContent) Then
-        ' Add to ZIP file list (relative path/filename only)
-        AddToZipList Mid$(CSVFilePath, InStrRev(CSVFilePath, "\") + 1)
+        ' CSV bewusst NICHT in die ZIP-Liste: sie liegt ausserhalb des
+        ' Beleg-Unterordners und gehoert nicht in das DATEV Beleg-ZIP
         GenerateCSVExport = CSVFilePath
         OutValidCount = ValidRecordCount
     Else
@@ -6625,6 +6764,7 @@ End Function
 
 Private Function GenerateCSVFilename(ByRef Config As DATEV_ExportConfig) As String
     Dim FileName As String
+    Dim BasePath As String
 
     ' Benutzer-gewaehlten Dateinamen verwenden falls vorhanden
     If Len(Config.ExportFileName) > 0 Then
@@ -6636,7 +6776,18 @@ Private Function GenerateCSVFilename(ByRef Config As DATEV_ExportConfig) As Stri
                    Format$(Time, "hhnnss") & ".csv"
     End If
 
-    GenerateCSVFilename = Config.ExportPath & FileName
+    ' Die EXTF-CSV darf NICHT in den Beleg-Unterordner, der spaeter gezippt wird:
+    ' DATEV lehnt ZIP-Archive ab, die Dateien ohne document.xml-Referenz enthalten
+    ' (DATEV Dok.-Nr. 1022868: "Fuer diesen Beleg existiert kein Eintrag in der
+    ' Dokumenteninformation"). Die CSV wird neben dem ZIP abgelegt und getrennt
+    ' in Kanzlei-Rechnungswesen importiert.
+    If Config.CompressOutput And Config.ExportDocuments And Len(m_SubNam) > 0 Then
+        BasePath = m_OrgPfa
+    Else
+        BasePath = Config.ExportPath
+    End If
+
+    GenerateCSVFilename = BasePath & FileName
 End Function
 
 Private Function WriteCSVFile(ByVal FilePath As String, ByVal Content As String) As Boolean
@@ -7177,46 +7328,19 @@ Private Function BuildDocumentXMLElement(ByVal guid As String, _
                                          ByVal Description As String) As String
     Dim XML As String
     Dim EscFileName As String
-    Dim DateProperty As String
-    Dim HasProperties As Boolean
 
     ' Escape XML special characters for filename
     EscFileName = EscapeXML(FileName)
 
-    ' Format date as YYYY-MM for property key="1" (Buchungsperiode)
-    DateProperty = Format$(DocDate, "yyyy-mm")
-
-    ' Determine if we have properties to add
-    ' Property key="1" (Buchungsperiode) is always useful
-    ' Property key="2" (Rechnungsnummer) only if provided and valid
-    HasProperties = True
-
     ' Build document element per DATEV v06.0 schema (Option A: Dokumentenarchivierung)
     ' Uses guid attribute for document identification (links to CSV Beleglink via BEDI prefix in filename)
-    ' Uses xsi:type="File" with name attribute for PDF files
-    ' Property keys: 1=Buchungsperiode (YYYY-MM), 2=Rechnungsnummer/Belegnummer
-    ' Path is relative to document.xml (flat structure for compatibility)
+    ' WICHTIG: Der XSD-Typ "File" (Document_v060.xsd) hat ein LEERES Inhaltsmodell -
+    ' <property>-Kindelemente sind dort verboten und machen document.xml schemaungueltig
+    ' (property key=1/2/3 ist nur bei Ledger-Extensions wie cashLedger zulaessig).
+    ' Buchungsperiode und Rechnungsnummer transportiert bei Option A die EXTF-CSV
+    ' (Beleglink Feld 20); DocDate/InvoiceNumber/Description bleiben daher ungenutzt.
     XML = "    <document guid=""" & guid & """>" & vbCrLf
-
-    If HasProperties Then
-        ' Extension with child property elements (not self-closing)
-        XML = XML & "      <extension xsi:type=""File"" name=""" & EscFileName & """>" & vbCrLf
-
-        ' Property key="1": Buchungsperiode (always set)
-        XML = XML & "        <property value=""" & DateProperty & """ key=""1""/>" & vbCrLf
-
-        ' Property key="2": Rechnungsnummer (only if valid - max 12 chars, sanitized)
-        ' Applies to both Debitoren (Einnahmen) and Kreditoren (Ausgaben)
-        If Len(InvoiceNumber) > 0 Then
-            XML = XML & "        <property value=""" & EscapeXML(InvoiceNumber) & """ key=""2""/>" & vbCrLf
-        End If
-
-        XML = XML & "      </extension>" & vbCrLf
-    Else
-        ' Self-closing extension (no properties)
-        XML = XML & "      <extension xsi:type=""File"" name=""" & EscFileName & """/>" & vbCrLf
-    End If
-
+    XML = XML & "      <extension xsi:type=""File"" name=""" & EscFileName & """/>" & vbCrLf
     XML = XML & "    </document>" & vbCrLf
 
     BuildDocumentXMLElement = XML

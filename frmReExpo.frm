@@ -791,7 +791,9 @@ With CmFma
     .ItemData(.NewIndex) = 10
     .AddItem "ZUGFeRD Dateien (PDF)"
     .ItemData(.NewIndex) = 11
-    .DropDownItemCount = 11
+    .AddItem "generalInvoice 5.0 (XML)"
+    .ItemData(.NewIndex) = 12
+    .DropDownItemCount = 12
     .AutoComplete = False
     .ListIndex = 1
 End With
@@ -1088,6 +1090,9 @@ Case 9: BeExp = False 'X-Rechnung Dateien (XML)
 Case 10: BeExp = False 'ZUGFeRD Dateien (PDF)"
          ReAbs = True
          EmSen = True
+Case 11: BeExp = False 'generalInvoice 5.0 (XML)
+         ReAbs = True
+         EmSen = True
 End Select
 
 FoLad = True
@@ -1216,10 +1221,11 @@ Case 3: ExFmt = "PDF" 'Adobe Acrobat (PDF)
 Case 4: ExFmt = "CSV" 'Rechnungsliste (CSV)
 Case 5: ExFmt = "LIS" 'Rechnungsexportliste (PDF)
 Case 6: ExFmt = "LIS" 'Rechnungsschnellübers. (PDF)
-Case 7: ExFmt = "DAV" 'DATEV 6.0 Belegsatzdaten"
-Case 8: ExFmt = "DAV" 'DATEV 6.0 Belegarchivierung"
+Case 7: ExFmt = "DAV" 'DATEV 6.0 Belegsatzdaten
+Case 8: ExFmt = "DAV" 'DATEV 6.0 Belegarchivierung
 Case 9: ExFmt = "XML" 'X-Rechnung Dateien (XML)
-Case 10: ExFmt = "ZUG" 'ZUGFeRD Dateien (PDF)"
+Case 10: ExFmt = "ZUG" 'ZUGFeRD Dateien (PDF)
+Case 11: ExFmt = "GEI" 'generalInvoice 5.0 (XML)
 End Select
 
 If Rahm1.Visible = True Then
@@ -1456,6 +1462,37 @@ ElseIf Rahm2.Visible = True Then
             Case 7: DATEV_BuEx "B", EmlVe, Krite, BelEx
             Case 8: DATEV_BuEx "A", EmlVe, Krite, BelEx
             End Select
+        End If
+        
+    ElseIf ExFmt = "GEI" Then
+        
+        If GlVar = "PS3" Then
+            Unload Me
+            DoEvents
+            If AnzPo > 1 Then
+                S_ReExZ True
+            Else
+                S_ReExZ True, EmlVe
+            End If
+            DoEvents
+            RetWe = S_ReAn(False, ReAbs, Date)
+            If RetWe = True Then
+                Exit Sub
+            End If
+            DoEvents
+            If ZahZi = True Then
+                AbgRe = S_OPAn(Date)
+            End If
+            DoEvents
+            Select Case GlBut
+            Case RibTab_Abrechnung:
+                    SUpAb AbrNr
+                    SUpRe RowNr
+            Case RibTab_Rechnungen:
+                    SUpRe RowNr
+            End Select
+        Else
+            SPopu "generalInvoice 5.0 Export", "Die generalInvoice 5.0 Schnittstelle wurde noch nicht freigeschaltet bzw. lizenziert!", IC48_Forbidden
         End If
 
     End If

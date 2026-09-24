@@ -96,7 +96,7 @@ InvoiceLines(LineCount).Name = Name
 InvoiceLines(LineCount).Quantity = Quantity
 InvoiceLines(LineCount).UnitCode = UnitCode
 InvoiceLines(LineCount).LineExtensionAmount = Format(ExtensionAmount, "0.00")
-InvoiceLines(LineCount).PriceAmount = Format(PriceAmount, "0.00")
+InvoiceLines(LineCount).PriceAmount = Format(PriceAmount, "0.0000") 'BT-146 laesst vier Nachkommastellen zu
 InvoiceLines(LineCount).TaxPercent = TaxPercent
 LineCount = LineCount + 1
 
@@ -112,6 +112,9 @@ Set xmlDoc = CreateObject("MSXML2.DOMDocument.6.0")
 
 xmlDoc.async = False
 xmlDoc.preserveWhiteSpace = True
+
+' XML-Deklaration setzen, damit die Datei ihre Kodierung ausweist
+xmlDoc.appendChild xmlDoc.createProcessingInstruction("xml", "version=" & Chr$(34) & "1.0" & Chr$(34) & " encoding=" & Chr$(34) & "UTF-8" & Chr$(34))
 
 ' Hauptknoten mit Namespaces erstellen
 Dim RootNode As Object
@@ -502,20 +505,6 @@ ElseIf InvoicePayment = "48" Then
     PaymentMeansNode.appendChild xmlDoc.createTextNode(vbTab)
     PaymentMeansNode.appendChild xmlDoc.createTextNode(vbTab)
     
-    ' Optional: Zeitraum der Gültigkeit (ValidityPeriod)
-    Dim PaymentMandateNode1 As Object
-    Set PaymentMandateNode1 = xmlDoc.createElement("cac:PaymentMandate")
-    
-    Dim ValidityPeriodNode As Object
-    Set ValidityPeriodNode = xmlDoc.createElement("cac:ValidityPeriod")
-    ValidityPeriodNode.appendChild CreateNode(xmlDoc, "cbc:StartDate", "2025-01-01") 'ööö
-    ValidityPeriodNode.appendChild xmlDoc.createTextNode(vbCrLf)
-    ValidityPeriodNode.appendChild xmlDoc.createTextNode(vbTab)
-    ValidityPeriodNode.appendChild xmlDoc.createTextNode(vbTab)
-    PaymentMandateNode1.appendChild ValidityPeriodNode
-    PaymentMandateNode1.appendChild xmlDoc.createTextNode(vbCrLf)
-    PaymentMandateNode1.appendChild xmlDoc.createTextNode(vbTab)
-    PaymentMandateNode1.appendChild xmlDoc.createTextNode(vbTab)
 
 ElseIf InvoicePayment = "59" Or InvoicePayment = "49" Then
    

@@ -2291,7 +2291,7 @@ End If
 
 With DaPi2
     .EnsureVisible NeuDa
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 
@@ -3387,7 +3387,7 @@ ElseIf Rahm6.Visible = True Then
 
         AnzBl = DaPi2.Selection.BlocksCount
         With DaPi2
-            DayFi = .FirstDayOfWeek
+            DayFi = .FirstVisibleDay
             DayLa = .LastVisibleDay
             If ReTyp = 4 Then 'Gutschrift
                 .EnsureVisible Date
@@ -3772,7 +3772,7 @@ Dim DayLa As Date
 Set DaPi2 = Me.dtpDatu2
 
 With DaPi2
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 

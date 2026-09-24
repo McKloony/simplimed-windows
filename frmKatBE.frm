@@ -547,7 +547,7 @@ Dim DayLa As Date
 Set MoKal = Me.dtpDatu1
 
 With MoKal
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 
@@ -668,7 +668,7 @@ Dim DayLa As Date
 Set MoKal = Me.dtpDatu1
 
 With MoKal
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 

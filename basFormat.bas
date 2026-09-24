@@ -1953,9 +1953,6 @@ With CmAcs
     Set CmAct = .Add(SY_TL_Terminliste_Filt2, vbNullString, vbNullString, vbNullString, vbNullString)
     Set CmAct = .Add(SY_TL_Terminliste_Filt3, vbNullString, vbNullString, vbNullString, vbNullString)
     Set CmAct = .Add(SY_TL_Terminliste_Suchen, vbNullString, vbNullString, vbNullString, vbNullString)
-    Set CmAct = .Add(SY_TL_Terminliste_SyncReset, vbNullString, vbNullString, vbNullString, vbNullString)
-    Set CmAct = .Add(SY_TL_Terminliste_OnTeReset, vbNullString, vbNullString, vbNullString, vbNullString)
-    Set CmAct = .Add(SY_TL_Terminliste_Terminfar, vbNullString, vbNullString, vbNullString, vbNullString)
     Set CmAct = .Add(KA_Eint_Suchen, vbNullString, vbNullString, vbNullString, vbNullString)
     Set CmAct = .Add(KA_Kett_Suchen, vbNullString, vbNullString, vbNullString, vbNullString)
     Set CmAct = .Add(SY_LB_Labor_Suchen, vbNullString, vbNullString, vbNullString, vbNullString)
@@ -2179,7 +2176,7 @@ With CmCoS
     CmCon.BeginGroup = True
     If GlRDP = True Then
         CmCon.Enabled = False
-    ElseIf GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+    ElseIf GlESy = True Then 'CalDAV / CardDAV Synchronisation
         CmCon.Enabled = False
     End If
     Set CmCon = .Add(xtpControlButton, RibCon_Formulare, "Formulardesigner")
@@ -2912,33 +2909,9 @@ If GlCID <> vbNullString Then 'Cloud-ID
     If GlMes = 33565 Then
 
         If FiNam <> vbNullString Then
-            If GlOtL <> vbNullString Then 'Online-Terminbuchungs System Link für Datenschutzerklärung
-                If GlOIm <> vbNullString Then 'Online-Terminbuchungs System Link für Impressum
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & DaNaO & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & DaNaO & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            Else
-                If GlOIm <> vbNullString Then
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & DaNaO & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & DaNaO & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            End If
+            PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & DaNaO & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
         Else
-            If GlOtL <> vbNullString Then 'Online-Terminbuchungs System Link für Datenschutzerklärung
-                If GlOIm <> vbNullString Then 'Online-Terminbuchungs System Link für Impressum
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            Else
-                If GlOIm <> vbNullString Then
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            End If
+            PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
         End If
 
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True

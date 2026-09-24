@@ -4703,7 +4703,7 @@ If RpSel.Count > 0 Then
                             RS100.Fields("GeschlTyp").Value = GeTyp
                             RS100.Fields("Abteilung").Value = VerNr
                             RS100.Fields("Versicherung").Value = "Adresse des Leistungsträgers"
-                            If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                            If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                                 RS100.Fields("Replicated").Value = 1
                                 RS100.Fields("DAVChange").Value = 1
                                 RS100.Fields("LastModification").Value = Format$(DateValue(Now), "dd.mm.yyyy") & Chr$(32) & Format$(TimeValue(Now), "hh:mm:ss")
@@ -19217,17 +19217,17 @@ DoEvents 'Übertrag ID1 Feld in IDR
 DBCmEx2 "qrySimReSet", "@IdNum", "@IdxNr", NeuRe, NeuRe
 DoEvents
 
-Set RS115 = New ADODB.Recordset 'alle Positionen dieser Rechnung
-RS115.CursorLocation = adUseClient
-Set RS115 = DBCmRe1("qrySimAbIdx", "@IdxNr", NeuRe)
-If RS115.RecordCount > 0 Then
-    DBCmEx1 "qrySimAbLoR", "@IdxNr", NeuRe
-End If
-RS115.Close
-Set RS115 = Nothing
-DoEvents
-
 If NeuRe > 0 Then
+    'Set RS115 = New ADODB.Recordset 'alle Positionen dieser Rechnung
+    'RS115.CursorLocation = adUseClient
+    'Set RS115 = DBCmRe1("qrySimAbIdx", "@IdxNr", NeuRe)
+    'If RS115.RecordCount > 0 Then
+    '    DBCmEx1 "qrySimAbLoR", "@IdxNr", NeuRe
+    'End If
+    'RS115.Close
+    'Set RS115 = Nothing
+    'DoEvents
+
     If LetRe > 0 Then
         If ReDia = True Then 'vorherige Rechnungsdiagnosen ünernehmen
             Set RS125 = New ADODB.Recordset

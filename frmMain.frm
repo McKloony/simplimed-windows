@@ -21,25 +21,12 @@ Begin VB.Form frmMain
    LockControls    =   -1  'True
    ScaleHeight     =   7590
    ScaleWidth      =   12885
-   Begin XtremeReportControl.ReportControl repCont0 
-      Height          =   1005
-      Left            =   10680
-      TabIndex        =   94
-      Top             =   4700
-      Visible         =   0   'False
-      Width           =   1005
-      _Version        =   1048579
-      _ExtentX        =   1764
-      _ExtentY        =   1764
-      _StockProps     =   64
-      FreezeColumnsAbs=   0   'False
-   End
-   Begin XtremeReportControl.ReportControl repCont1 
+   Begin XtremeReportControl.ReportControl repContK 
       Height          =   1005
       Left            =   6720
-      TabIndex        =   96
+      TabIndex        =   97
       TabStop         =   0   'False
-      Top             =   1320
+      Top             =   2520
       Visible         =   0   'False
       Width           =   1005
       _Version        =   1048579
@@ -49,12 +36,28 @@ Begin VB.Form frmMain
       AutoColumnSizing=   0   'False
       FreezeColumnsAbs=   0   'False
    End
-   Begin XtremeReportControl.ReportControl repCont2 
-      Height          =   1005
+   Begin XtremeReportControl.ReportControl repCont6 
+      Height          =   1000
       Left            =   7920
-      TabIndex        =   95
+      TabIndex        =   91
       TabStop         =   0   'False
-      Top             =   1320
+      Top             =   120
+      Visible         =   0   'False
+      Width           =   1000
+      _Version        =   1048579
+      _ExtentX        =   1764
+      _ExtentY        =   1764
+      _StockProps     =   64
+      AutoColumnSizing=   0   'False
+      OLEDropMode     =   1
+      FreezeColumnsAbs=   0   'False
+   End
+   Begin XtremeReportControl.ReportControl repCont8 
+      Height          =   1005
+      Left            =   9120
+      TabIndex        =   92
+      TabStop         =   0   'False
+      Top             =   120
       Visible         =   0   'False
       Width           =   1000
       _Version        =   1048579
@@ -79,27 +82,12 @@ Begin VB.Form frmMain
       AutoColumnSizing=   0   'False
       FreezeColumnsAbs=   0   'False
    End
-   Begin XtremeReportControl.ReportControl repCont8 
+   Begin XtremeReportControl.ReportControl repCont2 
       Height          =   1005
-      Left            =   9120
-      TabIndex        =   92
-      TabStop         =   0   'False
-      Top             =   120
-      Visible         =   0   'False
-      Width           =   1000
-      _Version        =   1048579
-      _ExtentX        =   1764
-      _ExtentY        =   1764
-      _StockProps     =   64
-      AutoColumnSizing=   0   'False
-      FreezeColumnsAbs=   0   'False
-   End
-   Begin XtremeReportControl.ReportControl repCont6 
-      Height          =   1000
       Left            =   7920
-      TabIndex        =   91
+      TabIndex        =   95
       TabStop         =   0   'False
-      Top             =   120
+      Top             =   1320
       Visible         =   0   'False
       Width           =   1000
       _Version        =   1048579
@@ -107,15 +95,14 @@ Begin VB.Form frmMain
       _ExtentY        =   1764
       _StockProps     =   64
       AutoColumnSizing=   0   'False
-      OLEDropMode     =   1
       FreezeColumnsAbs=   0   'False
    End
-   Begin XtremeReportControl.ReportControl repContK 
+   Begin XtremeReportControl.ReportControl repCont1 
       Height          =   1005
       Left            =   6720
-      TabIndex        =   97
+      TabIndex        =   96
       TabStop         =   0   'False
-      Top             =   2520
+      Top             =   1320
       Visible         =   0   'False
       Width           =   1005
       _Version        =   1048579
@@ -123,6 +110,19 @@ Begin VB.Form frmMain
       _ExtentY        =   1764
       _StockProps     =   64
       AutoColumnSizing=   0   'False
+      FreezeColumnsAbs=   0   'False
+   End
+   Begin XtremeReportControl.ReportControl repCont0 
+      Height          =   1005
+      Left            =   10680
+      TabIndex        =   94
+      Top             =   4700
+      Visible         =   0   'False
+      Width           =   1005
+      _Version        =   1048579
+      _ExtentX        =   1764
+      _ExtentY        =   1764
+      _StockProps     =   64
       FreezeColumnsAbs=   0   'False
    End
    Begin VB.PictureBox picRah14 
@@ -684,12 +684,12 @@ Begin VB.Form frmMain
       Top             =   120
       Visible         =   0   'False
       Width           =   1300
-      Begin XtremeReportControl.ReportControl repCont5 
+      Begin XtremeReportControl.ReportControl repCont3 
          Height          =   1005
          Left            =   0
-         TabIndex        =   88
+         TabIndex        =   87
          TabStop         =   0   'False
-         Top             =   1200
+         Top             =   0
          Visible         =   0   'False
          Width           =   1005
          _Version        =   1048579
@@ -699,12 +699,12 @@ Begin VB.Form frmMain
          AutoColumnSizing=   0   'False
          FreezeColumnsAbs=   0   'False
       End
-      Begin XtremeReportControl.ReportControl repCont3 
+      Begin XtremeReportControl.ReportControl repCont5 
          Height          =   1005
          Left            =   0
-         TabIndex        =   87
+         TabIndex        =   88
          TabStop         =   0   'False
-         Top             =   0
+         Top             =   1200
          Visible         =   0   'False
          Width           =   1005
          _Version        =   1048579
@@ -4320,7 +4320,7 @@ If GlDat = True Then
                             If UBound(GlMiT) > 0 Then
                                 TmSpr = GlMiT(GlCaS, 6)
                             Else
-                                TmSpr = GlSZe 'Sprechzietenstring
+                                TmSpr = GlSZe 'Sprechzeitenstring
                             End If
                         Else
                             If UBound(GlMiT) > 0 Then
@@ -4343,14 +4343,14 @@ If GlDat = True Then
                                     If UBound(GlMiT) > 0 Then
                                         TmSpr = GlMiT(GlCaS, 6)
                                     Else
-                                        TmSpr = GlSZe 'Sprechzietenstring
+                                        TmSpr = GlSZe 'Sprechzeitenstring
                                     End If
                                 End If
                             Else
                                 If UBound(GlMiT) > 0 Then
                                     TmSpr = GlMiT(GlCaS, 6)
                                 Else
-                                    TmSpr = GlSZe 'Sprechzietenstring
+                                    TmSpr = GlSZe 'Sprechzeitenstring
                                 End If
                             End If
                         End If
@@ -4363,7 +4363,7 @@ If GlDat = True Then
                                     TmSpr = GlMiT(GlSmI, 6)
                                 End If
                             Else
-                                TmSpr = GlSZe 'Sprechzietenstring
+                                TmSpr = GlSZe 'Sprechzeitenstring
                             End If
                         Else
                             If UBound(GlMiT) > 0 Then
@@ -4394,7 +4394,7 @@ If GlDat = True Then
                                             TmSpr = GlMiT(GlSmI, 6)
                                         End If
                                     Else
-                                        TmSpr = GlSZe 'Sprechzietenstring
+                                        TmSpr = GlSZe 'Sprechzeitenstring
                                     End If
                                 End If
                             Else
@@ -4405,7 +4405,7 @@ If GlDat = True Then
                                         TmSpr = GlMiT(GlSmI, 6)
                                     End If
                                 Else
-                                    TmSpr = GlSZe 'Sprechzietenstring
+                                    TmSpr = GlSZe 'Sprechzeitenstring
                                 End If
                             End If
                         End If
@@ -4441,7 +4441,7 @@ If GlDat = True Then
                             If UBound(GlMaT) > 0 Then
                                 TmSpr = GlMaT(GlCaS, 6)
                             Else
-                                TmSpr = GlSZe 'Sprechzietenstring
+                                TmSpr = GlSZe 'Sprechzeitenstring
                             End If
                         Else
                             If UBound(GlMaT) > 0 Then
@@ -4464,14 +4464,14 @@ If GlDat = True Then
                                     If UBound(GlMaT) > 0 Then
                                         TmSpr = GlMaT(GlCaS, 6)
                                     Else
-                                        TmSpr = GlSZe 'Sprechzietenstring
+                                        TmSpr = GlSZe 'Sprechzeitenstring
                                     End If
                                 End If
                             Else
                                 If UBound(GlMaT) > 0 Then
                                     TmSpr = GlMiT(GlCaS, 6)
                                 Else
-                                    TmSpr = GlSZe 'Sprechzietenstring
+                                    TmSpr = GlSZe 'Sprechzeitenstring
                                 End If
                             End If
                         End If
@@ -4484,7 +4484,7 @@ If GlDat = True Then
                                     TmSpr = GlMaT(GlSMa, 6)
                                 End If
                             Else
-                                TmSpr = GlSZe 'Sprechzietenstring
+                                TmSpr = GlSZe 'Sprechzeitenstring
                             End If
                         Else
                             If UBound(GlMaT) > 0 Then
@@ -4515,7 +4515,7 @@ If GlDat = True Then
                                             TmSpr = GlMaT(GlSMa, 6)
                                         End If
                                     Else
-                                        TmSpr = GlSZe 'Sprechzietenstring
+                                        TmSpr = GlSZe 'Sprechzeitenstring
                                     End If
                                 End If
                             Else
@@ -4526,7 +4526,7 @@ If GlDat = True Then
                                         TmSpr = GlMaT(GlSMa, 6)
                                     End If
                                 Else
-                                    TmSpr = GlSZe 'Sprechzietenstring
+                                    TmSpr = GlSZe 'Sprechzeitenstring
                                 End If
                             End If
                         End If
@@ -5710,14 +5710,9 @@ Set FM = frmMain
 If GlAkt = False Then
     If GlSeF = False Then 'Formular wird geladen
         Screen.MousePointer = vbHourglass
-
-        If GlOTS = False Then 'Online-Terminbuchungs Sytem
-            S_TeSa pEvent, True
-        Else
-            If GlOTK = True Then 'Online-Terminbuchungs System autom. Aktualisierung
-                S_TeSa pEvent, True
-            End If
-        End If
+        
+        S_TeSa pEvent, True
+        DoEvents
 
         If GlTrL = False Then 'Termine werden geladen
             S_TeLi
@@ -5738,14 +5733,9 @@ Set FM = frmMain
 If GlAkt = False Then
     If GlSeF = False Then 'Formular wird geladen
         Screen.MousePointer = vbHourglass
-
-        If GlOTS = False Then 'Online-Terminbuchungs Sytem
-            S_TeSa pEvent
-        Else
-            If GlOTK = True Then 'Online-Terminbuchungs System autom. Aktualisierung
-                S_TeSa pEvent
-            End If
-        End If
+        
+        S_TeSa pEvent
+        DoEvents
         
         If GlTrL = False Then 'Termine werden geladen
             S_TeLi
@@ -6319,7 +6309,7 @@ Set RbBar = CmBrs.Item(1)
 Set RbTab = RbBar.SelectedTab
 
 With MoKal
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 
@@ -7069,6 +7059,7 @@ Dim AktZa As Integer
 Dim CmBrs As XtremeCommandBars.CommandBars
 Dim CmPa2 As XtremeCommandBars.StatusBarPane
 Dim RpCls As XtremeReportControl.ReportColumns
+Dim RpCo0 As XtremeReportControl.ReportControl
 Dim RpCo1 As XtremeReportControl.ReportControl
 Dim RpCo2 As XtremeReportControl.ReportControl
 Dim RpCo3 As XtremeReportControl.ReportControl
@@ -7080,6 +7071,7 @@ Dim RpCo8 As XtremeReportControl.ReportControl
 Dim RpRws As XtremeReportControl.ReportRows
 
 Set FM = frmMain
+Set RpCo0 = FM.repCont0
 Set RpCo1 = FM.repCont1
 Set RpCo2 = FM.repCont2
 Set RpCo3 = FM.repCont3
@@ -7540,7 +7532,7 @@ Case RibTab_Kat_Frage:
             End If
         End With
 Case RibTab_Tex_Email:
-        With RpCo8
+        With RpCo0
             If .Rows.Count > 0 Then
                 Set RpRws = .Rows
                 If GlFoc = True Then
@@ -8462,6 +8454,7 @@ Private Sub FRpPr()
 On Error GoTo OrErr
 'ReportControl Drucken
 
+Dim RpCo0 As XtremeReportControl.ReportControl
 Dim RpCo1 As XtremeReportControl.ReportControl
 Dim RpCo2 As XtremeReportControl.ReportControl
 Dim RpCo3 As XtremeReportControl.ReportControl
@@ -8472,6 +8465,8 @@ Dim RpCoK As XtremeReportControl.ReportControl
 Dim RpCo8 As XtremeReportControl.ReportControl
 Dim RpCo9 As XtremeReportControl.ReportControl
 
+Set FM = frmMain
+Set RpCo0 = FM.repCont0
 Set RpCo1 = FM.repCont1
 Set RpCo2 = FM.repCont2
 Set RpCo3 = FM.repCont3
@@ -8508,7 +8503,7 @@ Case RibTab_LabAuftrage: RpCo1.PrintPreview True
 Case RibTab_Kat_Eintrg: RpCo8.PrintPreview True
 Case RibTab_Kat_Ketten: RpCo8.PrintPreview True
 Case RibTab_Kat_Frage: RpCo8.PrintPreview True
-Case RibTab_Tex_Email: RpCo8.PrintPreview True
+Case RibTab_Tex_Email: RpCo0.PrintPreview True
 Case RibTab_Tex_Dokumt:
 Case RibTab_Tex_Vorlag:
 Case RibTab_Tex_Rezept:
@@ -10717,7 +10712,9 @@ Dim Mld1, Tit1 As String
 Dim RbBar As XtremeCommandBars.RibbonBar
 Dim RbTab As XtremeCommandBars.RibbonTab
 Dim CmBrs As XtremeCommandBars.CommandBars
+Dim AltAkt As Boolean
 
+AltAkt = GlAkt
 Set FM = frmMain
 Set CmBrs = FM.comBar01
 Set RbBar = CmBrs.Item(1)
@@ -10839,7 +10836,7 @@ Screen.MousePointer = vbNormal
 
 GlAlB = GlBut
 
-GlAkt = False
+GlAkt = AltAkt
 
 Set clFen = Nothing
 
@@ -11362,11 +11359,11 @@ Case KY_F3:
     Case RibTab_Ter_Mitarb:
         STerm True
     Case RibTab_LabBericht:
-        STran 2
+        StraN 2
     Case RibTab_LabAuftrag:
         frmNeuAuf.Show vbModal
     Case RibTab_LabBerichte:
-        STran 2
+        StraN 2
     Case RibTab_LabAuftrage:
         frmNeuAuf.Show vbModal
     Case RibTab_Kat_Eintrg:
@@ -12035,7 +12032,7 @@ Case ME_Bild_Scannen: SBiSc
 Case ME_Bild_Umbenennen: SBiUm
 
 Case ME_Berichte_Vergleich: LVMain
-Case ME_Berichte_Importieren: STran 2
+Case ME_Berichte_Importieren: StraN 2
 Case ME_Berichte_Exportieren: SExFo 4, 0, 0
 Case ME_Berichte_Zuordnen: SLaZu
 Case ME_Berichte_Bearbeiten: frmLaBear.Show vbModal
@@ -12644,9 +12641,6 @@ Case SY_TL_Terminliste_Vollst: SUmsa
 Case SY_TL_Terminliste_Exportieren: SExFo 7, 0, 0
 Case SY_TL_Terminliste_Importieren: frmImport.Show vbModal
 Case SY_TL_Terminliste_TermReset:
-Case SY_TL_Terminliste_SyncReset: S_TeEx
-Case SY_TL_Terminliste_OnTeReset: S_TeOn
-Case SY_TL_Terminliste_Terminfar: S_TeFa
 Case SY_TL_Terminliste_Document:
 Case SY_TL_Terminliste_Brief_Vor: STeNa 0
 Case SY_TL_Terminliste_Brief_Pat: STeNa 20

@@ -2268,33 +2268,9 @@ If GlCID <> vbNullString Then 'Cloud-ID
         End If
     
         If DocPf <> vbNullString Then
-            If GlOtL <> vbNullString Then 'Online-Terminbuchungs System Link für Datenschutzerklärung
-                If GlOIm <> vbNullString Then 'Online-Terminbuchungs System Link für Impressum
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            Else
-                If GlOIm <> vbNullString Then
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            End If
+            PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
         Else
-            If GlOtL <> vbNullString Then 'Online-Terminbuchungs System Link für Datenschutzerklärung
-                If GlOIm <> vbNullString Then 'Online-Terminbuchungs System Link für Impressum
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            Else
-                If GlOIm <> vbNullString Then
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                Else
-                    PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-                End If
-            End If
+            PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
         End If
 
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
@@ -2500,33 +2476,9 @@ If GlCID <> vbNullString Then 'Cloud-ID
     DaIni = GlTmp & IniNa
 
     If DocPf <> vbNullString Then
-        If GlOtL <> vbNullString Then 'Online-Terminbuchungs System Link für Datenschutzerklärung
-            If GlOIm <> vbNullString Then 'Online-Terminbuchungs System Link für Impressum
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            Else
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            End If
-        Else
-            If GlOIm <> vbNullString Then
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            Else
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            End If
-        End If
+        PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--pdf=" & Chr$(34) & DocPf & Chr$(34) & Space$(1) & "--signTitle=" & Chr$(34) & FrTit & Chr$(34) & Space$(1) & "--signDesc=" & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
     Else
-        If GlOtL <> vbNullString Then 'Online-Terminbuchungs System Link für Datenschutzerklärung
-            If GlOIm <> vbNullString Then 'Online-Terminbuchungs System Link für Impressum
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            Else
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--privacyUri=" & Chr$(34) & GlOtL & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            End If
-        Else
-            If GlOIm <> vbNullString Then
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--termsUri=" & Chr$(34) & GlOIm & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            Else
-                PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
-            End If
-        End If
+        PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
     End If
 
     WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
@@ -3995,7 +3947,7 @@ DoEvents
 
 '----------------------------------------------------------------------------------------------------
 
-GlStK = CInt(GlSet(2, 0))               'Standardgebï¿½hrenkatalog
+GlStK = CInt(GlSet(2, 0))               'StandardGebührenkatalog
 GlKe1 = CLng(GlSet(2, 1))               'Standardgebï¿½hrenkette 1
 GlKop = CInt(GlSet(2, 2))               'Anzahl Rechnungsausdrucke
 If Len(GlSet(1, 3)) > 0 Then
@@ -4015,11 +3967,11 @@ End If
 GlRMa = CBool(GlSet(4, 10))             'getrennter Mandentenrechnungsnummernkreis
 GlBMa = CBool(GlSet(4, 11))             'Getrennter Mandanten Belegnummernkreis
 GlOTS = CBool(GlSet(4, 12))             'Online-Terminbuchungs System aktivieren
-GlODi = CBool(GlSet(4, 13))             'Online-Terminbuchungs System Mitarbeiterwahl
-GlOTU = CStr(GlSet(1, 14))              'Online-Terminbuchungs Sytem Username
-GlOTP = SCrypt(GlSet(1, 15), False)     'Online-Terminbuchungs Sytem Password
+GlODi = CBool(GlSet(4, 13))             'Online-Termine Mitarbeiter-Dialog
+GlOTU = CStr(GlSet(1, 14))              'Online-Termine Username
+GlOTP = SCrypt(GlSet(1, 15), False)     'Online-Termine Passwort
 GlSeN = CStr(GlSet(1, 16))              'Online-Terminbuchungs Sytem Servername
-GlESy = CBool(GlSet(4, 17))             'CalDAV / CardDAV / Exchange Synchronisation
+GlESy = CBool(GlSet(4, 17))             'CalDAV / CardDAV Synchronisation
 GlStL = CInt(GlSet(2, 18))              'Standardlaborkatalog
 If Len(GlSet(1, 19)) > 0 Then
     GlStD = Right$(GlSet(1, 19), 1)     'Standraddezimaltrennzeichen
@@ -4046,12 +3998,11 @@ GlMVo = CBool(GlSet(4, 34))             'mandantenbezogene Vorgaben verwenden
 GlRSo = CBool(GlSet(4, 35))             'Die Raumzuordnung numerisch sortiert anzeigen
 GlAcI = CStr(GlSet(1, 36))              'SMS Account-ID
 GlAbs = CStr(GlSet(1, 37))              'SMS Absenderkennung
-GlOIm = CStr(GlSet(1, 38))              'Online-Terminbuchungs System Link fï¿½r Impressum
 GlTok = CStr(GlSet(1, 39))              'SMS Produkt Token
 GlPin = CBool(GlSet(4, 40))             'Online-Terminbuchungs System PIN
 GlPxV = CBool(GlSet(4, 41))             'Proxyserver verwenden
 GlPxN = CStr(GlSet(1, 42))              'Proxyserver Name
-GlGbK = CBool(GlSet(4, 43))             'PAD Gebï¿½hrenkatalog benennen
+GlGbK = CBool(GlSet(4, 43))             'PAD Gebührenkatalog benennen
 GlIgL = CBool(GlSet(4, 44))             'Keine Preisberechnung bei IgL
 GlPvM = CBool(GlSet(4, 45))             'Keine Positionskennzeichen bei Medikamenten und Begrï¿½ndungen
 GlSpB = CBool(GlSet(4, 46))             'Umsatzsteuer Splittbuchungen
@@ -4060,18 +4011,15 @@ GlDvB = CLng(GlSet(2, 48))              'DATEV Beraternummer
 GlDvM = CLng(GlSet(2, 49))              'DATEV Mandantennummer
 GlMaR = CStr(GlSet(1, 50))              'Mandant neue(s) Rechnung/Rezept
 GlTeZ = CBool(GlSet(4, 51))             'Terminzeit aus dem Terminbetreff verwenden
-GlBel = CBool(GlSet(4, 52))             'Online-Terminbuchungs System zeige belegte Buchungszeiten
+GlBel = CBool(GlSet(4, 52))             'Online-Termine belegte Terminzeiten
 GlOIC = CBool(GlSet(4, 53))             'Online-Terminbuchungs System ICS Datei
 GlGWF = CStr(GlSet(1, 54))              'Online-Terminbuchungs System Google Web Font
-GlOTr = CLng(GlSet(2, 55))              'Online-Terminbuchungs System allgemeine Textfarbe
-GlOHF = CLng(GlSet(2, 56))              'Online-Terminbuchungs System allgemeine Hintergrundfarbe
-GlOTG = CLng(GlSet(2, 57))              'Online-Terminbuchungs System allgemeine Textgrï¿½ï¿½e
-GlOBH = CLng(GlSet(2, 58))              'Online-Terminbuchungs System Button Hintergrundfarbe
-GlOBT = CLng(GlSet(2, 59))              'Online-Terminbuchungs System Button Textfarbe
-GlOBO = CLng(GlSet(2, 60))              'Online-Terminbuchungs System Button Hooverfarbe
-GlOBD = CLng(GlSet(2, 61))              'Online-Terminbuchungs System Button Deaktiviertfarbe
-GlOSe = CStr(GlSet(1, 62))              'Online-Terminbuchungs System Link Anschlussseite
-GlOtL = CStr(GlSet(1, 63))              'Online-Terminbuchungs System Link Datenschutzerklï¿½rung
+GlOTr = CLng(GlSet(2, 55))              'Online-Termine allgemeine Schriftfarbe
+GlOHF = CLng(GlSet(2, 56))              'Online-Termine allgemeine Hintergrundfarbe
+GlOBH = CLng(GlSet(2, 58))              'Online-Termine Button Hintergrundfarbe
+GlOBT = CLng(GlSet(2, 59))              'Online-Termine Button Schriftfarbe
+GlOBO = CLng(GlSet(2, 60))              'Online-Termine Button Hooverfarbe
+GlOBD = CLng(GlSet(2, 61))              'Online-Termine Button Deaktiviertfarbe
 GlStS = CInt(GlSet(2, 64))              'Standard-Steuersatz
 GlRst = CBool(GlSet(4, 65))             'Mandantenbezogene Datenbegrenzung
 GlIFo = CStr(GlSet(1, 66))              'LDT Import-Zeichensatz
@@ -4084,7 +4032,7 @@ GlGDD = CBool(GlSet(4, 72))             'GDT-Speicherung ohne Speichern-Dialog
 GlGDn = CStr(GlSet(1, 73))              'Dateiname der GDT Exportdatei
 GlKe2 = CLng(GlSet(2, 74))              'Standardgebï¿½hrenkette 2
 GlSpT = CBool(GlSet(4, 75))             'Starre oder flexible Sprechzeiten verwenden
-GlBuc = CBool(GlSet(4, 76))             'einfache Buchfï¿½hrung verwenden
+GlBuc = CBool(GlSet(4, 76))             'einfache Buchführung verwenden
 GlNoM = CBool(GlSet(4, 77))             'Datenbankscripting aktivieren
 GlSKo = CLng(GlSet(1, 78))              'Standardsteuerkonto
 GlOTA = CBool(GlSet(4, 79))             'Online-Terminbuchungs System Adressenerfassung
@@ -4099,7 +4047,6 @@ GlDPr = CStr(GlSet(1, 87))              'Prï¿½fung bereits vorhandener Diagnosen
 GlTeE = CBool(GlSet(4, 88))             'Email-Termin-Erinnerung
 GlOtW = CBool(GlSet(4, 89))             'Online-Terminbuchungs System Warteliste
 GlASM = CBool(GlSet(4, 90))             'Automatische SMS Terminerinnerung
-GlOTK = CBool(GlSet(4, 91))             'Online-Terminbuchungs System autom. Aktualisierung
 GlDeT = CBool(GlSet(4, 92))             'Stornierte Termine Termindetails
 GlTSN = CStr(GlSet(1, 93))              'TSE Kennung
 GLTSL = CStr(GlSet(1, 94))              'TSE Laufwerk
@@ -4135,14 +4082,8 @@ Else
     TmSt2 = Val(Left$(GlSet(1, 25), 4))
 End If
 
-GlSE1 = SBuFo(CLng(TmSt1)) 'Standarderlï¿½skonto (Kasse)
-GlSE2 = SBuFo(CLng(TmSt2)) 'Standarderlï¿½skonto (Bankkonto)
-
-GesLe = Len(GlOSe) + Len(GlOtL)
-If GesLe > 180 Then 'Online-Terminbuchungs System Beschriftung und Link Datenschutzerklï¿½rung
-    NeuLe = GesLe - 180
-    GlOSe = Left(GlOSe, NeuLe)
-End If
+GlSE1 = SBuFo(CLng(TmSt1)) 'Standarderlöskonto (Kasse)
+GlSE2 = SBuFo(CLng(TmSt2)) 'Standarderlöskonto (Bankkonto)
 
 If GlStK = 0 Then
     GlStK = 1
@@ -4437,17 +4378,17 @@ If GesZa > 0 Then
     GlThe(AktZa, 25) = CBool(RS152.Fields("Passiv").Value)
     If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
         If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-            GlThe(AktZa, 24) = GlSZe 'Sprechzietenstring
+            GlThe(AktZa, 24) = GlSZe 'Sprechzeitenstring
         Else
             GlThe(AktZa, 24) = RS152.Fields("Sprechzeiten").Value
         End If
     Else
-        GlThe(AktZa, 24) = GlSZe 'Sprechzietenstring
+        GlThe(AktZa, 24) = GlSZe 'Sprechzeitenstring
     End If
     If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
         GlThe(AktZa, 37) = RS152.Fields("Buchungszeiten").Value
     Else
-        GlThe(AktZa, 37) = GlSZe 'Sprechzietenstring
+        GlThe(AktZa, 37) = GlSZe 'Sprechzeitenstring
     End If
     If RS152.Fields("OnlRas").Value <> vbNullString Then
         GlThe(AktZa, 26) = Format$(RS152.Fields("OnlRas").Value, "00")
@@ -6779,7 +6720,7 @@ GlMiK(1, 2) = 1
 GlMiK(1, 3) = "Name"
 GlMiK(1, 4) = "Vorname"
 GlMiK(1, 5) = False
-GlMiK(1, 6) = GlSZe 'Sprechzietenstring
+GlMiK(1, 6) = GlSZe 'Sprechzeitenstring
 GlMiK(1, 7) = 0
 GlMiK(1, 8) = GlZeR 'Zeitrasterindex
 GlMiK(1, 9) = vbNullString
@@ -6797,7 +6738,7 @@ GlMiK(1, 20) = vbNullString
 GlMiK(1, 21) = 0
 GlMiK(1, 22) = "Emailadresse"
 GlMiK(1, 23) = "Titel"
-GlMiK(1, 24) = GlSZe 'Sprechzietenstring
+GlMiK(1, 24) = GlSZe 'Sprechzeitenstring
 GlMiK(1, 25) = "Signaturdatei"
 GlMiK(1, 26) = GlZeR 'Onlinezeitrasterindex
 GlMiK(1, 27) = vbNullString
@@ -6826,7 +6767,7 @@ GlMiA(1, 2) = 1
 GlMiA(1, 3) = "Name"
 GlMiA(1, 4) = "Vorname"
 GlMiA(1, 5) = False
-GlMiA(1, 6) = GlSZe 'Sprechzietenstring
+GlMiA(1, 6) = GlSZe 'Sprechzeitenstring
 GlMiA(1, 7) = 0
 GlMiA(1, 8) = Format$(GlZeR, "00") 'Zeitrasterindex
 GlMiA(1, 9) = vbNullString
@@ -6844,7 +6785,7 @@ GlMiA(1, 20) = vbNullString
 GlMiA(1, 21) = 0
 GlMiA(1, 22) = "Emailadresse"
 GlMiA(1, 23) = "Titel"
-GlMiA(1, 24) = GlSZe 'Sprechzietenstring
+GlMiA(1, 24) = GlSZe 'Sprechzeitenstring
 GlMiA(1, 25) = "Signaturdatei"
 GlMiA(1, 26) = GlZeR 'Onlinezeitrasterindex
 GlMiA(1, 27) = vbNullString
@@ -6873,7 +6814,7 @@ GlMiT(1, 2) = 1
 GlMiT(1, 3) = "Name"
 GlMiT(1, 4) = "Vorname"
 GlMiT(1, 5) = False
-GlMiT(1, 6) = GlSZe 'Sprechzietenstring
+GlMiT(1, 6) = GlSZe 'Sprechzeitenstring
 GlMiT(1, 7) = 0
 GlMiT(1, 8) = Format$(GlZeR, "00") 'Zeitrasterindex
 GlMiT(1, 9) = vbNullString
@@ -6891,7 +6832,7 @@ GlMiT(1, 20) = vbNullString
 GlMiT(1, 21) = 0
 GlMiT(1, 22) = "Emailadresse"
 GlMiT(1, 23) = "Titel"
-GlMiT(1, 24) = GlSZe 'Sprechzietenstring
+GlMiT(1, 24) = GlSZe 'Sprechzeitenstring
 GlMiT(1, 25) = "Signaturdatei"
 GlMiT(1, 26) = GlZeR 'Onlinezeitrasterindex
 GlMiT(1, 27) = vbNullString
@@ -6920,7 +6861,7 @@ GlMiO(1, 2) = 1
 GlMiO(1, 3) = "Name"
 GlMiO(1, 4) = "Vorname"
 GlMiO(1, 5) = False
-GlMiO(1, 6) = GlSZe 'Sprechzietenstring
+GlMiO(1, 6) = GlSZe 'Sprechzeitenstring
 GlMiO(1, 7) = 0
 GlMiO(1, 8) = Format$(GlZeR, "00") 'Zeitrasterindex
 GlMiO(1, 9) = vbNullString
@@ -6938,7 +6879,7 @@ GlMiO(1, 20) = vbNullString
 GlMiO(1, 21) = 0
 GlMiO(1, 22) = "Emailadresse"
 GlMiO(1, 23) = "Titel"
-GlMiO(1, 24) = GlSZe 'Sprechzietenstring
+GlMiO(1, 24) = GlSZe 'Sprechzeitenstring
 GlMiO(1, 25) = "Signaturdatei"
 GlMiO(1, 26) = GlZeR 'Onlinezeitrasterindex
 GlMiO(1, 27) = vbNullString
@@ -6985,7 +6926,7 @@ GlThe(1, 20) = "Bank2"
 GlThe(1, 21) = "BLZ2"
 GlThe(1, 22) = "Konto2"
 GlThe(1, 23) = "IBAN2"
-GlThe(1, 24) = GlSZe 'Sprechzietenstring
+GlThe(1, 24) = GlSZe 'Sprechzeitenstring
 GlThe(1, 25) = False
 GlThe(1, 26) = GlZeR 'Zeitrasterindex
 GlThe(1, 27) = GlZeR 'Zeitrasterindex
@@ -7025,8 +6966,8 @@ GlMan(1, 2) = 1
 GlMan(1, 3) = "Name"
 GlMan(1, 4) = "Vorname"
 GlMan(1, 5) = False
-GlMan(1, 6) = GlSZe 'Sprechzietenstring
-GlMan(1, 21) = GlSZe 'Sprechzietenstring
+GlMan(1, 6) = GlSZe 'Sprechzeitenstring
+GlMan(1, 21) = GlSZe 'Sprechzeitenstring
 GlMan(1, 7) = "LANR"
 GlMan(1, 8) = GlZeR 'Zeitrasterindex
 GlMan(1, 9) = vbNullString
@@ -7072,8 +7013,8 @@ GlMaT(1, 2) = 1
 GlMaT(1, 3) = "Name"
 GlMaT(1, 4) = "Vorname"
 GlMaT(1, 5) = False
-GlMaT(1, 6) = GlSZe 'Sprechzietenstring
-GlMaT(1, 21) = GlSZe 'Sprechzietenstring
+GlMaT(1, 6) = GlSZe 'Sprechzeitenstring
+GlMaT(1, 21) = GlSZe 'Sprechzeitenstring
 GlMaT(1, 7) = "LANR"
 GlMaT(1, 8) = GlZeR 'Zeitrasterindex
 GlMaT(1, 9) = vbNullString
@@ -7119,8 +7060,8 @@ GlMaO(1, 2) = 1
 GlMaO(1, 3) = "Name"
 GlMaO(1, 4) = "Vorname"
 GlMaO(1, 5) = False
-GlMaO(1, 6) = GlSZe 'Sprechzietenstring
-GlMaO(1, 21) = GlSZe 'Sprechzietenstring
+GlMaO(1, 6) = GlSZe 'Sprechzeitenstring
+GlMaO(1, 21) = GlSZe 'Sprechzeitenstring
 GlMaO(1, 7) = "LANR"
 GlMaO(1, 8) = GlZeR 'Zeitrasterindex
 GlMaO(1, 9) = vbNullString
@@ -7423,12 +7364,12 @@ If GesZa > 0 Then
     GlMan(AktZa, 5) = CBool(RS152.Fields("Passiv").Value)
     If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
         If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-            GlMan(AktZa, 6) = GlSZe 'Sprechzietenstring
+            GlMan(AktZa, 6) = GlSZe 'Sprechzeitenstring
         Else
             GlMan(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
         End If
     Else
-        GlMan(AktZa, 6) = GlSZe 'Sprechzietenstring
+        GlMan(AktZa, 6) = GlSZe 'Sprechzeitenstring
     End If
     If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
         GlMan(AktZa, 21) = RS152.Fields("Buchungszeiten").Value
@@ -7604,12 +7545,12 @@ If GesZa > 0 Then
             GlMaA(AktZa, 5) = CBool(RS152.Fields("Passiv").Value)
             If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
                 If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-                    GlMaA(AktZa, 6) = GlSZe 'Sprechzietenstring
+                    GlMaA(AktZa, 6) = GlSZe 'Sprechzeitenstring
                 Else
                     GlMaA(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
                 End If
             Else
-                GlMaA(AktZa, 6) = GlSZe 'Sprechzietenstring
+                GlMaA(AktZa, 6) = GlSZe 'Sprechzeitenstring
             End If
             If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
                 GlMaA(AktZa, 21) = RS152.Fields("Buchungszeiten").Value
@@ -7783,17 +7724,17 @@ If GesZa > 0 Then
                 GlMaT(AktZa, 5) = CBool(RS152.Fields("Passiv").Value)
                 If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
                     If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-                        GlMaT(AktZa, 6) = GlSZe 'Sprechzietenstring
+                        GlMaT(AktZa, 6) = GlSZe 'Sprechzeitenstring
                     Else
                         GlMaT(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
                     End If
                 Else
-                    GlMaT(AktZa, 6) = GlSZe 'Sprechzietenstring
+                    GlMaT(AktZa, 6) = GlSZe 'Sprechzeitenstring
                 End If
                 If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
                     GlMaT(AktZa, 21) = RS152.Fields("Buchungszeiten").Value
                 Else
-                    GlMaT(AktZa, 21) = GlSZe 'Sprechzietenstring
+                    GlMaT(AktZa, 21) = GlSZe 'Sprechzeitenstring
                 End If
                 If RS152.Fields("OnlRas").Value <> vbNullString Then
                     GlMaT(AktZa, 8) = Format$(RS152.Fields("OnlRas").Value, "00")
@@ -7957,17 +7898,17 @@ If GesZa > 0 Then
                         GlMaO(AktZa, 5) = CBool(RS152.Fields("Passiv").Value)
                         If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
                             If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-                                GlMaO(AktZa, 6) = GlSZe 'Sprechzietenstring
+                                GlMaO(AktZa, 6) = GlSZe 'Sprechzeitenstring
                             Else
                                 GlMaO(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
                             End If
                         Else
-                            GlMaO(AktZa, 6) = GlSZe 'Sprechzietenstring
+                            GlMaO(AktZa, 6) = GlSZe 'Sprechzeitenstring
                         End If
                         If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
                             GlMaO(AktZa, 21) = RS152.Fields("Buchungszeiten").Value
                         Else
-                            GlMaO(AktZa, 21) = GlSZe 'Sprechzietenstring
+                            GlMaO(AktZa, 21) = GlSZe 'Sprechzeitenstring
                         End If
                         If RS152.Fields("OnlRas").Value <> vbNullString Then
                             GlMaO(AktZa, 8) = Format$(RS152.Fields("OnlRas").Value, "00")
@@ -8133,12 +8074,12 @@ If GesZa > 0 Then
     GlMiK(AktZa, 5) = RS152.Fields("Passiv").Value
     If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
         If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-            GlMiK(AktZa, 6) = GlSZe 'Sprechzietenstring
+            GlMiK(AktZa, 6) = GlSZe 'Sprechzeitenstring
         Else
             GlMiK(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
         End If
     Else
-        GlMiK(AktZa, 6) = GlSZe 'Sprechzietenstring
+        GlMiK(AktZa, 6) = GlSZe 'Sprechzeitenstring
     End If
     If RS152.Fields("IDP").Value <> vbNullString Then
         GlMiK(AktZa, 7) = RS152.Fields("IDP").Value 'zugeordneter Mandant
@@ -8148,7 +8089,7 @@ If GesZa > 0 Then
     If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
         GlMiK(AktZa, 24) = RS152.Fields("Buchungszeiten").Value
     Else
-        GlMiK(AktZa, 24) = GlSZe 'Sprechzietenstring
+        GlMiK(AktZa, 24) = GlSZe 'Sprechzeitenstring
     End If
     If RS152.Fields("OnlRas").Value <> vbNullString Then
         If IsNumeric(RS152.Fields("OnlRas").Value) = True Then
@@ -8284,12 +8225,12 @@ If GesZa > 0 Then
             GlMiA(AktZa, 5) = RS152.Fields("Passiv").Value
             If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
                 If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-                    GlMiA(AktZa, 6) = GlSZe 'Sprechzietenstring
+                    GlMiA(AktZa, 6) = GlSZe 'Sprechzeitenstring
                 Else
                     GlMiA(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
                 End If
             Else
-                GlMiA(AktZa, 6) = GlSZe 'Sprechzietenstring
+                GlMiA(AktZa, 6) = GlSZe 'Sprechzeitenstring
             End If
             If RS152.Fields("IDP").Value <> vbNullString Then
                 GlMiA(AktZa, 7) = RS152.Fields("IDP").Value 'zugeordneter Mandant
@@ -8299,7 +8240,7 @@ If GesZa > 0 Then
             If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
                 GlMiA(AktZa, 24) = RS152.Fields("Buchungszeiten").Value
             Else
-                GlMiA(AktZa, 24) = GlSZe 'Sprechzietenstring
+                GlMiA(AktZa, 24) = GlSZe 'Sprechzeitenstring
             End If
             If RS152.Fields("OnlRas").Value <> vbNullString Then
                 If IsNumeric(RS152.Fields("OnlRas").Value) = True Then
@@ -8409,17 +8350,17 @@ If GesZa > 0 Then
                 End If
                 If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
                     If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-                        GlMiT(AktZa, 6) = GlSZe 'Sprechzietenstring
+                        GlMiT(AktZa, 6) = GlSZe 'Sprechzeitenstring
                     Else
                         GlMiT(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
                     End If
                 Else
-                    GlMiT(AktZa, 6) = GlSZe 'Sprechzietenstring
+                    GlMiT(AktZa, 6) = GlSZe 'Sprechzeitenstring
                 End If
                 If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
                     GlMiT(AktZa, 24) = RS152.Fields("Buchungszeiten").Value
                 Else
-                    GlMiT(AktZa, 24) = GlSZe 'Sprechzietenstring
+                    GlMiT(AktZa, 24) = GlSZe 'Sprechzeitenstring
                 End If
                 If RS152.Fields("OnlRas").Value <> vbNullString Then
                     If IsNumeric(RS152.Fields("OnlRas").Value) = True Then
@@ -8511,7 +8452,7 @@ If GesZa > 0 Then
     
     AktZa = 1
     RS152.MoveFirst
-'üüü
+
     If AnMiO > 0 Then
         ReDim GlMiO(AnMiO, 40) 'aktive Mitarbeier + Terminspalte + OTS
         Do
@@ -8532,17 +8473,17 @@ If GesZa > 0 Then
                         End If
                         If RS152.Fields("Sprechzeiten").Value <> vbNullString Then
                             If Len(RS152.Fields("Sprechzeiten").Value) < 100 Then
-                                GlMiO(AktZa, 6) = GlSZe 'Sprechzietenstring
+                                GlMiO(AktZa, 6) = GlSZe 'Sprechzeitenstring
                             Else
                                 GlMiO(AktZa, 6) = RS152.Fields("Sprechzeiten").Value
                             End If
                         Else
-                            GlMiO(AktZa, 6) = GlSZe 'Sprechzietenstring
+                            GlMiO(AktZa, 6) = GlSZe 'Sprechzeitenstring
                         End If
                         If RS152.Fields("Buchungszeiten").Value <> vbNullString Then
                             GlMiO(AktZa, 24) = RS152.Fields("Buchungszeiten").Value
                         Else
-                            GlMiO(AktZa, 24) = GlSZe 'Sprechzietenstring
+                            GlMiO(AktZa, 24) = GlSZe 'Sprechzeitenstring
                         End If
                         If RS152.Fields("OnlRas").Value <> vbNullString Then
                             If IsNumeric(RS152.Fields("OnlRas").Value) = True Then
@@ -9042,7 +8983,7 @@ Case "pst":
                     .Save
                 End With
                 DoEvents
-                If GlESy = True Then 'CalDAV / CardDAV / Exchange Synchronisation
+                If GlESy = True Then 'CalDAV / CardDAV Synchronisation
                     DBCmEx1 "qryTerRep1", "@IdxNr", TerNr
                 End If
                 DoEvents

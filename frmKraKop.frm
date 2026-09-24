@@ -650,7 +650,7 @@ If RpSel.Count > 0 Then
         NeuDa = CDate(RpRow.Record(RpCol.ItemIndex).Value)
         With DaPi1
             .EnsureVisible NeuDa
-            DayFi = .FirstDayOfWeek
+            DayFi = .FirstVisibleDay
             DayLa = .LastVisibleDay
         End With
         S_AbTe DayFi, DayLa
@@ -944,7 +944,7 @@ If RpSel.Count > 0 Then
             AktTa = 0
             AnzBl = DaPi1.Selection.BlocksCount
             With DaPi1
-                DayFi = .FirstDayOfWeek
+                DayFi = .FirstVisibleDay
                 DayLa = .LastVisibleDay
             End With
             If AnzBl = 1 Then
@@ -1128,7 +1128,7 @@ Dim DayLa As Date
 Set DaPi1 = Me.dtpDatu1
 
 With DaPi1
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 

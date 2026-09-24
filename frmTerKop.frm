@@ -2879,7 +2879,7 @@ Dim DayLa As Date
 Set DaPi1 = Me.dtpDatu1
 
 With DaPi1
-    DayFi = .FirstDayOfWeek
+    DayFi = .FirstVisibleDay
     DayLa = .LastVisibleDay
 End With
 
