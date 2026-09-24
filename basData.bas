@@ -4838,7 +4838,7 @@ End Sub
 
 Public Sub S_BaGen()
 On Error GoTo LiErr
-'Generiert die Buchungen aus zugeordneten Umsï¿½tzen
+'Generiert die Buchungen aus zugeordneten Umsätzen
 
 Dim BuDat As Date
 Dim KtoID As Long
@@ -4927,7 +4927,7 @@ If AnzPo > 1 Then
     Screen.MousePointer = vbHourglass
     DoEvents
 
-    For AktZa = 1 To UBound(GlErK) 'Erlï¿½skonten
+    For AktZa = 1 To UBound(GlErK) 'Erlöskonten
         If GlErK(AktZa, 0) = GlSE2 Then 'Standarderlöskonto Bankkonto
             KtNum = GlErK(AktZa, 0)
             KtStr = GlErK(AktZa, 2)
@@ -5185,7 +5185,7 @@ If AnzPo > 1 Then
             If GlMVo = True Then 'mandantenbezogene Vorgaben verwenden
                 For AktZa = 1 To UBound(GlMan)
                     If ManNr = GlMan(AktZa, 2) Then 'Mandantennummer
-                        If GlMan(AktZa, 26) <> vbNullString Then KtIDI = GlMan(AktZa, 26) 'Erlï¿½skonto Bank
+                        If GlMan(AktZa, 26) <> vbNullString Then KtIDI = GlMan(AktZa, 26) 'Erlöskonto Bank
                         If GlMan(AktZa, 37) <> vbNullString Then StKID = GlMan(AktZa, 37) 'Steuerkonto
                         Exit For
                     End If
@@ -5294,7 +5294,7 @@ If AnzPo > 1 Then
                                 If ReNu1 > 0 Then
                                     If OpNu1 > 0 Then
                                         BetBu = 0
-                                        Warun = CInt(S_OPIdx(OpNu1, "Wï¿½hrung"))
+                                        Warun = CInt(S_OPIdx(OpNu1, "Währung"))
                                         DoEvents
                                         Set RS130 = New ADODB.Recordset
                                         RS130.CursorLocation = adUseClient
@@ -5350,7 +5350,7 @@ If AnzPo > 1 Then
                                                 RS121.Fields("Steuer").Value = KoStu
                                                 RS121.Fields("Buchtext").Value = BuTex
                                                 RS121.Fields("Selekt").Value = True
-                                                RS121.Fields("Wï¿½hrung").Value = Warun
+                                                RS121.Fields("Währung").Value = Warun
                                                 RS121.Fields("Beleg").Value = BuBel
                                                 RS121.Fields("Datum").Value = BuDat
                                                 RS121.Fields("Einnahme").Value = BetBu
@@ -5368,7 +5368,7 @@ If AnzPo > 1 Then
     
                                         If ReNu2 > 0 Then
                                             BetBu = 0
-                                            Warun = CInt(S_OPIdx(OpNu2, "Wï¿½hrung"))
+                                            Warun = CInt(S_OPIdx(OpNu2, "Währung"))
                                             DoEvents
                                             Set RS130 = New ADODB.Recordset
                                             RS130.CursorLocation = adUseClient
@@ -5420,7 +5420,7 @@ If AnzPo > 1 Then
                                                     RS121.Fields("Steuer").Value = KoStu
                                                     RS121.Fields("Buchtext").Value = BuTex
                                                     RS121.Fields("Selekt").Value = True
-                                                    RS121.Fields("Wï¿½hrung").Value = Warun
+                                                    RS121.Fields("Währung").Value = Warun
                                                     RS121.Fields("Beleg").Value = BuBel
                                                     RS121.Fields("Datum").Value = BuDat
                                                     RS121.Fields("Einnahme").Value = BetBu
@@ -5438,7 +5438,7 @@ If AnzPo > 1 Then
         
                                             If ReNu3 > 0 Then
                                                 BetBu = 0
-                                                Warun = CInt(S_OPIdx(OpNu3, "Wï¿½hrung"))
+                                                Warun = CInt(S_OPIdx(OpNu3, "Währung"))
                                                 DoEvents
                                                 Set RS130 = New ADODB.Recordset
                                                 RS130.CursorLocation = adUseClient
@@ -5490,7 +5490,7 @@ If AnzPo > 1 Then
                                                         RS121.Fields("Steuer").Value = KoStu
                                                         RS121.Fields("Buchtext").Value = BuTex
                                                         RS121.Fields("Selekt").Value = True
-                                                        RS121.Fields("Wï¿½hrung").Value = Warun
+                                                        RS121.Fields("Währung").Value = Warun
                                                         RS121.Fields("Beleg").Value = BuBel
                                                         RS121.Fields("Datum").Value = BuDat
                                                         RS121.Fields("Einnahme").Value = BetBu
@@ -5508,7 +5508,7 @@ If AnzPo > 1 Then
         
                                                 If ReNu4 > 0 Then
                                                     BetBu = 0
-                                                    Warun = CInt(S_OPIdx(OpNu4, "Wï¿½hrung"))
+                                                    Warun = CInt(S_OPIdx(OpNu4, "Währung"))
                                                     DoEvents
                                                     Set RS130 = New ADODB.Recordset
                                                     RS130.CursorLocation = adUseClient
@@ -5560,7 +5560,7 @@ If AnzPo > 1 Then
                                                             RS121.Fields("Steuer").Value = KoStu
                                                             RS121.Fields("Buchtext").Value = BuTex
                                                             RS121.Fields("Selekt").Value = True
-                                                            RS121.Fields("Wï¿½hrung").Value = Warun
+                                                            RS121.Fields("Währung").Value = Warun
                                                             RS121.Fields("Beleg").Value = BuBel
                                                             RS121.Fields("Datum").Value = BuDat
                                                             RS121.Fields("Einnahme").Value = BetBu
@@ -5578,7 +5578,7 @@ If AnzPo > 1 Then
         
                                                     If ReNu5 > 0 Then
                                                         BetBu = 0
-                                                        Warun = CInt(S_OPIdx(OpNu5, "Wï¿½hrung"))
+                                                        Warun = CInt(S_OPIdx(OpNu5, "Währung"))
                                                         DoEvents
                                                         Set RS130 = New ADODB.Recordset
                                                         RS130.CursorLocation = adUseClient
@@ -5630,7 +5630,7 @@ If AnzPo > 1 Then
                                                                 RS121.Fields("Steuer").Value = KoStu
                                                                 RS121.Fields("Buchtext").Value = BuTex
                                                                 RS121.Fields("Selekt").Value = True
-                                                                RS121.Fields("Wï¿½hrung").Value = Warun
+                                                                RS121.Fields("Währung").Value = Warun
                                                                 RS121.Fields("Beleg").Value = BuBel
                                                                 RS121.Fields("Datum").Value = BuDat
                                                                 RS121.Fields("Einnahme").Value = BetBu
@@ -5651,7 +5651,7 @@ If AnzPo > 1 Then
                                             End If
                                         End If
                                     Else
-                                        SPopu "Kein gï¿½ltiger offener Posten", "Dieser Buchung ist kein gï¿½ltiger offener Posten zugeordnet!", IC48_Forbidden
+                                        SPopu "Kein gültiger offener Posten", "Dieser Buchung ist kein gültiger offener Posten zugeordnet!", IC48_Forbidden
                                     End If
                                 End If
     
@@ -5660,7 +5660,7 @@ If AnzPo > 1 Then
                                 If ReNu1 > 0 Then
                                     BetBu = 0
                                     If OpNu1 > 0 Then
-                                        Warun = CInt(S_OPIdx(OpNu1, "Wï¿½hrung"))
+                                        Warun = CInt(S_OPIdx(OpNu1, "Währung"))
                                         KoStu = CSng(S_OPIdx(OpNu1, "Steuer"))
                                         DoEvents
                                         BuBel = S_BuBel(ManNr, BuJah, GeKId)
@@ -5700,7 +5700,7 @@ If AnzPo > 1 Then
                                             RS121.Fields("Steuer").Value = KoStu
                                             RS121.Fields("Buchtext").Value = BuTex
                                             RS121.Fields("Selekt").Value = True
-                                            RS121.Fields("Wï¿½hrung").Value = Warun
+                                            RS121.Fields("Währung").Value = Warun
                                             RS121.Fields("Beleg").Value = BuBel
                                             RS121.Fields("Datum").Value = BuDat 'Kontoauszugsdatum
                                             RS121.Fields("GuiID").Value = BaGui
@@ -5717,7 +5717,7 @@ If AnzPo > 1 Then
         
                                         If ReNu2 > 0 Then
                                             BetBu = 0
-                                            Warun = CInt(S_OPIdx(OpNu2, "Wï¿½hrung"))
+                                            Warun = CInt(S_OPIdx(OpNu2, "Währung"))
                                             KoStu = CSng(S_OPIdx(OpNu2, "Steuer"))
                                             DoEvents
                                             BuBel = S_BuBel(ManNr, BuJah, GeKId)
@@ -5757,7 +5757,7 @@ If AnzPo > 1 Then
                                                 RS121.Fields("Steuer").Value = KoStu
                                                 RS121.Fields("Buchtext").Value = BuTex
                                                 RS121.Fields("Selekt").Value = True
-                                                RS121.Fields("Wï¿½hrung").Value = Warun
+                                                RS121.Fields("Währung").Value = Warun
                                                 RS121.Fields("Beleg").Value = BuBel
                                                 RS121.Fields("Datum").Value = BuDat 'Kontoauszugsdatum
                                                 If ReNu3 > 0 Then
@@ -5774,7 +5774,7 @@ If AnzPo > 1 Then
                                             
                                             If ReNu3 > 0 Then
                                                 BetBu = 0
-                                                Warun = CInt(S_OPIdx(OpNu3, "Wï¿½hrung"))
+                                                Warun = CInt(S_OPIdx(OpNu3, "Währung"))
                                                 KoStu = CSng(S_OPIdx(OpNu3, "Steuer"))
                                                 DoEvents
                                                 BuBel = S_BuBel(ManNr, BuJah, GeKId)
@@ -5814,7 +5814,7 @@ If AnzPo > 1 Then
                                                     RS121.Fields("Steuer").Value = KoStu
                                                     RS121.Fields("Buchtext").Value = BuTex
                                                     RS121.Fields("Selekt").Value = True
-                                                    RS121.Fields("Wï¿½hrung").Value = Warun
+                                                    RS121.Fields("Währung").Value = Warun
                                                     RS121.Fields("Beleg").Value = BuBel
                                                     RS121.Fields("Datum").Value = BuDat 'Kontoauszugsdatum
                                                     If ReNu4 > 0 Then
@@ -5831,7 +5831,7 @@ If AnzPo > 1 Then
                                                 
                                                 If ReNu4 > 0 Then
                                                     BetBu = 0
-                                                    Warun = CInt(S_OPIdx(OpNu4, "Wï¿½hrung"))
+                                                    Warun = CInt(S_OPIdx(OpNu4, "Währung"))
                                                     KoStu = CSng(S_OPIdx(OpNu4, "Steuer"))
                                                     DoEvents
                                                     BuBel = S_BuBel(ManNr, BuJah, GeKId)
@@ -5871,7 +5871,7 @@ If AnzPo > 1 Then
                                                         RS121.Fields("Steuer").Value = KoStu
                                                         RS121.Fields("Buchtext").Value = BuTex
                                                         RS121.Fields("Selekt").Value = True
-                                                        RS121.Fields("Wï¿½hrung").Value = Warun
+                                                        RS121.Fields("Währung").Value = Warun
                                                         RS121.Fields("Beleg").Value = BuBel
                                                         RS121.Fields("Datum").Value = BuDat 'Kontoauszugsdatum
                                                         If ReNu5 > 0 Then
@@ -5888,7 +5888,7 @@ If AnzPo > 1 Then
                                                     
                                                     If ReNu5 > 0 Then
                                                         BetBu = 0
-                                                        Warun = CInt(S_OPIdx(OpNu5, "Wï¿½hrung"))
+                                                        Warun = CInt(S_OPIdx(OpNu5, "Währung"))
                                                         KoStu = CSng(S_OPIdx(OpNu5, "Steuer"))
                                                         DoEvents
                                                         BuBel = S_BuBel(ManNr, BuJah, GeKId)
@@ -5928,7 +5928,7 @@ If AnzPo > 1 Then
                                                             RS121.Fields("Steuer").Value = KoStu
                                                             RS121.Fields("Buchtext").Value = BuTex
                                                             RS121.Fields("Selekt").Value = True
-                                                            RS121.Fields("Wï¿½hrung").Value = Warun
+                                                            RS121.Fields("Währung").Value = Warun
                                                             RS121.Fields("Beleg").Value = BuBel
                                                             RS121.Fields("Datum").Value = BuDat 'Kontoauszugsdatum
                                                             RS121.Fields("Einnahme").Value = BetBu
@@ -5944,7 +5944,7 @@ If AnzPo > 1 Then
                                             End If
                                         End If
                                     Else
-                                        SPopu "Kein gï¿½ltiger offener Posten", "Dieser Buchung ist kein gï¿½ltiger offener Posten zugeordnet!", IC48_Forbidden
+                                        SPopu "Kein gültiger offener Posten", "Dieser Buchung ist kein gültiger offener Posten zugeordnet!", IC48_Forbidden
                                     End If
                                 End If
                             End If

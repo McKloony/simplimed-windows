@@ -3199,7 +3199,7 @@ If GesZa > 0 Then
         If GesZa = 19 Then 'bestehenden Wert anpassen
             S_SeSe 19, , , , False
             S_SeSe 19, , 1
-        ElseIf GesZa = 18 Then 'eine fehlende Einstellung hinzufï¿½gen
+        ElseIf GesZa = 18 Then 'eine fehlende Einstellung hinzufügen
             DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", "1108#Standard-Laborkatalog", vbNullString, 1, 0, 0
         End If
         DoEvents
@@ -3948,7 +3948,7 @@ DoEvents
 '----------------------------------------------------------------------------------------------------
 
 GlStK = CInt(GlSet(2, 0))               'StandardGebührenkatalog
-GlKe1 = CLng(GlSet(2, 1))               'Standardgebï¿½hrenkette 1
+GlKe1 = CLng(GlSet(2, 1))               'Standardgebührenkette 1
 GlKop = CInt(GlSet(2, 2))               'Anzahl Rechnungsausdrucke
 If Len(GlSet(1, 3)) > 0 Then
     GlRFm = Right$(GlSet(1, 3), 1)      'Rechnungsnummernformatierung
@@ -3991,9 +3991,9 @@ GlGkK = CInt(GlSet(2, 27))              'Standardgeldkonto (Kasse)
 GlSSt = CBool(GlSet(4, 28))             'Starre Termintaktung
 GlMPl = CBool(GlSet(4, 29))             'Mitarbeiterplan anstelle von Mandantenplam
 GlReT = CStr(GlSet(1, 30))              'Standard-Belegtyp
-GlStW = CInt(GlSet(2, 31))              'Standardwï¿½hrung
+GlStW = CInt(GlSet(2, 31))              'Standardwährung
 GlKnF = CBool(GlSet(4, 32))             'Sachkontenformatierung sechsstellig
-GlPzn = CBool(GlSet(4, 33))             'PZN Einfï¿½gen
+GlPzn = CBool(GlSet(4, 33))             'PZN Einfügen
 GlMVo = CBool(GlSet(4, 34))             'mandantenbezogene Vorgaben verwenden
 GlRSo = CBool(GlSet(4, 35))             'Die Raumzuordnung numerisch sortiert anzeigen
 GlAcI = CStr(GlSet(1, 36))              'SMS Account-ID
@@ -4004,7 +4004,7 @@ GlPxV = CBool(GlSet(4, 41))             'Proxyserver verwenden
 GlPxN = CStr(GlSet(1, 42))              'Proxyserver Name
 GlGbK = CBool(GlSet(4, 43))             'PAD Gebührenkatalog benennen
 GlIgL = CBool(GlSet(4, 44))             'Keine Preisberechnung bei IgL
-GlPvM = CBool(GlSet(4, 45))             'Keine Positionskennzeichen bei Medikamenten und Begrï¿½ndungen
+GlPvM = CBool(GlSet(4, 45))             'Keine Positionskennzeichen bei Medikamenten und Begründungen
 GlSpB = CBool(GlSet(4, 46))             'Umsatzsteuer Splittbuchungen
 GldKt = CBool(GlSet(4, 47))             'DATEV Sachkonten vierstellig
 GlDvB = CLng(GlSet(2, 48))              'DATEV Beraternummer
@@ -4030,7 +4030,7 @@ GlEKr = CBool(GlSet(4, 70))             'Dokumentiert Emails in Krankenblatt
 GlGDM = CBool(GlSet(4, 71))             'Mitarbeiternummer als GDT-Dateiname
 GlGDD = CBool(GlSet(4, 72))             'GDT-Speicherung ohne Speichern-Dialog
 GlGDn = CStr(GlSet(1, 73))              'Dateiname der GDT Exportdatei
-GlKe2 = CLng(GlSet(2, 74))              'Standardgebï¿½hrenkette 2
+GlKe2 = CLng(GlSet(2, 74))              'Standardgebührenkette 2
 GlSpT = CBool(GlSet(4, 75))             'Starre oder flexible Sprechzeiten verwenden
 GlBuc = CBool(GlSet(4, 76))             'einfache Buchführung verwenden
 GlNoM = CBool(GlSet(4, 77))             'Datenbankscripting aktivieren
@@ -4041,9 +4041,9 @@ GlTlA = CBool(GlSet(4, 81))             'Terminland WebCAL (ICS) aktivieren
 GlNaf = CStr(GlSet(1, 82))              'Neuaufnahmeformular-Webadresse
 GlTlB = CStr(GlSet(1, 83))              'Terminland Benutzername
 GlTlP = SCrypt(GlSet(1, 84), False)     'Terminland Password
-GlDoL = CBool(GlSet(4, 85))             'Dokument nach einfï¿½gen lï¿½schen
+GlDoL = CBool(GlSet(4, 85))             'Dokument nach einfügen löschen
 GlKrS = CBool(GlSet(4, 86))             'Konstante Krankenblattsortierung
-GlDPr = CStr(GlSet(1, 87))              'Prï¿½fung bereits vorhandener Diagnosen
+GlDPr = CStr(GlSet(1, 87))              'Prüfung bereits vorhandener Diagnosen
 GlTeE = CBool(GlSet(4, 88))             'Email-Termin-Erinnerung
 GlOtW = CBool(GlSet(4, 89))             'Online-Terminbuchungs System Warteliste
 GlASM = CBool(GlSet(4, 90))             'Automatische SMS Terminerinnerung

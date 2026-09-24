@@ -1726,7 +1726,7 @@ Private Function IsUTF8(ByVal RawTxt As String) As Boolean
         b1 = Asc(Mid$(RawTxt, i, 1))
         b2 = Asc(Mid$(RawTxt, i + 1, 1))
 
-        ' Check for 2-byte UTF-8 sequence (covers Ã¤ Ã¶ Ã¼ ÃŸ etc.)
+        ' Check for 2-byte UTF-8 sequence (covers ä ö ü ß etc.)
         If b1 >= 194 And b1 <= 223 Then
             If b2 >= 128 And b2 <= 191 Then
                 UTF8Cnt = UTF8Cnt + 1
