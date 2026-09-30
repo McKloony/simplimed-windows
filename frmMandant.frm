@@ -3239,7 +3239,6 @@ Private ChKaAu As XtremeSuiteControls.CheckBox
 Private ChOnTe As XtremeSuiteControls.CheckBox
 Private Labl71 As XtremeSuiteControls.Label
 Private Labl72 As XtremeSuiteControls.Label
-Private Labl74 As XtremeSuiteControls.Label
 Private Labl80 As XtremeSuiteControls.Label
 Private Labl82 As XtremeSuiteControls.Label
 Private ChS01 As XtremeSuiteControls.CheckBox
@@ -4459,7 +4458,6 @@ Set ChOnTe = FM.chkOnlTe
 Set ChKaAu = FM.chkKaAus
 Set Labl71 = FM.lblLab71
 Set Labl72 = FM.lblLab72
-Set Labl74 = FM.lblLab74
 Set Labl80 = FM.lblLab80
 Set Labl82 = FM.lblLab82
 
@@ -4503,7 +4501,6 @@ Case RibTab_Adr_Dokum:
     cmNoti.Visible = True
     Labl71.Visible = False
     Labl72.Visible = False
-    Labl74.Visible = False
     Labl80.Visible = False
     Labl82.Visible = True
     ChOnTe.Visible = True
@@ -4540,7 +4537,6 @@ Case RibTab_Adr_Booki:
     cmNoti.Visible = False
     Labl71.Visible = True
     Labl72.Visible = True
-    Labl74.Visible = True
     Labl80.Visible = True
     Labl82.Visible = False
     ChOnTe.Visible = False

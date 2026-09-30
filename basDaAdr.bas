@@ -2707,6 +2707,8 @@ On Error GoTo SuErr
 
 Dim GesZa As Long
 
+If DB1 Is Nothing Then Exit Function 'Erststart ohne Datenbank (FOpn -> MMain -2 -> MNeu)
+
 Set RS47 = New ADODB.Recordset
 RS47.CursorLocation = adUseClient
 Set RS47 = DBCmRe0("qryAdrLeMa")
@@ -10240,6 +10242,7 @@ Set CmCom = CmBrs.FindControl(CmCom, AD_Sprechzeit_Auswa, , True)
 Set RS42 = New ADODB.Recordset
 RS42.CursorLocation = adUseClient
 Set RS42 = DBCmRe1("qryTerZePa", "@IdxNr", GlMId)
+If RS42 Is Nothing Then Exit Sub 'keine Datenbank/Abfrage -> sonst Fehler 91 und Scheineintrag 30.12.1899
 If RS42.RecordCount > 0 Then
     Do
     StaDa = CDate(RS42.Fields("Datum").Value)

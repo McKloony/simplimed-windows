@@ -1377,6 +1377,9 @@ Dim MonVo As Integer
 Dim MonRu As Integer
 Dim FeSta As Integer
 Dim TmTyp As Integer
+Dim ErNum As Long
+Dim ErDes As String
+Dim ErSrc As String
 Dim CmBrs As XtremeCommandBars.CommandBars
 
 If App.PrevInstance = True Then
@@ -2239,18 +2242,19 @@ End If
 Exit Sub
 
 LaErr:
+ErNum = Err.Number 'sichern, bevor SSplS2/DoEvents das Err-Objekt zuruecksetzen
+ErDes = Err.Description
+ErSrc = Err.Source
+If GlLog = True Then
+    SLogi "Main Err: " & ErDes & " #" & ErNum & " - " & ErSrc
+ElseIf GlDbg = True Then
+    SErLog ErDes & " Main " & ErNum & " - " & ErSrc
+End If
 If GlDbg = True Then
-    If GloSp = False Then 'Splashscreen zeigen
-        If GlRDP = True Then
-            Unload frmSplashR
-        Else
-            Unload frmSplash
-        End If
-        DoEvents
-    End If
-    clFen.FenDsk 3
+    SSplS2 'Splashscreen schliessen (eigener Handler)
+    DoEvents
+    If Not clFen Is Nothing Then clFen.FenDsk 3 'clFen existiert nur zwischen Set New und Set Nothing in Main
     Screen.MousePointer = vbNormal
-    SErLog Err.Description & " Main " & Err.Number & " - " & Err.Source
 End If
 Resume Next
 
@@ -5062,7 +5066,7 @@ If clFil.FilVor(GlImO & "*.*") = True Then
         DoEvents
         Select Case GlBut
         Case RibTab_Bildmodul:
-                    Set LiFi1 = FM.filView1
+                    Set LiFi1 = frmMain.filView1 'FM ist hier frmDoImp (ohne filView1) -> sonst Fehler 438
                     LiFi1.RefreshViewFast
                     DoEvents
                     SBiFi
@@ -16030,7 +16034,7 @@ Public Sub SOpen()
 On Error GoTo OpErr
 'liest Eintr‰ge aus der Registry aus und weiﬂt diese zu
 
-Dim PoTim As Integer
+Dim PoTim As Long
 Dim AkWek As Integer
 Dim AkMon As Integer
 Dim AkQua As Integer

@@ -5162,7 +5162,9 @@ Private Sub dtpDatu6_SelectionChanged()
 End Sub
 
 Private Sub dtpDatu7_SelectionChanged()
-    FKaSe
+    If GlSta = False Then 'SInPa waehlt beim Start programmatisch aus; FKaSe braucht DB1 und setzt GlAkt zurueck
+        FKaSe
+    End If
 End Sub
 
 Private Sub filView1_Click()

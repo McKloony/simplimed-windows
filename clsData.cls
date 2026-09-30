@@ -181,7 +181,7 @@ If GlApp = False Then 'Appmode
 Else
     Unload frmApMod
 End If
-
+End 'wie angekuendigt beenden - Main wuerde frmMain sonst ohne Datenbank neu laden (Folgefehler 91)
 
 End Sub
 Private Sub FOpn()

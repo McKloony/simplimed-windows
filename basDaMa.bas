@@ -4135,30 +4135,60 @@ Select Case ErrNum
     Case -2147217865, -2147217900
         ' Invalid object name / syntax error - CRITICAL
         SErLog "CRITICAL: Datenbank-Schema Fehler in S_Ary0: " & Err.Description
+        S_AryZu
         Exit Sub
 
     Case 3704, 3705, 91
         ' Recordset closed / Object not set - CRITICAL
         SErLog "CRITICAL: Datenbankverbindung verloren in S_Ary0: " & Err.Description
+        S_AryZu
         Exit Sub
 
     Case 9
         ' Subscript out of range - CRITICAL
         SErLog "CRITICAL: Array-Fehler in S_Ary0: " & Err.Description
+        S_AryZu
         Exit Sub
 
     Case -2147467259
         ' Unspecified error (often connection) - CRITICAL
         SErLog "CRITICAL: Verbindungsfehler in S_Ary0: " & Err.Description
+        S_AryZu
         Exit Sub
 
     Case Else
         ' Unknown errors - log and try to continue
-        If GlDbg = True Then
-            SErLog "WARNING: in S_Ary0: " & Err.Description & " (Err.Number=" & ErrNum & ")"
+        If GlLog = True Then
+            SLogi "S_Ary0 Err: " & Err.Description & " #" & ErrNum & " (AktZa=" & AktZa & ")"
+        ElseIf GlDbg = True Then
+            SErLog "WARNING: in S_Ary0: " & Err.Description & " (Err.Number=" & ErrNum & ", AktZa=" & AktZa & ")"
         End If
         Resume Next
 End Select
+
+End Sub
+Private Sub S_AryZu()
+On Error GoTo ZuErr
+'Schliesst die Recordsets von S_Ary0 nach einem Abbruch
+
+If Not RS152 Is Nothing Then
+    If RS152.State <> adStateClosed Then RS152.Close
+    Set RS152 = Nothing
+End If
+If Not RS153 Is Nothing Then
+    If RS153.State <> adStateClosed Then RS153.Close
+    Set RS153 = Nothing
+End If
+If Not RS154 Is Nothing Then
+    If RS154.State <> adStateClosed Then RS154.Close
+    Set RS154 = Nothing
+End If
+
+Exit Sub
+
+ZuErr:
+If GlLog = True Then SLogi "S_AryZu Err: " & Err.Description & " #" & Err.Number
+Resume Next
 
 End Sub
 Public Sub S_Ary1()

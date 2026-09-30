@@ -1344,7 +1344,7 @@ End Select
 End Function
 Public Function FilVer(Flag As Integer) As String
 Attribute FilVer.VB_Description = "Liefert Spezielle Verzeichnisse"
-On Error Resume Next
+On Error GoTo FiErr
 'Liefert Spezielle Verzeichnisse
 
 Dim RetWe As Long
@@ -1377,19 +1377,26 @@ Case 22: RetWe = SHGetSpecialFolderLocation(mHwnd, CSIDL_PROGRAM_FILES, ItmLs)  
 End Select
 
 If RetWe = 0 Then
-    PfaNa = Space$(255)
+    PfaNa = Space$(260) 'MAX_PATH
     If SHGetPathFromIDList(ItmLs.mkid.cb, PfaNa) <> 0 Then
         FilVer = Left$(PfaNa, InStr(PfaNa, vbNullChar) - 1)
     Else
         FilVer = vbNullString
     End If
+    CoTaskMemFree ItmLs.mkid.cb 'PIDL der Shell wieder freigeben
 Else
     FilVer = vbNullString
 End If
 
+Exit Function
+
+FiErr:
+If GlLog = True Then SLogi "clsFile.FilVer Err: " & Err.Description & " #" & Err.Number
+FilVer = vbNullString
+
 End Function
 Public Function FilVor(FiNam As String) As Boolean
-On Error Resume Next
+On Error GoTo FiErr
 'Ersatz für die Dir$() Finktion
 
 Dim Gefun As Long
@@ -1398,10 +1405,17 @@ Dim WinDat As WIN32_FIND_DATA
 Gefun = FindFirstFile(FiNam, WinDat)
 
 If Gefun <> INVALID_HANDLE_VALUE Then
+    FindClose Gefun 'Suchhandle wieder freigeben
     FilVor = True
 Else
     FilVor = False
 End If
+
+Exit Function
+
+FiErr:
+If GlLog = True Then SLogi "clsFile.FilVor Err: " & Err.Description & " #" & Err.Number
+FilVor = False
 
 End Function
 
@@ -1431,7 +1445,7 @@ End Function
 
 Public Function FilWrSt(Optional NoOve As Boolean = False) As Boolean
 Attribute FilWrSt.VB_Description = "Schteibt String in eine Datei, benötigt DaPfa, DaNam und StrDa"
-On Error Resume Next
+On Error GoTo FiErr
 'Schteibt String in eine Datei, benötigt DaPfa, DaNam und StrDa
 
 Dim RetWe As Long
@@ -1447,9 +1461,15 @@ If RetWe <> INVALID_HANDLE_VALUE Then
     FilWe = WriteFile(RetWe, ByVal StrDa, ByWri, ByFer, 0) <> 0
     If FilWe <> 0 Then
         FilWe = FlushFileBuffers(RetWe)
-        FilWe = CloseHandle(RetWe)
     End If
+    FilWe = CloseHandle(RetWe) 'auch nach fehlgeschlagenem WriteFile (exklusiv geoeffnet)
 End If
+
+Exit Function
+
+FiErr:
+If GlLog = True Then SLogi "clsFile.FilWrSt Err: " & Err.Description & " #" & Err.Number
+If RetWe <> 0 And RetWe <> INVALID_HANDLE_VALUE Then CloseHandle RetWe
 
 End Function
 Public Property Let hwnd(ByVal Flag As Long)

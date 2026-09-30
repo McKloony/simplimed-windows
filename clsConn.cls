@@ -116,6 +116,7 @@ Else
         End If
     End If
     Unload frmMain
+    End 'wie angekuendigt beenden - Main wuerde frmMain sonst ohne Datenbank neu laden (Folgefehler 91)
 End If
 
 Exit Sub
@@ -136,6 +137,7 @@ If GlMes = 33565 Then
     End If
 End If
 Unload frmMain
+End 'wie angekuendigt beenden - Main wuerde frmMain sonst ohne Datenbank neu laden (Folgefehler 91)
 
 End Sub
 Public Property Get DaAsy() As Boolean
@@ -454,6 +456,7 @@ If GlMes = 33565 Then
     End If
 End If
 Unload frmMain
+End 'wie angekuendigt beenden - Main wuerde frmMain sonst ohne Datenbank neu laden (Folgefehler 91)
 
 End Sub
 Private Sub RS100_MoveComplete(ByVal adReason As ADODB.EventReasonEnum, ByVal pError As ADODB.Error, adStatus As ADODB.EventStatusEnum, ByVal pRecordset As ADODB.Recordset)

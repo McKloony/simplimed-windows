@@ -10970,6 +10970,7 @@ Set TxDe3 = FM.txtDeta3
 Set TxDe6 = FM.txtDeta6
 Set TxDe8 = FM.txtDeta8
 Set TxReT = FM.txtReTex
+Set TxBiK = FM.txtBiKom 'wurde sonst erst in SBuS1/SPosi gesetzt -> Fehler 91 bei TxBiK.Font
 Set TxAnz = FM.txtAnzal
 Set TxMul = FM.txtMulti
 Set TxEin = FM.txtEinze
@@ -24208,20 +24209,20 @@ Set clFil = Nothing
 Exit Sub
 
 ReErr:
-If GlDbg = True Then SErLog Err.Description & " SReg " & Err.Number
+SLogi "SReg Err: " & Err.Description & " #" & Err.Number 'GlDbg/GlLog sind hier noch nicht eingelesen
 Resume Next
 
 End Sub
-Private Function SReSu(ByVal SuStr As String)
+Private Function SReSu(ByVal SuStr As String) As String
 On Error GoTo ReErr
 
 Dim RetWe As String
 Dim AkStr As String
-Dim AktZa As Integer
-Dim GesZa As Integer
-Dim Lange As Integer
-Dim Posi1 As Integer
-Dim Posi2 As Integer
+Dim AktZa As Long
+Dim GesZa As Long
+Dim Lange As Long
+Dim Posi1 As Long
+Dim Posi2 As Long
 
 GesZa = UBound(InAry)
 
@@ -25049,7 +25050,7 @@ Else
     If IniGetVal("Vorgabe", "StaZil") = vbNullString Then
         IniSetVal "Vorgabe", "StaZil", GlSet(2, 21)
     Else
-        GlSet(2, 21) = IniGetVal("Vorgabe", "StaZil")
+        GlSet(2, 21) = CLng(IniGetVal("Vorgabe", "StaZil"))
     End If
     If IniGetVal("Layout", "KrSteu") = vbNullString Then
         IniSetVal "Layout", "KrSteu", GlSet(4, 22)
@@ -25074,12 +25075,12 @@ Else
     If IniGetVal("System", "StaGld") = vbNullString Then
         IniSetVal "System", "StaGld", GlSet(2, 26)
     Else
-        GlSet(2, 26) = IniGetVal("System", "StaGld")
+        GlSet(2, 26) = CLng(IniGetVal("System", "StaGld"))
     End If
     If IniGetVal("System", "StaGl2") = vbNullString Then
         IniSetVal "System", "StaGl2", GlSet(2, 27)
     Else
-        GlSet(2, 27) = IniGetVal("System", "StaGl2")
+        GlSet(2, 27) = CLng(IniGetVal("System", "StaGl2"))
     End If
     If IniGetVal("TerSys", "StaRas") = vbNullString Then
         IniSetVal "TerSys", "StaRas", GlSet(4, 28)
@@ -25259,7 +25260,7 @@ Else
     If IniGetVal("TerSys", "OtsAnL") = vbNullString Then
         IniSetVal "TerSys", "OtsAnL", GlSet(2, 63)
     Else
-        GlSet(2, 63) = CLng(IniGetVal("TerSys", 63))
+        GlSet(2, 63) = CLng(IniGetVal("TerSys", "OtsAnL"))
     End If
     If IniGetVal("Vorgabe", "StaStu") = vbNullString Then
         IniSetVal "Vorgabe", "StaStu", GlSet(2, 64)
@@ -25399,7 +25400,7 @@ Else
     If IniGetVal("TerSys", "OtsSer") = vbNullString Then
         IniSetVal "TerSys", "OtsSer", GlSet(2, 91)
     Else
-        GlSet(2, 91) = CBool(IniGetVal("TerSys", "OtsSer"))
+        GlSet(2, 91) = CLng(IniGetVal("TerSys", "OtsSer"))
     End If
     If IniGetVal("TerSys", "ZeStTe") = vbNullString Then
         IniSetVal "TerSys", "ZeStTe", GlSet(4, 92)

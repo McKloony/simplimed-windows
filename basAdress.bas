@@ -2429,7 +2429,7 @@ On Error GoTo InErr
 'Initialisierung der Steuerelemente
 
 Dim AktZa As Integer
-Dim PoTim As Integer
+Dim PoTim As Long
 Dim ZeiUm As Boolean
 Dim LiTip As Boolean
 Dim FeEm1 As XtremeSuiteControls.FlatEdit
@@ -6690,7 +6690,6 @@ Dim ChS12 As XtremeSuiteControls.CheckBox
 Dim ChS13 As XtremeSuiteControls.CheckBox
 Dim ChS14 As XtremeSuiteControls.CheckBox
 Dim ChTeS As XtremeSuiteControls.CheckBox
-Dim ChDef As XtremeSuiteControls.CheckBox
 Dim ChOnT As XtremeSuiteControls.CheckBox
 Dim cmBuLa As XtremeSuiteControls.ComboBox
 Dim cmKVBz As XtremeSuiteControls.ComboBox
@@ -6762,7 +6761,6 @@ Set FePat = FM.cmbS2F10
 Set FeGes = FM.cmbS1F08
 Set FeFam = FM.txtS2F26
 Set ChTeS = FM.chkKaAus
-Set ChDef = FM.chkDefra
 Set ChOnT = FM.chkOnlTe
 Set cmRas1 = FM.cmbRast1
 Set cmRas2 = FM.cmbRast2
@@ -7217,7 +7215,6 @@ ChS12.BackColor = GlBak
 ChS13.BackColor = GlBak
 ChS14.BackColor = GlBak
 ChTeS.BackColor = GlBak
-ChDef.BackColor = GlBak
 ChOnT.BackColor = GlBak
 FM.BackColor = GlBak
 
@@ -8772,7 +8769,6 @@ Dim cmSteu As XtremeSuiteControls.ComboBox
 Dim ChThe As XtremeSuiteControls.CheckBox
 Dim ChOut As XtremeSuiteControls.CheckBox
 Dim ChTeS As XtremeSuiteControls.CheckBox
-Dim ChDef As XtremeSuiteControls.CheckBox
 Dim ChOnT As XtremeSuiteControls.CheckBox
 
 Set FM = frmMandant
@@ -8790,7 +8786,6 @@ Set Rahm7 = FM.frmRahm7
 Set RpCo5 = FM.repCont5
 Set ChThe = FM.chkOpti2
 Set ChTeS = FM.chkKaAus
-Set ChDef = FM.chkDefra
 Set ChOnT = FM.chkOnlTe
 Set TxZe1 = FM.txtZeit1
 Set TxZe2 = FM.txtZeit2
@@ -8988,7 +8983,6 @@ If DaNeu = True Then
     End If
     ChThe.Enabled = False
     ChTeS.Enabled = False
-    ChDef.Enabled = False
     If FePat.ListCount > 0 Then
         If GlSuP.SuMan > 0 Then
             IdxNr = Adr_Cm(FePat, GlSuP.SuMan)
@@ -9011,7 +9005,6 @@ Else
         TxNum.Tag = "1Mandant"
         ChThe.Enabled = False
         ChTeS.Enabled = False
-        ChDef.Enabled = False
         CmFch.ListIndex = GlFri - 1
     End If
 End If
