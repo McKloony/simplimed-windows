@@ -1785,12 +1785,40 @@ Close #fileNo
 
 End Sub
 
+' Quotes one command line argument by the rules of CommandLineToArgvW and the
+' MSVC runtime, which SimpliZip (Rust) follows as well: embedded quotes become \",
+' backslashes in front of a quote or at the end are doubled.
+Private Function WinArgQu(ByVal ArgSt As String) As String
+Dim AktZe As Long
+Dim AnzBs As Long
+Dim ZeiSt As String
+Dim ErgSt As String
+
+ErgSt = """"
+For AktZe = 1 To Len(ArgSt)
+    ZeiSt = Mid$(ArgSt, AktZe, 1)
+    If ZeiSt = "\" Then
+        AnzBs = AnzBs + 1
+    Else
+        If ZeiSt = """" Then
+            ErgSt = ErgSt & String$(AnzBs * 2 + 1, "\") & """"
+        Else
+            ErgSt = ErgSt & String$(AnzBs, "\") & ZeiSt
+        End If
+        AnzBs = 0
+    End If
+Next AktZe
+WinArgQu = ErgSt & String$(AnzBs * 2, "\") & """"
+
+End Function
+
 Public Function SZipp(ByVal ZipFil As String, ByVal SrcPfa As String, Optional ByVal DelSrc As Boolean = False, Optional ByVal UnZip As Boolean = False, Optional ByVal VerPa As String) As Boolean
 On Error GoTo ErrHdl
 
 Dim RetWe As Long
 Dim ExPfa As String
 Dim PaStr As String
+Dim LogSt As String
 Dim CmdSt As String
 
 Dim PrInfo As PROCESS_INFORMATION
@@ -1833,7 +1861,7 @@ If GlLog = True Then
     SLogi "  Quelle loeschen: " & CStr(DelSrc)
 End If
 
-' Build command line parameters: "zip-file" "source-path" [-delete] [-unzip]
+' Build command line parameters: "zip-file" "source-path" [-delete] [-unzip] [-pw "password"]
 ' Note: -delete must NOT be in quotes
 PaStr = """" & ZipFil & """ """ & SrcPfa & """"
 
@@ -1845,11 +1873,16 @@ If UnZip = True Then
     PaStr = PaStr & " -unzip"
 End If
 
+' Copy for the log: the password itself is never logged
+LogSt = PaStr
+
 If VerPa <> vbNullString Then
-    PaStr = PaStr & " -pw " & VerPa
+    ' Quoted: passwords may contain spaces, quotes or backslashes
+    PaStr = PaStr & " -pw " & WinArgQu(VerPa)
+    LogSt = LogSt & " -pw ***"
 End If
 
-If GlLog = True Then SLogi "  Parameter: " & PaStr
+If GlLog = True Then SLogi "  Parameter: " & LogSt
 
 ' Full command line for CreateProcessA
 CmdSt = """" & ExPfa & """ " & PaStr
