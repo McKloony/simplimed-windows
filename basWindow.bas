@@ -1384,21 +1384,6 @@ End Select
 RetWe = PlaySound(SoStr, 0&, SND_ALIAS Or SND_ASYNC Or SND_NODEFAULT)
 
 End Sub
-Public Sub WinUnZip(ByVal ZipNa As String, ByVal OrdNa As String)
-On Error Resume Next
-
-Dim sh As Object
-Dim fSource As Object
-Dim fTarget As Object
-
-Set sh = CreateObject("Shell.Application")
-
-Set fSource = sh.Namespace((ZipNa))
-Set fTarget = sh.Namespace((OrdNa))
-
-fTarget.CopyHere fSource.Items
-
-End Sub
 
 Private Function WindowRun(ByVal PID As Long) As Boolean
 On Error Resume Next
@@ -1731,59 +1716,6 @@ Case Else 'größer zwanzig nur zehner ermitteln und einer aus andrer function
 End Select
 
 End Function
-Public Sub WinZip(ByVal ZipNa As String, ByVal FiNam As String)
-On Error Resume Next
-
-Dim ObShe As Object
-Dim fSource As Object
-Dim fTarget As Object
-Dim iSource As Object
-Dim ObItm As Object
-Dim ObOrd As Object
-Dim AktZa As Long
-
-Set ObShe = CreateObject("Shell.Application")
-
-Set fTarget = ObShe.Namespace((ZipNa))
-If fTarget Is Nothing Then
-    WinZpEr ZipNa
-    Set fTarget = ObShe.Namespace((ZipNa))
-End If
-
-Dim OrdNa As String
-Dim ZipDa As String
-
-OrdNa = Left(FiNam, InStrRev(FiNam, "\"))
-ZipDa = Mid(FiNam, InStrRev(FiNam, "\") + 1)
-
-Set fSource = ObShe.Namespace((OrdNa))
-For AktZa = 0 To fSource.Items.Count - 1
-    If fSource.Items.Item((AktZa)).Name = ZipDa Then
-        Set ObItm = fSource.Items.Item((AktZa))
-        Exit For
-    End If
-Next AktZa
-
-fTarget.CopyHere ObItm
-
-End Sub
-Private Sub WinZpEr(ByVal ZipNa As String)
-On Error Resume Next
-
-Dim fileNo As Integer
-Dim ZIPFileEOCD(22) As Byte
-
-ZIPFileEOCD(0) = Val("&H50")
-ZIPFileEOCD(1) = Val("&H4b")
-ZIPFileEOCD(2) = Val("&H05")
-ZIPFileEOCD(3) = Val("&H06")
-
-fileNo = FreeFile
-Open ZipNa For Binary Access Write As #fileNo
-Put #fileNo, , ZIPFileEOCD
-Close #fileNo
-
-End Sub
 
 ' Quotes one command line argument by the rules of CommandLineToArgvW and the
 ' MSVC runtime, which SimpliZip (Rust) follows as well: embedded quotes become \",
