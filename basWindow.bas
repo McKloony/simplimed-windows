@@ -1863,7 +1863,7 @@ End If
 
 ' Build command line parameters: "zip-file" "source-path" [-delete] [-unzip] [-pw "password"]
 ' Note: -delete must NOT be in quotes
-PaStr = """" & ZipFil & """ """ & SrcPfa & """"
+PaStr = WinArgQu(ZipFil) & " " & WinArgQu(SrcPfa)
 
 If DelSrc = True Then
     PaStr = PaStr & " -delete"
@@ -1884,7 +1884,8 @@ End If
 
 If GlLog = True Then SLogi "  Parameter: " & LogSt
 
-' Full command line for CreateProcessA
+' Full command line for CreateProcessA. The program path is parsed without
+' escapes (argv[0] rules), so it is only enclosed in quotes.
 CmdSt = """" & ExPfa & """ " & PaStr
 
 ' Configure startup: hidden window
