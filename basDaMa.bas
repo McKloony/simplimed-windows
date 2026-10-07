@@ -4037,6 +4037,7 @@ GlNoM = CBool(GlSet(4, 77))             'Datenbankscripting aktivieren
 GlSKo = CLng(GlSet(1, 78))              'Standardsteuerkonto
 GlOTA = CBool(GlSet(4, 79))             'Online-Terminbuchungs System Adressenerfassung
 GlTeB = CBool(GlSet(4, 80))             'Terminnachricht auch an BCC
+GlTBc = Trim$(IniGetVal("TerSys", "TerBCA")) 'Terminnachricht BCC-Adresse (nur INI)
 GlTlA = CBool(GlSet(4, 81))             'Terminland WebCAL (ICS) aktivieren
 GlNaf = CStr(GlSet(1, 82))              'Neuaufnahmeformular-Webadresse
 GlTlB = CStr(GlSet(1, 83))              'Terminland Benutzername

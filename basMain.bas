@@ -869,6 +869,7 @@ Global GlLiM As Boolean 'Laborimport Mandant
 Global GlLaI As Boolean 'Laborimport Katalogvergleich
 Global GlICS As Boolean 'Terminnachricht mit ICS Dateiversand
 Global GlTeB As Boolean 'Terminnachricht auch an BCC
+Global GlTBc As String 'Terminnachricht BCC-Adresse aus den Optionen (leer = Versandkonto)
 Global GlOIC As Boolean 'Online-Terminbuchungs System ICS Datei
 Global GlThO As Boolean 'TheDex Schnittstelle aktiviert
 Global GlWaL As Boolean 'Wartezimmerliste Schließen
@@ -7665,7 +7666,8 @@ End Function
 Public Function SEmBc() As String
 On Error GoTo DaErr
 'BCC-Adresse fuer Terminnachrichten (Option "Terminnachricht auch an BCC"):
-'Antwortadresse des Versandkontos, sonst dessen Absenderadresse.
+'eigene Adresse aus den Optionen (GlTBc), sonst Antwortadresse des Versandkontos,
+'sonst dessen Absenderadresse.
 'Versandkonto wie in SEmSe und im Mailfenster: Standardemailkonto des Standardmitarbeiters.
 
 Dim MitNr As Long
@@ -7674,6 +7676,10 @@ Dim KtoNr As Long
 Dim EmStr As String
 
 If GlTeB = False Then Exit Function
+If InStr(1, GlTBc, "@") > 1 Then
+    SEmBc = GlTBc 'eigene Adresse ersetzt die Kontoadresse
+    Exit Function
+End If
 If GlEKV = False Then Exit Function 'keine Emailkonten
 
 MitNr = CLng(GlMiA(GlSmI, 2)) 'Standardmitarbeiter

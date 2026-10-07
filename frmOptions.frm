@@ -3695,6 +3695,10 @@ PrBol.CheckBoxStyle = True
 PrBol.id = 2945
 PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
 
+Set PrItm = PrKat.AddChildItem(PropertyItemString, "BCC-Adresse für Terminnachrichten*", GlTBc)
+PrItm.id = 2995
+PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
+
 Set PrBol = PrKat.AddChildItem(PropertyItemBool, "Starre Termintaktung verwenden*", CBool(GlSet(4, 28)))
 PrBol.CheckBoxStyle = True
 PrBol.id = 1607
@@ -5330,6 +5334,11 @@ Case 2945: 'Terminnachricht auch an BCC
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "TerBCC", FKon(PrBol.Value, 2)
         S_SeSe 81, , , , CBool(PrBol.Value)
+Case 2995: 'BCC-Adresse fuer Terminnachrichten (Liste mit ; erlaubt)
+        Set PrItm = PrGr1.FindItem(TolId)
+        TmStr = Replace(Trim$(PrItm.Value), " ", vbNullString)
+        IniSetVal "TerSys", "TerBCA", TmStr
+        GlTBc = TmStr 'sofort wirksam
 Case 1607: 'Starre Termintaktung verwenden
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "StaRas", FKon(PrBol.Value, 2)
