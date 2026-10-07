@@ -24260,30 +24260,50 @@ Dim AuStr As String 'Auftragsnummer
 Dim BefAr As String 'Befundart
 Dim LaStr As String 'Labornummer
 Dim Befng As String 'Befundung
-Dim Bfdng As Boolean
+Dim FM As Form
+Dim PrBr1 As XtremeSuiteControls.ProgressBar
+Dim PrBr2 As XtremeSuiteControls.ProgressBar
+Dim TxDum As VB.TextBox
+Dim RS111 As ADODB.Recordset
+Dim RS112 As ADODB.Recordset
+Dim RS113 As ADODB.Recordset
+Dim DbCmd As ADODB.Command
+Dim StepNm As String
+Dim ErrNr As Long
+Dim ErrTxt As String
+Dim AllOk As Boolean
+Dim Cancl As Boolean
+Static RunAkt As Boolean
 Dim SQL1 As String
 Dim SQL2 As String
 Dim Frage As Integer
 Dim Mld1, Tit1 As String
+
+If RunAkt = True Then Exit Sub
 
 Tit1 = "Zusammenfassen"
 Mld1 = "Möchten Sie jetzt doppelte Berichte in einen Bericht zusammenfassen? Dabei werden Berichte ohne Inhalt gelöscht."
 
 Frage = WindowMess(Mld1, Dial1, Tit1, frmMain.hwnd)
 If Frage = 6 Then
+    RunAkt = True
+    StepNm = "Doppelte Berichte lesen"
     Set FM = frmStatus
     Set PrBr1 = FM.prbStat1
     Set PrBr2 = FM.prbStat2
     Set TxDum = FM.txtDummy
     
+    Set DbCmd = New ADODB.Command
+    With DbCmd
+        Set .ActiveConnection = DB1
+        .CommandType = adCmdText
+        .CommandTimeout = 15
+        .CommandText = "SELECT [IDA], [ID0], [Labor], [Befund] FROM [qryLabDo1]"
+    End With
     Set RS111 = New ADODB.Recordset 'doppelte Laborberichte
     With RS111
         .CursorLocation = adUseClient
-        .Source = "qryLabDo1"
-        .ActiveConnection = DB1
-        .CursorType = adOpenForwardOnly
-        .LockType = adLockReadOnly
-        .Open Options:=adCmdTableDirect
+        .Open DbCmd, , adOpenStatic, adLockReadOnly
     End With
     GesBe = RS111.RecordCount
     
@@ -24291,85 +24311,97 @@ If Frage = 6 Then
         FM.Show
         BerZa = 1
         PrBr2.Min = 0
+        PrBr2.Value = 0
         PrBr2.Max = GesBe
         FM.Caption = "Testdaten zusammenfassen..."
         DoEvents
+        If TxDum.Text = "B" Then
+            Cancl = True
+            GoTo LdEnd
+        End If
     
         Do
         Befng = vbNullString
         LoBer = 0
-        AuStr = RS111.Fields("IDA").Value 'Auftragsnummer
-        LaStr = RS111.Fields("Labor").Value 'Labornummer
+        AuStr = vbNullString & RS111.Fields("IDA").Value 'Auftragsnummer
+        LaStr = vbNullString & RS111.Fields("Labor").Value 'Labornummer
         BerNr = RS111.Fields("ID0").Value 'zuzuordnende Berichtnummer
-        BefAr = RS111.Fields("Befund").Value 'Befundart
+        BefAr = vbNullString & RS111.Fields("Befund").Value 'Befundart
 
+        StepNm = "Berichtsdaten abgleichen"
         If BefAr <> "Eigenbefund" Then
-            DBCmEx2 "qryLabDo4", "@Befun", "@IdStr", BefAr, AuStr
-        End If
-        If BefAr = "Endbefund" Then
-            DBCmEx2 "qryLabDo4", "@Befun", "@IdStr", BefAr, AuStr
+            S_LaExec "qryLabDo4", "@Befun", BefAr, "@IdStr", AuStr
         End If
         If LaStr <> AuStr Then
-            DBCmEx2 "qryLabDo5", "@Labor", "@IdStr", LaStr, AuStr
+            S_LaExec "qryLabDo5", "@Labor", LaStr, "@IdStr", AuStr
         End If
         
-        SQL1 = "SELECT * FROM qryLabBeNe WHERE [Auftrag] ='" & SqlStr(AuStr) & "';"
+        StepNm = "Zugehörige Berichte lesen"
+        SQL1 = "SELECT * FROM [qryLabBeNe] WHERE [Auftrag] = '" & SqlStr(AuStr) & "'"
+        DbCmd.CommandText = SQL1
         Set RS112 = New ADODB.Recordset 'jeweiliger Laborbericht
         With RS112
             .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenDynamic
-            .LockType = adLockOptimistic
-            .Open Options:=adCmdText
+            .Open DbCmd, , adOpenStatic, adLockOptimistic
         End With
         If RS112.RecordCount > 0 Then
             Do
             IdxNr = RS112.Fields("ID0").Value 'aktuelle Berichtnummer
             
-            DBCmEx1 "qryLabNuLo", "@IdxNr", IdxNr 'Leere Testwerte löschen
+            StepNm = "Leere Testwerte entfernen"
+            S_LaExec "qryLabNuLo", "@IdxNr", IdxNr 'Leere Testwerte löschen
             DoEvents
+            If TxDum.Text = "B" Then
+                Cancl = True
+                GoTo LdEnd
+            End If
             
             If BerNr <> IdxNr Then
                 LoBer = IdxNr 'zu löschender Bericht
             End If
             
-            If GlGrI = True Then 'Gruppierung Laborbericht
-                SQL2 = "SELECT * FROM qryLabTes WHERE [IDB] = " & IdxNr & " ORDER BY [Gruppe], [Ident]"
-            Else
-                SQL2 = "SELECT * FROM qryLabTes WHERE [IDB] = " & IdxNr & " ORDER BY [Ident]"
-            End If
+            StepNm = "Testdaten lesen"
+            'Keine Join-Abfrage: jeder Testdatensatz darf nur einmal vorkommen.
+            SQL2 = "SELECT [ID0], [Berichts-ID] FROM [Tabelle_Lab_TestD] WHERE [Berichts-ID] = " & SqlNum(IdxNr) & " ORDER BY [ID0]"
+            DbCmd.CommandText = SQL2
             Set RS113 = New ADODB.Recordset 'dazugehörige Testdaten
             With RS113
                 .CursorLocation = adUseClient
-                .Source = SQL2
-                .ActiveConnection = DB1
-                .CursorType = adOpenDynamic
-                .LockType = adLockOptimistic
-                .Open Options:=adCmdText
+                .Open DbCmd, , adOpenStatic, adLockOptimistic
             End With
             GesTe = RS113.RecordCount
+            PrBr1.Min = 0
+            PrBr1.Value = 0
             If GesTe > 0 Then
                 TesZa = 1
                 PrBr1.Min = 0
                 PrBr1.Max = GesTe
                 Do
-                RS113.Fields("IDB").Value = BerNr
-                RS113.Update
+                StepNm = "Testdaten zuordnen"
+                If BerNr <> IdxNr Then
+                    RS113.Fields("Berichts-ID").Value = BerNr
+                    RS113.Update
+                End If
+                StepNm = "Nächsten Testdatensatz lesen"
                 RS113.MoveNext
                 
                 DoEvents
-                If TesZa < GesTe Then PrBr1.Value = TesZa
+                If TxDum.Text = "B" Then
+                    Cancl = True
+                    GoTo LdEnd
+                End If
+                PrBr1.Value = TesZa
                 TesZa = TesZa + 1
                 Loop Until RS113.EOF
             End If
             RS113.Close
             Set RS113 = Nothing
             
+            StepNm = "Befundung lesen"
             If Len(Befng) > 250 Then
                 Befng = Left$(Befng, 250)
             End If
-            If Not IsNull(RS112.Fields("Befundung").Value) Or RS112.Fields("Befundung").Value <> vbNullString Then
+            If Len(Trim$(vbNullString & RS112.Fields("Befundung").Value)) > 0 Then
                 If Befng = vbNullString Then
                     Befng = Trim$(RS112.Fields("Befundung").Value)
                 Else
@@ -24382,9 +24414,11 @@ If Frage = 6 Then
                     Befng = Replace(Befng, vbCrLf, "")
                 End If
             End If
+            StepNm = "Nächsten Bericht lesen"
             RS112.MoveNext
             Loop Until RS112.EOF
 
+            StepNm = "Befundung speichern"
             If Befng <> vbNullString Then
                 RS112.MoveFirst
                 Do
@@ -24401,39 +24435,117 @@ If Frage = 6 Then
         RS112.Close
         Set RS112 = Nothing
 
-        DBCmEx1 "qryLabBeLo", "@IdxNr", LoBer 'Bericht löschen
+        StepNm = "Zusammengefassten Bericht entfernen"
+        S_LaExec "qryLabBeLo", "@IdxNr", LoBer 'Bericht löschen
         DoEvents
+        If TxDum.Text = "B" Then
+            Cancl = True
+            GoTo LdEnd
+        End If
         
-        If BerZa < GesBe Then PrBr2.Value = BerZa
+        PrBr2.Value = BerZa
         BerZa = BerZa + 1
 
+        StepNm = "Nächste Berichtsgruppe lesen"
         RS111.MoveNext
         Loop Until RS111.EOF
+        AllOk = True
     Else
         Mld1 = "Es existieren momentan keine doppelten Berichte"
         Tit1 = "Zusammenfassen"
         WindowMess Mld1, Dial2, Tit1, FM.hwnd
     End If
-    RS111.Close
-    Set RS111 = Nothing
-    
-    Unload frmStatus
-    Set frmStatus = Nothing
-    DoEvents
-    
-    If GesBe > 0 Then
-        SUpLa
-        Mld1 = "Die Zusammenfassung ist abgeschlossen"
-        WindowMess Mld1, Dial2, Tit1, FM.hwnd
-    End If
 End If
 
+LdEnd:
+'Nur bei der Freigabe Fehler ignorieren; nie eine fehlgeschlagene Zeile wiederholen.
+On Error Resume Next
+If Not RS113 Is Nothing Then
+    If RS113.State = adStateOpen Then
+        If RS113.EditMode <> adEditNone Then RS113.CancelUpdate
+        RS113.Close
+    End If
+End If
+If Not RS112 Is Nothing Then
+    If RS112.State = adStateOpen Then
+        If RS112.EditMode <> adEditNone Then RS112.CancelUpdate
+        RS112.Close
+    End If
+End If
+If Not RS111 Is Nothing Then
+    If RS111.State = adStateOpen Then RS111.Close
+End If
+Set RS113 = Nothing
+Set RS112 = Nothing
+Set RS111 = Nothing
+Set DbCmd = Nothing
+Set PrBr1 = Nothing
+Set PrBr2 = Nothing
+Set TxDum = Nothing
+If Not FM Is Nothing Then Unload FM
+Set FM = Nothing
+RunAkt = False
+On Error GoTo 0
+
+If ErrNr <> 0 Then
+    If GlLog = True Then SLogi "S_LaZu Err: Abbruch bei " & StepNm & " #" & ErrNr
+    Mld1 = "Die Zusammenfassung wurde abgebrochen." & vbCrLf & "Schritt: " & StepNm & vbCrLf & "Fehler " & ErrNr & ": " & ErrTxt
+    Mld1 = Mld1 & vbCrLf & "Bereits gespeicherte Änderungen bleiben erhalten."
+    WindowMess Mld1, Dial2, Tit1, frmMain.hwnd
+ElseIf Cancl = True Then
+    Mld1 = "Die Zusammenfassung wurde abgebrochen." & vbCrLf & "Bereits gespeicherte Änderungen bleiben erhalten."
+    WindowMess Mld1, Dial2, Tit1, frmMain.hwnd
+ElseIf AllOk = True Then
+    SUpLa
+    Mld1 = "Die Zusammenfassung ist abgeschlossen"
+    WindowMess Mld1, Dial2, Tit1, frmMain.hwnd
+End If
 Exit Sub
 
 LdErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "S_LaZu " & Err.Number
-Resume Next
+ErrNr = Err.Number
+ErrTxt = Err.Description
+Resume LdEnd
 
+End Sub
+Private Sub S_LaExec(ByVal Abfra As String, ByVal PaNa1 As String, ByVal PaWe1 As Variant, Optional ByVal PaNa2 As String, Optional ByVal PaWe2 As Variant)
+On Error GoTo LaErr
+'DBCmEx1/2 setzen nach Fehlern fort; diese Routine muss den Aufrufer abbrechen.
+Dim DbCmd As ADODB.Command
+Dim ErrNr As Long
+Dim ErrTxt As String
+Dim ErrSrc As String
+
+Set DbCmd = New ADODB.Command
+With DbCmd
+    Set .ActiveConnection = DB1
+    .CommandTimeout = 15
+    .CommandText = Abfra
+    If GlTyp < 2 Then
+        .CommandType = adCmdStoredProc
+        .Parameters.Refresh
+        .Parameters(PaNa1).Value = PaWe1
+        If PaNa2 <> vbNullString Then .Parameters(PaNa2).Value = PaWe2
+        .Execute Options:=adExecuteNoRecords
+    Else
+        .CommandType = adCmdText
+        .Properties("Jet OLEDB:Stored Query") = True
+        If PaNa2 = vbNullString Then
+            .Execute Parameters:=PaWe1, Options:=adExecuteNoRecords
+        Else
+            .Execute Parameters:=Array(PaWe1, PaWe2), Options:=adExecuteNoRecords
+        End If
+    End If
+End With
+Set DbCmd = Nothing
+Exit Sub
+
+LaErr:
+ErrNr = Err.Number
+ErrTxt = Err.Description
+ErrSrc = Err.Source
+Set DbCmd = Nothing
+Err.Raise ErrNr, ErrSrc, ErrTxt
 End Sub
 Public Sub S_LaVe(ByVal IdxNr As Long)
 On Error GoTo SuErr
