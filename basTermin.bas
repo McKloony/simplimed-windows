@@ -7788,15 +7788,7 @@ If TerNr > 0 Then
         EmEmp = FM.txtS4F16.Text
         EmTex = CmBrf.Text & vbCrLf & vbCrLf & TeStr
         
-        If GlTeB = True Then 'Terminnachricht auch an BCC
-            If GlMkt(1, 13) <> vbNullString Then
-                EmBCC = GlMkt(1, 13)
-            Else
-                If GlThe(GlSMa, 16) <> vbNullString Then
-                    EmBCC = GlThe(GlSMa, 16)
-                End If
-            End If
-        End If
+        EmBCC = SEmBc() 'Terminnachricht auch an BCC
 
         If GlICS = True Then 'Terminnachricht mit ICS Dateiversand
             DoEvents

@@ -26754,7 +26754,11 @@ If SavOK = True Then
             If TxUsP.Text <> vbNullString Then RS128.Fields("Em_Pass").Value = TxUsP.Text
             If FM.txtName.Text <> vbNullString Then RS128.Fields("Em_SeNam").Value = FM.txtName.Text
             If FM.txtEmAdr.Text <> vbNullString Then RS128.Fields("Em_Adresse").Value = FM.txtEmAdr.Text
-            If FM.txtAnAdr.Text <> vbNullString Then RS128.Fields("Em_Repl").Value = FM.txtAnAdr.Text
+            If FM.txtAnAdr.Text <> vbNullString Then
+                RS128.Fields("Em_Repl").Value = FM.txtAnAdr.Text
+            ElseIf IsNull(RS128.Fields("Em_Repl").Value) = False Then
+                RS128.Fields("Em_Repl").Value = Null 'geleerte Antwortadresse entfernen
+            End If
             If ChAut.Value = xtpChecked Then
                 RS128.Fields("Em_Aut").Value = -1
             Else

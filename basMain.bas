@@ -7662,6 +7662,42 @@ If GlDbg = True Then MsgBox Err.Description, 48, "SEmAd " & Err.Number
 Resume Next
 
 End Function
+Public Function SEmBc() As String
+On Error GoTo DaErr
+'BCC-Adresse fuer Terminnachrichten (Option "Terminnachricht auch an BCC"):
+'Antwortadresse des Versandkontos, sonst dessen Absenderadresse.
+'Versandkonto wie in SEmSe und im Mailfenster: Standardemailkonto des Standardmitarbeiters.
+
+Dim MitNr As Long
+Dim AktZa As Long
+Dim KtoNr As Long
+Dim EmStr As String
+
+If GlTeB = False Then Exit Function
+If GlEKV = False Then Exit Function 'keine Emailkonten
+
+MitNr = CLng(GlMiA(GlSmI, 2)) 'Standardmitarbeiter
+For AktZa = 1 To UBound(GlMkt)
+    If CLng(GlMkt(AktZa, 1)) = MitNr Then
+        If CBool(GlMkt(AktZa, 20)) = True Then 'Standardemailkonto
+            KtoNr = AktZa
+            Exit For
+        End If
+    End If
+Next AktZa
+If KtoNr = 0 Then Exit Function 'ohne Versandkonto wird ohnehin nicht gesendet
+
+EmStr = Trim$(GlMkt(KtoNr, 14)) 'Antwortadresse
+If InStr(1, EmStr, "@") < 2 Then EmStr = Trim$(GlMkt(KtoNr, 13)) 'Absenderadresse
+If InStr(1, EmStr, "@") < 2 Then EmStr = vbNullString
+
+SEmBc = EmStr
+Exit Function
+
+DaErr:
+SEmBc = vbNullString
+If GlLog = True Then SLogi "SEmBc Err: " & Err.Description & " #" & Err.Number
+End Function
 Public Sub SEmNe(Optional ByVal DocMa As Boolean = False)
 On Error GoTo DaErr
 'Sendet eine Email
@@ -7861,7 +7897,7 @@ Resume Next
 
 End Sub
 
-Public Function SEmSe(ByVal EmpAd As String, ByVal MaBet As String, ByVal MaTex As String, Optional ByVal MaFil As String, Optional ByVal MaHtm As String, Optional ByVal EmpNa As String, Optional ByVal MaPro As Boolean = True, Optional ByVal NoPop As Boolean = False) As Boolean
+Public Function SEmSe(ByVal EmpAd As String, ByVal MaBet As String, ByVal MaTex As String, Optional ByVal MaFil As String, Optional ByVal MaHtm As String, Optional ByVal EmpNa As String, Optional ByVal MaPro As Boolean = True, Optional ByVal NoPop As Boolean = False, Optional ByVal EmBCC As String) As Boolean
 On Error GoTo DaErr
 'Sendet eine Email
 
@@ -7882,7 +7918,7 @@ Dim NeTLS As Integer
 Dim GesZa As Integer
 Dim KoGef As Boolean
 
-Mld1 = "Es wurde kein Emailkonto angelegt oder dessen Angaben sind unvollst?ig!"
+Mld1 = "Es wurde kein Emailkonto angelegt oder dessen Angaben sind unvollständig!"
 
 If GlEKV = False Then 'Emailkonten vorhanden
     TeTit = "E-Mail-Versand"
@@ -7979,6 +8015,7 @@ With clMai
     .moAsyn = 1
     .moReAd = EmpAd
     .moReNa = EmpNa
+    .moReBc = EmBCC 'Blindkopie, z. B. Terminnachricht auch an BCC
     .moBest = False
     .moTLSs = CInt(GlMkt(AktZa, 4))
     .moAuUs = CBool(GlMkt(AktZa, 15))
@@ -28604,17 +28641,7 @@ If Frage = 6 Then
                 EmTex = .AdRBr & vbCrLf & vbCrLf & TeStr
             End With
             
-            If GlTeB = True Then 'Terminnachricht auch an BCC
-                If GlMkt(1, 13) <> vbNullString Then
-                    EmBCC = GlMkt(1, 13)
-                Else
-                    If GlThe(GlSMa, 16) <> vbNullString Then
-                        EmBCC = GlThe(GlSMa, 16)
-                    End If
-                End If
-            Else
-                EmBCC = vbNullString
-            End If
+            EmBCC = SEmBc() 'Terminnachricht auch an BCC
             
             If TerNr > 0 Then
                 DBCmEx2 "qryTerOnTe", "@OnlTe", "@IdxNr", -1, TerNr 'Kennzeichnung
@@ -28658,7 +28685,7 @@ If Frage = 6 Then
                     Call .FilCnWr(FiNam, TmStr)
                 End With
                 
-                EmVer = SEmSe(EmEmp, EmBet, EmTex, FiNam)
+                EmVer = SEmSe(EmEmp, EmBet, EmTex, FiNam, EmBCC:=EmBCC)
                 DoEvents
                 If EmVer = True Then
                     If PatNr > 0 Then
@@ -28681,7 +28708,7 @@ If Frage = 6 Then
                     End If
                 End If
             Else
-                EmVer = SEmSe(EmEmp, EmBet, EmTex)
+                EmVer = SEmSe(EmEmp, EmBet, EmTex, EmBCC:=EmBCC)
                 DoEvents
                 If EmVer = True Then
                     If PatNr > 0 Then
@@ -28777,7 +28804,6 @@ Dim DayGa As Boolean
 Dim RetWe As Boolean
 Dim TePri As Integer
 Dim AktZa As Integer
-Dim AktKo As Integer
 Dim GesZa As Integer
 Dim DoGrp As Integer
 Dim Mld1, Tit1 As String
@@ -29139,27 +29165,7 @@ If TerNr > 0 Or WaLis = True Then
         
         EmTex = TeBrf & vbCrLf & vbCrLf & TeStr
 
-        If GlTeB = True Then 'Terminnachricht auch an BCC
-            GesZa = UBound(GlMkt)
-            If GesZa > 0 Then
-                For AktKo = 1 To GesZa
-                    If CLng(GlMkt(AktKo, 1)) = CLng(GlMiA(GlSmI, 2)) Then
-                        Exit For
-                    End If
-                Next AktKo
-                If AktKo <= GesZa Then
-                    If GlMkt(AktKo, 14) <> vbNullString Then 'Antwortadresse
-                        EmBCC = GlMkt(AktKo, 14)
-                    ElseIf GlMkt(AktKo, 13) <> vbNullString Then 'Emailadresse
-                        EmBCC = GlMkt(AktKo, 13)
-                    ElseIf GlMiK(AktZa, 22) <> vbNullString Then
-                        EmBCC = GlMiK(AktZa, 22)
-                    End If
-                End If
-            End If
-        Else
-            EmBCC = vbNullString
-        End If
+        EmBCC = SEmBc() 'Terminnachricht auch an BCC
 
         If TerNr > 0 Then
             DBCmEx2 "qryTerOnTe", "@OnlTe", "@IdxNr", -1, TerNr
