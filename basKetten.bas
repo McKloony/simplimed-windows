@@ -1564,6 +1564,7 @@ With RpCls
     Case Else:
         Set RpCol = .Add(Ket_Fakto, vbNullString, 0, False)
     End Select
+    If TreKy = "H" Then RpCls(Ket_Fakto).Visible = False
     Select Case TreKy
     Case "F": Set RpCol = .Add(Ket_Preis, vbNullString, 0, False)
     Case "R": Set RpCol = .Add(Ket_Preis, "Zeit", 80, False)

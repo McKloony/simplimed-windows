@@ -2436,6 +2436,10 @@ If RpRcs.Count > 0 Then
             Else
                 Multi = 1
             End If
+            If TreKy = "H" Then
+                Multi = 1
+                If GlKeE = True And PrSav = False Then Multi = K_LaFak()
+            End If
             GePre = WinRound(((EiPre * Multi) * Anza1), 2)
             KePre = KePre + GePre
         End If
@@ -2519,7 +2523,8 @@ If RS137.RecordCount > 0 Then
         RS137.MoveFirst
         For Each RpRec In RpRcs
             For Each RpItm In RpRec
-                If Left$(RpItm.Tag, 1) = "@" Then
+                'Laborketten haben kein gespeichertes Multi-Feld.
+                If Left$(RpItm.Tag, 1) = "@" And (KeySt <> "H" Or RpItm.Tag <> "@Multi") Then
                     TmTag = Mid$(RpItm.Tag, 2, Len(RpItm.Tag) - 1)
                     If RpItm.HasCheckbox = True Then
                         RS137.Fields(TmTag).Value = RpItm.Checked
@@ -3250,6 +3255,8 @@ If GesZa > 0 Then
                 MulAn = Format$(1, GlWa1)
             End If
         End If
+    ElseIf TreKy = "H" And GlKeE = True Then
+        MulAn = Format$(K_LaFak(), GlWa1)
     Else
         MulAn = Format$(1, GlWa1)
     End If
@@ -3399,6 +3406,7 @@ If RpRcs.Count > 0 Then
             Else
                 Multi = 1
             End If
+            If TreKy = "H" And GlKeE = True Then Multi = K_LaFak()
             TmPre = (WinRound((EiPre * Multi), 2) * Anza1)
             GePre = GePre + TmPre
         End If
@@ -10825,6 +10833,7 @@ If SuStr <> vbNullString Then
                     KetNr = RS124.Fields("ID1").Value
                     Set RS125 = New ADODB.Recordset
                     RS125.CursorLocation = adUseClient
+                    Multi = K_LaFak()
                     Set RS125 = DBCmRe1("qryKet02E", "@IdxNr", KetNr)
                     If RS125.RecordCount > 0 Then
                         Do
@@ -10860,11 +10869,11 @@ If SuStr <> vbNullString Then
                             RS123.Fields("IDKurz").Value = RS125.Fields("IDKurz").Value
                             RS123.Fields("Kommentar").Value = RS125.Fields("Zusatztext").Value
                             RS123.Fields("Kommentar2").Value = KrGui
-                            RS123.Fields("Multi").Value = WinRound(RS125.Fields("Multi").Value, 2)
+                            RS123.Fields("Multi").Value = Multi
                             RS123.Fields("Steuer").Value = ReStu
                             RS123.Fields("x").Value = RS125.Fields("x").Value
                             RS123.Fields("Betrag").Value = WinRound((RS125.Fields("Preis").Value / WärFa), 2)
-                            RS123.Fields("GesBetrag").Value = WinRound((((RS125.Fields("Preis").Value * RS125.Fields("Multi").Value) * RS125.Fields("x").Value) / WärFa), 2)
+                            RS123.Fields("GesBetrag").Value = WinRound((((RS125.Fields("Preis").Value * Multi) * RS125.Fields("x").Value) / WärFa), 2)
                             RS123.Fields("WVBetrag").Value = 0
                             RS123.Fields("Währung").Value = FoWär
                             RS123.Fields("IDM").Value = CmMit.ItemData(CmMit.ListIndex)
@@ -11919,6 +11928,7 @@ If SuStr <> vbNullString Then
                         KetNr = RS140.Fields("ID1").Value
                         Set RS125 = New ADODB.Recordset
                         RS125.CursorLocation = adUseClient
+                        Multi = K_LaFak()
                         Set RS125 = DBCmRe1("qryKet02E", "@IdxNr", KetNr)
                         If RS125.RecordCount > 0 Then
                             Do
@@ -11954,12 +11964,12 @@ If SuStr <> vbNullString Then
                                 RS123.Fields("IDKurz").Value = RS125.Fields("IDKurz").Value
                                 RS123.Fields("Kommentar").Value = RS125.Fields("Zusatztext").Value
                                 RS123.Fields("Kommentar2").Value = KrGui
-                                RS123.Fields("Multi").Value = WinRound(RS125.Fields("Multi").Value, 2)
+                                RS123.Fields("Multi").Value = Multi
                                 RS123.Fields("Steuer").Value = ReStu
                                 RS123.Fields("x").Value = RS125.Fields("x").Value
                                 If Not IsNull(RS125.Fields("Zeit").Value) Then RS123.Fields("Zeit").Value = RS125.Fields("Zeit").Value
                                 RS123.Fields("Betrag").Value = WinRound((RS125.Fields("Preis").Value / WärFa), 2)
-                                RS123.Fields("GesBetrag").Value = WinRound(((RS125.Fields("Preis").Value * RS125.Fields("x").Value) / WärFa), 2)
+                                RS123.Fields("GesBetrag").Value = WinRound((((RS125.Fields("Preis").Value * Multi) * RS125.Fields("x").Value) / WärFa), 2)
                                 RS123.Fields("WVBetrag").Value = 0
                                 RS123.Fields("LaBetrag").Value = 0
                                 RS123.Fields("Währung").Value = FoWär
@@ -16206,6 +16216,24 @@ If GlDbg = True Then MsgBox Err.Description, 48, "K_Kat2 " & Err.Number
 Resume Next
 
 End Sub
+Private Function K_LaFak() As Single
+On Error GoTo FaErr
+'Gespeicherte Laborvorgabe, unabhaengig vom temporaeren Importfaktor.
+
+K_LaFak = 1
+If IsNumeric(GlSet(3, 67)) = True Then
+    If CSng(GlSet(3, 67)) > 0 Then
+        K_LaFak = WinRound(CSng(GlSet(3, 67)), 2)
+    End If
+End If
+If K_LaFak <= 0 Then K_LaFak = 1
+Exit Function
+
+FaErr:
+K_LaFak = 1
+If GlLog = True Then SLogi "K_LaFak Err: " & Err.Description & " #" & Err.Number
+End Function
+
 Private Function K_KatA(ByVal PaFrm As String, ByVal SQL3 As String, ByVal PatNr As Long, ByVal ReNum As Long, ByVal SorNr As Long, ByVal ReStr As String, EinNr As Long, ByVal AktTa As Long, ByVal GebZi As String, ByVal KeAnz As Integer, ByVal DiaNr As Integer, ByVal Multi As Single, ByVal WärFa As Single, ByVal FoWär As Integer, ByVal ReAbg As Boolean, ByVal KetMe As Boolean, ByVal RST As ADODB.Recordset, Optional ByVal KetKe As String) As String
 On Error GoTo GrErr
 
@@ -16465,6 +16493,7 @@ If RS123.Supports(adAddNew) Then
             RS123.Fields("Kommentar2").Value = KrGui
             RS123.Fields("Steuer").Value = ReStu
             If KetMe = True Then
+                Multi = K_LaFak()
                 EiPre = Format$(RST.Fields("Preis").Value, GlWa1)
                 RS123.Fields("x").Value = KeAnz
                 RS123.Fields("Multi").Value = Multi
