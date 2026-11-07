@@ -705,6 +705,13 @@ Case 9: 'Textverarbeitung
             DaPas = IniGetVal("System", "DatPas")  'Datenbankpasswort Access
             TxCoN.LoadSaveAttribute(txMasterPassword) = DaPas
             TxCoN.LoadSaveAttribute(txDocAccessPermissions) = &H80
+            NePas = vbNullString
+            If Zuord = False And EmlSe = 1 Then 'an einen Patienten: Oeffnen-Kennwort wie bei Rechnungen
+                If S_AdIdi(GlAdr, "Em_Aut") <> 0 Then
+                    NePas = S_AdIdx(GlAdr, "Em_Pass")
+                End If
+            End If
+            TxCoN.LoadSaveAttribute(txUserPassword) = NePas
         End If
     End If
 
@@ -719,6 +726,11 @@ Case 9: 'Textverarbeitung
     Case 7: TxCoN.Save FiNam, 0, 10
     End Select
     DoEvents
+
+    If NePas <> vbNullString Then 'Kennwort nicht an spaetere PDF-Exporte weitergeben
+        TxCoN.LoadSaveAttribute(txUserPassword) = vbNullString
+        NePas = vbNullString
+    End If
 
     If Zuord = False Then
         DaStK = Format$(Date, "ddd" & ", " & "dd" & ". " & "mmm" & Chr$(32) & "yyyy")
