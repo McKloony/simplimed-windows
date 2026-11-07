@@ -1229,6 +1229,7 @@ Dim PfaNa As String
 Dim TeFil As String
 Dim NeuDa As String
 Dim NeuNa As String
+Dim MaxName As Long
 
 Set FM = frmBuEdit
 Set TxBel = FM.txtBuBel
@@ -1365,7 +1366,16 @@ If BelNr > 0 Then
 
                 TeFil = PfaNa & DaNam
                 If LCase(TeFil) <> LCase(FiNam) Then
-                    NeuDa = BeStr & "_" & TmGui & "#_" & DaNaO & "." & LCase(DaExt)
+                    NeuDa = BeStr & "_" & TmGui & "#_"
+                    MaxName = 100 'Tabelle_JourBuch.Datei: maximal 100 Zeichen
+                    If Len(PfaNa) + MaxName > 259 Then MaxName = 259 - Len(PfaNa)
+                    MaxName = MaxName - Len(NeuDa) - Len(DaExt) - 1
+                    If MaxName < 1 Then
+                        SPopu "Zielpfad zu lang", "Bitte verwenden Sie einen kuerzeren Dokumentenordner.", IC48_Warning
+                        GoTo OpEnd
+                    End If
+                    'Nur den Namensteil kuerzen; Kennung und Endung bleiben erhalten.
+                    NeuDa = NeuDa & Left$(DaNaO, MaxName) & "." & LCase(DaExt)
                     NeuNa = PfaNa & NeuDa
 
                     If .FilVor(NeuNa) = True Then
@@ -1373,8 +1383,9 @@ If BelNr > 0 Then
                         .FilLoe
                     End If
                     .DaCop = FiNam & ";" & NeuNa & vbNullChar
-                    If .FilCop(1) = False Then
+                    If .FilCop(1) = False Or .FilVor(NeuNa) = False Then
                         SPopu "Datei schreibgeschützt", "Die Datei kann nicht kopiert werden", IC48_Warning
+                        GoTo OpEnd
                     End If
 
                     TxFil.Text = NeuDa
@@ -1390,13 +1401,16 @@ If BelNr > 0 Then
     End If
 End If
 
+OpEnd:
 Set clFil = Nothing
 
 Exit Sub
 
 AnErr:
+If GlLog = True Then SLogi "FOpn Err: " & Err.Description & " #" & Err.Number
 If GlDbg = True Then MsgBox Err.Description, 48, "FOpn " & Err.Number
-Resume Next
+SPopu "Dokument zuordnen", "Das Dokument konnte nicht zugeordnet werden.", IC48_Warning
+Resume OpEnd
 
 End Sub
 
