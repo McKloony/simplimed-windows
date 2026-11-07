@@ -4667,6 +4667,7 @@ On Error GoTo LiErr
 'Generiert eine Buchung aus zugeordnetem Umsazu
 
 Dim ReNum As Long
+Dim BaIdx As Long
 Dim IdKon As Long
 Dim TeTit As String
 Dim TeMai As String
@@ -4763,7 +4764,13 @@ If AnzPo > 0 Then
                 Exit Sub
             End If
     
-            If ReNum > 0 Then
+            If ReNum > 0 And BaAus = "ja" Then
+                'Rechnungszugeordnete Ausgabe nur als gebucht kennzeichnen.
+                Set RpCol = RpCls.Find(Ban_ID2)
+                BaIdx = CLng(RpRow.Record(RpCol.ItemIndex).Value)
+                DBCmEx3 "qrySimBaBez", "@IdBez", "@IdSel", "@IdxNr", -1, -1, BaIdx
+                SUpBa RpRow.Index
+            ElseIf ReNum > 0 Then
                 frmOPAusg.Show vbModal
             ElseIf IdKon > 0 Then
                 S_BaNeu
@@ -5276,7 +5283,10 @@ If AnzPo > 1 Then
             End If
             
             If Weite = True Then
-                If ReNu1 > 0 Then
+                If ReNu1 > 0 And BaAus = "ja" Then
+                    'Rechnungszugeordnete Ausgabe nur als gebucht kennzeichnen.
+                    DBCmEx3 "qrySimBaBez", "@IdBez", "@IdSel", "@IdxNr", -1, -1, BaIdx
+                ElseIf ReNu1 > 0 Then
                     
                     If GlMVo = True Then 'mandantenbezogene Vorgaben verwenden
                         If GlBuc = True Then 'einfache Buchhaltung verwenden
