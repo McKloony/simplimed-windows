@@ -4456,7 +4456,7 @@ Case 1104: 'Standardsteuersatz
                 Exit For
             End If
         Next AktZa
-Case 1105: 'Standwährung
+Case 1105: 'Standard-Währung
         Set PrItm = PrGr1.FindItem(TolId)
         For AktZa = 1 To UBound(GlWar)
             If GlWar(AktZa, 1) = PrItm.Value Then
@@ -5364,7 +5364,7 @@ Case 2969: 'TSE Aktiviert
         S_SeSe 96, , , , CBool(PrBol.Value)
 Case 2970: 'TSE Verfahren
         Set PrItm = PrGr1.FindItem(TolId)
-        IniSetVal "System", "ClouID", FKon(PrItm.Value, 2)
+        IniSetVal "System", "TSETyp", FKon(PrItm.Value, 2)
         S_SeSe 97, FKon(PrItm.Value, 2)
 Case 2869: 'Mitarbeiterplan anstelle Mandantenplan
         Set PrBol = PrGr1.FindItem(TolId)

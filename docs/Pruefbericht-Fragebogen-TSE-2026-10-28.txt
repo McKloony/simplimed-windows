@@ -1,0 +1,144 @@
+Umsetzung der Anweisung-VB6-Vorlagentext-Ankreuzfeld-2026-10-22.txt
+Stand: 28.10.2026
+
+Ergebnis
+--------
+Alle drei Auftraege sind im Quellcode umgesetzt, einschliesslich der empfohlenen
+Aenderungen. Auftrag 3 (Fragebogenabruf) wurde zuerst bearbeitet.
+Ein neuer VB6-Build und die manuellen Tests in CrossMed stehen noch aus.
+Es wurden keine Kundendaten geaendert und keine Online-/fiskaly-Aufrufe ausgefuehrt.
+
+Geaenderte Dateien und Funktionen
+--------------------------------
+basDaMa.bas:
+- S_AnBoA / S_AnBoC: vorhandene D*.csv einzeln mit der gleichnamigen INI behandeln;
+  anschliessend auch neue Einreichungen abrufen. Keine automatische Einlesung
+  vorhandener *.cs_. Eine fehlende INI verhindert den Import nicht mehr.
+- SAnLine / SAnParse / SAnOpen (neu): CSV mit Anfuehrungszeichen, Semikolons,
+  Zeilenumbruechen und letzter Zeile ohne LF lesen. Anzahl aus QuestionNumber=1.
+  Originalsaetze fuer Restdateien aufbewahren. Defekte CSVs nur nach nachgewiesenem
+  Formatfehler zuruecklegen und mit Dateinamen melden; I/O-Fehler behalten die CSV.
+- S_AnBoL/U/V/Y: nur die eigene INI entfernen.
+- S_AnBoU: returncode korrekt auswerten, letzte INI-Zeile mitlesen, Hinweis auf
+  die neue Behandlung offener Zuordnungen aktualisieren.
+- S_AnBoV: Vorlagentext ausschliesslich fuer den normalisierten Typ 1 exportieren.
+- SAnCloud (neu), aufgerufen von S_AnBoA/V/Y: vor Nutzung einer neu erzeugten
+  Cloud-ID bestaetigen lassen oder die vorhandene ID vom Support eintragen.
+  Eingabe pruefen, in Setup/INI speichern und aktive ID aktualisieren.
+
+frmZuord.frm:
+- FePru: Anzahl zugeordneter, offener und bewusst verworfener Einreichungen pruefen;
+  Teilimport nach Bestaetigung zulassen.
+- SaveAbruf (neu): nur bewusst verworfene oder verarbeitete Einreichungen aus
+  der aktuellen CSV entfernen; fehlende Rasterzeilen vorsichtshalber behalten.
+  Rest-CSV unverfaelscht als CP1252 schreiben, INI-Anzahl aktualisieren.
+  Temporaere Datei im selben Ordner schreiben und per MoveFileEx ersetzen.
+  Fremde CSVs/INIs und ZIPs bleiben erhalten. GlLog archiviert das aktuelle Paar.
+- btnWeiter_Click: nach Import nur die Restdatei abschliessen; bei Schreibfehlern
+  denselben Import im offenen Dialog nicht nochmals ausfuehren. Bedienung waehrend
+  der Verarbeitung sperren.
+- Form_QueryUnload (neu): auf gespeicherte Abrufe hinweisen; ausstehende
+  Dateisicherung vor dem Schliessen wiederholen.
+- Form_Unload: Recordset nur bei vorhandener Referenz schliessen.
+
+basMain.bas:
+- SAnLo: Abschluss an die aktuelle Abrufdatei im Zuordnungsdialog delegieren;
+  keine pauschale Loeschung aller CSVs und INIs mehr.
+
+basDatKat.bas:
+- F_An1: E-Mail und Identitaetsfelder pro Einreichung zuruecksetzen; Namen, Ort,
+  Datum und E-Mail trimmen. Leere E-Mail nicht suchen. E-Mail nur bei genau einem
+  Treffer mit passendem Name, Vorname und Geburtsdatum automatisch zuordnen;
+  Abweichungen und Mehrfachtreffer als ? (E-Mail: ...) anzeigen.
+  Auch beim Kurznamensuche-Treffer Name/Vorname und Eindeutigkeit pruefen.
+- F_Save: VorText bei Nicht-Textfeldern oder leerem Text auf NULL setzen.
+- F_Lad: alten UI-Text leeren, VorText nur fuer Typ 1 bzw. 0/NULL laden.
+
+frmFragen.frm:
+- FType: Vorlagentext beim Wechsel auf einen Nicht-Texttyp leeren.
+
+frmOptions.frm:
+- FRgSv, Case 2970: TSE Verfahren in TSETyp statt ClouID schreiben.
+
+basFormat.bas:
+- SMCUp/SMDDo/SMDUp/SMFUp/SMSGu/SMSSn/SMSTe: nur eigene INI bereinigen.
+- TSEDisa/TSEExp2/TSEGen/TSEWeb: die zusaetzlich gefundenen pauschalen
+  INI-Loeschungen ebenfalls auf die eigene Datei begrenzen.
+- TSEWeb: fehlendes als Kasse gekennzeichnetes Geldkonto melden.
+  Die fiskaly-Befehle, Einrichtungsschritte und SwissBit-Funktionen sind unveraendert.
+
+basLayout.bas:
+- SSet01: vorhandene INI-Cloud-ID beibehalten. Eine neu erzeugte ID unter ClouNew
+  als noch zu bestaetigen markieren; der Marker gilt nur fuer diese konkrete ID.
+
+Ausgefuehrte Pruefungen
+----------------------
+1. powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts\Test-Fragebogen.ps1
+   Bestanden: 58 synthetische Pruefungen mit aus dem aktuellen Quellcode
+   extrahierten Routinen unter VBScript/ADO, u.a.:
+   - Q1-Zaehlen ohne INI; LF/CRLF und fehlender letzter Zeilenumbruch;
+   - zitierte Namen, eingebettete Trennzeichen, mehrzeilige/lange Antworten;
+   - ungueltige CSVs, fehlende Pflicht-Metadaten, doppelte Einreichungen;
+   - zwei verarbeitete plus eine offene Einreichung; Bestaetigung/Abbruch;
+   - unveraenderte Restantworten, INI-Anzahl, fremde Dateien und ZIPs;
+   - bewusstes Verwerfen, Neuaufnahme FN, fehlende Vorlage/Rasterzeile;
+   - Archivierung bei GlLog und gesperrte Zieldatei mit erhaltener Original-CSV;
+   - einzelne, falsche, mehrdeutige und leere E-Mail-Zuordnungen;
+   - VorText speichern, leeren, typabhaengig laden und NULL/Typ 0.
+   Native MoveFileEx-Dateiersetzung wird dabei wirklich auf Testdateien ausgefuehrt.
+   VB6-Typdeklarationen/Fehlerlabels werden fuer den VBScript-Test angepasst;
+   dies ersetzt weder einen VB6-Compile noch Tests der Codejock-Dialoge.
+
+2. Test-FragebogenSchema.ps1, vom Teststarter im 64-Bit-Prozess aufgerufen:
+   Bestanden: Beispieldaten.accdb nur lesend geoeffnet;
+   Tabelle_Anamnese.VorText IS_NULLABLE=True. SQL_Server.sql erlaubt ebenfalls NULL.
+
+3. python scripts\Verify-Fragebogen.py
+   Bestanden: CP1252 ohne BOM, CRLF, keine neuen Nicht-ASCII-Bytes,
+   keine ueberlangen hinzugefuegten VB6-Zeilen, unveraenderte bestehende Signaturen,
+   unveraenderte Form-Designer und nicht betroffene Prozeduren.
+   Vergleichsbasis ist die Sicherung unmittelbar vor diesen Aenderungen.
+   Bereits vorhandene Benutzer-Aenderungen sind erhalten.
+
+4. git diff --check (im Verzeichnis 001): bestanden.
+   Alle auftragsbezogenen Diffs wurden gelesen.
+   Keine .frx-Datei und keine Projektreferenz wurden geaendert.
+
+Status der Testplaene aus der Anweisung
+--------------------------------------
+Auftrag 1, Schritte 1-4: Speicher-/Ladelogik synthetisch geprueft, Access-NULL-Schema
+  bestaetigt. Fragebogen-Editor mit echter DB noch manuell pruefen.
+Schritt 5: Exportbedingung im Quellcode geprueft; echte F*.csv nach Publizieren offen.
+Schritt 6: Patientenbogen-Vorbelegung nicht im laufenden Programm getestet;
+  S_AnBoH/S_AnBoN/S_AnBoP sind unveraendert.
+
+Auftrag 3, Schritte 1-6: CSV-, Restdatei- und Zuordnungslogik wie oben geprueft.
+  Reale Eintraege in Tabelle_PatientenBo, Schliessen -> Dokumente abrufen ->
+  erneuter Fragebogenabruf sowie Doppelklick-Zuordnung noch in CrossMed testen.
+Schritt 7: Returncode-Auswertung im Quellcode korrigiert; echter Unlock-Aufruf offen.
+Schritt 8: Marker-Suchtest mangels neuem Build noch nicht ausgefuehrt.
+Zusaetzlich: Cloud-ID-Dialog mit neuer, vorhandener und abgebrochener ID pruefen.
+
+Auftrag 2, Schritte 1-5: INI-Schluessel und unveraenderte Sichtbarkeit/Rechte im
+  Quellcode geprueft; Optionsdialog, Neustart und Neuaufbau der Setup-Tabelle offen.
+Schritt 6: TSE-Kassenmeldung im Quellcode vorhanden; Funktionstest ausschliesslich
+  mit fiskaly-Testkonfiguration ausfuehren.
+Schritt 7: Marker-Suchtest mangels neuem Build noch nicht ausgefuehrt.
+
+Noch erforderlich
+-----------------
+VB6.EXE wurde weder auf PATH noch an den ueblichen Installationsorten gefunden.
+Mit verfuegbarer Entwicklungsumgebung im Projektverzeichnis kompilieren:
+  VB6.EXE /make CrossMed.vbp /out build.log
+Danach auf der neu erstellten EXE pruefen:
+  python scripts\Test-FragebogenMarkers.py <Pfad-zur-neuen-CrossMed.exe>
+Anschliessend die oben offenen manuellen Testschritte unter Access und SQL Server.
+Die bisherigen Datenbank-Importprozeduren wurden nicht auf Transaktionen umgestellt;
+ein Prozessabbruch zwischen DB-Import und Dateiersetzung bleibt separat zu pruefen.
+
+Commit-Hash: keiner. Wegen des noch ausstehenden Builds und der vor einem Commit
+vorgeschriebenen manuellen Pruefungen wurde kein Commit erstellt.
+
+Sicherung: backups\forms_tse_20261028\
+Isolierter Review-Diff: tmp\fragebogen-tse-20261028.diff
+Alle scripts/backups/tmp-Pfade sind relativ zum Arbeitsverzeichnis devcode2.

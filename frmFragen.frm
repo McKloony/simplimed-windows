@@ -1390,6 +1390,8 @@ Case 7: 'Datumsfeld
     RpCon.Enabled = False
 End Select
 
+If TypNr <> 1 Then FM.txtVorga.Text = vbNullString 'Vorlagentext nur bei Textfeld.
+
 If TypNr = 6 Then
     ChPfl.Enabled = False
 Else

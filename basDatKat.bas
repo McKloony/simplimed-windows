@@ -4059,7 +4059,7 @@ Dim ReOrt As String
 Dim ReLnd As String
 Dim SuStr As String
 Dim BoTyp As String
-Dim GesZe As Integer
+Dim GesZe As Long
 Dim FraUn As Integer
 Dim AnzDo As Integer
 
@@ -4096,6 +4096,11 @@ If GesZe > 0 Then
 
     Select Case FrgNr
     Case 1: 'Datum
+        EmAdr = vbNullString
+        PaVor = vbNullString
+        PaNam = vbNullString
+        PaGeb = vbNullString
+        PaOrt = vbNullString
         Set RpRec = RpRcs.Add()
         If BogNr = 0 Then
             FraUn = FraUn + 1
@@ -4133,14 +4138,14 @@ If GesZe > 0 Then
         End If
     Case 5: 'Vorname
         If RS160.Fields(5).Value <> vbNullString Then
-            PaVor = SUmw(RS160.Fields(5).Value, False, False, True)
+            PaVor = Trim$(SUmw(RS160.Fields(5).Value, False, False, True))
         Else
             PaVor = vbNullString
         End If
         Set RpItm = RpRec.AddItem(PaVor)
     Case 6: 'Name
         If RS160.Fields(5).Value <> vbNullString Then
-            PaNam = SUmw(RS160.Fields(5).Value, False, False, True)
+            PaNam = Trim$(SUmw(RS160.Fields(5).Value, False, False, True))
         Else
             PaNam = vbNullString
         End If
@@ -4148,7 +4153,7 @@ If GesZe > 0 Then
     Case 7: 'Geburtsdatum
         If RS160.Fields(5).Value <> vbNullString Then
             If IsDate(RS160.Fields(5).Value) = True Then
-                PaGeb = Format$(RS160.Fields(5).Value, "dd.mm.yyyy")
+                PaGeb = Format$(Trim$(RS160.Fields(5).Value), "dd.mm.yyyy")
             Else
                 PaGeb = vbNullString
             End If
@@ -4158,10 +4163,10 @@ If GesZe > 0 Then
         Set RpItm = RpRec.AddItem(PaGeb)
     Case 8: 'Emailadresse
         If RS160.Fields(5).Value <> vbNullString Then
-            EmAdr = RS160.Fields(5).Value
+            EmAdr = Trim$(RS160.Fields(5).Value)
             Set RpItm = RpRec.AddItem(EmAdr)
         Else
-            Set RpItm = RpRec.AddItem("Emailadresse")
+            Set RpItm = RpRec.AddItem(vbNullString)
         End If
     Case 9: 'Telefon
         If RS160.Fields(5).Value <> vbNullString Then
@@ -4177,7 +4182,7 @@ If GesZe > 0 Then
         End If
     Case 11: 'Ort
         If RS160.Fields(5).Value <> vbNullString Then
-            PaOrt = SUmw(RS160.Fields(5).Value, False, False, True)
+            PaOrt = Trim$(SUmw(RS160.Fields(5).Value, False, False, True))
         Else
             PaOrt = vbNullString
         End If
@@ -4239,25 +4244,37 @@ If GesZe > 0 Then
         End If
         
         If SuStr <> vbNullString Then
-            Set RS120 = New ADODB.Recordset
-            RS120.CursorLocation = adUseClient
             Set RS120 = DBCmRe1("qrySimAdKur", "@IdStr", "%" & SuStr & "%")
-            If RS120.RecordCount > 0 Then
-                PatNr = RS120.Fields("ID0").Value
-                PaKur = RS120.Fields("IDKurz").Value
-            Else
-                Set RS140 = New ADODB.Recordset
-                RS140.CursorLocation = adUseClient
-                Set RS140 = DBCmRe1("qrySimAdEma", "@IdStr", "%" & EmAdr & "%")
-                If RS140.RecordCount > 0 Then
-                    PatNr = RS140.Fields("ID0").Value
-                    PaKur = RS140.Fields("IDKurz").Value
+            If RS120.RecordCount = 1 Then
+                If StrComp(Trim$(RS120.Fields("Name").Value & vbNullString), PaNam, vbTextCompare) = 0 And StrComp(Trim$(RS120.Fields("Vorname").Value & vbNullString), PaVor, vbTextCompare) = 0 Then
+                    PatNr = RS120.Fields("ID0").Value
+                    PaKur = RS120.Fields("IDKurz").Value
                 End If
-                RS140.Close
-                Set RS140 = Nothing
             End If
             RS120.Close
             Set RS120 = Nothing
+        End If
+        If PatNr = 0 And EmAdr <> vbNullString Then
+            Set RS140 = DBCmRe1("qrySimAdEma", "@IdStr", "%" & EmAdr & "%")
+            If RS140.RecordCount > 0 Then
+                PaKur = "? (E-Mail: " & RS140.Fields("IDKurz").Value & ")"
+                If RS140.RecordCount = 1 Then
+                    If PaNam <> vbNullString And PaVor <> vbNullString And IsDate(PaGeb) Then
+                        If StrComp(Trim$(RS140.Fields("Name").Value & vbNullString), PaNam, vbTextCompare) = 0 And StrComp(Trim$(RS140.Fields("Vorname").Value & vbNullString), PaVor, vbTextCompare) = 0 Then
+                            If IsDate(RS140.Fields("Geboren").Value) Then
+                                If DateValue(RS140.Fields("Geboren").Value) = DateValue(PaGeb) Then
+                                    PatNr = RS140.Fields("ID0").Value
+                                    PaKur = RS140.Fields("IDKurz").Value
+                                End If
+                            End If
+                        End If
+                    End If
+                Else
+                    PaKur = "? (E-Mail: mehrere Patienten)"
+                End If
+            End If
+            RS140.Close
+            Set RS140 = Nothing
         End If
 
         If PatNr > 0 Then
@@ -4265,7 +4282,8 @@ If GesZe > 0 Then
             Set RpItm = RpRec.AddItem(PatNr) '17 PatNr
             Set RpItm = RpRec.AddItem(0) '18 BogenNr
         Else
-            Set RpItm = RpRec.AddItem("?") '16 Zuordnung
+            If PaKur = vbNullString Then PaKur = "?"
+            Set RpItm = RpRec.AddItem(PaKur) '16 Zuordnung
             Set RpItm = RpRec.AddItem(0) '17 PatNr
             Set RpItm = RpRec.AddItem(0) '18 BogenNr
         End If
@@ -5319,7 +5337,12 @@ If GesZa > 0 Then
     If Not IsNull(RS127.Fields("ID6").Value) Then TxIdx.Text = Format$(RS127.Fields("ID6").Value, "000000")
     If Not IsNull(RS127.Fields("IDkurz").Value) Then TxBez.Text = RS127.Fields("IDkurz").Value
     If Not IsNull(RS127.Fields("Bericht").Value) Then TxBer.Text = RS127.Fields("Bericht").Value
-    If Not IsNull(RS127.Fields("VorText").Value) Then TxVor.Text = RS127.Fields("VorText").Value
+    TxVor.Text = vbNullString
+    If IsNull(RS127.Fields("Type").Value) Then
+        If Not IsNull(RS127.Fields("VorText").Value) Then TxVor.Text = RS127.Fields("VorText").Value
+    ElseIf RS127.Fields("Type").Value <= 1 Then
+        If Not IsNull(RS127.Fields("VorText").Value) Then TxVor.Text = RS127.Fields("VorText").Value
+    End If
     If Not IsNull(RS127.Fields("Feldname").Value) Then TxFel.Text = RS127.Fields("Feldname").Value
     If Not IsNull(RS127.Fields("Gross").Value) Then TxZei.Text = RS127.Fields("Gross").Value
     If Not IsNull(RS127.Fields("Lange").Value) Then TxMax.Text = RS127.Fields("Lange").Value
@@ -6181,7 +6204,11 @@ If TxZei.Text <> vbNullString Then RS127.Fields("Gross").Value = TxZei.Text
 If TxMax.Text <> vbNullString Then RS127.Fields("Lange").Value = TxMax.Text
 If TxSor.Text <> vbNullString Then RS127.Fields("Sorter").Value = TxSor.Text
 If TxZle.Text <> vbNullString Then RS127.Fields("Zeilen").Value = TxZle.Text
-If TxVor.Text <> vbNullString Then RS127.Fields("VorText").Value = TxVor.Text
+If TypNr <= 1 And TxVor.Text <> vbNullString Then 'Vorlagentext nur bei Textfeld.
+    RS127.Fields("VorText").Value = TxVor.Text
+Else
+    RS127.Fields("VorText").Value = Null
+End If
 RS127.Fields("Type").Value = TypNr
 
 If FM.chkVorga.Value = 1 Then

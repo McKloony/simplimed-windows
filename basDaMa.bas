@@ -123,20 +123,17 @@ Dim TeFus As String
 Dim IniNa As String
 Dim TmpSt As String
 Dim TmpZe As String
-Dim TmpFe As String
 Dim RetSt As String
 Dim ErrSt As String
 Dim FiNam As String
 Dim ImpOr As String
 Dim TmGui As String
 Dim AktZe As Integer
-Dim AktFe As Integer
-Dim GesZe As Integer
-Dim GesFe As Integer
 Dim Lange As Integer
 Dim Posit As Integer
 Dim AryZe() As String
-Dim AryFe() As String
+
+If SAnCloud() = False Then Exit Sub
 
 Set FM = frmMain
 
@@ -188,7 +185,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
                 DoEvents
                 If TmpSt <> vbNullString Then
                     AryZe = Split(TmpSt, vbCrLf) 'Zeilen aufsplitten
-                    For AktZe = 0 To UBound(AryZe) - 1
+                    For AktZe = 0 To UBound(AryZe)
                         If AryZe(AktZe) <> vbNullString Then
                             TmpZe = AryZe(AktZe)
                             Lange = Len(TmpZe)
@@ -205,75 +202,12 @@ If GlCID <> vbNullString Then 'Cloud-ID
                 End If
             End If
 
-            If RetSt <> vbNullString Then
-                If IsNumeric(RetSt) = True Then
-                    GlFrD = CInt(RetSt) 'Anzahl Fragebogendownload
-                Else
-                    GlFrD = 0
-                End If
-                If GlFrD > 0 Then
-                    If .FilVor(FiNam) = True Then
-                        .FilPfa FiNam
-                        TmpSt = .FilReSt
-                        DoEvents
-                        If TmpSt <> vbNullString Then
-                            AryZe = Split(TmpSt, Chr$(10)) 'Zeilen aufsplitten
-                            GesZe = UBound(AryZe)
-                            TmpZe = AryZe(0)
-                            TmpZe = Replace(TmpZe, vbCrLf, vbNullString, 1)
-                            If GesZe > 0 Then
-                                AryFe = Split(TmpZe, Chr$(59)) 'Feldnamen aufsplitten
-                                GesFe = UBound(AryFe)
-                                Set RS164 = New ADODB.Recordset 'neues Recordset erstellen Patienten
-                                RS164.CursorLocation = adUseClient
-                                For AktFe = 0 To UBound(AryFe)
-                                    TmpFe = AryFe(AktFe)
-                                    TmpFe = Replace(TmpFe, vbCrLf, vbNullString, 1)
-                                    RS164.Fields.Append TmpFe, adVarChar, 250
-                                Next AktFe
-                                If RS164.State = adStateClosed Then RS164.Open
-    
-                                For AktZe = 1 To GesZe - 1 'WICHTIG! ab Zeile 1 begindnen
-                                    If AryZe(AktZe) <> vbNullString Then
-                                        AryFe = Split(AryZe(AktZe), Chr$(59)) 'Felder aufsplitten
-                                        RS164.AddNew
-                                        RS164.Fields(0).Value = AryFe(0)
-                                        RS164.Fields(1).Value = AryFe(1)
-                                        RS164.Fields(2).Value = AryFe(2)
-                                        RS164.Fields(3).Value = AryFe(3)
-                                        RS164.Fields(4).Value = AryFe(4)
-                                        RS164.Fields(5).Value = SUmw(AryFe(5), True, False, True, False)
-                                        RS164.Update
-                                    End If
-                                Next AktZe
-
-                                Set frmZuord.FoRST = RS164
-                                SAnIn '---------- Fragebogen Zuordnungsdialog ----------
-                            Else
-                                SPopu "Fragebogenabruf", "Der Fragebogen enthält keine Informationen.", IC48_Information
-                            End If
-                        End If
-                    Else
-                        If ErrSt = vbNullString Then
-                            SPopu "Fragebogenabruf", "Es liegen keine neuen Fragebögen vor.", IC48_Information
-                        Else
-                            SPopu "Downloadfehler", ErrSt, IC48_Information
-                        End If
-                        SAnUm FiNam, IniNa
-                    End If
-                Else
-                    SPopu "Fragebogenabruf", "Es liegen keine neuen Fragebögen vor.", IC48_Information
-                    SAnUm FiNam, IniNa
-                End If
+            If .FilVor(FiNam) = True Then
+                SAnOpen FiNam, IniNa, True 'CSV bleibt auch ohne INI auswertbar.
+            ElseIf ErrSt <> vbNullString Then
+                SPopu "Downloadfehler", ErrSt, IC48_Information
             Else
-                Clipboard.Clear
-                Clipboard.SetText PrNam & Space$(1) & PaStr
-                If ErrSt = vbNullString Then
-                    SPopu "Fragebogenabruf", "Es liegen keine neuen Fragebögen vor.", IC48_Information
-                Else
-                    SPopu "Downloadfehler", ErrSt, IC48_Information
-                End If
-                SAnUm FiNam, IniNa
+                SPopu "Fragebogenabruf", "Es liegen keine neuen Frageboegen vor.", IC48_Information
             End If
 
             If ErrSt <> vbNullString Then
@@ -308,8 +242,10 @@ Set clFil = Nothing
 Exit Sub
 
 SuErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "S_AnBoA " & Err.Number
-Resume Next
+If GlLog = True Then SLogi "S_AnBoA Err: Abruf abgebrochen #" & Err.Number
+Screen.MousePointer = vbNormal
+Set clFil = Nothing
+WindowMess "Der Fragebogenabruf wurde abgebrochen. Vorhandene Abrufdateien bleiben gespeichert.", Dial2, "Fragebogenabruf", frmMain.hwnd
 
 End Sub
 Public Function S_AnBoB(ByVal IdStr As String, ByVal FelNa As String) As String
@@ -336,161 +272,283 @@ Resume Next
 End Function
 Public Sub S_AnBoC()
 On Error GoTo SuErr
-'Prüft ob noch Fargebogendateien vorliegen
+'Vorhandene Abrufe einmal zeigen, danach neue Einreichungen abrufen.
+Dim CsvNames As Collection
+Dim CsvName As String
+Dim IniName As String
+Dim DateiNr As Long
+Static AbrufLaeuft As Boolean
 
-Dim InTyp As String
-Dim IniNa As String
-Dim FiNam As String
-Dim TmpSt As String
-Dim TmpZe As String
-Dim TmpFe As String
-Dim RetSt As String
-Dim ErrSt As String
-Dim PaStr As String
-Dim AnzDa As Integer
-Dim AnzIn As Integer
-Dim AktZe As Integer
-Dim AktFe As Integer
-Dim Lange As Integer
-Dim Posit As Integer
-Dim GesZe As Integer
-Dim GesFe As Integer
-Dim DiNam() As String
-Dim InNam() As String
-Dim AryZe() As String
-Dim AryFe() As String
+If AbrufLaeuft Then Exit Sub
+AbrufLaeuft = True
+Set CsvNames = New Collection
+CsvName = Dir$(GlTEx & "D*.csv")
+Do While CsvName <> vbNullString
+    CsvNames.Add CsvName
+    CsvName = Dir$()
+Loop
+For DateiNr = 1 To CsvNames.Count
+    CsvName = CsvNames(DateiNr)
+    IniName = GlTmp & Left$(CsvName, Len(CsvName) - 4) & ".ini"
+    SAnOpen GlTEx & CsvName, IniName
+Next DateiNr
+Set CsvNames = Nothing
+S_AnBoA
+AbrufLaeuft = False
+Exit Sub
+SuErr:
+AbrufLaeuft = False
+Set CsvNames = Nothing
+Screen.MousePointer = vbNormal
+If GlLog = True Then SLogi "S_AnBoC Err: Abruf abgebrochen #" & Err.Number
+WindowMess "Der Fragebogenabruf wurde abgebrochen. Vorhandene Abrufdateien bleiben gespeichert.", Dial2, "Fragebogenabruf", frmMain.hwnd
+End Sub
+Private Function SAnCloud() As Boolean
+On Error GoTo SuErr
+'Eine neu erzeugte Cloud-ID vor der ersten Online-Nutzung bestaetigen.
+Dim Antwort As Long
+Dim CloudID As String
+Dim SetRows As ADODB.Recordset
 
-Set FM = frmMain
+If IniGetVal("System", "ClouNew") <> GlCID Or GlCID = vbNullString Then
+    SAnCloud = True
+    Exit Function
+End If
+Antwort = WindowMess("Fuer diese Installation wurde eine neue Cloud-ID erzeugt. Nutzt die Praxis bereits Online-Frageboegen?" & vbCrLf & "Ja: vorhandene Cloud-ID vom Support eintragen." & vbCrLf & "Nein: Online-Frageboegen erstmals mit der neuen ID einrichten." & vbCrLf & "Bei Unsicherheit bitte abbrechen und den Support anrufen.", vbYesNoCancel Or vbExclamation, "Cloud-ID pruefen", frmMain.hwnd)
+Select Case Antwort
+Case vbYes
+    CloudID = Trim$(InputBox("Bitte die vorhandene Cloud-ID vom Support eintragen:", "Cloud-ID pruefen"))
+    If CloudID = vbNullString Then Exit Function
+    If Len(CloudID) <> 33 Or UCase$(Left$(CloudID, 1)) <> "K" Then GoTo Ungueltig
+    If Mid$(CloudID, 2) Like "*[!0-9A-Fa-f]*" Then GoTo Ungueltig
+    S_SeSe 96, CloudID
+    Set SetRows = New ADODB.Recordset
+    SetRows.Open "SELECT [SetTex] FROM [Tabelle_Setup] WHERE [ID1] = 96", DB1, adOpenForwardOnly, adLockReadOnly
+    If SetRows.EOF Then Err.Raise vbObjectError + 2102, "SAnCloud", "Cloud-ID fehlt in Setup"
+    If CStr(SetRows.Fields(0).Value) <> CloudID Then Err.Raise vbObjectError + 2102, "SAnCloud", "Cloud-ID nicht gespeichert"
+    SetRows.Close
+    Set SetRows = Nothing
+    If GlJet Then SDBSav
+    IniSetVal "System", "ClouID", CloudID
+    If IniGetVal("System", "ClouID") <> CloudID Then Err.Raise vbObjectError + 2102, "SAnCloud", "Cloud-ID nicht in INI gespeichert"
+    GlSet(1, 95) = CloudID
+    GlCID = CloudID
+Case vbNo
+Case Else
+    Exit Function
+End Select
+IniSetVal "System", "ClouNew", vbNullString
+SAnCloud = True
+Exit Function
+Ungueltig:
+WindowMess "Die Cloud-ID muss mit K beginnen, gefolgt von 32 Hexadezimalzeichen. Bitte die ID beim Support pruefen lassen.", Dial2, "Cloud-ID pruefen", frmMain.hwnd
+Exit Function
+SuErr:
+If GlLog = True Then SLogi "SAnCloud Err: Cloud-ID nicht bestaetigt #" & Err.Number
+On Error Resume Next 'Nur das lokale Recordset freigeben.
+If Not SetRows Is Nothing Then
+    If SetRows.State <> adStateClosed Then SetRows.Close
+End If
+Set SetRows = Nothing
+On Error GoTo 0
+WindowMess "Die Cloud-ID konnte nicht gespeichert werden. Bitte vor dem naechsten Abruf oder Publizieren den Support informieren.", Dial2, "Cloud-ID pruefen", frmMain.hwnd
+End Function
 
-Set clFil = New clsFile
-clFil.hwnd = FM.hwnd
+Private Function SAnLine(ByRef CsvText As String, ByRef Posit As Long, ByRef Felder() As String, ByRef RohZeile As String) As Boolean
+'Liest einen CSV-Satz einschliesslich zitierter Zeilenumbrueche.
+Dim StartPos As Long
+Dim FeldNr As Long
+Dim Zeichen As String
+Dim InQuote As Boolean
+Dim ZuQuote As Boolean
 
-FiNam = GlTEx & "*.csv" 'Termineordner
-IniNa = GlTmp & "*.ini"
-
-With clFil
-    If .FilVor(GlTEx & "*.csv") = True Then
-        AnzDa = .FilLis(LCase(GlTEx), "*.csv", DiNam)
-        If AnzDa > 0 Then
-            FiNam = GlTEx & DiNam(1)
-        End If
-    End If
-    If .FilVor(GlTmp & "*.ini") = True Then
-        AnzIn = .FilLis(LCase(GlTmp), "*.ini", InNam)
-        If AnzIn > 0 Then
-            IniNa = GlTmp & InNam(1)
-        End If
-    End If
-End With
-
-If AnzDa = 0 Then 'keine alten Abrufdateien vorhanden
-    Set clFil = Nothing
-    S_AnBoA 'Fragebögen abrufen
-Else
-    With clFil
-        If .FilVor(IniNa) = True Then
-            .FilPfa IniNa
-            TmpSt = .FilReSt
-            DoEvents
-            If TmpSt <> vbNullString Then
-                AryZe = Split(TmpSt, vbCrLf) 'Zeilen aufsplitten
-                For AktZe = 0 To UBound(AryZe) - 1
-                    If AryZe(AktZe) <> vbNullString Then
-                        TmpZe = AryZe(AktZe)
-                        Lange = Len(TmpZe)
-                        Posit = InStr(1, TmpZe, "=", 1)
-                        If Posit > 0 Then
-                            InTyp = LCase(Left$(TmpZe, Posit - 1))
-                            Select Case InTyp
-                            Case "formsubmissioncount": RetSt = Right$(TmpZe, Lange - Posit)
-                            Case "error": ErrSt = Right$(TmpZe, Lange - Posit)
-                            End Select
-                        End If
-                    End If
-                Next AktZe
-            End If
-        End If
-
-        If RetSt <> vbNullString Then
-            If IsNumeric(RetSt) = True Then
-                GlFrD = CInt(RetSt) 'Anzahl Fragebogendownload
+ReDim Felder(5)
+Do While Posit <= Len(CsvText)
+    Zeichen = Mid$(CsvText, Posit, 1)
+    If Zeichen <> vbCr And Zeichen <> vbLf Then Exit Do
+    Posit = Posit + 1
+Loop
+If Posit > Len(CsvText) Then Exit Function
+StartPos = Posit
+Do While Posit <= Len(CsvText)
+    Zeichen = Mid$(CsvText, Posit, 1)
+    If InQuote Then
+        If Zeichen = Chr$(34) Then
+            If Mid$(CsvText, Posit + 1, 1) = Chr$(34) Then
+                Felder(FeldNr) = Felder(FeldNr) & Zeichen
+                Posit = Posit + 1
             Else
-                GlFrD = 0
-            End If
-            If GlFrD > 0 Then
-                If .FilVor(FiNam) = True Then
-                    .FilPfa FiNam
-                    TmpSt = .FilReSt
-                    DoEvents
-                    If TmpSt <> vbNullString Then
-                        AryZe = Split(TmpSt, Chr$(10)) 'Zeilen aufsplitten
-                        GesZe = UBound(AryZe)
-                        TmpZe = AryZe(0)
-                        TmpZe = Replace(TmpZe, vbCrLf, vbNullString, 1)
-                        If GesZe > 0 Then
-                            AryFe = Split(TmpZe, Chr$(59)) 'Feldnamen aufsplitten
-                            GesFe = UBound(AryFe)
-                            Set RS164 = New ADODB.Recordset 'neues Recordset erstellen Patienten
-                            RS164.CursorLocation = adUseClient
-                            For AktFe = 0 To GesFe
-                                TmpFe = AryFe(AktFe)
-                                TmpFe = Replace(TmpFe, vbCrLf, vbNullString, 1)
-                                RS164.Fields.Append TmpFe, adVarChar, 250
-                            Next AktFe
-                            If RS164.State = adStateClosed Then RS164.Open
-
-                            For AktZe = 1 To GesZe 'WICHTIG! ab Zeile 1 begindnen
-                                If AryZe(AktZe) <> vbNullString Then
-                                    AryFe = Split(AryZe(AktZe), Chr$(59)) 'Felder aufsplitten
-                                    RS164.AddNew
-                                    RS164.Fields(0).Value = AryFe(0)
-                                    RS164.Fields(1).Value = AryFe(1)
-                                    RS164.Fields(2).Value = AryFe(2)
-                                    RS164.Fields(3).Value = AryFe(3)
-                                    RS164.Fields(4).Value = AryFe(4)
-                                    RS164.Fields(5).Value = SUmw(AryFe(5), True, False, True, False)
-                                    RS164.Update
-                                End If
-                            Next AktZe
-
-                            Set frmZuord.FoRST = RS164
-                            SAnIn '---------- Fragebogen Zuordnungsdialog ----------
-                        Else
-                            SPopu "Fragebogenabruf", "Der Fragebogen enthält keine Informationen.", IC48_Information
-                            SAnUm FiNam, IniNa 'Fragebogendatei umbenennen
-                        End If
-                    End If
-                Else
-                    If ErrSt = vbNullString Then
-                        SPopu "Einlesefeher", "Unerwarteter Fehler, bei der Verarbeitung einer Fragebogendatei", IC48_Forbidden
-                    Else
-                        SPopu "Einlesefeher", ErrSt, IC48_Forbidden
-                    End If
-                    SAnUm FiNam, IniNa
-                End If
-            Else
-                SPopu "Fragebogenimport", "Es liegen keine neuen Fragebögen vor.", IC48_Information
+                InQuote = False
+                ZuQuote = True
             End If
         Else
-            If ErrSt = vbNullString Then
-                SPopu "Einlesefeher", "Unerwarteter Fehler, bei der Verarbeitung einer Fragebogendatei", IC48_Forbidden
-            Else
-                SPopu "Einlesefeher", ErrSt, IC48_Forbidden
-            End If
-            SAnUm FiNam, IniNa
+            Felder(FeldNr) = Felder(FeldNr) & Zeichen
         End If
-    End With
-    
-End If
+    Else
+        Select Case Zeichen
+        Case Chr$(34)
+            If Len(Felder(FeldNr)) > 0 Or ZuQuote Then GoTo Ungueltig
+            InQuote = True
+        Case ";"
+            FeldNr = FeldNr + 1
+            If FeldNr > 5 Then GoTo Ungueltig
+            ZuQuote = False
+        Case vbCr, vbLf
+            Exit Do
+        Case Else
+            If ZuQuote Then GoTo Ungueltig
+            Felder(FeldNr) = Felder(FeldNr) & Zeichen
+        End Select
+    End If
+    Posit = Posit + 1
+Loop
+If InQuote Or FeldNr <> 5 Then GoTo Ungueltig
+RohZeile = Mid$(CsvText, StartPos, Posit - StartPos)
+SAnLine = True
+Exit Function
+Ungueltig:
+Err.Raise vbObjectError + 2100, "SAnLine", "Ungueltiger CSV-Satz"
+End Function
 
-Set clFil = Nothing
+Private Function SAnParse(ByVal CsvText As String, ByRef KopfZeile As String, ByRef BogCount As Long) As ADODB.Recordset
+On Error GoTo SuErr
+Dim CsvRows As ADODB.Recordset
+Dim SeenIds As Object
+Dim Felder() As String
+Dim KopfFeld() As String
+Dim RohZeile As String
+Dim SubmisID As String
+Dim FormID As String
+Dim Posit As Long
+Dim FeldNr As Long
+Dim FrageNr As Long
+Dim MetaNr As Long
+Dim ErrNum As Long
 
-Exit Sub
-
+Posit = 1
+BogCount = 0
+KopfFeld = Split("FormId;FormSubmissionId;FormElementId;FormElementType;QuestionNumber;Value", ";")
+If Not SAnLine(CsvText, Posit, Felder, KopfZeile) Then GoTo Ungueltig
+Set CsvRows = New ADODB.Recordset
+CsvRows.CursorLocation = adUseClient
+For FeldNr = 0 To 5
+    If Felder(FeldNr) <> KopfFeld(FeldNr) Then GoTo Ungueltig
+    If FeldNr < 5 Then
+        CsvRows.Fields.Append KopfFeld(FeldNr), adVarChar, 250
+    Else
+        CsvRows.Fields.Append KopfFeld(FeldNr), adLongVarChar, 2147483647
+    End If
+Next FeldNr
+CsvRows.Fields.Append "CsvRow", adLongVarChar, 2147483647
+CsvRows.Open
+Set SeenIds = CreateObject("Scripting.Dictionary")
+SeenIds.CompareMode = vbTextCompare
+Do While SAnLine(CsvText, Posit, Felder, RohZeile)
+    If Felder(0) = vbNullString Or Felder(1) = vbNullString Then GoTo Ungueltig
+    If Felder(0) Like "*[!A-Za-z0-9_-]*" Then GoTo Ungueltig
+    If Felder(1) Like "*[!A-Za-z0-9_-]*" Then GoTo Ungueltig
+    If Len(Felder(0)) > 100 Or Len(Felder(1)) > 100 Then GoTo Ungueltig
+    If Len(Felder(2)) > 250 Or Len(Felder(3)) > 250 Then GoTo Ungueltig
+    If Felder(4) = vbNullString Or Len(Felder(4)) > 9 Then GoTo Ungueltig
+    If Felder(4) Like "*[!0-9]*" Then GoTo Ungueltig
+    FrageNr = CLng(Felder(4))
+    If FrageNr < 1 Then GoTo Ungueltig
+    If FrageNr = 1 Then
+        If BogCount > 0 And MetaNr < 16 Then GoTo Ungueltig
+        If SeenIds.Exists(Felder(1)) Then GoTo Ungueltig
+        SeenIds.Add Felder(1), True
+        SubmisID = Felder(1)
+        FormID = Felder(0)
+        MetaNr = 0
+        BogCount = BogCount + 1
+    End If
+    If Felder(1) <> SubmisID Or Felder(0) <> FormID Then GoTo Ungueltig
+    If MetaNr < 16 Then
+        If FrageNr <> MetaNr + 1 Then GoTo Ungueltig
+        MetaNr = FrageNr
+    ElseIf FrageNr <= 16 Then
+        GoTo Ungueltig
+    End If
+    CsvRows.AddNew
+    For FeldNr = 0 To 5
+        CsvRows.Fields(FeldNr).Value = Felder(FeldNr)
+    Next FeldNr
+    CsvRows.Fields("CsvRow").Value = RohZeile
+    CsvRows.Update
+Loop
+If BogCount > 0 And MetaNr < 16 Then GoTo Ungueltig
+If CsvRows.RecordCount > 0 Then CsvRows.MoveFirst
+Set SAnParse = CsvRows
+Set SeenIds = Nothing
+Exit Function
+Ungueltig:
+Err.Raise vbObjectError + 2100, "SAnParse", "Ungueltige Fragebogen-CSV"
 SuErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "S_AnBoC " & Err.Number
-Resume Next
+ErrNum = Err.Number
+On Error Resume Next 'Nur lokale Ressourcen freigeben.
+If Not CsvRows Is Nothing Then
+    If CsvRows.State <> adStateClosed Then CsvRows.Close
+End If
+Set CsvRows = Nothing
+Set SeenIds = Nothing
+On Error GoTo 0
+Err.Raise ErrNum, "SAnParse", "Fragebogen-CSV konnte nicht eingelesen werden"
+End Function
 
+Private Sub SAnOpen(ByVal CsvName As String, ByVal IniName As String, Optional ByVal ShowEmpty As Boolean = False)
+On Error GoTo SuErr
+Dim CsvRead As ADODB.Stream
+Dim CsvRows As ADODB.Recordset
+Dim CsvText As String
+Dim KopfZeile As String
+Dim BogCount As Long
+Dim ErrNum As Long
+
+Set CsvRead = New ADODB.Stream
+CsvRead.Type = adTypeText
+CsvRead.Charset = "windows-1252"
+CsvRead.Open
+CsvRead.LoadFromFile CsvName
+CsvText = CsvRead.ReadText
+CsvRead.Close
+Set CsvRead = Nothing
+Set CsvRows = SAnParse(CsvText, KopfZeile, BogCount)
+CsvText = vbNullString
+If BogCount > 0 Then
+    GlFrD = BogCount
+    Load frmZuord
+    frmZuord.FoCsv = CsvName
+    frmZuord.FoIni = IniName
+    frmZuord.FoHead = KopfZeile
+    Set frmZuord.FoRST = CsvRows
+    SAnIn
+Else
+    Kill CsvName 'Gueltige CSV ohne Einreichungen.
+    If Dir$(IniName) <> vbNullString Then Kill IniName
+    If ShowEmpty Then SPopu "Fragebogenabruf", "Es liegen keine neuen Frageboegen vor.", IC48_Information
+End If
+If CsvRows.State <> adStateClosed Then CsvRows.Close
+Set CsvRows = Nothing
+Exit Sub
+SuErr:
+ErrNum = Err.Number
+If GlLog = True Then SLogi "SAnOpen Err: CSV nicht eingelesen #" & ErrNum
+On Error Resume Next 'Nur lokale Ressourcen freigeben.
+If Not CsvRead Is Nothing Then
+    If CsvRead.State <> adStateClosed Then CsvRead.Close
+End If
+If Not CsvRows Is Nothing Then
+    If CsvRows.State <> adStateClosed Then CsvRows.Close
+End If
+Set CsvRead = Nothing
+Set CsvRows = Nothing
+On Error GoTo 0
+If ErrNum = vbObjectError + 2100 Then
+    SAnUm CsvName, IniName
+    WindowMess "Die Fragebogen-CSV hat ein ungueltiges Format: " & CsvName & vbCrLf & "Bitte dem Support melden und die Datei bzw. die gleichnamige .cs_ pruefen lassen.", Dial2, "Fragebogenimport", frmMain.hwnd
+Else
+    WindowMess "Die Fragebogen-Datei konnte nicht eingelesen werden und bleibt gespeichert: " & CsvName & vbCrLf & "Fehler #" & ErrNum, Dial2, "Fragebogenimport", frmMain.hwnd
+End If
 End Sub
 Public Function S_AnBoD(ByVal IdxNr As Long, ByVal FelNa As String) As String
 On Error GoTo SuErr
@@ -963,7 +1021,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
                 End If
                 
                 If GlLog = False Then 'General Logging
-                    .DaLoe = GlTmp & "*.ini" & vbNullChar
+                    .DaLoe = DaIni & vbNullChar
                     .FilLoe
                 Else
                     Clipboard.Clear
@@ -1852,7 +1910,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
                 DoEvents
                 If TmpSt <> vbNullString Then
                     AryZe = Split(TmpSt, vbCrLf) 'Zeilen aufsplitten
-                    For AktZe = 0 To UBound(AryZe) - 1
+                    For AktZe = 0 To UBound(AryZe)
                         If AryZe(AktZe) <> vbNullString Then
                             TmZei = AryZe(AktZe)
                             Lange = Len(TmZei)
@@ -1860,7 +1918,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
                             If Posit > 0 Then
                                 InTyp = LCase(Left$(TmZei, Posit - 1))
                                 Select Case InTyp
-                                Case "ReturnCode": RetWe = Val(Right$(TmZei, Lange - Posit))
+                                Case "returncode": RetWe = Val(Right$(TmZei, Lange - Posit))
                                 End Select
                             End If
                         End If
@@ -1882,12 +1940,12 @@ If GlCID <> vbNullString Then 'Cloud-ID
             Case 2:
                 TeMai = "Der Fragebogen wurde zum Abruf bereit gestell."
                 TeInh = "Die von Ihnen eingefügte Einreichungs-ID ist gültig und kann nun erneut abgerufen werden."
-                TeFus = "Bitte achten Sie darauf, dass erst alle zuvor abgerufene Fragebögen zugeordnet oder gelöscht werden müssen, bevor Sie diesen Fragebogen erneut abrufen können."
+                TeFus = "Noch nicht zugeordnete Frageboegen bleiben gespeichert und werden beim naechsten Abruf erneut angezeigt."
             End Select
             SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, FM.hwnd
 
             If GlLog = False Then 'General Logging
-                .DaLoe = GlTmp & "*.ini" & vbNullChar
+                .DaLoe = DaIni & vbNullChar
                 .FilLoe
             Else
                 Clipboard.Clear
@@ -1971,6 +2029,8 @@ Dim Lange As Integer
 Dim Posit As Integer
 Dim RetWe As Boolean
 Dim AryZe() As String
+
+If SAnCloud() = False Then Exit Function
 
 Set FM = frmMain
 Set TrLi2 = FM.trvList2
@@ -2099,7 +2159,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
             Else
                 VoChk = 0
             End If
-            If RS165.Fields("VorText").Value <> vbNullString Then
+            If TypNr = 1 And RS165.Fields("VorText").Value <> vbNullString Then
                 VorTx = RS165.Fields("VorText").Value
                 VorTx = Replace$(VorTx, vbCrLf, "$$", 1)
                 VorTx = SUmw(VorTx, False, False, True, False)
@@ -2304,7 +2364,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
 
             If ErrSt = vbNullString Then
                 If GlLog = False Then 'General Logging
-                    .DaLoe = GlTmp & "*.ini" & vbNullChar
+                    .DaLoe = DaIni & vbNullChar
                     .FilLoe
                     If FiNam <> vbNullString Then
                         If FmLnk <> vbNullString Then
@@ -2424,6 +2484,8 @@ Dim AryZe() As String
 
 Const FrSet = 0
 
+If SAnCloud() = False Then Exit Function
+
 Set FM = frmMain
 Set TrLi2 = FM.trvList2
 
@@ -2512,7 +2574,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
 
         If ErrSt = vbNullString Then
             If GlLog = False Then 'General Logging
-                .DaLoe = GlTmp & "*.ini" & vbNullChar
+                .DaLoe = DaIni & vbNullChar
                 .FilLoe
                 If DocPf <> vbNullString Then
                     If .FilVor(DocPf) = True Then

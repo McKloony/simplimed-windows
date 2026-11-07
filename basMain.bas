@@ -4278,66 +4278,8 @@ Resume Next
 
 End Sub
 Public Sub SAnLo()
-On Error GoTo SuErr
-'Löscht die abgerufenen Fragebogendateien
-
-Dim IniNa As String
-Dim IniNe As String
-Dim FiNam As String
-Dim FiNew As String
-
-Set FM = frmMain
-
-Set clFil = New clsFile
-clFil.hwnd = FM.hwnd
-
-FiNam = GlTEx & "*.csv" 'Termineordner
-IniNa = GlTmp & "*.ini"
-
-FiNew = GlTEx & "Archiv\" 'Termineordner
-IniNe = GlTmp & "Archiv\"
-
-With clFil
-    If .FilVor(IniNa) = True Then
-        If GlLog = False Then 'General Logging
-            .DaLoe = IniNa & vbNullChar
-            .FilLoe
-        Else
-            If clFil.FilDir(FiNew) = False Then
-                MkDir FiNew
-                DoEvents
-            End If
-            .DaCop = FiNam & ";" & FiNew & vbNullChar
-            If .FilCop(2) = True Then
-                SPopu "Fragebogendatei archiviert", "Die Fragebogendatei wurde archiviert", IC48_Information
-            End If
-        End If
-    End If
-    If .FilVor(FiNam) = True Then
-        If GlLog = False Then 'General Logging
-            .DaLoe = FiNam & vbNullChar
-            .FilLoe
-        Else
-            If clFil.FilDir(IniNe) = False Then
-                MkDir IniNe
-                DoEvents
-            End If
-            .DaCop = IniNa & ";" & IniNe & vbNullChar
-            If .FilCop(2) = True Then
-                SPopu "Fragebogendatei archiviert", "Die Fragebogendatei wurde archiviert", IC48_Information
-            End If
-        End If
-    End If
-End With
-
-Set clFil = Nothing
-
-Exit Sub
-
-SuErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "SAnLo " & Err.Number
-Resume Next
-
+'Nur den im Dialog geoeffneten Abruf abschliessen.
+frmZuord.FoSaved = frmZuord.SaveAbruf()
 End Sub
 Public Sub SAnSv()
 On Error GoTo OpErr

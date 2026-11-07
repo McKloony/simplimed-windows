@@ -183,45 +183,168 @@ Private RpSel As XtremeReportControl.ReportSelectedRows
 Private RpRcs As XtremeReportControl.ReportRecords
 Private ChAdr As XtremeSuiteControls.CheckBox
 
+Private Declare Function MoveAbruf Lib "kernel32" Alias "MoveFileExA" (ByVal OldName As String, ByVal NewName As String, ByVal Flags As Long) As Long
+Private ImportRan As Boolean
+Private ImportBusy As Boolean
+Private ImportBad As Boolean
+Public FoCsv As String
+Public FoIni As String
+Public FoHead As String
+Public FoSaved As Boolean
 Public FoRST As ADODB.Recordset
-Private Function FePru() As Boolean
+Public Function SaveAbruf() As Boolean
 On Error GoTo SuErr
-'Prüft ob alle Fragebögen einem Patienten zugeordnet sind
+'Nur erfolgreich zugeordnete oder bewusst verworfene Einreichungen entfernen.
+Dim DoneIds As Object
+Dim Zeile As XtremeReportControl.ReportRecord
+Dim CsvWrite As ADODB.Stream
+Dim RestCount As Long
+Dim TmpName As String
+Dim ErrNum As Long
+Dim CsvDone As Boolean
+Dim Behalten As Boolean
+Dim ArchivDir As String
+Dim ArchivNa As String
+Dim SubmisID As String
 
-Dim PatNr As Long
-Dim RpRws As XtremeReportControl.ReportRows
-Dim RpRow As XtremeReportControl.ReportRow
-Dim RpCo1 As XtremeReportControl.ReportControl
-
-Set FM = frmZuord
-Set RpCo1 = FM.repCont1
-Set RpRws = RpCo1.Rows
-
-For Each RpRow In RpRws
-    If RpRow.GroupRow = False Then
-        If RpRow.Record(19).CheckboxState = 0 Then 'Wenn Fragebogen nicht gelöscht werden soll
-            If RpRow.Record(17).Value <> vbNullString Then
-                PatNr = RpRow.Record(17).Value '[ID0]
-                If PatNr = 0 Then
-                    FePru = True
-                    SPopu "Unvollständige Patientenzuordnung", "Nicht alle Fragebögen wurden zugeordnet!", IC48_Forbidden
-                    Exit For
-                End If
-            End If
+If FoCsv = vbNullString Or FoIni = vbNullString Then Exit Function
+Set DoneIds = CreateObject("Scripting.Dictionary")
+DoneIds.CompareMode = vbTextCompare
+For Each Zeile In Me.repCont1.Records
+    Behalten = False
+    If Zeile.Item(19).CheckboxState = 0 Then
+        Behalten = (Val(Zeile.Item(17).Value) <= 0)
+        If Zeile.Item(0).Value <> "FN" Then
+            If Val(Zeile.Item(18).Value) <= 0 Then Behalten = True
         End If
     End If
-Next RpRow
+    If Not Behalten Then DoneIds(Zeile.Item(14).Value) = True
+Next Zeile
 
-Set RpRws = Nothing
-Set RpCo1 = Nothing
+Set CsvWrite = New ADODB.Stream
+CsvWrite.Type = adTypeText
+CsvWrite.Charset = "windows-1252"
+CsvWrite.Open
+CsvWrite.WriteText FoHead & vbLf
+FoRST.Filter = adFilterNone
+If FoRST.RecordCount > 0 Then
+    FoRST.MoveFirst
+    Do Until FoRST.EOF
+        SubmisID = FoRST.Fields("FormSubmissionId").Value
+        If Not DoneIds.Exists(SubmisID) Then
+            CsvWrite.WriteText FoRST.Fields("CsvRow").Value & vbLf
+            If CLng(FoRST.Fields("QuestionNumber").Value) = 1 Then RestCount = RestCount + 1
+        End If
+        FoRST.MoveNext
+    Loop
+End If
+If GlLog Then 'Nur das aktuelle Dateipaar archivieren.
+    ArchivDir = GlTEx & "Archiv\"
+    If Dir$(ArchivDir, vbDirectory) = vbNullString Then MkDir ArchivDir
+    ArchivNa = ArchivDir & Mid$(FoCsv, InStrRev(FoCsv, "\") + 1)
+    If Dir$(ArchivNa) = vbNullString Then FileCopy FoCsv, ArchivNa
+    If Dir$(FoIni) <> vbNullString Then
+        ArchivDir = GlTmp & "Archiv\"
+        If Dir$(ArchivDir, vbDirectory) = vbNullString Then MkDir ArchivDir
+        ArchivNa = ArchivDir & Mid$(FoIni, InStrRev(FoIni, "\") + 1)
+        If Dir$(ArchivNa) = vbNullString Then FileCopy FoIni, ArchivNa
+    End If
+End If
+TmpName = FoCsv & "." & CreateID("R") & ".tmp"
+CsvWrite.SaveToFile TmpName, adSaveCreateNotExist
+CsvWrite.Close
+If MoveAbruf(TmpName, FoCsv, 9) = 0 Then Err.Raise vbObjectError + 2101, "SaveAbruf", "Restdatei konnte nicht ersetzt werden"
+CsvDone = True
+TmpName = vbNullString
 
+CsvWrite.Open
+CsvWrite.WriteText "[Result]" & vbCrLf & "FormSubmissionCount=" & RestCount & vbCrLf
+TmpName = FoIni & "." & CreateID("R") & ".tmp"
+CsvWrite.SaveToFile TmpName, adSaveCreateNotExist
+CsvWrite.Close
+If MoveAbruf(TmpName, FoIni, 9) = 0 Then Err.Raise vbObjectError + 2101, "SaveAbruf", "INI konnte nicht ersetzt werden"
+TmpName = vbNullString
+If RestCount = 0 Then
+    Kill FoCsv
+    Kill FoIni
+End If
+Set CsvWrite = Nothing
+Set DoneIds = Nothing
+SaveAbruf = True
 Exit Function
-
 SuErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "FePru " & Err.Number
-Resume Next
-
+ErrNum = Err.Number
+If GlLog = True Then SLogi "SaveAbruf Err: Restdatei nicht gespeichert #" & ErrNum
+On Error Resume Next 'Nur lokale Ressourcen und eigene temporaere Datei bereinigen.
+If Not CsvWrite Is Nothing Then
+    If CsvWrite.State <> adStateClosed Then CsvWrite.Close
+End If
+If TmpName <> vbNullString Then Kill TmpName
+Set CsvWrite = Nothing
+Set DoneIds = Nothing
+On Error GoTo 0
+If CsvDone Then
+    SaveAbruf = True 'Die CSV ist verbindlich; die INI wird zum Lesen nicht benoetigt.
+    WindowMess "Die Restfrageboegen sind gespeichert. Die Begleitdatei konnte nicht aktualisiert werden: " & FoIni & vbCrLf & "Fehler #" & ErrNum, Dial2, "Fragebogenimport", Me.hwnd
+Else
+    WindowMess "Die Restfrageboegen konnten nicht gespeichert werden: " & FoCsv & vbCrLf & "Die Originaldatei bleibt erhalten. Bitte erneut Weiter waehlen oder den Support informieren. Fehler #" & ErrNum, Dial2, "Fragebogenimport", Me.hwnd
+End If
 End Function
+
+Private Function FePru() As Boolean
+On Error GoTo SuErr
+Dim Zeile As XtremeReportControl.ReportRecord
+Dim RestCount As Long
+Dim GutCount As Long
+Dim LoeschAnz As Long
+Dim Meldung As String
+
+For Each Zeile In Me.repCont1.Records
+    If Zeile.Item(19).CheckboxState <> 0 Then
+        LoeschAnz = LoeschAnz + 1
+    ElseIf Val(Zeile.Item(17).Value) <= 0 Or Zeile.Item(0).Value = vbNullString Then
+        RestCount = RestCount + 1
+    Else
+        GutCount = GutCount + 1
+    End If
+Next Zeile
+If RestCount > 0 Then
+    Meldung = GutCount & " Frageboegen werden uebernommen, " & RestCount & " Frageboegen bleiben fuer spaeter gespeichert (Zuordnung oder Vorlage fehlt)."
+    If LoeschAnz > 0 Then Meldung = Meldung & vbCrLf & LoeschAnz & " Frageboegen werden bewusst verworfen."
+    Meldung = Meldung & vbCrLf & "Fortfahren?"
+    FePru = (WindowMess(Meldung, Dial1, "Fragebogenimport", Me.hwnd) <> 6)
+End If
+Exit Function
+SuErr:
+FePru = True
+If GlLog = True Then SLogi "FePru Err: Zuordnung nicht geprueft #" & Err.Number
+WindowMess "Die Zuordnung konnte nicht geprueft werden. Die Abrufdateien bleiben erhalten.", Dial2, "Fragebogenimport", Me.hwnd
+End Function
+
+Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
+On Error GoTo SuErr
+Dim Meldung As String
+If ImportBusy Then
+    Cancel = 1
+    Exit Sub
+End If
+If FoCsv = vbNullString Or FoSaved Then Exit Sub
+If ImportBad Then
+    WindowMess "Der Import wurde abgebrochen. Die Originaldatei bleibt erhalten. Bitte vor dem erneuten Import den Support informieren.", Dial2, "Fragebogenimport", Me.hwnd
+    Exit Sub
+End If
+If ImportRan Then
+    SAnLo
+    If Not FoSaved Then Cancel = 1
+Else
+    Meldung = "Die Frageboegen bleiben fuer spaeter gespeichert. Beim naechsten Abruf wird dieser Abruf erneut angezeigt."
+    WindowMess Meldung, Dial2, "Fragebogenimport", Me.hwnd
+End If
+Exit Sub
+SuErr:
+Cancel = 1
+If GlLog = True Then SLogi "Form_QueryUnload Err: Abruf bleibt erhalten #" & Err.Number
+End Sub
 
 Private Sub FeLoe()
 On Error GoTo InErr
@@ -312,12 +435,16 @@ Private Sub btnSchließ_Click()
     Unload Me
 End Sub
 Private Sub btnWeiter_Click()
+On Error GoTo SuErr
+If ImportBusy Or ImportBad Then Exit Sub
+If FoCsv <> vbNullString Then ImportBusy = True
     
 Screen.MousePointer = vbHourglass
 DoEvents
 
 Select Case GlBut
 Case RibTab_LabBericht:
+            On Error GoTo 0
             T_FeA
             DoEvents
             S_LaPV
@@ -326,6 +453,7 @@ Case RibTab_LabBericht:
             DoEvents
             Unload Me
 Case RibTab_LabBerichte:
+            On Error GoTo 0
             T_FeA
             DoEvents
             S_LaPV
@@ -334,7 +462,13 @@ Case RibTab_LabBerichte:
             DoEvents
             Unload Me
 Case Else:
-            If FePru = False Then 'Zuordnungsprüfung
+            If ImportRan = False Then
+                If FePru Then GoTo Fertig
+                ImportBusy = True
+                Me.repCont1.Enabled = False
+                Me.btnFunkt.Enabled = False
+                Me.chkAdrVe.Enabled = False
+                Me.btnWeiter.Enabled = False 'Zuordnungsprüfung
                 F_An4 'Adressenvergleich
                 DoEvents
                 S_AnBoH 'Fügt einen zugeordneten Fragebogen hinzu
@@ -343,15 +477,25 @@ Case Else:
                 DoEvents
                 SUpAn
                 DoEvents
-                SAnLo
-                DoEvents
-                Unload Me
+                ImportRan = True
             End If
+            SAnLo
+            ImportBusy = False
+            Me.btnWeiter.Enabled = True
+            If FoSaved Then Unload Me
 End Select
 
+Fertig:
+ImportBusy = False
 DoEvents
 Screen.MousePointer = vbNormal
-
+Exit Sub
+SuErr:
+ImportBusy = False
+ImportBad = True
+Screen.MousePointer = vbNormal
+If GlLog = True Then SLogi "btnWeiter_Click Err: Import abgebrochen #" & Err.Number
+WindowMess "Der Import wurde abgebrochen. Die Originaldatei bleibt erhalten. Bitte den Support informieren.", Dial2, "Fragebogenimport", Me.hwnd
 End Sub
 
 Private Sub chkAdrVe_Click()
@@ -406,8 +550,8 @@ Private Sub Form_Unload(Cancel As Integer)
     Case RibTab_LabBericht:
     Case RibTab_LabBerichte:
     Case Else:
-        If FoRST.State = adStateOpen Then
-            FoRST.Close
+        If Not FoRST Is Nothing Then
+            If FoRST.State = adStateOpen Then FoRST.Close
             Set FoRST = Nothing
         End If
     End Select

@@ -24481,7 +24481,11 @@ GlSet(1, 91) = vbNullString
 GlSet(1, 92) = vbNullString
 GlSet(1, 93) = vbNullString
 GlSet(1, 94) = "e:"
-GlSet(1, 95) = CreateID("K")
+GlSet(1, 95) = CStr(IniGetVal("System", "ClouID"))
+If GlSet(1, 95) = vbNullString Then
+    GlSet(1, 95) = CreateID("K")
+    IniSetVal "System", "ClouNew", GlSet(1, 95) 'Vor erster Online-Nutzung bestaetigen.
+End If
 GlSet(1, 96) = "M0"
 GlSet(1, 97) = vbNullString
 GlSet(1, 98) = vbNullString

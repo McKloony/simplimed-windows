@@ -1182,7 +1182,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
         
         With clFil
             If GlLog = False Then 'General Logging
-                .DaLoe = GlTmp & "*.ini" & vbNullChar
+                .DaLoe = DaIni & vbNullChar
                 .FilLoe
                 If .FilVor(FiNam) = True Then
                     .DaLoe = FiNam & vbNullChar
@@ -1482,7 +1482,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
 
             If ErrSt = vbNullString Then
                 If GlLog = False Then 'General Logging
-                    .DaLoe = GlTmp & "*.ini" & vbNullChar
+                    .DaLoe = IniNa & vbNullChar
                     .FilLoe
                     If .FilVor(ImOrd & "*.*") = True Then
                         .DaLoe = ImOrd & "*.*" & vbNullChar
@@ -1684,7 +1684,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
             
             With clFil
                 If GlLog = False Then 'General Logging
-                    .DaLoe = GlTmp & "*.ini" & vbNullChar
+                    .DaLoe = DaIni & vbNullChar
                     .FilLoe
                     If .FilVor(FiNam) = True Then
                         .DaLoe = FiNam & vbNullChar
@@ -2949,7 +2949,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
             
             If ErrSt = vbNullString Then
                 If GlLog = False Then 'General Logging
-                    .DaLoe = GlTmp & "*.ini" & vbNullChar
+                    .DaLoe = DaIni & vbNullChar
                     .FilLoe
                     If FiNam <> vbNullString Then
                         If .FilVor(FiNam) = True Then
@@ -3098,7 +3098,7 @@ With clFil
 
     If GlLog = False Then 'General Logging
         With clFil
-            .DaLoe = GlTmp & "*.ini" & vbNullChar
+            .DaLoe = DaIni & vbNullChar
             .FilLoe
         End With
     Else
@@ -3207,7 +3207,7 @@ With clFil
     
     If GlLog = False Then 'General Logging
         With clFil
-            .DaLoe = GlTmp & "*.ini" & vbNullChar
+            .DaLoe = DaIni & vbNullChar
             .FilLoe
         End With
     Else
@@ -3312,7 +3312,7 @@ With clFil
     
     If GlLog = False Then 'General Logging
         With clFil
-            .DaLoe = GlTmp & "*.ini" & vbNullChar
+            .DaLoe = DaIni & vbNullChar
             .FilLoe
         End With
     Else
@@ -9033,7 +9033,7 @@ If GlTSN <> vbNullString Then 'TSE Kennung
             DoEvents
             If GlLog = False Then 'General Logging
                 With clFil
-                    .DaLoe = GlTmp & "*.ini" & vbNullChar
+                    .DaLoe = DaIni & vbNullChar
                     .FilLoe
                 End With
             End If
@@ -9048,7 +9048,7 @@ If GlTSN <> vbNullString Then 'TSE Kennung
         DoEvents
         If GlLog = False Then 'General Logging
             With clFil
-                .DaLoe = GlTmp & "*.ini" & vbNullChar
+                .DaLoe = DaIni & vbNullChar
                 .FilLoe
             End With
         Else
@@ -9264,7 +9264,7 @@ If GlTSN <> vbNullString Then 'TSE Kennung
                 DoEvents
                 If GlLog = False Then 'General Logging
                     With clFil
-                        .DaLoe = GlTmp & "*.ini" & vbNullChar
+                        .DaLoe = DaIni & vbNullChar
                         .FilLoe
                     End With
                 Else
@@ -9435,7 +9435,7 @@ If GlTSN <> vbNullString Then 'TSE Kennung
         
         If GlLog = False Then 'General Logging
             With clFil
-                .DaLoe = GlTmp & "*.ini" & vbNullChar
+                .DaLoe = DaIni & vbNullChar
                 .FilLoe
             End With
         Else
@@ -9850,6 +9850,7 @@ Dim KasNr As Integer
 Dim OrgOK As Boolean
 Dim TSEOK As Boolean
 Dim KliOK As Boolean
+Dim KasOK As Boolean
 Dim AryZe() As String
 Dim TxTSE As XtremeSuiteControls.FlatEdit
 
@@ -10207,6 +10208,7 @@ If GlTSK <> vbNullString Then 'TSE Organisation Key
     If GlTSN <> vbNullString Then
         For AktZa = 1 To UBound(GlGeK)
             If CBool(GlGeK(AktZa, 5)) = True Then 'Kassen
+                KasOK = True
                 If GlGeK(AktZa, 8) = vbNullString Or Left$(GlGeK(AktZa, 8), 1) = "K" Then
                     KasNr = GlGeK(AktZa, 0)
                     KaNam = SNaFi(GlGeK(AktZa, 1), True)
@@ -10292,6 +10294,9 @@ If GlTSK <> vbNullString Then 'TSE Organisation Key
                 End If
             End If
         Next AktZa
+        If KasOK = False Then 'Keine Kasse gekennzeichnet.
+            TxTSE.Text = TxTSE.Text & vbCrLf & "Es ist kein Geldkonto als Kasse gekennzeichnet. Es wurde kein Klient eingerichtet!" & vbCrLf
+        End If
     Else
         TxTSE.Text = TxTSE.Text & vbCrLf & "Es kann kein Klient eingerichtet werden!" & vbCrLf
     End If
@@ -10305,7 +10310,7 @@ TxTSE.SelStart = Len(TxTSE.Text)
 
 If GlLog = False Then 'General Logging
     With clFil
-        .DaLoe = GlTmp & "*.ini" & vbNullChar
+        .DaLoe = DaIni & vbNullChar
         .FilLoe
     End With
 Else
