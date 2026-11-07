@@ -1,0 +1,86 @@
+Bankimport: i300-Kontoauszuege, 28.10.2026
+
+Quelle: 001/basBankimp.bas
+Sicherung vor der Aenderung: backups/bank_csv_20261028/basBankimp.bas
+
+Aenderungen
+- Leere CSV-Zeilen, auch aus CR CR LF, beeinflussen die Analyse nicht mehr.
+- Buchungstag hat Vorrang vor Valutadatum, unabhaengig von der Spaltenfolge.
+- Das vorliegende Bankformat wird anhand seiner Spalten erkannt.
+- Stabile Kennung aus vollstaendigen Bankfeldern, Konto, Mandant und Saldo;
+  SHA-256 ueber Windows CryptoAPI, gespeichert im bestehenden Feld Suche.
+- Keine Abhaengigkeit von Stichproben, gekuerzten Beschreibungen, Reihenfolge,
+  Bemerkungen oder Markierungen. Keine neue COM- oder Datenbankreferenz.
+- Bereits vorhandene Kennungen werden vor dem Einfuegen abgeglichen.
+  Mehrfach vorhandene identische Zeilen behalten ihre Anzahl.
+- Vorhandene alte Eintraege ohne neue Kennung werden gesondert verglichen.
+  Gekuerzte/uneindeutige Alttexte koennen einen Abbruch vor dem Speichern
+  ausloesen und brauchen eine manuelle Pruefung. Keine automatische Loeschung
+  oder Aenderung alter Buchungen, Daten oder Zuordnungen.
+- Vollstaendige Validierung/Planung vor dem ersten Schreibzugriff.
+- Sperre gegen erneuten Aufruf waehrend eines laufenden Imports.
+- Andere CSV-Formate und MT940 behalten ihren bisherigen Importweg;
+  die allgemeine Leerzeilen-/Datumsverbesserung gilt auch dort.
+
+Verifikation
+1. powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Test-BankCsv.ps1
+   PASS: 4226 Pruefungen mit den 5 Dateien und insgesamt 2052 Umsatzzeilen.
+   Erstimport, Wiederholung, bereinigte Zeilenenden, vollstaendig zitierte
+   Felder, umgekehrte Reihenfolge, Ein-Zeilen-Export und ueberlappende Exporte.
+   Datum/Betrag jedes Umsatzes, Konto-/Mandantentrennung, lange Referenzen,
+   legitime Mehrfachbuchungen, ungueltige Daten, Lesefehler und Altbestand.
+   Ausgefuehrt mit aus dem Quellcode extrahierten und fuer VBScript adaptierten
+   Routinen, echten ADO-Recordsets im Speicher, Test-Collection und CryptoAPI.
+   ParseDate verwendet im Test den nativen VBScript-Datumspfad. BankLoad und
+   UI sind Testobjekte. Dies ersetzt keinen VB6-Build oder Anwendungstest.
+2. powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Test-BankCsvDatabase.ps1
+   PASS: tatsaechlicher parametrisierter BankLoad-SQL auf separater temporaerer
+   ACE-Datenbank. Filter fuer Konto, Mandant, Anfang und kompletten Endtag.
+3. Diff geprueft; CP1252 ohne BOM, CRLF und vorhandene Umlautbytes erhalten.
+   Die fuenf Eingabedateien sind bytegleich; keine Kundendatenbank beschrieben.
+
+Noch manuell zu pruefen
+- VB6-Build: kein VB6-Compiler in dieser Umgebung verfuegbar.
+- Anwendungstest mit Access UND SQL Server; SQL Server nicht ausgefuehrt.
+- Import auf einer Testkopie des Kundenbestands, insbesondere Alttexte.
+- Vorhandene Dubletten werden durch diesen Fix nicht rueckwirkend entfernt.
+- Keine datenbankweite Sperre zwischen verschiedenen Programmprozessen;
+  gleichzeitige Importe desselben Kontos auf mehreren Clients vermeiden.
+- Keine Gesamttransaktion: bei Schreibfehlern bleiben erfolgreich gespeicherte
+  Zeilen erhalten. Ihre stabilen Kennungen schuetzen einen erneuten Import.
+
+Kein Commit und keine Produktivbereitstellung.
+
+Nachtrag: Abschlussmeldung und Index, 28.10.2026
+- Die zusaetzliche Erfolgsmeldung am Ende von BankImport wurde entfernt.
+  Importiert/uebersprungen wird nur bei GlLog=True als Anzahl protokolliert.
+  Fehler- und Abbruchmeldungen bleiben bestehen. CP1252 und CRLF erhalten.
+  Sicherung: backups/bank_csv_status_20261028/basBankimp.bas
+  Erneuter Lauf von Test-BankCsv.ps1: PASS, alle 4226 Pruefungen bestanden.
+- BankLoad liest einmal je Import nach IDB, IDM und Datumsbereich.
+  In sql/SQL_Server.sql und 895b.sql fehlt ein gemeinsamer Index dafuer;
+  dort bestehen unter anderem getrennte Indizes auf Datum und IDM.
+- sql/Bankimport_Index.sql bereitet einen nicht eindeutigen Index auf
+  Tabelle_Banking (IDB, IDM, Datum) vor. Vor einmaliger Anwendung vorhandene
+  Indizes der Zieldatenbank pruefen; gleichwertigen Index nicht doppelt anlegen.
+  Keine automatische Schemaaenderung und keine Anwendung auf Kundendatenbanken.
+- Test-BankCsvDatabase.ps1 hat den vorgeschlagenen Index erstellt und die
+  echte BankLoad-Abfrage auf einer separaten temporaeren ACE-Datenbank geprueft.
+  Kein SQL-Server-Test und keine Laufzeitmessung am Kundenbestand durchgefuehrt.
+- Der Index kann den gefilterten Bestandsabgleich bei grossen Tabellen
+  beschleunigen. Er beseitigt nicht die einzelnen RS.Update-Schreibzugriffe.
+  Ein zusaetzlicher Index kostet Speicher und Pflege beim Schreiben;
+  den Gesamtnutzen am Zielserver mit Ausfuehrungsplan/Laufzeit pruefen.
+  Grundlage: https://learn.microsoft.com/en-us/sql/relational-databases/sql-server-index-design-guide
+
+Nachtrag: bestehende SimpliMed-Dialogart, 28.10.2026
+- Die zusaetzliche Erfolgs-MsgBox war bereits entfernt. Im Importmodul gab es
+  noch fuenf Windows-MsgBox-Aufrufe fuer fehlende Datei, fehlende Schreibbarkeit,
+  Spaltenerkennung und Fehler/Abbruch. Diese verwenden jetzt den vorhandenen
+  SimpliMed-Dialog SMeFr mit Warnsymbol und OK-Schaltflaeche.
+- Kein direkter MsgBox-Aufruf mehr in basBankimp.bas. Keine neue Erfolgsmeldung.
+  Die bestehende Dubletten-Rueckfrage ueber S_BaDop/SMeFr bleibt erhalten.
+- Nur fuenf Aufrufzeilen geaendert; Import-/Dublettenlogik unveraendert.
+- Sicherung: backups/bank_import_dialog_20261028/basBankimp.bas.
+- Diff und SMeFr-Signatur geprueft; CP1252, CRLF und alle vorhandenen
+  Nicht-ASCII-Zeichen erhalten. Kein VB6-Build oder visueller Anwendungstest.

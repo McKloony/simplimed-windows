@@ -1,0 +1,71 @@
+CSV-Import: Kompatibilitaetskorrektur, 29.10.2026
+
+Quelle: 001/basBankimp.bas (BankCols und ScanD)
+Sicherung: backups/bank_csv_compat_20261029/basBankimp.bas
+Aufruf: frmImport.frm -> Imp01. basData.bas ist nicht der CSV-Parser.
+
+Nachgewiesene Regressionen
+- BankCols erkannte bereits acht gemeinsame Spaltennamen oder die Kombination
+  aus Auftragskonto-IBAN und Buchungssaldo als Spezialformat. Fehlten weitere
+  i300-Spalten, brach auch ein gueltiger anderer Export vor ScanD ab.
+- ScanD behandelte eine reine Valuta-Spalte auch mit Waehrungswerten (EUR)
+  als Datum und erkannte die bisher unterstuetzte Spalte Buchung nicht mehr
+  vorrangig. Dadurch konnten Zeilen entfallen oder Valutadaten Vorrang erhalten.
+- Beide Fehler mit synthetischen CSVs und aus Imp01 extrahiertem Importpfad
+  reproduziert: fehlende Pflichtspalten bzw. keine gespeicherten Umsatzzeilen.
+
+Korrektur
+- Nur das vollstaendige i300-Spaltenschema aktiviert den Spezialimport.
+  Andere Schemata erreichen wieder die allgemeine Erkennung und Sonderformate.
+- Doppelte Pflichtspalten des vollstaendigen Spezialformats bleiben ein Fehler.
+- Valuta ohne Zusatz wird nur bei vorhandenen Datumswerten als Datum gewertet.
+  Buchungsspalten mit Datumswerten haben wieder Vorrang. Verwendungsfelder
+  sind wie vor der gestrigen Aenderung von der Datumserkennung ausgeschlossen.
+- i300-Kennungen, Bestandsabgleich, SQL und sonstige Routinen unveraendert.
+
+Verifikation
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Test-BankCsv.ps1
+PASS: 4351 Pruefungen = 4226 bestehende + 125 Kompatibilitaetspruefungen.
+- Fuenf vorhandene i300-Dateien, insgesamt 2052 Umsatzzeilen: Datum/Betrag,
+  Wiederholung, geaenderte Reihenfolge/Formatierung, ueberlappende Exporte.
+- Synthetische andere CSVs: acht gemeinsame Spalten, Teilformat mit IBAN/Saldo,
+  Semikolon, Komma, Tabulator, Soll/Haben, StarMoney Deluxe, Valuta als Waehrung
+  bzw. Datum, Buchung als Datum und statistische Datumserkennung.
+- i300 ueber den Imp01-Importpfad: Wiederholung, Vorspann, Spaltenreihenfolge,
+  Umlaute, fehlende Pflichtspalten, doppelte Spalten und ungueltige Daten.
+- Aus VB6 extrahierter und fuer VBScript adaptierter Code; ADO-Recordsets nur
+  im Speicher. UI/BankLoad sind Testobjekte, ParseDate nutzt den nativen
+  VBScript-Datumspfad. Kein Ersatz fuer einen VB6-Build/Anwendungstest.
+- Diff zur Sicherung geprueft; nur zwei Routinen geaendert. CP1252, CRLF und
+  saemtliche Nicht-ASCII-Zeichen erhalten. git diff --check ohne Befund.
+- Originale CSV-Dateien laut SHA256 unveraendert; keine Produktivdaten geaendert.
+
+Offene lokale Pruefung
+- Z: ist hier nicht eingebunden; konkrete Dateien aus Kontoumsaetze konnten
+  nicht getestet werden. Die zusaetzlichen Fremdformat-Tests sind synthetisch.
+- Kein VB6-Compiler gefunden; kein Build und kein SimpliMed-UI-Test ausgefuehrt.
+- Noch in SimpliMed auf Testbestand mit Access und SQL Server pruefen:
+  bisherige CSV importieren, Anzahl/Datum/Betrag vergleichen; i300 zweimal
+  importieren und bestaetigen, dass der zweite Import keine Zeilen hinzufuegt.
+
+Kein Commit und keine Produktivbereitstellung.
+
+Nachtrag: Abbruchmeldung bei unvollstaendigen Alttexten entfernt
+- Auf Benutzerwunsch den im Screenshot gezeigten Abbruch in BankImport entfernt.
+  Gekuerzte/unvollstaendige Alttexte verhindern den Import nicht mehr.
+- Eindeutig erkannte Dubletten werden weiterhin uebersprungen. Bei unklarer
+  Identitaet bleibt die Altbuchung unveraendert und die neue Zeile wird mit
+  stabiler Kennung importiert. Weitere Wiederholungen werden daran erkannt.
+- Deshalb koennen beim ersten Import zusaetzliche Dubletten gegenueber dem
+  Altbestand entstehen. Es werden keine bestehenden Buchungen geloescht oder
+  neue Umsaetze allein aufgrund eines unvollstaendigen Alttexts unterdrueckt.
+- Nur die Anzahl dieser Faelle wird bei GlLog=True mitprotokolliert; keine
+  neue Meldung und keine Buchungsinhalte im zusaetzlichen Logfeld.
+- Sicherung: backups/bank_legacy_continue_20261029/basBankimp.bas.
+- Meldung vor Aenderung im neuen Test reproduziert. Danach PASS: 4364 Pruefungen
+  mit demselben Testbefehl, darunter 141 Kompatibilitaets-/Altbestandstests.
+  Geprueft: gekuerzter, unvollstaendiger und fehlender Alttext, unveraenderte
+  Altbuchungen, mehrere lange Referenzen, wiederholter Import und eindeutig
+  erkannte Alt-Dubletten neben unklaren Kandidaten. Fuenf Originaldateien
+  weiterhin bytegleich. Diff/Encoding geprueft; nur BankImport nachtraeglich
+  geaendert. Einschraenkungen zum VB6-Build und Anwendungstest gelten weiter.

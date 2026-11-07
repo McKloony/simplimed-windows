@@ -1,0 +1,76 @@
+﻿Pruefbericht Access-Bankindex, 28.10.2026
+
+Ergebnis: 9 von 9 gefundenen Access-Datenbanken erfolgreich angepasst.
+Nachtrag: Die zwei DAX-Dateien in _Abfragen waren zunaechst nicht erfasst.
+Am 28.10.2026 nachtraeglich gesichert, angepasst und erneut geprueft.
+Index: IX_Banking_IDB_IDM_Datum auf Tabelle_Banking (IDB, IDM, Datum).
+Nicht eindeutig; vorhandene Buchungen und Tabellenfelder nicht veraendert.
+Jede Datei vorab exklusiv kopiert und Sicherung per SHA-256 verifiziert.
+Nach Abschluss jede Datenbank erneut schreibgeschuetzt geoeffnet:
+Indexname, exakte Spaltenfolge, UNIQUE=False und Zeilenanzahl bestaetigt.
+Keine Datenbankfehler; alle Umsatzzahlen vor/nach der Aenderung identisch.
+
+Datenbank: Z:\Data\Database\Abrechnung\Marcus_Privat.dbv
+Bankumsatzzeilen vorher/nachher: 4311
+Sicherung: Z:\Data\Database\Abrechnung\Bankindex_Sicherung_20261028_095650_a2035e72\Marcus_Privat.dbv
+Sicherung SHA256: 0CA74C4497B1B9E227E2B471C71389F9EB29ED91B5179778F4AF209A842A5FA3
+Protokoll: Z:\Data\Database\Abrechnung\Bankindex_Protokoll_20261028_095650_a2035e72.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\SimpliMed.dbx
+Bankumsatzzeilen vorher/nachher: 0
+Sicherung: Z:\Data\Database\Abrechnung\Bankindex_Sicherung_20261028_095650_a2035e72\SimpliMed.dbx
+Sicherung SHA256: C1D16CCD146D916140E5198D5D51E9758A48F75F049C64E52DD7B49016B9B3EF
+Protokoll: Z:\Data\Database\Abrechnung\Bankindex_Protokoll_20261028_095650_a2035e72.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\SimpliMed.mdb
+Bankumsatzzeilen vorher/nachher: 0
+Sicherung: Z:\Data\Database\Abrechnung\Bankindex_Sicherung_20261028_095650_a2035e72\SimpliMed.mdb
+Sicherung SHA256: DE3B2056059E20E032D7A33DB6C781DCB31E89186F5B779A5F3AB4B4FC8260B7
+Protokoll: Z:\Data\Database\Abrechnung\Bankindex_Protokoll_20261028_095650_a2035e72.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\SimpliMed2.mdb
+Bankumsatzzeilen vorher/nachher: 0
+Sicherung: Z:\Data\Database\Abrechnung\Bankindex_Sicherung_20261028_095650_a2035e72\SimpliMed2.mdb
+Sicherung SHA256: 4901C0C9B90B89787AE25A969F1ABA5283A963F5A77C0B2B5210E47B822318F7
+Protokoll: Z:\Data\Database\Abrechnung\Bankindex_Protokoll_20261028_095650_a2035e72.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\_Datenbank\SimpliMed.accdb
+Bankumsatzzeilen vorher/nachher: 0
+Sicherung: Z:\Data\Database\Abrechnung\_Datenbank\Bankindex_Sicherung_20261028_095754_5db67aa4\SimpliMed.accdb
+Sicherung SHA256: 1EEE0933D4E1ED069E943B375CE517848C1A247CBD6A3E1F71F000BEFBE20FBB
+Protokoll: Z:\Data\Database\Abrechnung\_Datenbank\Bankindex_Protokoll_20261028_095754_5db67aa4.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\_Beispieldaten\Beispieldaten.accdb
+Bankumsatzzeilen vorher/nachher: 57
+Sicherung: Z:\Data\Database\Abrechnung\_Beispieldaten\Bankindex_Sicherung_20261028_095819_0e756aa6\Beispieldaten.accdb
+Sicherung SHA256: 17FFADA8AB93256F4590BFB18D301142154E6F38999A4E879133507E9980C015
+Protokoll: Z:\Data\Database\Abrechnung\_Beispieldaten\Bankindex_Protokoll_20261028_095819_0e756aa6.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\_CrossMed\Beispieldaten.dbv
+Bankumsatzzeilen vorher/nachher: 57
+Sicherung: Z:\Data\Database\Abrechnung\_CrossMed\Bankindex_Sicherung_20261028_100055_b015ccab\Beispieldaten.dbv
+Sicherung SHA256: 17FFADA8AB93256F4590BFB18D301142154E6F38999A4E879133507E9980C015
+Protokoll: Z:\Data\Database\Abrechnung\_CrossMed\Bankindex_Protokoll_20261028_100055_b015ccab.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\_Abfragen\Datenbank1.dax
+Bankumsatzzeilen vorher/nachher: 0
+Sicherung: Z:\Data\Database\Abrechnung\_Abfragen\Bankindex_Sicherung_20261028_134005_5cc33885\Datenbank1.dax
+Sicherung SHA256: B31C70B718C7359B166E8E02FC84801EBA129D32A32522664E96384F0998EB63
+Protokoll: Z:\Data\Database\Abrechnung\_Abfragen\Bankindex_Protokoll_20261028_134005_5cc33885.csv
+
+Datenbank: Z:\Data\Database\Abrechnung\_Abfragen\Datenbank2.dax
+Bankumsatzzeilen vorher/nachher: 0
+Sicherung: Z:\Data\Database\Abrechnung\_Abfragen\Bankindex_Sicherung_20261028_134005_5cc33885\Datenbank2.dax
+Sicherung SHA256: 1EEE0933D4E1ED069E943B375CE517848C1A247CBD6A3E1F71F000BEFBE20FBB
+Protokoll: Z:\Data\Database\Abrechnung\_Abfragen\Bankindex_Protokoll_20261028_134005_5cc33885.csv
+
+Nachtrag _Abfragen: Beide Dateien nach der Aenderung erneut schreibgeschuetzt
+geoeffnet. Exakter Index IDB,IDM,Datum und UNIQUE=False bestaetigt;
+Zeilenanzahl vorher/nachher jeweils 0. Beide Sicherungspruefsummen bestaetigt.
+Werkzeug um .dax erweitert; synthetischer Regressionstest einschliesslich
+DAX-Pruefung, Indexanlage, Zeilenerhalt und erneuter Anwendung erfolgreich.
+
+Passwort aus der vorhandenen lokalen Access.txt nur im Speicher verwendet.
+Keine Passwoerter oder Umsatzinhalte protokolliert.
+SQL Server nicht geaendert; separate Markdown-Anweisung fuer Schwesterinstanz.
+Kein Anwendungstest/Performancevergleich auf dem Kundenbestand durchgefuehrt.

@@ -11,10 +11,22 @@ Private clFil As clsFile
 Private FM As Form
 Private CoDia As XtremeSuiteControls.CommonDialog
 
+Private Declare Function BnkAcquire Lib "advapi32.dll" Alias "CryptAcquireContextA" (ByRef Prov As Long, ByVal Container As String, ByVal Provider As String, ByVal ProvType As Long, ByVal Flags As Long) As Long
+Private Declare Function BnkCreate Lib "advapi32.dll" Alias "CryptCreateHash" (ByVal Prov As Long, ByVal AlgId As Long, ByVal Key As Long, ByVal Flags As Long, ByRef Hash As Long) As Long
+Private Declare Function BnkHash Lib "advapi32.dll" Alias "CryptHashData" (ByVal Hash As Long, ByVal DataPtr As Long, ByVal DataLen As Long, ByVal Flags As Long) As Long
+Private Declare Function BnkGet Lib "advapi32.dll" Alias "CryptGetHashParam" (ByVal Hash As Long, ByVal Param As Long, ByRef Buffer As Any, ByRef Size As Long, ByVal Flags As Long) As Long
+Private Declare Function BnkDestroy Lib "advapi32.dll" Alias "CryptDestroyHash" (ByVal Hash As Long) As Long
+Private Declare Function BnkRelease Lib "advapi32.dll" Alias "CryptReleaseContext" (ByVal Prov As Long, ByVal Flags As Long) As Long
+
 ' Public Entry Point
 Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, Optional ByVal PthFl As String = "")
     On Error GoTo LiErr
 
+    Static ImportBusy As Boolean
+    If ImportBusy Then Exit Sub
+    ImportBusy = True
+    Dim NewBank As Boolean, DidImport As Boolean, ChkDup As Boolean
+    Dim BankMap() As Long
     Dim FiNam As String
     Dim ImOrd As String
     Dim TmpSt As String
@@ -67,7 +79,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
         If Len(FiNam) = 0 Then
             Set CoDia = Nothing
             Set clFil = Nothing
-            Exit Sub
+            GoTo Cleanup
         End If
     End If
 
@@ -77,8 +89,8 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     End With
     
     If clFil.FilVor(FiNam) = False Then
-        MsgBox "Datei nicht gefunden: " & FiNam, vbExclamation
-        Exit Sub
+        SMeFr "Bankimport", "Datei nicht gefunden", FiNam, vbNullString, False, 2, True, FM.hwnd
+        GoTo Cleanup
     End If
 
     If GlLog = True Then SLogi "Imp01: Starting import of file: " & FiNam
@@ -99,7 +111,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If GlLog = True Then SLogi "Imp01: Recordset opened successfully"
 
     If Not RS121.Supports(adAddNew) Then
-        MsgBox "Datenbank untersttzt kein Hinzufgen.", vbCritical
+        SMeFr "Bankimport", "Die Datenbank erlaubt kein Hinzufuegen von Umsaetzen.", vbNullString, vbNullString, False, 2, True, FM.hwnd
         GoTo Cleanup
     End If
     
@@ -154,6 +166,8 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If InStr(HeadTx, ":20:") > 0 Or InStr(HeadTx, ":60F:") > 0 Or InStr(HeadTx, ":60M:") > 0 Then
         If GlLog = True Then SLogi "Imp01: MT940 format detected"
         ImpMT940 TmpSt, RS121, IdBnk, ManNr, MitNr
+        DidImport = True
+        ChkDup = True 'MT940 speichert ohne Bestandsabgleich: danach S_BaDop
         GoTo Cleanup
     End If
     If GlLog = True Then SLogi "Imp01: CSV format detected"
@@ -191,6 +205,15 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     ' NEW: Header Detection
     Dim HdrRow As Long
     HdrRow = FindHeader(RowsC)
+    NewBank = BankCols(RowsC, BankMap, HdrRow)
+    If NewBank Then
+        PrBr1.Min = 0
+        PrBr1.Max = RowsC.Count
+        frmStatus.Caption = "Bankumsaetze abgleichen..."
+        DidImport = True
+        BankImport RowsC, BankMap, HdrRow, RS121, IdBnk, ManNr, MitNr
+        GoTo Cleanup
+    End If
     If GlLog = True Then SLogi "Imp01: HdrRow=" & HdrRow
 
     ' Column Detection
@@ -310,7 +333,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
 
     If IdxDa < 0 Or IdxAm < 0 Then
         If GlLog = True Then SLogi "Imp01: Column detection failed! IdxDa=" & IdxDa & " IdxAm=" & IdxAm
-        MsgBox "Konnte Datum- oder Betragsspalte nicht automatisch erkennen.", vbExclamation
+        SMeFr "Bankimport", "Konnte Datum- oder Betragsspalte nicht automatisch erkennen.", vbNullString, vbNullString, False, 2, True, FM.hwnd
         GoTo Cleanup
     End If
 
@@ -345,6 +368,8 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     Dim sSch As String
     Dim NeuBu As Boolean
     Dim RowUB As Long
+    Dim PlanC As Collection
+    Dim MinDay As Date, MaxDay As Date
     
     Dim StartLoop As Long
     StartLoop = HdrRow + 1
@@ -352,6 +377,8 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If GlLog = True Then SLogi "Import: Starting loop from row " & StartLoop & " to " & RowsC.Count
     If GlLog = True Then SLogi "Import: IdxDa=" & IdxDa & " IdxAm=" & IdxAm
 
+    DidImport = True 'ab hier werden Umsaetze gespeichert: S_List auch nach Abbruch
+    Set PlanC = New Collection
     For i = StartLoop To RowsC.Count
         RowV = RowsC(i)
         NeuBu = False
@@ -419,8 +446,10 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
         End If
 
         If NeuBu Then
-            AddRec RS121, IdBnk, ManNr, MitNr, dtDat, dAmt, sTxt
-             If GlLog = True And i < StartLoop + 10 Then SLogi "DEBUG:   -> ADDED"
+            'Gespeichert wird erst nach dem Bestandsabgleich in BankStore
+            PlanC.Add Array(dtDat, dAmt, sTxt, BankParts(RowV, IdxDa, IdxAm), ParseDate(sDat, True))
+            BankSpan dtDat, MinDay, MaxDay
+             If GlLog = True And i < StartLoop + 10 Then SLogi "DEBUG:   -> PLANNED"
         Else
              If GlLog = True And i < StartLoop + 10 Then SLogi "DEBUG:   -> SKIPPED"
         End If
@@ -428,6 +457,10 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
         PrBr1.Value = i
         DoEvents
     Next i
+    If PlanC.Count > 0 Then
+        frmStatus.Caption = "Bankumsaetze abgleichen..."
+        BankStore PlanC, RS121, IdBnk, ManNr, MitNr, MinDay, MaxDay
+    End If
 
 Cleanup:
     ' --------------------------------------------------------------------------
@@ -447,16 +480,23 @@ Cleanup:
     Set clFil = Nothing
     
     DoEvents
-    S_BaDop ' Remove Duplicates
+    'CSV-Importe gleichen vor dem Speichern mit dem Bestand ab (BankStore, BankImport); S_BaDop wuerde dort
+    'auch echte gleiche Buchungen zum Loeschen anbieten
+    If DidImport And ChkDup Then S_BaDop
     
     DoEvents
-    S_List  ' Refresh List?
+    If DidImport Then S_List
+    ImportBusy = False
     
     Exit Sub
 
 LiErr:
     If GlLog = True Then SLogi "Imp01 ERROR: " & Err.Number & " - " & Err.Description
-    If GlDbg = True Then MsgBox Err.Description, 48, "Imp01 " & Err.Number
+    If Err.Number = vbObjectError + 2210 Or Err.Number = vbObjectError + 2211 Then
+        SMeFr "Bankimport", "Bankimport abgebrochen", Err.Description, vbNullString, False, 2, True, FM.hwnd
+    Else
+        SMeFr "Bankimport", "Bankimport abgebrochen", "Fehler " & CStr(Err.Number) & ". Bitte den Import pruefen.", "Bereits gespeicherte Umsaetze bleiben erhalten.", False, 2, True, FM.hwnd
+    End If
     Resume Cleanup
 End Sub
 
@@ -553,7 +593,7 @@ Private Sub ImpMT940(ByVal s As String, ByRef RS As ADODB.Recordset, ByVal IdBnk
     End If
 End Sub
 
-Private Sub AddRec(RS As ADODB.Recordset, IdBnk As Long, ManNr As Long, MitNr As Long, dtDat As Date, dAmt As Double, sTxt As String)
+Private Sub AddRec(RS As ADODB.Recordset, IdBnk As Long, ManNr As Long, MitNr As Long, dtDat As Date, dAmt As Double, sTxt As String, Optional ByVal StableKey As String)
     Dim BaGui As String
     Dim sSch As String
     
@@ -579,6 +619,7 @@ Private Sub AddRec(RS As ADODB.Recordset, IdBnk As Long, ManNr As Long, MitNr As
     
     sSch = CStr(dtDat) & " " & Left$(sTxt, 200) & " " & CStr(dAmt)
     If Len(sSch) > 255 Then sSch = Left$(sSch, 255)
+    If Len(StableKey) > 0 Then sSch = StableKey
     RS.Fields("Suche").Value = sSch
     
     RS.Update
@@ -588,7 +629,7 @@ End Sub
 ' Helpers (Universal Parsing)
 ' ------------------------------------------------------------------------------
 
-Private Function ParseDate(ByVal s As String) As Date
+Private Function ParseDate(ByVal s As String, Optional ByVal OldRule As Boolean) As Date
     On Error GoTo ErrHnd
     ParseDate = 0
     s = Trim$(s)
@@ -597,6 +638,18 @@ Private Function ParseDate(ByVal s As String) As Date
     Dim lD As Long, lM As Long, lY As Long
     Dim Parts() As String
     Dim PartCount As Long
+    Dim Fict As Date
+
+    ' Fiktive Bankvaluta wie 29.02.25, 31-04-2025 oder 2025-02-30 (Monatsende): IsDate liest sie in anderer
+    ' Reihenfolge (29.02.25 -> 25.02.2029), daher vorab der letzte Tag des Monats (BankFict). OldRule: bisherige
+    ' Lesart fuer stabile Kennungen und frueher gespeicherte Umsaetze
+    If Not OldRule Then
+        Fict = BankFict(s)
+        If Fict > 0 Then
+            ParseDate = Fict
+            Exit Function
+        End If
+    End If
 
     ' Try native VB date parsing first
     If IsDate(s) Then
@@ -618,7 +671,7 @@ Private Function ParseDate(ByVal s As String) As Date
                 lY = CLng(Parts(2))
                 If lY < 100 Then lY = 2000 + lY
                 If lD >= 1 And lD <= 31 And lM >= 1 And lM <= 12 And lY > 1900 And lY < 2100 Then
-                    ParseDate = DateSerial(CInt(lY), CInt(lM), CInt(lD))
+                    ParseDate = BankDate(lY, lM, lD, OldRule)
                     If Err.Number = 0 Then Exit Function
                     Err.Clear
                 End If
@@ -640,7 +693,7 @@ TryDash:
                 lY = CLng(Parts(2))
                 If lY < 100 Then lY = 2000 + lY
                 If lD >= 1 And lD <= 31 And lM >= 1 And lM <= 12 And lY > 1900 And lY < 2100 Then
-                    ParseDate = DateSerial(CInt(lY), CInt(lM), CInt(lD))
+                    ParseDate = BankDate(lY, lM, lD, OldRule)
                     If Err.Number = 0 Then Exit Function
                     Err.Clear
                 End If
@@ -662,7 +715,7 @@ TrySlash:
                 lY = CLng(Parts(2))
                 If lY < 100 Then lY = 2000 + lY
                 If lD >= 1 And lD <= 31 And lM >= 1 And lM <= 12 And lY > 1900 And lY < 2100 Then
-                    ParseDate = DateSerial(CInt(lY), CInt(lM), CInt(lD))
+                    ParseDate = BankDate(lY, lM, lD, OldRule)
                     If Err.Number = 0 Then Exit Function
                     Err.Clear
                 End If
@@ -684,7 +737,7 @@ TryNumeric:
         On Error GoTo ErrHnd
         
         If lD >= 1 And lD <= 31 And lM >= 1 And lM <= 12 And lY > 1900 And lY < 2100 Then
-            ParseDate = DateSerial(CInt(lY), CInt(lM), CInt(lD))
+            ParseDate = BankDate(lY, lM, lD, OldRule)
             If Err.Number = 0 Then Exit Function
             Err.Clear
         End If
@@ -704,7 +757,7 @@ SkipYYYYMMDD:
         On Error GoTo ErrHnd
         
         If lD >= 1 And lD <= 31 And lM >= 1 And lM <= 12 Then
-            ParseDate = DateSerial(CInt(lY), CInt(lM), CInt(lD))
+            ParseDate = BankDate(lY, lM, lD, OldRule)
             If Err.Number = 0 Then Exit Function
             Err.Clear
         End If
@@ -716,6 +769,54 @@ SkipYYMMDD:
 ErrHnd:
     ParseDate = 0
     Err.Clear
+End Function
+
+Private Function BankDate(ByVal lY As Long, ByVal lM As Long, ByVal lD As Long, ByVal OldRule As Boolean) As Date
+    'Datum aus Jahr, Monat (1-12) und Tag (1-31); ein Tag ueber dem Monatsende (fiktive Bankvaluta
+    'wie 30.02.) ergibt den letzten Tag des Monats statt eines Tages im Folgemonat (OldRule: Folgemonat)
+    Dim LastD As Long
+    LastD = Day(DateSerial(CInt(lY), CInt(lM) + 1, 0))
+    If lD > LastD And Not OldRule Then lD = LastD
+    BankDate = DateSerial(CInt(lY), CInt(lM), CInt(lD))
+End Function
+
+Private Function BankFict(ByVal s As String) As Date
+    'Fiktive Bankvaluta ueber dem Monatsende (29.02.25, 31-04-2025, 31/04/2025, 2025-02-30) als letzter Tag des
+    'Monats. Nur Ziffern und ein Trennzeichen (. - /); Tag und Monat ein- oder zweistellig, Jahr zwei- oder
+    'vierstellig, vierstelliges Jahr vorn = Jahr-Monat-Tag. Sonst 0: bisherige Erkennung in ParseDate
+    Dim Parts() As String
+    Dim Sep As String
+    Dim lD As Long, lM As Long, lY As Long, n As Long, Code As Long
+    If InStr(s, ".") > 0 Then
+        Sep = "."
+    ElseIf InStr(s, "-") > 0 Then
+        Sep = "-"
+    ElseIf InStr(s, "/") > 0 Then
+        Sep = "/"
+    Else
+        Exit Function
+    End If
+    For n = 1 To Len(s)
+        Code = AscW(Mid$(s, n, 1))
+        If (Code < 48 Or Code > 57) And Mid$(s, n, 1) <> Sep Then Exit Function
+    Next n
+    Parts = Split(s, Sep)
+    If UBound(Parts) <> 2 Then Exit Function
+    If Len(Parts(0)) = 0 Or Len(Parts(1)) = 0 Or Len(Parts(1)) > 2 Then Exit Function
+    If Len(Parts(0)) = 4 And Len(Parts(2)) >= 1 And Len(Parts(2)) <= 2 Then
+        lY = CLng(Parts(0))
+        lM = CLng(Parts(1))
+        lD = CLng(Parts(2))
+    ElseIf Len(Parts(0)) <= 2 And (Len(Parts(2)) = 2 Or Len(Parts(2)) = 4) Then
+        lD = CLng(Parts(0))
+        lM = CLng(Parts(1))
+        lY = CLng(Parts(2))
+        If lY < 100 Then lY = 2000 + lY
+    Else
+        Exit Function
+    End If
+    If lD < 29 Or lD > 31 Or lM < 1 Or lM > 12 Or lY <= 1900 Or lY >= 2100 Then Exit Function
+    If lD > Day(DateSerial(CInt(lY), CInt(lM) + 1, 0)) Then BankFict = BankDate(lY, lM, lD, False)
 End Function
 
 Private Function FindD(ByVal s As String) As String
@@ -781,10 +882,10 @@ Private Function ParsC(ByVal s As String, ByVal D As String) As Collection
                 End If
                 Fields.Add Fld
                 Fld = ""
-                If Fields.Count > 0 Then
+                If Not BankEmpty(Fields) Then
                     Res.Add ColToArr(Fields)
-                    Set Fields = New Collection
                 End If
+                Set Fields = New Collection
             Else
                 Fld = Fld & c
             End If
@@ -792,7 +893,7 @@ Private Function ParsC(ByVal s As String, ByVal D As String) As Collection
     Next i
     If Fields.Count > 0 Or Len(Fld) > 0 Then
         Fields.Add Fld
-        Res.Add ColToArr(Fields)
+        If Not BankEmpty(Fields) Then Res.Add ColToArr(Fields)
     End If
 
     If GlLog = True Then SLogi "ParsC: Parsed " & Res.Count & " rows"
@@ -1376,16 +1477,19 @@ End Function
 Private Function FixConc(ByVal RawTxt As String, ByVal Delim As String) As String
     ' Fix files with concatenated records (missing line breaks)
     ' Detects when the first column value repeats mid-line and inserts breaks
+    'Schneller: jeder Kandidat wird nur einmal gezaehlt, die Zaehlung endet beim Schwellwert, das Ergebnis
+    'entsteht per Join (vorher wurde fuer jede Zeile die ganze Datei durchsucht; Ausgabe unveraendert)
     Dim Lines() As String
     Dim i As Long
     Dim Ln As String
     Dim FstCol As String
-    Dim OutTxt As String
     Dim SrcPat As String
     Dim PatPos As Long
     Dim SecPos As Long
     Dim PatCnt As Long
     Dim SplitN As Long
+    Dim FirstLn As Long
+    Dim Tried As Object
 
     If GlLog = True Then SLogi "FixConc: Starting analysis, Delim=[" & Delim & "]"
 
@@ -1397,6 +1501,7 @@ Private Function FixConc(ByVal RawTxt As String, ByVal Delim As String) As Strin
     If GlLog = True Then SLogi "FixConc: Total lines before fix: " & (UBound(Lines) + 1)
 
     ' Find first non-empty line with data to detect the repeating column
+    Set Tried = Nothing
     FstCol = ""
     For i = 0 To UBound(Lines)
         Ln = Trim$(Lines(i))
@@ -1429,12 +1534,17 @@ Private Function FixConc(ByVal RawTxt As String, ByVal Delim As String) As Strin
 
                 ' Skip if it looks like a header (has spaces) or too short
                 If Len(FstCol) > 5 And InStr(FstCol, " ") = 0 Then
-                    ' Found a potential pattern - verify it appears multiple times
-                    PatCnt = CountStr(RawTxt, FstCol & Delim)
-                    If GlLog = True Then SLogi "FixConc: Pattern [" & FstCol & "] count=" & PatCnt & " threshold=" & (UBound(Lines) + 5)
-                    If PatCnt > UBound(Lines) + 5 Then
-                        If GlLog = True Then SLogi "FixConc: Pattern accepted!"
-                        Exit For
+                    'Ein bereits verworfener Kandidat wird nicht erneut gezaehlt (gleiche Zeichenfolge, gleiches Ergebnis)
+                    If Tried Is Nothing Then Set Tried = CreateObject("Scripting.Dictionary")
+                    If Not Tried.Exists(FstCol) Then
+                        Tried.Add FstCol, True
+                        ' Found a potential pattern - verify it appears multiple times
+                        PatCnt = CountStr(RawTxt, FstCol & Delim, UBound(Lines) + 6)
+                        If GlLog = True Then SLogi "FixConc: Pattern [" & FstCol & "] count=" & PatCnt & " threshold=" & (UBound(Lines) + 5)
+                        If PatCnt > UBound(Lines) + 5 Then
+                            If GlLog = True Then SLogi "FixConc: Pattern accepted!"
+                            Exit For
+                        End If
                     End If
                 End If
                 FstCol = ""
@@ -1454,9 +1564,9 @@ Private Function FixConc(ByVal RawTxt As String, ByVal Delim As String) As Strin
     ' Build search pattern: the first column followed by delimiter
     SrcPat = FstCol & Delim
     SplitN = 0
+    FirstLn = -1
 
     ' Process each line and split where pattern repeats
-    OutTxt = ""
     For i = 0 To UBound(Lines)
         Ln = Lines(i)
         If Len(Ln) > 0 Then
@@ -1464,36 +1574,28 @@ Private Function FixConc(ByVal RawTxt As String, ByVal Delim As String) As Strin
             PatPos = InStr(Ln, SrcPat)
             If PatPos > 0 Then
                 SecPos = InStr(PatPos + Len(SrcPat), Ln, SrcPat)
-                
-                ' NEW: Distance Check
-                Dim MinDist As Boolean
-                MinDist = False
+                ' Distance Check: multiple records on this line - split them
                 If SecPos > 0 Then
-                    If SecPos - PatPos > 20 Then MinDist = True
-                End If
-
-                If SecPos > 0 And MinDist Then
-                    ' Multiple records on this line - split them
-                    Ln = SplitRec(Ln, SrcPat)
-                    SplitN = SplitN + 1
-                    If GlLog = True Then SLogi "FixConc: Split line " & i & " (PatPos=" & PatPos & " SecPos=" & SecPos & ")"
+                    If SecPos - PatPos > 20 Then
+                        Lines(i) = SplitRec(Ln, SrcPat)
+                        SplitN = SplitN + 1
+                        If GlLog = True Then SLogi "FixConc: Split line " & i & " (PatPos=" & PatPos & " SecPos=" & SecPos & ")"
+                    End If
                 End If
             End If
+            If FirstLn < 0 Then FirstLn = i
         End If
-        If Len(OutTxt) > 0 Then
-            OutTxt = OutTxt & vbLf
-        End If
-        OutTxt = OutTxt & Ln
     Next i
 
     If GlLog = True Then SLogi "FixConc: Split " & SplitN & " lines"
 
-    ' Count lines after fix
-    Dim LnAftr() As String
-    LnAftr = Split(OutTxt, vbLf)
-    If GlLog = True Then SLogi "FixConc: Total lines after fix: " & (UBound(LnAftr) + 1)
-
-    FixConc = OutTxt
+    'Wie bisher: alle Zeilen ab der ersten nicht leeren, mit vbLf verbunden
+    If FirstLn < 0 Then
+        FixConc = vbNullString
+    Else
+        FixConc = Mid$(Join(Lines, vbLf), FirstLn + 1)
+    End If
+    If GlLog = True Then SLogi "FixConc: Total lines after fix: " & (UBound(Split(FixConc, vbLf)) + 1)
 End Function
 
 Private Function SplitRec(ByVal Ln As String, ByVal SrcPat As String) As String
@@ -1555,8 +1657,9 @@ Private Function SplitRec(ByVal Ln As String, ByVal SrcPat As String) As String
     SplitRec = Result
 End Function
 
-Private Function CountStr(ByVal Source As String, ByVal Search As String) As Long
+Private Function CountStr(ByVal Source As String, ByVal Search As String, ByVal Limit As Long) As Long
     ' Count occurrences of Search in Source
+    'Limit > 0: die Zaehlung endet nach Limit Treffern (0 = alle zaehlen)
     Dim Cnt As Long
     Dim Pos As Long
 
@@ -1566,6 +1669,7 @@ Private Function CountStr(ByVal Source As String, ByVal Search As String) As Lon
         Pos = InStr(Pos, Source, Search)
         If Pos = 0 Then Exit Do
         Cnt = Cnt + 1
+        If Cnt = Limit Then Exit Do
         Pos = Pos + 1
     Loop
     CountStr = Cnt
@@ -1981,3 +2085,889 @@ Private Sub FindSister(ByVal Rows As Collection, ByVal IdxDa As Integer, ByVal I
         End If
     Next k
 End Sub
+
+Private Function BankEmpty(ByVal Fields As Collection) As Boolean
+    Dim n As Long
+    BankEmpty = True
+    For n = 1 To Fields.Count
+        If Len(Trim$(Replace(CStr(Fields(n)), vbTab, vbNullString))) > 0 Then
+            BankEmpty = False
+            Exit Function
+        End If
+    Next n
+End Function
+
+Private Function BankCols(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal HdrRow As Long) As Boolean
+    'Erkennt das vollstaendige CSV-Schema der Volks- und Raiffeisenbanken (z.B. i300)
+    'Andere Exporte behalten die allgemeine Spaltenerkennung in Imp01
+    Dim Names As Variant, Header As Variant
+    Dim Duplicate As Boolean
+    Dim c As Long, n As Long
+    Dim HdrTxt As String
+    If HdrRow < 1 Or HdrRow > Rows.Count Then Exit Function
+    Header = Rows(HdrRow)
+    Names = Array("iban auftragskonto", "buchungstag", "valutadatum", "name zahlungsbeteiligter", _
+                  "iban zahlungsbeteiligter", "bic (swift-code) zahlungsbeteiligter", "buchungstext", _
+                  "verwendungszweck", "betrag", "waehrung", "saldo nach buchung", "glaeubiger id", "mandatsreferenz")
+    ReDim ColMap(UBound(Names))
+    For n = 0 To UBound(Names)
+        ColMap(n) = -1
+    Next n
+    For c = 0 To UBound(Header)
+        HdrTxt = LCase$(ClnTx(CStr(Header(c))))
+        HdrTxt = Replace(HdrTxt, ChrW(228), "ae")
+        For n = 0 To UBound(Names)
+            If HdrTxt = Names(n) Then
+                If ColMap(n) <> -1 Then Duplicate = True
+                ColMap(n) = c
+            End If
+        Next n
+    Next c
+    For n = 0 To UBound(Names)
+        If ColMap(n) < 0 Then Exit Function
+    Next n
+    If Duplicate Then Err.Raise vbObjectError + 2210, "BankCols", "Eine Bankspalte ist mehrfach vorhanden."
+    BankCols = True
+End Function
+
+Private Function BankField(ByVal Value As String) As String
+    Value = Replace(Value, vbCr, " ")
+    Value = Replace(Value, vbLf, " ")
+    Value = Replace(Value, vbTab, " ")
+    Value = Replace(Value, ChrW(160), " ")
+    Do While InStr(Value, "  ") > 0
+        Value = Replace(Value, "  ", " ")
+    Loop
+    BankField = Trim$(Value)
+End Function
+
+Private Function BankAmt(ByVal Value As String, ByRef Amount As Currency) As Boolean
+    'Bankbetrag locale-unabhaengig lesen; False bei leerem oder ungueltigem Wert
+    Dim Clean As String
+    Clean = ClnAm(ClnTx(Value))
+    If Len(Clean) = 0 Then Exit Function
+    If Not IsNumeric(Clean) Then Exit Function
+    Amount = CCur(Round(Val(Clean), 2))
+    BankAmt = True
+End Function
+
+Private Function BankKey(ByVal RowV As Variant, ByRef ColMap() As Long, ByVal IdBnk As Long, ByVal ManNr As Long, ByVal Prov As Long) As String
+    'Stabile Kennung eines Umsatzes; Format BKI1 unveraendert, bereits gespeicherte Kennungen bleiben gueltig
+    Dim n As Long
+    Dim Value As String, KeyText As String
+    Dim Amt As Currency
+    KeyText = CStr(IdBnk) & ":" & CStr(ManNr) & ":"
+    For n = 0 To UBound(ColMap)
+        Value = BankField(CStr(RowV(ColMap(n))))
+        Select Case n
+        Case 0, 4, 5, 9, 11
+            Value = UCase$(Replace(Value, " ", vbNullString))
+        Case 1, 2
+            'Datum in bisheriger Lesart (fiktive Valuta), damit gespeicherte Kennungen gueltig bleiben
+            Value = CStr(CLng(DateValue(ParseDate(Value, True))))
+        Case 8, 10
+            If BankAmt(Value, Amt) Then Value = Trim$(Str$(Amt))
+        End Select
+        KeyText = KeyText & CStr(Len(Value)) & ":" & Value
+    Next n
+    BankKey = "BKI1:" & BankHash(Prov, KeyText)
+End Function
+
+Private Function BankHash(ByVal Prov As Long, ByVal KeyText As String) As String
+    'SHA-256 (CryptoAPI) ueber den Kennungstext; der Kontext wird einmal je Import geoeffnet
+    Dim Hash As Long, Size As Long, n As Long
+    Dim HashOk As Boolean
+    Dim Bytes(31) As Byte
+    If BnkCreate(Prov, &H800C&, 0, 0, Hash) <> 0 Then
+        If BnkHash(Hash, StrPtr(KeyText), LenB(KeyText), 0) <> 0 Then
+            Size = 32
+            If BnkGet(Hash, 2, Bytes(0), Size, 0) <> 0 Then HashOk = (Size = 32)
+        End If
+        BnkDestroy Hash
+    End If
+    If Not HashOk Then Err.Raise vbObjectError + 2211, "BankHash", "Die Bankkennung konnte nicht erstellt werden. Es wurden keine Umsaetze importiert."
+    For n = 0 To 31
+        BankHash = BankHash & Right$("0" & Hex$(Bytes(n)), 2)
+    Next n
+End Function
+
+Private Function BankText(ByVal RowV As Variant, ByRef ColMap() As Long) As String
+    Dim n As Variant, Value As String
+    For Each n In Array(3, 4, 5, 6, 7, 10, 11, 12)
+        Value = BankField(CStr(RowV(ColMap(n))))
+        If Len(Value) > 0 Then
+            If Len(BankText) > 0 Then BankText = BankText & " "
+            BankText = BankText & Value
+        End If
+    Next n
+End Function
+
+Private Function BankBucket(ByVal BookDay As Date, ByVal Amount As Double) As String
+    ' Match the legacy REAL/Single amount representation, scoped by BankLoad.
+    BankBucket = CStr(CLng(DateValue(BookDay))) & ":" & CStr(CSng(Amount))
+End Function
+
+Private Sub BankSpan(ByVal BkDay As Date, ByRef MinDay As Date, ByRef MaxDay As Date)
+    'Erweitert den Zeitraum des Bestandsabgleichs um ein gueltiges Datum
+    If Year(BkDay) <= 1900 Then Exit Sub
+    If Year(MinDay) <= 1900 Or BkDay < MinDay Then MinDay = BkDay
+    If BkDay > MaxDay Then MaxDay = BkDay
+End Sub
+
+Private Function BankLoad(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MinDay As Date, ByVal MaxDay As Date) As ADODB.Recordset
+    'Liest den Bestand des Kontos im Zeitraum einmal je Import
+    'Literale per SqlNum/SqlDat: adDBTimeStamp-Parameter vertauschen unter Jet/ACE Tag und Monat (Tag <= 12)
+    On Error GoTo LoadErr
+    Dim OldRows As ADODB.Recordset
+    Dim SqlText As String
+    Dim ErrNum As Long
+    SqlText = "SELECT [ID2], [Datum], [Betrag], [IDKurz], [Suche] FROM [Tabelle_Banking] WHERE [IDB] = " & SqlNum(IdBnk) & _
+              " AND [IDM] = " & SqlNum(ManNr) & " AND [Datum] >= " & SqlDat(DateValue(MinDay)) & _
+              " AND [Datum] < " & SqlDat(DateAdd("d", 1, DateValue(MaxDay)))
+    Set OldRows = New ADODB.Recordset
+    OldRows.CursorLocation = adUseClient
+    OldRows.Open SqlText, DB1, adOpenStatic, adLockReadOnly, adCmdText
+    Set OldRows.ActiveConnection = Nothing
+    Set BankLoad = OldRows
+    Exit Function
+LoadErr:
+    ErrNum = Err.Number
+    On Error Resume Next
+    If Not OldRows Is Nothing Then
+        If OldRows.State <> adStateClosed Then OldRows.Close
+    End If
+    Set OldRows = Nothing
+    On Error GoTo 0
+    Err.Raise ErrNum, "BankLoad", "Vorhandene Bankumsaetze konnten nicht gelesen werden. Der Import wurde abgebrochen."
+End Function
+
+Private Function BankMatch(ByVal Cells As Variant, ByVal Pos As Long, ByVal Prefix As String, ByVal Target As String) As Boolean
+    Dim Added As String
+    If Left$(Prefix, 255) = Target Then
+        BankMatch = True
+        Exit Function
+    End If
+    If Pos > UBound(Cells) Or Len(Prefix) > Len(Target) Then Exit Function
+    If Left$(Target, Len(Prefix)) <> Prefix Then Exit Function
+    If Len(Cells(Pos)) > 0 Then
+        Added = Prefix
+        If Len(Added) > 0 Then Added = Added & " "
+        Added = Added & Cells(Pos)
+        If BankMatch(Cells, Pos + 1, Added, Target) Then
+            BankMatch = True
+            Exit Function
+        End If
+    End If
+    BankMatch = BankMatch(Cells, Pos + 1, Prefix, Target)
+End Function
+
+Private Function BankCells(ByVal RowV As Variant, ByRef ColMap() As Long) As Variant
+    'Textbausteine wie im bisherigen Import (ClnTx, "?" als Leerzeichen) fuer den Altbestandsabgleich
+    'Folge: Buchungstag, Valuta, Name, IBAN, BIC, Buchungstext, Zweck, Waehrung, Saldo, Glaeubiger, Mandat
+    Dim Cells(10) As String
+    Dim Indexes As Variant
+    Dim n As Long
+    Indexes = Array(1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12)
+    For n = 0 To 10
+        Cells(n) = Replace(ClnTx(CStr(RowV(ColMap(Indexes(n))))), "?", " ")
+    Next n
+    BankCells = Cells
+End Function
+
+Private Function BankLegacy(ByVal Cells As Variant, ByVal OldText As String) As Long
+    'Vergleich mit Altbestand ohne stabile Kennung (Datum und Betrag stimmen bereits ueberein):
+    '0 = anderer Umsatz, 1 = sicher derselbe, 2 = derselbe bei gekuerztem oder leerem Alttext
+    If OldText = "kein Buchungstext" Then
+        BankLegacy = 2
+        Exit Function
+    End If
+    If Not BankMatch(Cells, 0, vbNullString, OldText) Then Exit Function
+    BankLegacy = 2
+    If Len(OldText) >= 255 Then Exit Function
+    'Saldo nach Buchung unterscheidet sonst gleiche Umsaetze eines Tages
+    If Len(Cells(8)) > 0 Then
+        If InStr(1, OldText, Cells(8), vbBinaryCompare) > 0 Then BankLegacy = 1
+    ElseIf Len(Cells(6)) > 0 Then
+        If InStr(1, OldText, Cells(6), vbBinaryCompare) > 0 Then BankLegacy = 1
+    End If
+End Function
+
+Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal HdrRow As Long, ByRef Target As ADODB.Recordset, ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long)
+    On Error GoTo BankErr
+    'Import im VR-Schema: stabile Kennung je Umsatz in [Suche], Abgleich mit dem Bestand vor dem
+    'ersten Schreibzugriff; Zeilen ohne gueltiges Datum oder Betrag werden wie bisher uebersprungen
+    Dim Plans As Collection, Bucket As Collection
+    Dim Known As Object, Seen As Object, Legacy As Object, Used As Object, Extra As Object
+    Dim RowV As Variant, Plan As Variant, OldRec As Variant, Cells As Variant
+    Dim State() As Byte, Sure() As String, Weak() As String, Texts() As String
+    Dim BookDay As Date, ValueDay As Date, StoreDay As Date, MinDay As Date, MaxDay As Date, OldDay As Date
+    Dim Amount As Currency
+    Dim KeyText As String, BaseKey As String, DayKey As String, Done As String
+    Dim RawBook As String, RawValue As String
+    Dim n As Long, k As Long, b As Long, c As Long, HdrUB As Long, Prov As Long
+    Dim Match As Long, Skipped As Long, Added As Long, BadRows As Long, SureCnt As Long, WeakCnt As Long, Ambig As Long
+    Dim SureAt As Long, WeakAt As Long
+    Dim StateN() As Byte, SureN() As String, WeakN() As String
+    Dim UsedN As Object
+    Dim Fit As Boolean
+    Dim ErrNum As Long, ErrText As String
+
+    Set Plans = New Collection
+    Set Known = CreateObject("Scripting.Dictionary")
+    Set Seen = CreateObject("Scripting.Dictionary")
+    Set Legacy = CreateObject("Scripting.Dictionary")
+    Set Used = CreateObject("Scripting.Dictionary")
+    Set Extra = CreateObject("Scripting.Dictionary")
+    If BnkAcquire(Prov, vbNullString, vbNullString, 24, &HF0000000) = 0 Then
+        Prov = 0
+        Err.Raise vbObjectError + 2211, "BankImport", "Die Bankkennung konnte nicht erstellt werden. Es wurden keine Umsaetze importiert."
+    End If
+
+    '1. Datei pruefen und planen: ein Durchlauf, noch kein Schreibzugriff
+    HdrUB = UBound(Rows(HdrRow))
+    For Each RowV In Rows
+        n = n + 1
+        If n > HdrRow Then
+            'Zusaetzliche Felder hinter der Kopfzeile (z.B. Trennzeichen am Zeilenende) nur, wenn alle leer sind
+            Fit = (UBound(RowV) = HdrUB)
+            If UBound(RowV) > HdrUB Then
+                Fit = True
+                For c = HdrUB + 1 To UBound(RowV)
+                    If Len(BankField(ClnTx(CStr(RowV(c))))) > 0 Then Fit = False
+                Next c
+            End If
+            If Not Fit Then
+                BadRows = BadRows + 1
+            Else
+                RawBook = ClnTx(CStr(RowV(ColMap(1))))
+                RawValue = ClnTx(CStr(RowV(ColMap(2))))
+                BookDay = ParseDate(RawBook)
+                ValueDay = ParseDate(RawValue)
+                'Datum wie im bisherigen CSV-Import und bei MT940: Valuta, ersatzweise Buchungstag
+                If Year(ValueDay) > 1900 Then StoreDay = ValueDay Else StoreDay = BookDay
+                If Year(StoreDay) <= 1900 Then
+                    BadRows = BadRows + 1
+                ElseIf Not BankAmt(CStr(RowV(ColMap(8))), Amount) Then
+                    BadRows = BadRows + 1
+                Else
+                    'Gleiche Zeilen einer Datei werden gezaehlt, damit Wiederholungen nichts verdoppeln
+                    BaseKey = BankKey(RowV, ColMap, IdBnk, ManNr, Prov)
+                    If Seen.Exists(BaseKey) Then Seen(BaseKey) = Seen(BaseKey) + 1 Else Seen.Add BaseKey, 1&
+                    KeyText = BaseKey & ":" & CStr(Seen(BaseKey))
+                    '(7), (8): Buchungstag und Valuta in bisheriger Lesart, unter der ein frueherer Import
+                    'fiktive Valuta gespeichert hat (31.04.2025 -> 01.05.2025, 29.02.25 -> 25.02.2029)
+                    Plans.Add Array(RowV, StoreDay, BookDay, ValueDay, Amount, KeyText, BankText(RowV, ColMap), ParseDate(RawBook, True), ParseDate(RawValue, True))
+                    BankSpan BookDay, MinDay, MaxDay
+                    BankSpan ValueDay, MinDay, MaxDay
+                End If
+            End If
+        End If
+    Next RowV
+    If Plans.Count > 0 Then
+        '2. Bestand des Kontos im Zeitraum einmal lesen, dazu die Tage bisheriger Lesart ausserhalb davon
+        For Each Plan In Plans
+            For b = 7 To 8
+                OldDay = Plan(b)
+                If Year(OldDay) > 1900 Then
+                    OldDay = DateValue(OldDay)
+                    If OldDay < DateValue(MinDay) Or OldDay > DateValue(MaxDay) Then Extra(CStr(CLng(OldDay))) = OldDay
+                End If
+            Next b
+        Next Plan
+        BankRead IdBnk, ManNr, MinDay, MaxDay, Extra, Legacy, Known
+
+        '3. Abgleich: stabile Kennung, dann sichere Treffer im Altbestand unter Valuta- und Buchungstag, auch in
+        '   bisheriger Lesart (dort nur mit Buchungstag, Valuta oder Saldo der Zeile im Alttext; je BankAssign), danach
+        '   Treffer mit gekuerztem oder leerem Alttext (BankAssign); jeder Altumsatz deckt hoechstens eine Zeile ab
+        ReDim State(1 To Plans.Count)
+        ReDim Sure(1 To Plans.Count)
+        ReDim Weak(1 To Plans.Count)
+        ReDim Texts(1 To Plans.Count)
+        ReDim SureN(1 To Plans.Count)
+        ReDim WeakN(1 To Plans.Count)
+        k = 0
+        For Each Plan In Plans
+            k = k + 1
+            'Speichertag und Text wie in AddRec gespeichert (BankAssign: gleiche Zeilen sind austauschbar)
+            Texts(k) = Replace(CStr(Plan(6)), "?", " ")
+            If Len(Texts(k)) = 0 Then Texts(k) = "kein Buchungstext" Else Texts(k) = Left$(Texts(k), 255)
+            Texts(k) = CStr(CLng(DateValue(Plan(1)))) & "|" & Texts(k)
+            If Known.Exists(Plan(5)) Then
+                State(k) = 1
+            ElseIf Legacy.Count > 0 Then
+                Cells = Empty
+                Done = "|"
+                SureAt = 0
+                WeakAt = 0
+                For b = 1 To 4
+                    Select Case b
+                    Case 1: DayKey = BankBucket(Plan(3), Plan(4))
+                    Case 2: DayKey = BankBucket(Plan(2), Plan(4))
+                    Case 3: DayKey = BankBucket(Plan(8), Plan(4))
+                    Case Else: DayKey = BankBucket(Plan(7), Plan(4))
+                    End Select
+                    If InStr(Done, "|" & DayKey & "|") = 0 Then
+                        Done = Done & DayKey & "|"
+                        If Legacy.Exists(DayKey) Then
+                            If IsEmpty(Cells) Then Cells = BankCells(Plan(0), ColMap)
+                            Set Bucket = Legacy(DayKey)
+                            For Each OldRec In Bucket
+                                If Not Used.Exists(OldRec(0)) Then
+                                    Match = BankLegacy(Cells, CStr(OldRec(1)))
+                                    'Tag bisheriger Lesart: ohne Datum oder Saldo der Zeile im Alttext koennte eine
+                                    'echte Buchung dieses Tages gemeint sein (auch ein leerer Alttext belegt nichts)
+                                    If b > 2 Then
+                                        If Not BankProof(Cells, CStr(OldRec(1))) Then Match = 0
+                                    End If
+                                    'Zwei Sichten (siehe unten): alle Tage (Sure/Weak) und je Stufe nur der erste
+                                    'Tag mit Treffern (SureN/WeakN)
+                                    If Match = 1 Then
+                                        Sure(k) = Sure(k) & " " & OldRec(0)
+                                        If SureAt = 0 Or SureAt = b Then
+                                            SureN(k) = SureN(k) & " " & OldRec(0)
+                                            SureAt = b
+                                        End If
+                                    ElseIf Match = 2 Then
+                                        Weak(k) = Weak(k) & " " & OldRec(0)
+                                        If WeakAt = 0 Or WeakAt = b Then
+                                            WeakN(k) = WeakN(k) & " " & OldRec(0)
+                                            WeakAt = b
+                                        End If
+                                    End If
+                                End If
+                            Next OldRec
+                        End If
+                    End If
+                Next b
+            End If
+        Next Plan
+        'Sichere Treffer unter echtem Tag und Tag bisheriger Lesart in einer Stufe: konkurrieren verschiedene Zeilen
+        'um einen Altumsatz (z.B. gleicher Saldo bei April- und Maibuchung), ist nicht entscheidbar, welche er ist
+        'Zwei Sichten: mit allen Tagen kann ein gleichlautender Altumsatz eines anderen Tages Ausweichpartner einer
+        'Zeile werden (eine neue Zeile verbraucht dann deren Altumsatz); mit nur dem ersten Tag je Stufe faellt der
+        'Altumsatz einer Zeile weg, deren Valuta auf den Altumsatz einer anderen faellt. Vorhanden ist eine Zeile nur,
+        'wenn beide Sichten sie zuordnen, sonst wird sie gespeichert (State 2, Dublette statt Verlust)
+        ReDim StateN(1 To Plans.Count)
+        For k = 1 To Plans.Count
+            StateN(k) = State(k)
+        Next k
+        Set UsedN = CreateObject("Scripting.Dictionary")
+        SureCnt = BankAssign(Sure, State, Used, Texts)
+        WeakCnt = BankAssign(Weak, State, Used, Texts)
+        BankAssign SureN, StateN, UsedN, Texts
+        BankAssign WeakN, StateN, UsedN, Texts
+        For k = 1 To Plans.Count
+            If State(k) = 1 And StateN(k) <> 1 Then State(k) = 2
+        Next k
+
+        '4. Nur neue Umsaetze speichern
+        k = 0
+        For Each Plan In Plans
+            k = k + 1
+            If State(k) = 1 Then
+                Skipped = Skipped + 1
+            Else
+                If State(k) = 2 Then Ambig = Ambig + 1
+                AddRec Target, IdBnk, ManNr, MitNr, CDate(Plan(1)), CDbl(Plan(4)), CStr(Plan(6)), CStr(Plan(5))
+                Added = Added + 1
+                frmStatus.prbStat1.Value = Added
+                DoEvents
+            End If
+        Next Plan
+    End If
+
+    BnkRelease Prov, 0
+    Prov = 0
+    If GlLog = True Then SLogi "BankImport: Added=" & CStr(Added) & "; Skipped=" & CStr(Skipped) & "; LegacySure=" & CStr(SureCnt) & "; LegacyWeak=" & CStr(WeakCnt) & "; Unklar=" & CStr(Ambig) & "; Invalid=" & CStr(BadRows) & "; ExtraDays=" & CStr(Extra.Count)
+    Exit Sub
+
+BankErr:
+    ErrNum = Err.Number
+    ErrText = Err.Description
+    On Error Resume Next
+    If Prov <> 0 Then BnkRelease Prov, 0
+    On Error GoTo 0
+    Err.Raise ErrNum, "BankImport", ErrText
+End Sub
+
+Private Function BankParts(ByVal RowV As Variant, ByVal IdxDa As Integer, ByVal IdxAm As Integer) As Variant
+    'Textbausteine einer Zeile wie im allgemeinen CSV-Import (ClnTx, "?" als Leerzeichen), ohne Datum und Betrag
+    Dim Cells() As String
+    Dim j As Long
+    ReDim Cells(UBound(RowV))
+    For j = 0 To UBound(RowV)
+        If j <> IdxDa And j <> IdxAm Then Cells(j) = BankNorm(Replace(ClnTx(CStr(RowV(j))), "?", " "))
+    Next j
+    BankParts = Cells
+End Function
+
+Private Function BankNorm(ByVal Value As String) As String
+    'Vergleichstext: vorgemerkte Umsaetze (Sparkasse: Info "Umsatz vorgemerkt") gelten als gebucht; Sparkasse
+    'CSV-CAMT V2 kuerzt Buchungstexte, die V8 ausschreibt. Der gespeicherte Text bleibt wie geliefert
+    Value = Replace(Value, "Umsatz vorgemerkt", "Umsatz gebucht", 1, -1, vbTextCompare)
+    Value = Replace(Value, "UEBERTRAG (GUTSCHR. UEBERW)", "UEBERTRAG (GUTSCHRIFT UEBERWEISUNG)", 1, -1, vbTextCompare)
+    BankNorm = Replace(Value, "GUTSCHR. UEBERWEISUNG", "GUTSCHRIFT UEBERWEISUNG", 1, -1, vbTextCompare)
+End Function
+
+Private Function BankFits(ByVal Cells As Variant, ByVal Target As String, ByVal Cut As Boolean) As Boolean
+    'True, wenn Target aus einer Auswahl der Zellen in Spaltenfolge entsteht; Leerzeichen zaehlen nicht
+    '(Exportformate verbinden Textzeilen verschieden). Cut: Target ist ein auf 255 Zeichen gekuerzter Text.
+    'Merkt erreichbare Textlaengen statt Rekursion
+    Dim Reach() As Boolean
+    Dim n As Long, L As Long, TLen As Long
+    Dim Part As String
+    Target = Replace(Target, " ", vbNullString)
+    TLen = Len(Target)
+    If TLen = 0 Then Exit Function
+    ReDim Reach(TLen)
+    Reach(0) = True
+    For n = 0 To UBound(Cells)
+        Part = Replace(Cells(n), " ", vbNullString)
+        If Len(Part) > 0 Then
+            For L = TLen - 1 To 0 Step -1
+                If Reach(L) Then
+                    If L + Len(Part) <= TLen Then
+                        If Mid$(Target, L + 1, Len(Part)) = Part Then Reach(L + Len(Part)) = True
+                    ElseIf Cut Then
+                        If Mid$(Target, L + 1) = Left$(Part, TLen - L) Then Reach(TLen) = True
+                    End If
+                End If
+            Next L
+            If Reach(TLen) Then Exit For
+        End If
+    Next n
+    BankFits = Reach(TLen)
+End Function
+
+Private Function BankMod97(ByVal Text As String) As Long
+    'Rest modulo 97 nach ISO 7064 (Buchstaben A=10 bis Z=35), fuer IBAN und Glaeubiger-ID
+    Dim n As Long, Code As Long, Rest As Long
+    For n = 1 To Len(Text)
+        Code = AscW(Mid$(Text, n, 1))
+        If Code <= 57 Then
+            Rest = (Rest * 10 + Code - 48) Mod 97
+        Else
+            Rest = (Rest * 100 + Code - 55) Mod 97
+        End If
+    Next n
+    BankMod97 = Rest
+End Function
+
+Private Function BankIbOk(ByVal Token As String) As Boolean
+    'IBAN nach ISO 13616: Laenderkennung, Pruefziffer mod 97; deutsche IBAN genau 20 Ziffern nach "DE"
+    Dim n As Long, Code As Long
+    If Len(Token) < 15 Or Len(Token) > 34 Then Exit Function
+    For n = 1 To Len(Token)
+        Code = AscW(Mid$(Token, n, 1))
+        If n <= 2 Then
+            If Code < 65 Or Code > 90 Then Exit Function
+        ElseIf n <= 4 Or Left$(Token, 2) = "DE" Then
+            If Code < 48 Or Code > 57 Then Exit Function
+        ElseIf Not ((Code >= 48 And Code <= 57) Or (Code >= 65 And Code <= 90)) Then
+            Exit Function
+        End If
+    Next n
+    If Left$(Token, 2) = "DE" And Len(Token) <> 22 Then Exit Function
+    BankIbOk = (BankMod97(Mid$(Token, 5) & Left$(Token, 4)) = 1)
+End Function
+
+Private Function BankCiOk(ByVal Token As String) As Boolean
+    'SEPA-Glaeubiger-ID: Laenderkennung, Pruefziffer, 3 Zeichen Geschaeftsbereich, nationale Kennung;
+    'Pruefziffer mod 97 ohne Geschaeftsbereich; deutsche Glaeubiger-ID 18 Zeichen, Kennung 11 Ziffern
+    Dim n As Long, Code As Long
+    If Len(Token) < 9 Or Len(Token) > 35 Then Exit Function
+    For n = 1 To Len(Token)
+        Code = AscW(Mid$(Token, n, 1))
+        If n <= 2 Then
+            If Code < 65 Or Code > 90 Then Exit Function
+        ElseIf n <= 4 Or (n >= 8 And Left$(Token, 2) = "DE") Then
+            If Code < 48 Or Code > 57 Then Exit Function
+        ElseIf Not ((Code >= 48 And Code <= 57) Or (Code >= 65 And Code <= 90)) Then
+            Exit Function
+        End If
+    Next n
+    If Left$(Token, 2) = "DE" And Len(Token) <> 18 Then Exit Function
+    BankCiOk = (BankMod97(Mid$(Token, 8) & Left$(Token, 4)) = 1)
+End Function
+
+Private Function BankIds(ByVal Text As String, ByVal Kind As Long) As String
+    'Kennungen eines Textes als Liste " ID1 ID2 ": Kind 1 = IBAN, 2 = Glaeubiger-ID.
+    'Woerter aus Buchstaben und Ziffern; ein MT940-Kennzeichen wie "SVWZ+" am Wortende wird abgetrennt
+    Dim n As Long, Code As Long, Start As Long
+    Dim Token As String
+    Dim IsId As Boolean
+    BankIds = " "
+    Text = UCase$(Text) & " "
+    For n = 1 To Len(Text)
+        Code = AscW(Mid$(Text, n, 1))
+        If (Code >= 48 And Code <= 57) Or (Code >= 65 And Code <= 90) Then
+            If Start = 0 Then Start = n
+        ElseIf Start > 0 Then
+            If n - Start >= 9 And n - Start <= 40 Then
+                Token = Mid$(Text, Start, n - Start)
+                If Code = 43 And Len(Token) > 12 Then
+                    If InStr("|EREF|KREF|MREF|CRED|DEBT|SVWZ|ABWA|ABWE|", "|" & Right$(Token, 4) & "|") > 0 Then Token = Left$(Token, Len(Token) - 4)
+                End If
+                If Kind = 1 Then IsId = BankIbOk(Token) Else IsId = BankCiOk(Token)
+                If IsId Then
+                    If InStr(BankIds, " " & Token & " ") = 0 Then BankIds = BankIds & Token & " "
+                End If
+            End If
+            Start = 0
+        End If
+    Next n
+End Function
+
+Private Function BankHasId(ByVal List As String, ByVal OldText As String, ByVal Cut As Boolean) As Boolean
+    'True, wenn der Alttext eine Kennung der Liste (" ID1 ID2 ") enthaelt; bei gekuerztem Alttext
+    '(Cut) genuegt ein Kennungsanfang ab 4 Zeichen (Land und Pruefziffer) als letztes Wort
+    Dim Ident As Variant
+    Dim Tail As String
+    Dim n As Long, Code As Long
+    If Len(List) < 2 Or Len(OldText) = 0 Then Exit Function
+    OldText = UCase$(OldText)
+    If Cut Then
+        For n = Len(OldText) To 1 Step -1
+            Code = AscW(Mid$(OldText, n, 1))
+            If Not ((Code >= 48 And Code <= 57) Or (Code >= 65 And Code <= 90)) Then Exit For
+        Next n
+        Tail = Mid$(OldText, n + 1)
+    End If
+    For Each Ident In Split(Trim$(List), " ")
+        If InStr(1, OldText, Ident, vbBinaryCompare) > 0 Then
+            BankHasId = True
+            Exit Function
+        ElseIf Len(Tail) >= 4 Then
+            If Left$(Ident, Len(Tail)) = Tail Then
+                BankHasId = True
+                Exit Function
+            End If
+        End If
+    Next Ident
+End Function
+
+Private Function BankBack(ByVal NewText As String, ByVal OldText As String, ByVal OldCut As Boolean) As Boolean
+    'Gegenrichtung zu BankFits: neuer Text aus einer Auswahl der Woerter des Alttexts, Leerzeichen zaehlen
+    'nicht (Alttext mit einem Feld mehr, z.B. Kontonummer im CAMT-Format). Der neue Text muss mindestens
+    '80 Prozent des Alttexts abdecken; gekuerzte Alttexte prueft nur BankFits
+    Dim NewLen As Long, OldLen As Long
+    If OldCut Then Exit Function
+    NewLen = Len(Replace(NewText, " ", vbNullString))
+    OldLen = Len(Replace(OldText, " ", vbNullString))
+    If NewLen < 20 Or NewLen * 5 < OldLen * 4 Then Exit Function
+    BankBack = BankFits(Split(OldText, " "), NewText, Len(NewText) >= 255)
+End Function
+
+Private Sub BankStore(ByVal Plans As Collection, ByRef Target As ADODB.Recordset, ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, ByVal MinDay As Date, ByVal MaxDay As Date)
+    On Error GoTo BankErr
+    'Allgemeiner CSV-Import: Abgleich mit dem Bestand des Kontos vor dem Speichern.
+    'Der Buchungstext haengt von den konstanten Spalten der ersten 50 Zeilen ab (ScanD) und vom Exportformat.
+    'Ein Altumsatz mit gleichem Tag und Betrag gilt als vorhanden bei 1. gleichem Text, 2. Text aus einer
+    'Auswahl der Zellen der Zeile oder umgekehrt (Leerzeichen zaehlen nicht), 3. gleicher IBAN, 4. gleicher Glaeubiger-ID
+    'des Zahlungsbeteiligten (anderes Exportformat). Jeder Altumsatz deckt hoechstens eine Zeile ab; ausser bei
+    'gleichem vollstaendigem Text entscheidet BankAssign. Ist offen, welche Zeile neu ist, wird gespeichert
+    Dim Legacy As Object, Used As Object, IdCnt As Object, Extra As Object
+    Dim Bucket As Collection
+    Dim Plan As Variant, OldRec As Variant, Ident As Variant
+    Dim State() As Byte, Weak() As String, ByIban() As String, ByCi() As String, Texts() As String
+    Dim PlanIb() As String, PlanCi() As String
+    Dim BucketId As String, OwnText As String, OldText As String, NormOld As String, IdText As String, Cands As String
+    Dim k As Long, Kind As Long, Skipped As Long, Added As Long, Ambig As Long
+    Dim WeakCnt As Long, IbanHit As Long, CiHit As Long
+    Dim Cut As Boolean, SameTx As Boolean
+    Dim OldDay As Date
+    Dim b As Long
+    Dim ErrNum As Long, ErrText As String
+
+    Set Legacy = CreateObject("Scripting.Dictionary")
+    Set Used = CreateObject("Scripting.Dictionary")
+    '1. Bestand des Kontos im Zeitraum einmal lesen, dazu einzelne Tage, unter denen ein frueherer Import
+    '   fiktive Valuta gespeichert hat (ParseDate bisherige Lesart, z.B. 29.02.25 -> 25.02.2029)
+    Set Extra = CreateObject("Scripting.Dictionary")
+    For Each Plan In Plans
+        OldDay = DateValue(Plan(4))
+        If Year(OldDay) > 1900 And OldDay <> DateValue(Plan(0)) Then
+            If OldDay < DateValue(MinDay) Or OldDay > DateValue(MaxDay) Then Extra(CStr(CLng(OldDay))) = OldDay
+        End If
+    Next Plan
+    BankRead IdBnk, ManNr, MinDay, MaxDay, Extra, Legacy, Nothing
+
+    ReDim State(1 To Plans.Count)
+    ReDim Weak(1 To Plans.Count)
+    ReDim ByIban(1 To Plans.Count)
+    ReDim ByCi(1 To Plans.Count)
+    ReDim PlanIb(1 To Plans.Count)
+    ReDim PlanCi(1 To Plans.Count)
+    ReDim Texts(1 To Plans.Count)
+    If Legacy.Count > 0 Then
+        '2. IBANs und Glaeubiger-IDs je Zeile; eine Kennung in jeder Zeile gehoert zum eigenen Konto
+        Set IdCnt = CreateObject("Scripting.Dictionary")
+        k = 0
+        For Each Plan In Plans
+            k = k + 1
+            IdText = Join(Plan(3), " ")
+            PlanIb(k) = BankIds(IdText, 1)
+            PlanCi(k) = BankIds(IdText, 2)
+            IdText = Trim$(PlanIb(k) & PlanCi(k))
+            If Len(IdText) > 0 Then
+                For Each Ident In Split(IdText, " ")
+                    If Len(Ident) > 0 Then IdCnt(Ident) = IdCnt(Ident) + 1
+                Next Ident
+            End If
+        Next Plan
+        For k = 1 To Plans.Count
+            For Kind = 1 To 2
+                If Kind = 1 Then Cands = PlanIb(k) Else Cands = PlanCi(k)
+                IdText = " "
+                If Plans.Count > 1 And Len(Cands) > 1 Then
+                    For Each Ident In Split(Trim$(Cands), " ")
+                        If IdCnt(Ident) < Plans.Count Then IdText = IdText & Ident & " "
+                    Next Ident
+                End If
+                If Kind = 1 Then PlanIb(k) = IdText Else PlanCi(k) = IdText
+            Next Kind
+        Next k
+
+        '3. Abgleich: gleicher Text sofort, Kandidaten fuer Teiltext, IBAN und Glaeubiger-ID merken;
+        '   bei fiktiver Valuta auch unter dem frueher gespeicherten Tag (Plan(4))
+        k = 0
+        For Each Plan In Plans
+            k = k + 1
+            'Text wie in AddRec gespeichert
+            OwnText = Replace(CStr(Plan(2)), "?", " ")
+            If Len(OwnText) = 0 Then OwnText = "kein Buchungstext" Else OwnText = Left$(OwnText, 255)
+            'Speichertag und Text (BankAssign: gleiche Zeilen sind austauschbar)
+            Texts(k) = CStr(CLng(DateValue(Plan(0)))) & "|" & OwnText
+            OwnText = BankNorm(OwnText)
+            For b = 1 To 2
+                If b = 1 Then
+                    BucketId = BankBucket(Plan(0), Round(CDbl(Plan(1)), 2))
+                ElseIf DateValue(Plan(4)) <> DateValue(Plan(0)) Then
+                    BucketId = BankBucket(Plan(4), Round(CDbl(Plan(1)), 2))
+                Else
+                    Exit For
+                End If
+                If Legacy.Exists(BucketId) Then
+                    Set Bucket = Legacy(BucketId)
+                    For Each OldRec In Bucket
+                        If Not Used.Exists(OldRec(0)) Then
+                            OldText = CStr(OldRec(1))
+                            NormOld = BankNorm(OldText)
+                            Cut = (Len(OldText) >= 255)
+                            SameTx = (NormOld = OwnText)
+                            If b = 2 Then
+                                'Unter dem frueher gespeicherten Tag (fiktive Valuta) nur gleicher, nicht leerer Text;
+                                'sonst koennte eine echte Buchung dieses Tages gemeint sein
+                                If SameTx And OldText <> "kein Buchungstext" Then Weak(k) = Weak(k) & " " & OldRec(0)
+                            ElseIf SameTx And Not Cut Then
+                                Used(OldRec(0)) = True
+                                State(k) = 1
+                                Exit For
+                            ElseIf SameTx Or OldText = "kein Buchungstext" Then
+                                'gleicher gekuerzter Text oder leerer Alttext: Zuordnung in BankAssign
+                                Weak(k) = Weak(k) & " " & OldRec(0)
+                            ElseIf BankFits(Plan(3), NormOld, Cut) Then
+                                Weak(k) = Weak(k) & " " & OldRec(0)
+                            ElseIf BankBack(OwnText, NormOld, Cut) Then
+                                Weak(k) = Weak(k) & " " & OldRec(0)
+                            ElseIf BankHasId(PlanIb(k), OldText, Cut) Then
+                                ByIban(k) = ByIban(k) & " " & OldRec(0)
+                            ElseIf BankHasId(PlanCi(k), OldText, Cut) Then
+                                ByCi(k) = ByCi(k) & " " & OldRec(0)
+                            End If
+                        End If
+                    Next OldRec
+                End If
+                If State(k) = 1 Then Exit For
+            Next b
+        Next Plan
+        'Teiltext vor IBAN vor Glaeubiger-ID, je Stufe groesste eins-zu-eins-Zuordnung; Zeilen mit unklarer
+        'Zuordnung und verschiedenem Text werden gespeichert (BankAssign)
+        WeakCnt = BankAssign(Weak, State, Used, Texts)
+        IbanHit = BankAssign(ByIban, State, Used, Texts)
+        CiHit = BankAssign(ByCi, State, Used, Texts)
+    End If
+
+    '4. Nur neue Umsaetze speichern
+    k = 0
+    For Each Plan In Plans
+        k = k + 1
+        If State(k) = 1 Then
+            Skipped = Skipped + 1
+        Else
+            If State(k) = 2 Then Ambig = Ambig + 1
+            AddRec Target, IdBnk, ManNr, MitNr, CDate(Plan(0)), CDbl(Plan(1)), CStr(Plan(2)), vbNullString
+            Added = Added + 1
+            DoEvents
+        End If
+    Next Plan
+    If GlLog = True Then SLogi "BankStore: Added=" & CStr(Added) & "; Skipped=" & CStr(Skipped) & "; Weak=" & CStr(WeakCnt) & "; Iban=" & CStr(IbanHit) & "; Ci=" & CStr(CiHit) & "; Unklar=" & CStr(Ambig) & "; ExtraDays=" & CStr(Extra.Count)
+    Exit Sub
+
+BankErr:
+    ErrNum = Err.Number
+    ErrText = Err.Description
+    If GlLog = True Then SLogi "BankStore Err: " & ErrText & " #" & ErrNum
+    On Error GoTo 0
+    Err.Raise ErrNum, "BankStore", ErrText
+End Sub
+
+Private Sub BankRead(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MinDay As Date, ByVal MaxDay As Date, ByVal Extra As Object, ByVal Legacy As Object, ByVal Known As Object)
+    'Bestand des Kontos einmal lesen (BankImport, BankStore): Zeitraum MinDay bis MaxDay und einzelne weitere
+    'Tage (Extra: frueher gespeicherte Tage fiktiver Valuta). Mit Known: stabile Kennungen (BKI1) dorthin;
+    'alle anderen Umsaetze nach Tag und Betrag in Legacy (je Bucket eine Collection aus Array(ID2, IDKurz))
+    On Error GoTo BankErr
+    Dim OldRows As ADODB.Recordset
+    Dim Bucket As Collection
+    Dim Days As Variant
+    Dim OldKey As String, BucketId As String
+    Dim n As Long
+    Dim ErrNum As Long, ErrText As String
+    Days = Extra.Items
+    For n = 0 To Extra.Count
+        If n = 0 Then
+            Set OldRows = BankLoad(IdBnk, ManNr, MinDay, MaxDay)
+        Else
+            Set OldRows = BankLoad(IdBnk, ManNr, Days(n - 1), Days(n - 1))
+        End If
+        Do While Not OldRows.EOF
+            OldKey = vbNullString & OldRows.Fields("Suche").Value
+            If Left$(OldKey, 5) = "BKI1:" And Not Known Is Nothing Then
+                Known(OldKey) = True
+            ElseIf Not IsNull(OldRows.Fields("Datum").Value) And Not IsNull(OldRows.Fields("Betrag").Value) Then
+                BucketId = BankBucket(OldRows.Fields("Datum").Value, OldRows.Fields("Betrag").Value)
+                If Not Legacy.Exists(BucketId) Then
+                    Set Bucket = New Collection
+                    Legacy.Add BucketId, Bucket
+                End If
+                Set Bucket = Legacy(BucketId)
+                Bucket.Add Array(CStr(OldRows.Fields("ID2").Value), vbNullString & OldRows.Fields("IDKurz").Value)
+            End If
+            OldRows.MoveNext
+        Loop
+        OldRows.Close
+        Set OldRows = Nothing
+    Next n
+    Exit Sub
+
+BankErr:
+    ErrNum = Err.Number
+    ErrText = Err.Description
+    On Error Resume Next
+    If Not OldRows Is Nothing Then
+        If OldRows.State <> adStateClosed Then OldRows.Close
+    End If
+    Set OldRows = Nothing
+    On Error GoTo 0
+    Err.Raise ErrNum, "BankRead", ErrText
+End Sub
+
+Private Function BankAssign(ByRef Cands() As String, ByRef State() As Byte, ByVal Used As Object, ByRef Texts() As String) As Long
+    'Eins-zu-eins-Zuordnung offener Zeilen (State 0) zu den freien Altumsaetzen ihrer Kandidatenliste (" ID ID"):
+    'groesste Zuordnung ueber erweiternde Wege (BankAug) statt Dateireihenfolge; Zeilen mit Partner gelten als
+    'vorhanden (State 1). Bleibt eine Zeile ohne Partner, ist offen, welche der ueber wechselnde Wege von ihr
+    'erreichbaren Zeilen neu ist. Unterscheiden sie sich in Speichertag oder -text (Texts), werden sie alle gespeichert
+    '(State 2, Dublette statt Verlust) und ihre Altumsaetze gesperrt; bei gleichem Text ist die Wahl ohne Folgen,
+    'die Zeile ohne Partner bleibt offen fuer die naechste Stufe. Rueckgabe: Zahl der als vorhanden erkannten Zeilen
+    Dim Lst() As String, Got() As String
+    Dim Mate As Object, Seen As Object, Loose As Object, Block As Object
+    Dim Queue As Collection
+    Dim OldId As Variant
+    Dim k As Long, n As Long, r As Long
+    Dim Mixed As Boolean
+    ReDim Lst(UBound(Cands))
+    ReDim Got(UBound(Cands))
+    Set Mate = CreateObject("Scripting.Dictionary")
+    Set Seen = CreateObject("Scripting.Dictionary")
+    Set Loose = CreateObject("Scripting.Dictionary")
+    Set Block = CreateObject("Scripting.Dictionary")
+    For k = LBound(Cands) To UBound(Cands)
+        If State(k) = 0 And Len(Cands(k)) > 0 Then
+            For Each OldId In Split(Trim$(Cands(k)), " ")
+                If Not Used.Exists(OldId) Then Lst(k) = Lst(k) & " " & OldId
+            Next OldId
+            If Len(Lst(k)) > 0 Then
+                Seen.RemoveAll
+                BankAug k, Lst, Mate, Seen
+            End If
+        End If
+    Next k
+    For Each OldId In Mate.Keys
+        Got(Mate(OldId)) = OldId
+    Next OldId
+    For k = LBound(Cands) To UBound(Cands)
+        If Len(Lst(k)) > 0 And Len(Got(k)) = 0 Then
+            'Zeile ohne Partner: alle ueber wechselnde Wege erreichbaren Zeilen und Altumsaetze sammeln
+            Seen.RemoveAll
+            Set Queue = New Collection
+            Queue.Add k
+            Mixed = False
+            n = 1
+            Do While n <= Queue.Count
+                r = Queue(n)
+                If Texts(r) <> Texts(k) Then Mixed = True
+                For Each OldId In Split(Trim$(Lst(r)), " ")
+                    If Not Seen.Exists(OldId) Then
+                        Seen.Add OldId, True
+                        If Mate.Exists(OldId) Then Queue.Add CLng(Mate(OldId))
+                    End If
+                Next OldId
+                n = n + 1
+            Loop
+            If Mixed Then
+                For n = 1 To Queue.Count
+                    Loose(CStr(Queue(n))) = True
+                Next n
+                For Each OldId In Seen.Keys
+                    Block(OldId) = True
+                Next OldId
+            End If
+        End If
+    Next k
+    For k = LBound(Cands) To UBound(Cands)
+        If Len(Lst(k)) > 0 Then
+            If Loose.Exists(CStr(k)) Then
+                State(k) = 2
+            ElseIf Len(Got(k)) > 0 Then
+                State(k) = 1
+                Used(Got(k)) = True
+                BankAssign = BankAssign + 1
+            End If
+        End If
+    Next k
+    For Each OldId In Block.Keys
+        Used(OldId) = True
+    Next OldId
+End Function
+
+Private Function BankAug(ByVal k As Long, ByRef Lst() As String, ByVal Mate As Object, ByVal Seen As Object) As Boolean
+    'Erweiternder Weg fuer Zeile k (BankAssign): ein freier Altumsatz oder einer, dessen Zeile ausweichen kann
+    Dim OldId As Variant
+    For Each OldId In Split(Trim$(Lst(k)), " ")
+        If Not Seen.Exists(OldId) Then
+            Seen.Add OldId, True
+            If Not Mate.Exists(OldId) Then
+                Mate.Add OldId, k
+                BankAug = True
+                Exit Function
+            ElseIf BankAug(CLng(Mate(OldId)), Lst, Mate, Seen) Then
+                Mate(OldId) = k
+                BankAug = True
+                Exit Function
+            End If
+        End If
+    Next OldId
+End Function
+
+Private Function BankProof(ByVal Cells As Variant, ByVal OldText As String) As Boolean
+    'True, wenn der Alttext Buchungstag, Valuta oder Saldo nach Buchung der Zeile als ganzes Wort enthaelt (Zellen
+    '0, 1 und 8 aus BankCells): Beleg fuer einen Altumsatz, den ein frueherer Import unter dem Tag fiktiver Valuta
+    'gespeichert hat (BankImport). Der fruehere allgemeine Import speichert den Saldo, aber kein Datum im Text
+    Dim n As Variant
+    OldText = " " & OldText & " "
+    For Each n In Array(0, 1, 8)
+        If Len(Cells(n)) > 0 Then
+            If InStr(1, OldText, " " & Cells(n) & " ", vbBinaryCompare) > 0 Then BankProof = True
+        End If
+    Next n
+End Function

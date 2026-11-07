@@ -1,0 +1,75 @@
+Access-Bankindex: Ausfuehrung und Stand, 28.10.2026
+
+Stand dieser Sitzung
+- Nach Freigabe des Vollzugriffs ist Z:\Data\Database\Abrechnung erreichbar.
+- Alle 9 gefundenen Access-Datenbanken angepasst, einschliesslich DBX/DBV/DAX
+  und der Dateien in _Datenbank, _Beispieldaten, _CrossMed und _Abfragen.
+- Die beiden DAX-Dateien in _Abfragen waren im ersten Lauf nicht erfasst;
+  sie wurden am 28.10.2026 nachtraeglich gesichert und angepasst.
+- Fuer jede Datei Sicherung, Indexanlage und unveraenderte Umsatzzahl geprueft.
+- Nach dem jeweiligen Lauf alle Dateien erneut schreibgeschuetzt geoeffnet und die
+  dauerhaft gespeicherten Indexdefinitionen bestaetigt: IDB, IDM, Datum;
+  nicht eindeutig. Keine Fehler.
+- Einzelheiten/Sicherungspfade: Pruefbericht-Access-Bankindex-2026-10-28.txt.
+- Passwort aus der bestehenden lokalen Access.txt verwendet, nicht protokolliert.
+- SQL-Uebergabe: Anweisung-Schwesterinstanz-Bankimport-SQL-2026-10-28.md.
+
+Vorbereitetes Werkzeug
+scripts\Update-AccessBankImportIndex.ps1
+
+Windows PowerShell 5.1 mit passendem Microsoft ACE OLEDB Provider verwenden.
+Alle direkten .mdb/.accdb/.mde/.accde/.dbx/.dbv/.dax-Dateien im angegebenen Ordner werden
+einzeln geprueft. Unterordner, Sicherungsordner und Dateiverknuepfungen werden
+nicht verfolgt. Weitere Datenbankordner separat als Ziel uebergeben.
+
+Die Passwortdatei muss ausschliesslich das Datenbankpasswort auf einer Zeile
+enthalten. Verwendet wurde C:\Users\schmi\Documents\devcode2\Access.txt.
+Kein Passwort als Kommandoargument.
+
+Vor der Anwendung SimpliMed/Access-Verbindungen zu diesen Dateien schliessen.
+Das Skript beendet keine fremden Prozesse. Eine gesperrte Datenbank wird als
+Fehler protokolliert und nicht erzwungen geoeffnet.
+
+Nur pruefen (aus dem Projektordner; schreibt lediglich ein Ergebnisprotokoll):
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Update-AccessBankImportIndex.ps1 -DatabaseDirectory "Z:\Data\Database\Abrechnung" -PasswordFile "C:\Users\schmi\Documents\devcode2\Access.txt"
+
+Anwenden:
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Update-AccessBankImportIndex.ps1 -DatabaseDirectory "Z:\Data\Database\Abrechnung" -PasswordFile "C:\Users\schmi\Documents\devcode2\Access.txt" -Apply
+
+Die Anwendung wurde ausserdem mit den vier Zielordnern
+Z:\Data\Database\Abrechnung\_Datenbank,
+Z:\Data\Database\Abrechnung\_Beispieldaten,
+Z:\Data\Database\Abrechnung\_CrossMed und
+Z:\Data\Database\Abrechnung\_Abfragen ausgefuehrt.
+
+Verhalten
+- Ausschliesslich nicht eindeutiger Index IX_Banking_IDB_IDM_Datum auf
+  Tabelle_Banking (IDB, IDM, Datum). Keine Buchungs-/Schemaaenderung darueber hinaus.
+- Gleichwertige bestehende Indizes auch bei anderem Namen und vertauschter
+  Reihenfolge der ersten beiden Spalten werden erkannt und nicht dupliziert.
+- Fehlende Tabelle: ueberspringen. Fehlende Spalten oder Namenskonflikte:
+  keine Aenderung und Fehlerstatus. Verknuepfte Tabellen: keine Weiterleitung
+  zum Backend, sondern gesondert pruefen.
+- Vor jeder Neuanlage eine exklusive, per SHA-256 gepruefte Dateisicherung im
+  Unterordner Bankindex_Sicherung_<Zeitpunkt> des Zielordners. Die vorhandene
+  Passwortverschluesselung bleibt in der Dateikopie erhalten.
+- Danach Datenbank exklusiv oeffnen, Schema erneut pruefen, Index anlegen,
+  Indexmetadaten und unveraenderte Anzahl der Umsatzzeilen kontrollieren.
+- Protokoll Bankindex_Protokoll_<Zeitpunkt>.csv im Zielordner: Dateiname,
+  Status, Bearbeitungsschritt, Neuanlage, Zeilenanzahl, Sicherung und Pruefsumme.
+  Keine Passwoerter, Verbindungszeichenfolgen oder Umsatztexte.
+- Fehler in einer Datei beenden nicht die Bearbeitung der anderen Dateien.
+  Exitcode 1 bedeutet, dass mindestens eine Datei Fehler/manuellen Pruefbedarf
+  hatte. Das Protokoll deshalb auch nach einem Teilerfolg vollstaendig pruefen.
+- Bei Fehler nach CreateIndex kann Created=True stehen: Index wurde angelegt,
+  anschliessende Verifikation war nicht erfolgreich. Dann gezielt nachpruefen.
+- Wiederholung ist moeglich. Vorhandene Sicherungen/Indizes werden nicht
+  ueberschrieben; keine automatische Wiederherstellung oder Datenloeschung.
+
+Lokale Verifikation
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\Test-AccessBankImportIndex.ps1
+PASS auf synthetischen, passwortgeschuetzten ACCDB-/MDB-/DBX-/DBV-/DAX-Datenbanken:
+Pruefmodus ohne Datenbankaenderung, Indexneuanlage, gleichwertiger Index,
+Namenskonflikt, gesperrte Datei, falsches Passwort, fehlende Spalte,
+byteidentische Sicherung, erhaltene Zeilen, erneute Anwendung.
+Die tatsaechliche Ausfuehrung auf Z: ist im separaten Pruefbericht dokumentiert.
