@@ -9140,6 +9140,7 @@ If RS126.Supports(adAddNew) Then
     End If
     If GlNeZ.TSELg <> vbNullString Then RS126.Fields("TSELog").Value = GlNeZ.TSELg
     If GlNeZ.KoTex <> vbNullString Then RS126.Fields("Kommentar").Value = GlNeZ.KoTex
+    If GlNeZ.ReStr <> vbNullString Then RS126.Fields("RechNr").Value = GlNeZ.ReStr 'Rechnungsbezug fuer S_RzDr (B4)
     If BeTex <> vbNullString Then RS126.Fields("BetrText").Value = BeTex
     RS126.Update
 End If
@@ -11779,10 +11780,10 @@ If RS165.Supports(adAddNew) Then
     If GlNuB.BuBel <> vbNullString Then
         RS165.Fields("Beleg").Value = GlNuB.BuBel
     End If
-    If GlNuB.TSESt <> vbNullString Then
+    If GlNuB.TSETz > 0 Then 'TSE-Transaktion vorhanden; die Seriennummer (TSESt) liefert smtse.exe derzeit nicht (B5)
         If GlTyp < 2 Then
-            RS165.Fields("TSEString").Value = GlNuB.TSEQr
-            RS165.Fields("TSEStrSig").Value = GlNuB.TSESt
+            If GlNuB.TSEQr <> vbNullString Then RS165.Fields("TSEString").Value = GlNuB.TSEQr
+            If GlNuB.TSESt <> vbNullString Then RS165.Fields("TSEStrSig").Value = GlNuB.TSESt
         End If
         RS165.Fields("TSEZahl").Value = GlNuB.TSETz
         RS165.Fields("TSESign").Value = GlNuB.TSESz
@@ -13039,6 +13040,7 @@ If Verre = False Then
                             .MitNr = MitNr
                             .PatNr = PatNr
                             .Steue = ReStu
+                            If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
                             If ReStu = 0 Then
                                 .BelNr = 12
                                 .KoTex = GlBlV(4)
@@ -13129,6 +13131,7 @@ If Verre = False Then
                             .MitNr = MitNr
                             .PatNr = PatNr
                             .Steue = ReStu
+                            If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
                             If ReStu = 0 Then
                                 .BelNr = 12
                                 .KoTex = GlBlV(4)
@@ -13221,6 +13224,7 @@ If Verre = False Then
                         .MitNr = MitNr
                         .PatNr = PatNr
                         .Steue = ReStu
+                        If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
                         If ReStu = 0 Then
                             .BelNr = 12
                             .KoTex = GlBlV(4)
@@ -28673,6 +28677,10 @@ Dim OPGen As Boolean 'Posten generieren
 Dim BuGen As Boolean 'Buchung generieren
 Dim ReAbg As Boolean 'Rechnung abgeschlossen
 Dim TSEBu As Boolean
+Dim TSEFeh As Boolean 'TSE-Signatur zu dieser Rechnung fehlgeschlagen
+Dim TSEAnz As Long
+Dim TSEReL As String
+Dim TSEGrd As String
 Dim Kasse As Boolean
 Dim SQL1 As String
 Dim Mld1, Tit1 As String
@@ -28731,6 +28739,8 @@ If AnzPo > 0 Then
         If RpRow.GroupRow = False Then
             ReNum = 0
             ReAbg = False
+            TSEFeh = False
+            TSEBu = False 'Signatur einer vorigen Rechnung nicht an diese schreiben (qrySimReTSE1)
             OPGen = True  'Posten generieren
             Verre = False 'Verrechnung
             ZiMah = True  'Mahnbar
@@ -29135,6 +29145,10 @@ If AnzPo > 0 Then
                                                         Case 2: TSEBu = TSEGen(BetBu, ReStu, KaStr)
                                                         End Select
                                                         If TSEBu = False Then
+                                                            If BetBu > 0 Then 'Rechnung nicht als bezahlt markieren, Meldung am Ende
+                                                                TSEFeh = True
+                                                                TSEGrd = GlTSF
+                                                            End If
                                                             BetBu = 0 'WICHTIG!
                                                         End If
                                                     End If
@@ -29217,10 +29231,12 @@ If AnzPo > 0 Then
                                             DoEvents
                                             
                                             If ZiMah = False Then 'Mahnbar
-                                                DBCmEx2 "qrySimReOP", "@IdOff", "@IdxNr", -1, ReNum
-                                                DoEvents
-                                                DBCmEx2 "qrySimReSm5", "@IdBez", "@IdxNr", ReBet, ReNum
-                                                DoEvents
+                                                If TSEFeh = False Then 'bei fehlgeschlagener TSE-Signatur nicht als bezahlt markieren (B3)
+                                                    DBCmEx2 "qrySimReOP", "@IdOff", "@IdxNr", -1, ReNum
+                                                    DoEvents
+                                                    DBCmEx2 "qrySimReSm5", "@IdBez", "@IdxNr", ReBet, ReNum
+                                                    DoEvents
+                                                End If
                                             End If
                                         End If
 
@@ -29234,6 +29250,8 @@ If AnzPo > 0 Then
                                                     Case 2: TSEBu = TSEGen(BetOP, ReStu, KaStr)
                                                     End Select
                                                     If TSEBu = False Then
+                                                        TSEFeh = True 'Meldung am Ende
+                                                        TSEGrd = GlTSF
                                                         ReBet = 0 'WICHTIG!
                                                     End If
                                                 End If
@@ -29352,6 +29370,11 @@ If AnzPo > 0 Then
                     End Select
                     DoEvents
 
+                    If TSEFeh = True Then 'fehlgeschlagene TSE-Signatur sammeln, eine Meldung am Ende (S_TSEMe)
+                        TSEAnz = TSEAnz + 1
+                        If TSEAnz <= 10 Then TSEReL = TSEReL & vbCrLf & "- " & ReStr
+                        If GlLog = True Then SLogi "S_OPAn: TSE-Signatur fehlgeschlagen, Rechnung " & ReStr & " nicht als bezahlt markiert"
+                    End If
                     KuStr = "Rechnung " & ReStr & " vom " & ReDaN
                     If GlRKr = True Then 'Rechnungsvermerk im Krankenblatt
                         DBCmEx7 "qrySimAbAnfu", "@PatNr", "@IdxNr", "@IdRec", "@IdStr", "@IdGui", "@IdDat", "@IdZei", PatNr, 106, ReNum, KuStr, TmGui, ReDaN, TimeValue(Now)
@@ -29414,6 +29437,7 @@ If AnzPo > 0 Then
     Set RS122 = Nothing
 
     If GlJet = True Then SDBSav
+    S_TSEMe TSEAnz, TSEReL, TSEGrd, "Diese Rechnungen wurden abgeschlossen, aber nicht als bezahlt markiert."
 
     If AnzOp > 0 Then
         Mld1 = "Es wurden " & AnzOp & " neue offene Posten angelegt"
@@ -29500,6 +29524,10 @@ Dim Kasse As Boolean
 Dim Verre As Boolean
 Dim Gefun As Boolean 'Geldkonto gefunden
 Dim TSEBu As Boolean
+Dim TSEFeh As Boolean 'TSE-Signatur zu diesem Posten fehlgeschlagen
+Dim TSEAnz As Long
+Dim TSEReL As String
+Dim TSEGrd As String
 Dim Mld1, Tit1 As String
 Dim RpCo1 As XtremeReportControl.ReportControl
 Dim RpCls As XtremeReportControl.ReportColumns
@@ -29684,6 +29712,7 @@ If AnzPo > 0 Then
                     TeFus = "Gegebenenfalls wurden eine oder mehrere der markierten Posten in zwischenzeitlich an einem anderen Arbeitsplatz gebucht."
                     
                     SMeFr TeTit, TeMai, TeInh, TeFus, False, 0, True, FM.hwnd
+                    S_TSEMe TSEAnz, TSEReL, TSEGrd, "Bitte pruefen, ob die Posten dieser Rechnungen trotzdem als ausgeglichen markiert wurden."
                     Exit Sub
                 End If
                 
@@ -29810,6 +29839,10 @@ If AnzPo > 0 Then
                                             Case 2: TSEBu = TSEGen(BetBu, ReStu, TSENa)
                                             End Select
                                             If TSEBu = False Then
+                                                If BetBu > 0 Then 'Meldung am Ende
+                                                    TSEFeh = True
+                                                    TSEGrd = GlTSF
+                                                End If
                                                 BetBu = 0 'WICHTIG!
                                             End If
                                         End If
@@ -29898,6 +29931,10 @@ If AnzPo > 0 Then
                                         Case 2: TSEBu = TSEGen(BetBz, BuStu, TSENa)
                                         End Select
                                         If TSEBu = False Then
+                                            If BetBz > 0 Then 'Meldung am Ende
+                                                TSEFeh = True
+                                                TSEGrd = GlTSF
+                                            End If
                                             BetBz = 0 'WICHTIG!
                                         End If
                                     End If
@@ -30003,6 +30040,12 @@ If AnzPo > 0 Then
                                                             
                             End If
     
+                            If TSEFeh = True Then 'fehlgeschlagene TSE-Signatur sammeln, eine Meldung am Ende (S_TSEMe)
+                                TSEFeh = False
+                                TSEAnz = TSEAnz + 1
+                                If TSEAnz <= 10 Then TSEReL = TSEReL & vbCrLf & "- " & ReStr
+                                If GlLog = True Then SLogi "S_OPAu: TSE-Signatur fehlgeschlagen, Rechnung " & ReStr
+                            End If
                             If AnzPo > 1 Then
                                 BetDf = Round(BetOP - BetRe, 2) 'Rechnungsbetrag
                             Else
@@ -30088,6 +30131,8 @@ If AnzPo > 0 Then
     If GlJet = True Then SDBSav
 End If
 
+S_TSEMe TSEAnz, TSEReL, TSEGrd, "Bitte pruefen, ob die Posten dieser Rechnungen trotzdem als ausgeglichen markiert wurden."
+
 Set RpSel = Nothing
 Set RpCls = Nothing
 Set RpCo1 = Nothing
@@ -30098,6 +30143,25 @@ KoErr:
 If GlDbg = True Then SErLog Err.Description & " S_OPAu " & Err.Number
 Resume Next
 
+End Sub
+Private Sub S_TSEMe(ByVal FehAnz As Long, ByVal FeLis As String, ByVal FeGrd As String, ByVal FeTex As String)
+On Error GoTo MeErr
+'Meldet fehlgeschlagene TSE-Signaturen aus S_OPAn/S_OPAu einmal gesammelt statt je Steuersatz (nur OK, keine Rueckfrage)
+
+Dim FeMld As String
+
+If FehAnz < 1 Then Exit Sub
+FeMld = "Die TSE-Signatur ist fehlgeschlagen. Fuer folgende Rechnungen wurde keine oder keine vollstaendige Buchung im Geldkonto Kasse angelegt:" & FeLis
+If FehAnz > 10 Then FeMld = FeMld & vbCrLf & "- und " & (FehAnz - 10) & " weitere"
+If FeTex <> vbNullString Then FeMld = FeMld & vbCrLf & vbCrLf & FeTex
+If FeGrd <> vbNullString Then FeMld = FeMld & vbCrLf & vbCrLf & "Grund: " & FeGrd
+FeMld = FeMld & vbCrLf & vbCrLf & "Bitte die TSE-Verbindung pruefen und die Rechnungen anschliessend in der Buchhaltung kontrollieren."
+Screen.MousePointer = vbNormal
+WindowMess FeMld, Dial3, "TSE-Signatur fehlgeschlagen", frmMain.hwnd
+Exit Sub
+
+MeErr:
+If GlLog = True Then SLogi "S_TSEMe Err: " & Err.Description & " #" & Err.Number
 End Sub
 Public Sub S_OPBe()
 On Error GoTo LiErr

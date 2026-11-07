@@ -926,8 +926,13 @@ Screen.MousePointer = vbNormal
 
 If GlTSe > 0 Then 'TSE Aktiviert
     If Kasse = True Then
-        GlBu2 = RibTab_Belegmodul
-        STaSe ShoCut_Kranken, RibTab_Belegmodul
+        'Kassenzahlung mit TSE: S_BuZal legt nur den Beleg an, Signatur und Kassenbuchung entstehen erst beim
+        'Belegdruck (S_RzDr). Hinweis statt Sprung in den Reiter "Belege", kein automatischer Druckdialog (B1)
+        TeTit = "Zahlung eintragen"
+        TeMai = "Der Kassenbeleg ist angelegt, aber noch nicht gedruckt."
+        TeInh = "Die TSE-Signatur und die Buchung im Geldkonto Kasse entstehen erst beim Druck des Belegs. Solange der Beleg nicht gedruckt ist, erscheint die Einnahme nicht im Geldkonto Kasse."
+        TeFus = "Der Beleg kann jetzt oder spaeter gedruckt werden: im Krankenblatt des Patienten im Reiter ""Belege"" ueber ""Beleg Drucken""."
+        SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, frmMain.hwnd
     End If
 End If
 

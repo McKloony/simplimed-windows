@@ -9309,6 +9309,7 @@ Dim Betr2 As String
 Dim Betr3 As String
 Dim Betr4 As String
 Dim SgStr As String
+Dim SmErr As String 'Fehlertext aus der Ausgabe von smtse.exe
 Dim AktZe As Integer
 Dim Posit As Integer
 Dim PoSg1 As Integer
@@ -9320,6 +9321,7 @@ Dim TxTSE As XtremeSuiteControls.FlatEdit
 Set clFil = New clsFile
 
 GlTSB = GlTSC
+GlTSF = vbNullString 'Grund eines Fehlschlags fuer die Aufrufer (S_RzDr, S_OPAn, S_OPAu)
 
 PrNam = App.Path & "\smtse.exe"
 CoIni = App.Path & "\smtse.ini"
@@ -9327,6 +9329,7 @@ CoIni = App.Path & "\smtse.ini"
 If clFil.FilVor(PrNam) = False Then
     PrNam = clFil.FilVer(22) & "\SimpliMed\smtse.exe"
     If clFil.FilVor(PrNam) = False Then
+        GlTSF = "Die Programmdatei smtse.exe wurde nicht gefunden."
         SPopu "Programmdatei nicht gefunden!", "Eine zur Ausführung benötigte Datei konnte nicht gefunden werden.", IC48_Forbidden
         Exit Function
     End If
@@ -9335,6 +9338,7 @@ End If
 If clFil.FilVor(CoIni) = False Then
     CoIni = clFil.FilVer(22) & "\SimpliMed\smtse.ini"
     If clFil.FilVor(CoIni) = False Then
+        GlTSF = "Die Konfigurationsdatei smtse.ini wurde nicht gefunden."
         SPopu "Konfigurationsdatei nicht gefunden!", "Die Datei smtse.ini konnte nicht gefunden werden.", IC48_Forbidden
         Exit Function
     End If
@@ -9402,6 +9406,7 @@ If GlTSN <> vbNullString Then 'TSE Kennung
                             If Posit > 0 Then
                                 InTyp = LCase(Left$(TmZei, Posit - 1))
                                 Select Case InTyp
+                                Case "error": SmErr = Right$(TmZei, Lange - Posit) 'Fehlertext, falls smtse.exe ihn so ausgibt
                                 Case "transactionid": GlTSB.TraID = Right$(TmZei, Lange - Posit)
                                 Case "number": GlTSB.TraZe = Val(CLng(Right$(TmZei, Lange - Posit)))
                                 Case "startutc":
@@ -9420,10 +9425,16 @@ If GlTSN <> vbNullString Then 'TSE Kennung
                                         End If
                                     End If
                                 End Select
+                            ElseIf SmErr = vbNullString And Left$(TmZei, 1) <> "[" Then
+                                SmErr = Trim$(TmZei) 'Zeile ohne Schluessel, z.B. Fehlertext von smtse.exe
                             End If
                         End If
                     Next AktZe
+                Else
+                    GlTSF = "Die Antwort von smtse.exe ist leer."
                 End If
+            Else
+                GlTSF = "smtse.exe hat keine Antwort geschrieben (Programmstart oder Verbindung zur TSE fehlgeschlagen)."
             End If
             DoEvents
         End With
@@ -9431,6 +9442,13 @@ If GlTSN <> vbNullString Then 'TSE Kennung
         If GlTSB.SigQr <> vbNullString Then
             GlTSB.ZeLog = GlTSB.ZeiSt & " - " & GlTSB.ZeiEn
             TSEGen = True
+            GlTSF = vbNullString
+        ElseIf GlTSF = vbNullString Then
+            If SmErr <> vbNullString Then
+                GlTSF = "smtse.exe meldet: " & Left$(SmErr, 200)
+            Else
+                GlTSF = "Die Antwort von smtse.exe enthaelt keine Signatur (qrcodedata fehlt): " & Left$(Replace(TmpSt, vbCrLf, " "), 150)
+            End If
         End If
         
         If GlLog = False Then 'General Logging
@@ -9442,7 +9460,11 @@ If GlTSN <> vbNullString Then 'TSE Kennung
             Clipboard.Clear
             Clipboard.SetText PrNam & Space$(1) & PaStr
         End If
+    Else
+        GlTSF = "In den Optionen ist kein TSE-Organisationsschluessel hinterlegt."
     End If
+Else
+    GlTSF = "In den Optionen ist keine TSE-Kennung (TSS) hinterlegt."
 End If
 
 Set clFil = Nothing
@@ -9450,6 +9472,8 @@ Set clFil = Nothing
 Exit Function
 
 InErr:
+If GlTSF = vbNullString Then GlTSF = "Programmfehler in TSEGen: " & Err.Description & " #" & Err.Number
+If GlLog = True Then SLogi "TSEGen Err: " & Err.Description & " #" & Err.Number
 If GlDbg = True Then MsgBox Err.Description, 48, "TSEGen " & Err.Number
 Resume Next
 
@@ -9769,6 +9793,7 @@ Dim TSEBu As Boolean
 Dim Gefun As Boolean
 
 GlTSB = GlTSC
+GlTSF = vbNullString 'Grund eines Fehlschlags fuer die Aufrufer (S_RzDr, S_OPAn, S_OPAu)
 
 Set clFil = New clsFile
 
@@ -9801,11 +9826,16 @@ If GlTSK <> vbNullString Then
             TSEBu = TSE_Strg(KliNa)
             DoEvents
             TSESet = TSEBu
+            If TSEBu = False Then GlTSF = "Die TSE (SwissBit) hat keine Signatur geliefert (Selbsttest, Zeitsynchronisation oder Stoerung)."
+        Else
+            GlTSF = "Es ist kein Betrag zum Signieren vorhanden."
         End If
     Else
+        GlTSF = "Die TSE (SwissBit) ist nicht ansprechbar (" & GLTSL & "TSE_COMM.DAT nicht gefunden)."
         SPopu "TSE nicht ansprechbar!", "Die TSE kann nicht gefunden werden oder es liegt eine Störung vor.", IC48_Forbidden
     End If
 Else
+    GlTSF = "Es wurde noch kein TSE-Selbsttest durchgefuehrt."
     SPopu "Signierung nicht möglich", "Es wurde noch kein TSE Selbsttest durchgeführt!", IC48_Forbidden
 End If
 

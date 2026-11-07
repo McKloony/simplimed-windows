@@ -27018,6 +27018,9 @@ Dim KuStr As String
 Dim BuTex As String
 Dim TSENa As String 'Kassenkennung
 Dim TSESt As String
+Dim BelReN As String 'gespeicherter Rechnungsbezug des Belegs (B4)
+Dim AdReNr As String 'Rechnungsnummer aus qrySimReAdr (B4)
+Dim ReTrf As Long 'Treffer zum gespeicherten Rechnungsbezug (B4)
 Dim AnzPo As Integer
 Dim BuTyp As Integer
 Dim Warun As Integer
@@ -27140,6 +27143,12 @@ If Verre = False Then
                 Else
                     TSESt = vbNullString
                 End If
+                BelReN = vbNullString 'kein Wert aus der vorigen Zeile, falls die Spalte fehlt
+                Set RpCol = RpCls.Find(Rzp_RechNr)
+                BelReN = Trim$(RpRow.Record(RpCol.ItemIndex).Value & vbNullString)
+                'je Beleg neu entscheiden: sonst signiert und bucht ein bereits signierter Beleg mit dem Stand der Vorzeile
+                NeuBu = False
+                TSEBu = False
                 
                 If Gedru = False Then
                     If GlTSe > 0 Then 'TSE Aktiviert
@@ -27153,6 +27162,7 @@ If Verre = False Then
                                     
                 KuStr = BelSt & " ausgedruckt am " & Date
                             
+                GlTSF = vbNullString 'nur den Grund dieses Belegs melden
                 If Gedru = False Then
                     If NeuBu = True Then
                         If Kasse = True Then
@@ -27169,8 +27179,22 @@ If Verre = False Then
                         If Kasse = True Then
                             NeuBu = TSEBu 'WICHTIG!
                             If NeuBu = False Then
-                                Mld1 = "Das gewählte Geldkonto ist als Kasse gekennzeichnet, besitzt aber keine TSE Kennung."
-                                Tit1 = "Kasse TSE Kennung"
+                                If TSENa = vbNullString Then
+                                    Mld1 = "Das gewählte Geldkonto ist als Kasse gekennzeichnet, besitzt aber keine TSE Kennung."
+                                    Tit1 = "Kasse TSE Kennung"
+                                ElseIf GlTSF = vbNullString And TSESt <> vbNullString Then
+                                    'Beleg schon signiert, aber nicht als gedruckt markiert: kein neuer Signaturversuch (NeuBu)
+                                    Mld1 = "Der Beleg B" & Format$(RezNr, "000000") & " traegt bereits TSE-Daten, ist aber nicht als gedruckt markiert. Er wird nicht erneut signiert, und es wurde keine neue Buchung angelegt."
+                                    Mld1 = Mld1 & vbCrLf & "Bitte im Geldkonto Kasse pruefen, ob die Einnahme bereits gebucht ist."
+                                    Tit1 = "Beleg bereits signiert"
+                                Else
+                                    Mld1 = "Die TSE-Signatur ist fehlgeschlagen."
+                                    If GlTSF <> vbNullString Then Mld1 = Mld1 & vbCrLf & "Grund: " & GlTSF
+                                    Mld1 = Mld1 & vbCrLf & vbCrLf & "Der Beleg B" & Format$(RezNr, "000000") & " wurde nicht gebucht und bleibt offen; ein jetzt erstellter Ausdruck enthaelt keine TSE-Daten."
+                                    Mld1 = Mld1 & vbCrLf & "Bitte die Ursache beheben (z.B. die TSE-Verbindung pruefen) und den Beleg danach erneut ueber ""Beleg Drucken"" drucken. Erst dann wird er signiert und im Geldkonto Kasse gebucht."
+                                    Tit1 = "TSE-Signatur fehlgeschlagen"
+                                    If GlLog = True Then SLogi "S_RzDr: TSE-Signatur fehlgeschlagen, Beleg B" & Format$(RezNr, "000000") & " nicht gebucht"
+                                End If
                                 WindowMess Mld1, Dial3, Tit1, FM.hwnd
                             End If
                         End If
@@ -27180,12 +27204,31 @@ If Verre = False Then
                     Set RS123 = New ADODB.Recordset
                     RS123.CursorLocation = adUseClient
                     Set RS123 = DBCmRe1("qrySimReAdr", "@IdxNr", PatNr)
+                    ReNum = 0
                     If RS123.RecordCount > 0 Then
                         DoEvents
-                        RS123.MoveLast
-                        ReNum = RS123.Fields("IDR").Value
-                    Else
-                        ReNum = 0
+                        If BelReN <> vbNullString Then 'gespeicherter Rechnungsbezug des Belegs (S_BuZal/S_BelNe, B4)
+                            'nur ein eindeutiger Treffer zaehlt; nicht gefunden oder mehrdeutig: Buchung ohne Rechnungsbezug
+                            'statt einer moeglicherweise falschen Rechnung
+                            ReTrf = 0
+                            Do While Not RS123.EOF
+                                'erst in eine Variable lesen: ein Fehler in einer If-Bedingung fuehrt mit Resume Next in den Then-Zweig
+                                AdReNr = vbNullString
+                                AdReNr = Trim$(RS123.Fields("RechNr").Value & vbNullString)
+                                If StrComp(AdReNr, BelReN, vbTextCompare) = 0 Then
+                                    ReTrf = ReTrf + 1
+                                    If ReTrf = 1 Then ReNum = Val(RS123.Fields("IDR").Value & vbNullString)
+                                End If
+                                RS123.MoveNext
+                            Loop
+                            If ReTrf <> 1 Then
+                                ReNum = 0
+                                If GlLog = True Then SLogi "S_RzDr: Rechnungsbezug des Belegs B" & Format$(RezNr, "000000") & " nicht eindeutig (" & ReTrf & " Treffer), Buchung ohne Rechnungsbezug"
+                            End If
+                        Else 'ohne gespeicherten Bezug wie bisher: juengste Rechnung des Patienten
+                            RS123.MoveLast
+                            ReNum = RS123.Fields("IDR").Value
+                        End If
                     End If
                     RS123.Close
                     Set RS123 = Nothing

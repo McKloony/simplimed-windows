@@ -275,6 +275,7 @@ Public Type NeRzA 'Neues Rezept
     TSESt As String
     TSELg As String
     BeTex As String
+    ReStr As String 'Rechnungsnummer der bezahlten Rechnung (Kassenbeleg aus S_BuZal, B4)
     BelNr As Integer
     DiaEi As Boolean
 End Type
@@ -1268,6 +1269,7 @@ Global GlADt As AdDet  'Adressendetails
 Global GlADx As AdDet  'Adressendetails
 Global GlTSB As TSEDa  'TSE Beleg
 Global GlTSC As TSEDa  'TSE Beleg
+Global GlTSF As String 'Grund des letzten TSE-Fehlschlags (TSEGen/TSESet), leer bei Erfolg
 Global GlKto As KtDet  'Sachkontendetails
 Global GlKTx As KtDet  'Sachkontendetails
 Global GlSel As SelTe  'Markierter Termin
