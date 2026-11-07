@@ -13599,11 +13599,11 @@ If GesZa > 0 Then
     Select Case GlBut
     Case RibTab_Rezeptmodul:
                 PatNr = RpRow.Record(0).Value
-                VerPa = S_AdIdi(PatNr, "Em_Pass")
+                VerPa = S_AdIdx(PatNr, "Em_Pass")
                 VerDo = S_AdIdi(PatNr, "Em_Aut")
     Case RibTab_Belegmodul:
                 PatNr = RpRow.Record(0).Value
-                VerPa = S_AdIdi(PatNr, "Em_Pass")
+                VerPa = S_AdIdx(PatNr, "Em_Pass")
                 VerDo = S_AdIdi(PatNr, "Em_Aut")
     End Select
 
