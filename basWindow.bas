@@ -118,6 +118,7 @@ Private TiHw6 As Long
 Private TiHw7 As Long
 Private TiHw8 As Long
 Private TiZal As Long
+Private TiBusy(1 To 8) As Boolean
 Private WProc As Long
 Private MProc As Long
 Private mVorh As Boolean
@@ -489,7 +490,7 @@ Private Type SID_IDENTIFIER_AUTHORITY
 End Type
 
 Private FnLet As String
-Private FntNr As Integer
+Private FntNr As Long
 
 Private Declare Sub Sleep Lib "kernel32.dll" (ByVal dwMilliseconds As Long)
 Private Declare Sub FreeSid Lib "advapi32.dll" (ByVal pSid As Long)
@@ -554,72 +555,44 @@ Private AkHun As Integer
 Private AkTau As Integer
 Private AkMil As Integer
 
-Private Sub ArraySor(ByRef SoAry() As String, Optional ByVal ArSta As Long, Optional ByVal ArEnd As Long)
-On Error Resume Next
-
+Private Sub ArraySor(ByRef SoAry() As String)
+'Heapsort: feste Speichernutzung, keine rekursiven Aufrufe.
+Dim ArLow As Long
+Dim ArEnd As Long
 Dim AktZa As Long
-Dim AktWe As Long
-Dim RnIdx As Long
-Dim SoLow As Long
-Dim SoHoh As Long
-Dim Parti As String
-
-SoLow = IIf(ArSta = 0, LBound(SoAry), ArSta)
-SoHoh = IIf(ArEnd = 0, UBound(SoAry), ArEnd)
-
-If SoLow < SoHoh Then
-   If SoHoh - SoLow = 1 Then
-      If UCase(SoAry(SoLow)) > UCase(SoAry(SoHoh)) Then
-         ArraySwp SoAry(SoLow), SoAry(SoHoh)
-      End If
-   Else
-      'Einen zuf‰lligen Ausgangspunkt generieren
-      RnIdx = Rnd() * (SoHoh - SoLow) + SoLow
-      ArraySwp SoAry(SoHoh), SoAry(RnIdx)
-      Parti = UCase(SoAry(SoHoh))
-      Do
-         'Von beiden Seiten auf den Ausgangspunkt "zugehen"
-         AktZa = SoLow: AktWe = SoHoh
-         Do While (AktZa < AktWe) And (UCase(SoAry(AktZa)) <= Parti)
-            AktZa = AktZa + 1
-         Loop
-         Do While (AktWe > AktZa) And (UCase(SoAry(AktWe)) >= Parti)
-            AktWe = AktWe - 1
-         Loop
-
-         'Wenn der Ausgangspunkt noch nicht erreicht ist, sind 2 Elemente auf
-         'beiden Seiten funktionsunf‰hig, deswegen werden sie vertauscht
-         If AktZa < AktWe Then
-            ArraySwp SoAry(AktZa), SoAry(AktWe)
-         End If
-      Loop While AktZa < AktWe
-
-      'Den Ausgangspunkt zu seinem richtigen Platz im Array f¸hren
-      ArraySwp SoAry(AktZa), SoAry(SoHoh)
-
-      'Die ArraySor-Routine rekursiv nochmals aufrufen
-      If (AktZa - SoLow) < (SoHoh - AktZa) Then
-         ArraySor SoAry, SoLow, AktZa - 1
-         ArraySor SoAry, AktZa + 1, SoHoh
-      Else
-         ArraySor SoAry, AktZa + 1, SoHoh
-         ArraySor SoAry, SoLow, AktZa - 1
-      End If
-   End If
-End If
-
-End Sub
-Private Sub ArraySwp(ArErs As String, ArZwe As String)
-On Error Resume Next
-   
+Dim Posit As Long
+Dim Kind As Long
 Dim TmpVa As String
 
-TmpVa = ArErs
+ArLow = LBound(SoAry)
+ArEnd = UBound(SoAry) - ArLow
+If ArEnd < 1 Then Exit Sub
 
-ArErs = ArZwe
-
-ArZwe = TmpVa
-   
+AktZa = (ArEnd - 1) \ 2
+Do
+    If AktZa >= 0 Then
+        Posit = AktZa
+        AktZa = AktZa - 1
+    Else
+        TmpVa = SoAry(ArLow + ArEnd)
+        SoAry(ArLow + ArEnd) = SoAry(ArLow)
+        SoAry(ArLow) = TmpVa
+        ArEnd = ArEnd - 1
+        If ArEnd < 1 Then Exit Do
+        Posit = 0
+    End If
+    TmpVa = SoAry(ArLow + Posit)
+    Do While Posit <= (ArEnd - 1) \ 2
+        Kind = Posit * 2 + 1
+        If Kind < ArEnd Then
+            If UCase$(SoAry(ArLow + Kind)) < UCase$(SoAry(ArLow + Kind + 1)) Then Kind = Kind + 1
+        End If
+        If UCase$(TmpVa) >= UCase$(SoAry(ArLow + Kind)) Then Exit Do
+        SoAry(ArLow + Posit) = SoAry(ArLow + Kind)
+        Posit = Kind
+    Loop
+    SoAry(ArLow + Posit) = TmpVa
+Loop
 End Sub
 Private Function CCol(ByVal Col As Byte) As Integer
 
@@ -635,7 +608,9 @@ On Error GoTo WiErr
 
 Dim LogFi As LOGFONT2
 
-ReDim Preserve FnAry(0)
+FntNr = 0
+FnLet = vbNullString
+ReDim FnAry(0)
 
 LogFi.lfCharSet = DEFAULT_CHARSET
 DoEvents
@@ -649,8 +624,7 @@ DoEvents
 Exit Sub
 
 WiErr:
-If GlDbg = True Then SErLog Err.Description & " FontLis " & Err.Number
-Resume Next
+Err.Raise Err.Number, "FontLis", Err.Description
 
 End Sub
 Private Function FontSor(ByRef LpElf As ENUMLOGFONTEX, ByVal LpIdx As Long, ByVal FnTyp As Long, ByVal lParam As Long) As Long
@@ -693,21 +667,29 @@ Public Sub TimEnde(ByVal TimZa As Integer)
 On Error Resume Next
 
 Select Case TimZa
-Case 1: KillTimer 0, TiHw1
+Case 1: If TiHw1 <> 0 Then KillTimer 0, TiHw1
+        TiHw1 = 0
         GlTi1 = False 'Timer Ein/Ausschalten
-Case 2: KillTimer 0, TiHw2
+Case 2: If TiHw2 <> 0 Then KillTimer 0, TiHw2
+        TiHw2 = 0
         GlTi2 = False 'Timer Ein/Ausschalten
-Case 3: KillTimer 0, TiHw3
+Case 3: If TiHw3 <> 0 Then KillTimer 0, TiHw3
+        TiHw3 = 0
         GlTi3 = False 'Timer Ein/Ausschalten
-Case 4: KillTimer 0, TiHw4
+Case 4: If TiHw4 <> 0 Then KillTimer 0, TiHw4
+        TiHw4 = 0
         GlTi4 = False 'Timer Ein/Ausschalten
-Case 5: KillTimer 0, TiHw5
+Case 5: If TiHw5 <> 0 Then KillTimer 0, TiHw5
+        TiHw5 = 0
         GlTi5 = False 'Timer Ein/Ausschalten
-Case 6: KillTimer 0, TiHw6
+Case 6: If TiHw6 <> 0 Then KillTimer 0, TiHw6
+        TiHw6 = 0
         GlTi6 = False 'Timer Ein/Ausschalten
-Case 7: KillTimer 0, TiHw7
+Case 7: If TiHw7 <> 0 Then KillTimer 0, TiHw7
+        TiHw7 = 0
         GlTi7 = False 'Timer Ein/Ausschalten
-Case 8: KillTimer 0, TiHw8
+Case 8: If TiHw8 <> 0 Then KillTimer 0, TiHw8
+        TiHw8 = 0
         GlTi8 = False 'Timer Ein/Ausschalten
 End Select
 
@@ -715,32 +697,95 @@ End Sub
 Public Sub TimInit(ByVal TimZa As Integer, ByVal Intvl As Long)
 On Error GoTo WiErr
 
+Dim DelayMs As Long
+Dim TimHand As Long
+
+If TimZa < 1 Or TimZa > 8 Then Err.Raise 5, "TimInit", "Ungueltige Timernummer"
+If Intvl < 1 Or Intvl > 2147483 Then Err.Raise 5, "TimInit", "Ungueltiges Timerintervall"
+DelayMs = Intvl * 1000&
+TimEnde TimZa
+TimHand = SetTimer(0, 0, DelayMs, AddressOf TimProc)
+If TimHand = 0 Then Err.Raise vbObjectError + 513, "TimInit", "Windows-Timer konnte nicht angelegt werden (Win32=" & Err.LastDllError & ")"
+
 Select Case TimZa
-Case 1: TiHw1 = SetTimer(0, 0, Intvl * 1000, AddressOf STeAl)
+Case 1: TiHw1 = TimHand
         GlTi1 = True 'Timer Ein/Ausschalten
-Case 2: TiHw2 = SetTimer(0, 0, Intvl * 1000, AddressOf AChip)
+Case 2: TiHw2 = TimHand
         GlTi2 = True 'Timer Ein/Ausschalten
-Case 3: TiHw3 = SetTimer(0, 0, Intvl * 1000, AddressOf STeAk)
+Case 3: TiHw3 = TimHand
         GlTi3 = True 'Timer Ein/Ausschalten
-Case 4: TiHw4 = SetTimer(0, 0, Intvl * 1000, AddressOf SSplS1) 'Splashscreen schlieﬂen
+Case 4: TiHw4 = TimHand 'Splashscreen schlieﬂen
         GlTi4 = True 'Timer Ein/Ausschalten
-Case 5: TiHw5 = SetTimer(0, 0, Intvl * 1000, AddressOf SSplS2) 'Splashscreen schlieﬂen
+Case 5: TiHw5 = TimHand 'Splashscreen schlieﬂen
         GlTi5 = True 'Timer Ein/Ausschalten
-Case 6: TiHw6 = SetTimer(0, 0, Intvl * 1000, AddressOf SBiAu)
+Case 6: TiHw6 = TimHand
         GlTi6 = True 'Timer Ein/Ausschalten
-Case 7: TiHw7 = SetTimer(0, 0, Intvl * 1000, AddressOf SBiIa)
+Case 7: TiHw7 = TimHand
         GlTi7 = True 'Timer Ein/Ausschalten
-Case 8: TiHw8 = SetTimer(0, 0, Intvl * 1000, AddressOf SInPaD) 'Grid-Fix
+Case 8: TiHw8 = TimHand 'Grid-Fix
         GlTi8 = True 'Timer Ein/Ausschalten
 End Select
 
 Exit Sub
 
 WiErr:
-If GlDbg = True Then SErLog Err.Description & " TimInit " & Err.Number
+SLogi "TimInit Err: " & Err.Description & " #" & Err.Number & " (Timer=" & TimZa & ", Sekunden=" & Intvl & ")
 Exit Sub
 
 End Sub
+Private Sub TimProc(ByVal hwnd As Long, ByVal uMsg As Long, ByVal idEvent As Long, ByVal dwTime As Long)
+On Error GoTo TiErr
+
+Dim TimZa As Integer
+Dim ErNum As Long
+Dim ErDes As String
+
+If idEvent = 0 Then Exit Sub
+Select Case idEvent
+Case TiHw1: TimZa = 1
+Case TiHw2: TimZa = 2
+Case TiHw3: TimZa = 3
+Case TiHw4: TimZa = 4
+Case TiHw5: TimZa = 5
+Case TiHw6: TimZa = 6
+Case TiHw7: TimZa = 7
+Case TiHw8: TimZa = 8
+Case Else: Exit Sub
+End Select
+
+'Waehrend Main nur die Splashscreen-Timer ausfuehren.
+If GlSta = True Then
+    If TimZa <> 4 And TimZa <> 5 Then Exit Sub
+End If
+If TiBusy(TimZa) Then Exit Sub
+TiBusy(TimZa) = True
+
+Select Case TimZa
+Case 1: STeAl
+Case 2: AChip
+Case 3: STeAk False
+Case 4: SSplS1
+Case 5: SSplS2
+Case 6: SBiAu 0
+Case 7: SBiIa
+Case 8: SInPaD hwnd, uMsg, idEvent, dwTime
+End Select
+
+TiBusy(TimZa) = False
+Exit Sub
+
+TiErr:
+ErNum = Err.Number
+ErDes = Err.Description
+'Kein Fehler darf ueber die Windows-Callback-Grenze entweichen.
+On Error Resume Next
+If TimZa >= 1 And TimZa <= 8 Then
+    TiBusy(TimZa) = False
+    TimEnde TimZa
+End If
+SLogi "TimProc Err: " & ErDes & " #" & ErNum & " (Timer=" & TimZa & ")"
+End Sub
+
 Public Function WindowAdEle() As Integer
 On Error GoTo WiErr
 

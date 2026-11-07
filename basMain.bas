@@ -1379,877 +1379,892 @@ Dim MonRu As Integer
 Dim FeSta As Integer
 Dim TmTyp As Integer
 Dim ErNum As Long
+Dim ErLin As Long
+Dim TimZa As Integer
 Dim ErDes As String
 Dim ErSrc As String
 Dim CmBrs As XtremeCommandBars.CommandBars
 
-If App.PrevInstance = True Then
-    End
+10 If App.PrevInstance = True Then
+20     End
 End If
 
-GlPrg = App.EXEName
+30 GlPrg = App.EXEName
 
-If IsNumeric(Right$(GlPrg, 1)) = False Then
-    If LCase(Right$(GlPrg, 1)) = "a" Then 'Appmode
-        GlApp = True
+40 If IsNumeric(Right$(GlPrg, 1)) = False Then
+50     If LCase(Right$(GlPrg, 1)) = "a" Then 'Appmode
+60         GlApp = True
     End If
 End If
 'GlApp = True
-GlAkt = True 'Programmaktualisierung
-GlSta = True 'Programmstart
+70 GlAkt = True 'Programmaktualisierung
+80 GlSta = True 'Programmstart
 
-GlFnt = WindowFont
+90 GlFnt = WindowFont
 
-GlOpt = App.Path & "\Optionen.ini" 'INI-Datei der Tooltips
+100 GlOpt = App.Path & "\Optionen.ini" 'INI-Datei der Tooltips
 
-If IniGetOpt("Version", "FaRich") <> vbNullString Then  'Fachrichtung
-    GlFri = CInt(IniGetOpt("Version", "FaRich"))
+110 If IniGetOpt("Version", "FaRich") <> vbNullString Then  'Fachrichtung
+120     GlFri = CInt(IniGetOpt("Version", "FaRich"))
 Else
-    GlFri = 2 'Heilpraktiker (GebüH)
+130     GlFri = 2 'Heilpraktiker (GebüH)
 End If
-DoEvents
+140 DoEvents
 
-SReg
-DoEvents
+150 SReg
+160 DoEvents
 
-GlEFt.Name = IniGetVal("Layout", "MaiFnt")
-GlEFt.SIZE = IniGetVal("Layout", "MaiGro")
-GlTFt.Name = IniGetVal("Layout", "FntNam")
-GlTFt.SIZE = IniGetVal("Layout", "FntGro")
-GlKFt.Name = IniGetVal("Layout", "KraFnt")
-GlKFt.SIZE = IniGetVal("Layout", "KraGro")
-GlRFt.Name = IniGetVal("Layout", "FnNaRz")
-GlRFt.SIZE = IniGetVal("Layout", "FnGrRz")
-GlXFt.Name = IniGetVal("TexVer", "FntNam")
-GlXFt.SIZE = IniGetVal("TexVer", "FntGro")
+170 GlEFt.Name = IniGetVal("Layout", "MaiFnt")
+180 GlEFt.SIZE = IniGetVal("Layout", "MaiGro")
+190 GlTFt.Name = IniGetVal("Layout", "FntNam")
+200 GlTFt.SIZE = IniGetVal("Layout", "FntGro")
+210 GlKFt.Name = IniGetVal("Layout", "KraFnt")
+220 GlKFt.SIZE = IniGetVal("Layout", "KraGro")
+230 GlRFt.Name = IniGetVal("Layout", "FnNaRz")
+240 GlRFt.SIZE = IniGetVal("Layout", "FnGrRz")
+250 GlXFt.Name = IniGetVal("TexVer", "FntNam")
+260 GlXFt.SIZE = IniGetVal("TexVer", "FntGro")
 
-If IniGetVal("RDPSek", "RDPMod") <> vbNullString Then
-    GlRDP = CBool(IniGetVal("RDPSek", "RDPMod"))
+270 If IniGetVal("RDPSek", "RDPMod") <> vbNullString Then
+280     GlRDP = CBool(IniGetVal("RDPSek", "RDPMod"))
 Else
-    GlRDP = False 'RDP Modus
+290     GlRDP = False 'RDP Modus
 End If
-If IniGetVal("RDPSek", "RDPLay") <> vbNullString Then
-    GlRLy = CBool(IniGetVal("RDPSek", "RDPLay"))
+300 If IniGetVal("RDPSek", "RDPLay") <> vbNullString Then
+310     GlRLy = CBool(IniGetVal("RDPSek", "RDPLay"))
 Else
-    GlRLy = False 'RDP Layoutspeicherung
+320     GlRLy = False 'RDP Layoutspeicherung
 End If
-If IniGetVal("RDPSek", "DbChan") <> vbNullString Then
-    GlDBc = CBool(IniGetVal("RDPSek", "DbChan"))
+330 If IniGetVal("RDPSek", "DbChan") <> vbNullString Then
+340     GlDBc = CBool(IniGetVal("RDPSek", "DbChan"))
 Else
-    GlDBc = False
+350     GlDBc = False
 End If
-If IniGetVal("RDPSek", "FilDia") <> vbNullString Then
-    GlDaD = CBool(IniGetVal("RDPSek", "FilDia"))
+360 If IniGetVal("RDPSek", "FilDia") <> vbNullString Then
+370     GlDaD = CBool(IniGetVal("RDPSek", "FilDia"))
 Else
-    GlDaD = False
+380     GlDaD = False
 End If
-If IniGetVal("System", "IPCAkt") <> vbNullString Then
-    GlIPC = CBool(IniGetVal("System", "IPCAkt"))
+390 If IniGetVal("System", "IPCAkt") <> vbNullString Then
+400     GlIPC = CBool(IniGetVal("System", "IPCAkt"))
 Else
-    GlIPC = True
+410     GlIPC = True
 End If
-If IniGetVal("System", "ABDATA") <> vbNullString Then
-    GlAbd = CBool(IniGetVal("System", "ABDATA"))
+420 If IniGetVal("System", "ABDATA") <> vbNullString Then
+430     GlAbd = CBool(IniGetVal("System", "ABDATA"))
 Else
-    GlAbd = False
+440     GlAbd = False
 End If
-If IniGetVal("System", "StaFor") <> vbNullString Then
-    GlStF = CBool(IniGetVal("System", "StaFor"))
+450 If IniGetVal("System", "StaFor") <> vbNullString Then
+460     GlStF = CBool(IniGetVal("System", "StaFor"))
 Else
-    GlStF = True
+470     GlStF = True
 End If
-If IniGetVal("System", "DBaTyp") <> vbNullString Then
-    GlTyp = CInt(Right$(IniGetVal("System", "DBaTyp"), 1))
+480 If IniGetVal("System", "DBaTyp") <> vbNullString Then
+490     GlTyp = CInt(Right$(IniGetVal("System", "DBaTyp"), 1))
 Else
-    If IniGetVal("System", "DatTyp") <> vbNullString Then
-        TmTyp = CInt(Right$(IniGetVal("System", "DatTyp"), 1))
-        If TmTyp = 1 Then
-            GlTyp = 1
+500     If IniGetVal("System", "DatTyp") <> vbNullString Then
+510         TmTyp = CInt(Right$(IniGetVal("System", "DatTyp"), 1))
+520         If TmTyp = 1 Then
+530             GlTyp = 1
         Else
-            GlTyp = 3
+540             GlTyp = 3
         End If
     Else
-        GlTyp = 3
+550         GlTyp = 3
     End If
 End If
-If IniGetVal("System", "MatTyp") <> vbNullString Then
-    GlMyp = CInt(Right$(IniGetVal("System", "MatTyp"), 1))
+560 If IniGetVal("System", "MatTyp") <> vbNullString Then
+570     GlMyp = CInt(Right$(IniGetVal("System", "MatTyp"), 1))
 Else
-    GlMyp = 2
+580     GlMyp = 2
 End If
-If IniGetVal("TexVer", "WorKon") <> vbNullString Then
-    GlWoK = Right$(IniGetVal("TexVer", "WorKon"), 1)
+590 If IniGetVal("TexVer", "WorKon") <> vbNullString Then
+600     GlWoK = Right$(IniGetVal("TexVer", "WorKon"), 1)
 Else
-    GlWoK = 1
+610     GlWoK = 1
 End If
-If IniGetVal("Layout", "NoSpla") <> vbNullString Then
-    GloSp = CBool(IniGetVal("Layout", "NoSpla"))
+620 If IniGetVal("Layout", "NoSpla") <> vbNullString Then
+630     GloSp = CBool(IniGetVal("Layout", "NoSpla"))
 Else
-    GloSp = 0
+640     GloSp = 0
 End If
-If IniGetVal("Layout", "GrdGrl") <> vbNullString Then
-    GlGrL = CBool(IniGetVal("Layout", "GrdGrl"))
+650 If IniGetVal("Layout", "GrdGrl") <> vbNullString Then
+660     GlGrL = CBool(IniGetVal("Layout", "GrdGrl"))
 Else
-    IniSetVal "Layout", "GrdGrl", -1
-    GlGrL = True
+670     IniSetVal "Layout", "GrdGrl", -1
+680     GlGrL = True
 End If
-If IniGetVal("Layout", "GrdPrv") <> vbNullString Then
-    GlGrV = CBool(IniGetVal("Layout", "GrdPrv"))
+690 If IniGetVal("Layout", "GrdPrv") <> vbNullString Then
+700     GlGrV = CBool(IniGetVal("Layout", "GrdPrv"))
 Else
-    IniSetVal "Layout", "GrdPrv", 0
-    GlGrV = False
+710     IniSetVal "Layout", "GrdPrv", 0
+720     GlGrV = False
 End If
-If IniGetVal("Layout", "SpaKop") <> vbNullString Then
-    GlGKo = CBool(IniGetVal("Layout", "SpaKop"))
+730 If IniGetVal("Layout", "SpaKop") <> vbNullString Then
+740     GlGKo = CBool(IniGetVal("Layout", "SpaKop"))
 Else
-    IniSetVal "Layout", "SpaKop", 0
-    GlGKo = False
+750     IniSetVal "Layout", "SpaKop", 0
+760     GlGKo = False
 End If
-If IniGetVal("Layout", "GrdZei") <> vbNullString Then
-    GlGZe = CBool(IniGetVal("Layout", "GrdZei"))
+770 If IniGetVal("Layout", "GrdZei") <> vbNullString Then
+780     GlGZe = CBool(IniGetVal("Layout", "GrdZei"))
 Else
-    IniSetVal "Layout", "GrdZei", 0
-    GlGZe = False
+790     IniSetVal "Layout", "GrdZei", 0
+800     GlGZe = False
 End If
-If IniGetVal("Layout", "FntFar") <> vbNullString Then
-    GlFoF = CLng(IniGetVal("Layout", "FntFar"))
+810 If IniGetVal("Layout", "FntFar") <> vbNullString Then
+820     GlFoF = CLng(IniGetVal("Layout", "FntFar"))
 Else
-    IniSetVal "Layout", "FntFar", 0
-    GlFoF = 0
+830     IniSetVal "Layout", "FntFar", 0
+840     GlFoF = 0
 End If
-If IniGetVal("Layout", "KraZei") <> vbNullString Then
-    GlAnZ = CLng(IniGetVal("Layout", "KraZei"))
+850 If IniGetVal("Layout", "KraZei") <> vbNullString Then
+860     GlAnZ = CLng(IniGetVal("Layout", "KraZei"))
 Else
-    IniSetVal "Layout", "KraZei", 5
-    GlAnZ = 5
+870     IniSetVal "Layout", "KraZei", 5
+880     GlAnZ = 5
 End If
 
-If GlApp = False Then 'AppMode
-    If GloSp = False Then 'Splashscreen zeigen
-        If GlRDP = True Then
-            frmSplashR.Show
-            DoEvents
+890 If GlApp = False Then 'AppMode
+900     If GloSp = False Then 'Splashscreen zeigen
+910         If GlRDP = True Then
+920             frmSplashR.Show
+930             DoEvents
         ElseIf GlStF = True Then
-            frmSplash.Show
-            DoEvents
+940             frmSplash.Show
+950             DoEvents
         End If
     End If
 End If
 
-SClear 'ClearType
-DoEvents
+960 SClear 'ClearType
+970 DoEvents
 
-If IniGetVal("Vorgabe", "StMaRe") <> vbNullString Then
-    GlRst = CBool(IniGetVal("Vorgabe", "StMaRe"))  'Mandantenbezogene Datenbegrenzung
+980 If IniGetVal("Vorgabe", "StMaRe") <> vbNullString Then
+990     GlRst = CBool(IniGetVal("Vorgabe", "StMaRe"))  'Mandantenbezogene Datenbegrenzung
 Else
-    GlRst = 0
+1000     GlRst = 0
 End If
-If IniGetVal("Vorgabe", "StaMan") <> vbNullString Then
-    GlSMa = CInt(IniGetVal("Vorgabe", "StaMan"))
+1010 If IniGetVal("Vorgabe", "StaMan") <> vbNullString Then
+1020     GlSMa = CInt(IniGetVal("Vorgabe", "StaMan"))
 Else
-    GlSMa = 1
+1030     GlSMa = 1
 End If
-If IniGetVal("Vorgabe", "StaMit") <> vbNullString Then
-    GlSmI = CInt(IniGetVal("Vorgabe", "StaMit"))
+1040 If IniGetVal("Vorgabe", "StaMit") <> vbNullString Then
+1050     GlSmI = CInt(IniGetVal("Vorgabe", "StaMit"))
 Else
-    GlSmI = 1
+1060     GlSmI = 1
 End If
-If IniGetVal("Vorgabe", "StaMio") <> vbNullString Then
-    GlSMo = CInt(IniGetVal("Vorgabe", "StaMio"))
+1070 If IniGetVal("Vorgabe", "StaMio") <> vbNullString Then
+1080     GlSMo = CInt(IniGetVal("Vorgabe", "StaMio"))
 Else
-    GlSMo = 1
+1090     GlSMo = 1
 End If
-If IniGetVal("Vorgabe", "StaEmp") <> vbNullString Then
-    GlStP = Right$(IniGetVal("Vorgabe", "StaEmp"), 1)  'Standardempfängertyp
+1100 If IniGetVal("Vorgabe", "StaEmp") <> vbNullString Then
+1110     GlStP = Right$(IniGetVal("Vorgabe", "StaEmp"), 1)  'Standardempfängertyp
 Else
-    GlStP = 1
+1120     GlStP = 1
 End If
-If IniGetVal("Vorgabe", "StaBrf") <> vbNullString Then
-    GlBrf = IniGetVal("Vorgabe", "StaBrf")  'Standard-Briefanrede
+1130 If IniGetVal("Vorgabe", "StaBrf") <> vbNullString Then
+1140     GlBrf = IniGetVal("Vorgabe", "StaBrf")  'Standard-Briefanrede
 Else
-    GlBrf = 2
+1150     GlBrf = 2
 End If
-If IniGetVal("Vorgabe", "StaRau") <> vbNullString Then
-    GlRau = CInt(IniGetVal("Vorgabe", "StaRau"))
+1160 If IniGetVal("Vorgabe", "StaRau") <> vbNullString Then
+1170     GlRau = CInt(IniGetVal("Vorgabe", "StaRau"))
 Else
-    GlRau = 1
+1180     GlRau = 1
 End If
-If IniGetVal("GUI", "ZomTex") <> vbNullString Then
-    GlZoT = CLng(IniGetVal("GUI", "ZomTex"))
+1190 If IniGetVal("GUI", "ZomTex") <> vbNullString Then
+1200     GlZoT = CLng(IniGetVal("GUI", "ZomTex"))
 Else
-    GlZoT = 90
+1210     GlZoT = 90
 End If
-If IniGetVal("GUI", "ZomWor") <> vbNullString Then
-    GlZoW = CLng(IniGetVal("GUI", "ZomWor"))
+1220 If IniGetVal("GUI", "ZomWor") <> vbNullString Then
+1230     GlZoW = CLng(IniGetVal("GUI", "ZomWor"))
 Else
-    GlZoW = 100
+1240     GlZoW = 100
 End If
-If IniGetVal("GUI", "ZomDru") <> vbNullString Then
-    GlZoD = CLng(IniGetVal("GUI", "ZomDru"))
+1250 If IniGetVal("GUI", "ZomDru") <> vbNullString Then
+1260     GlZoD = CLng(IniGetVal("GUI", "ZomDru"))
 Else
-    GlZoD = 100
+1270     GlZoD = 100
 End If
-If IniGetVal("GUI", "ZomPDF") <> vbNullString Then
-    GlZoP = CLng(IniGetVal("GUI", "ZomPDF"))
+1280 If IniGetVal("GUI", "ZomPDF") <> vbNullString Then
+1290     GlZoP = CLng(IniGetVal("GUI", "ZomPDF"))
 Else
-    GlZoP = 100
+1300     GlZoP = 100
 End If
- If IniGetVal("GUI", "ZomPic") <> vbNullString Then
-    GlZoB = CLng(IniGetVal("GUI", "ZomPic"))
+1310  If IniGetVal("GUI", "ZomPic") <> vbNullString Then
+1320     GlZoB = CLng(IniGetVal("GUI", "ZomPic"))
 Else
-    GlZoB = 100
+1330     GlZoB = 100
 End If
-If IniGetVal("GUI", "ManAnz") <> vbNullString Then
-    GlMiZ = CBool(IniGetVal("GUI", "ManAnz"))
+1340 If IniGetVal("GUI", "ManAnz") <> vbNullString Then
+1350     GlMiZ = CBool(IniGetVal("GUI", "ManAnz"))
 Else
-    GlMiZ = False
+1360     GlMiZ = False
 End If
-If IniGetVal("GUI", "KraDia") <> vbNullString Then
-    GlKDi = CBool(IniGetVal("GUI", "KraDia"))
+1370 If IniGetVal("GUI", "KraDia") <> vbNullString Then
+1380     GlKDi = CBool(IniGetVal("GUI", "KraDia"))
 Else
-    GlKDi = True
+1390     GlKDi = True
 End If
-If IniGetVal("GUI", "Rahmen") <> vbNullString Then
-    GlRah = CBool(IniGetVal("GUI", "Rahmen"))
+1400 If IniGetVal("GUI", "Rahmen") <> vbNullString Then
+1410     GlRah = CBool(IniGetVal("GUI", "Rahmen"))
 Else
-    GlRah = False
+1420     GlRah = False
 End If
-If IniGetVal("GUI", "KraAna") <> vbNullString Then
-    GlAnl = CBool(IniGetVal("GUI", "KraAna"))
+1430 If IniGetVal("GUI", "KraAna") <> vbNullString Then
+1440     GlAnl = CBool(IniGetVal("GUI", "KraAna"))
 Else
-    GlAnl = False 'Analogabrechnungsspalte
+1450     GlAnl = False 'Analogabrechnungsspalte
 End If
-If IniGetVal("GUI", "AkoZal") <> vbNullString Then
-    GlAko = CBool(IniGetVal("GUI", "AkoZal"))
+1460 If IniGetVal("GUI", "AkoZal") <> vbNullString Then
+1470     GlAko = CBool(IniGetVal("GUI", "AkoZal"))
 Else
-    GlAko = False 'Terminmodul Akonto
+1480     GlAko = False 'Terminmodul Akonto
 End If
-If IniGetVal("GUI", "KraKat") <> vbNullString Then
-    GlSpK = CBool(IniGetVal("GUI", "KraKat"))
+1490 If IniGetVal("GUI", "KraKat") <> vbNullString Then
+1500     GlSpK = CBool(IniGetVal("GUI", "KraKat"))
 Else
-    GlSpK = False 'Katalogspalte Abrechnung
+1510     GlSpK = False 'Katalogspalte Abrechnung
 End If
-If IniGetVal("GUI", "KrFoVo") <> vbNullString Then
-    GlKrF = CBool(IniGetVal("GUI", "KrFoVo"))
+1520 If IniGetVal("GUI", "KrFoVo") <> vbNullString Then
+1530     GlKrF = CBool(IniGetVal("GUI", "KrFoVo"))
 Else
-    GlKrF = False 'Krankenblattdialog im Vordergund
+1540     GlKrF = False 'Krankenblattdialog im Vordergund
 End If
-If IniGetVal("RDPSek", "PrgLay") <> vbNullString Then
-    GlSty = Right$(IniGetVal("RDPSek", "PrgLay"), 1)
+1550 If IniGetVal("RDPSek", "PrgLay") <> vbNullString Then
+1560     GlSty = Right$(IniGetVal("RDPSek", "PrgLay"), 1)
 Else
-    GlSty = 8
+1570     GlSty = 8
 End If
-If IniGetVal("Layout", "ZifAuf") <> vbNullString Then
-    GlSoZ = Right$(IniGetVal("Layout", "ZifAuf"), 1)
+1580 If IniGetVal("Layout", "ZifAuf") <> vbNullString Then
+1590     GlSoZ = Right$(IniGetVal("Layout", "ZifAuf"), 1)
 Else
-    GlSoZ = 4
+1600     GlSoZ = 4
 End If
-If IniGetVal("Layout", "SknSet") <> vbNullString Then
-    GlSkn = Right$(IniGetVal("Layout", "SknSet"), 1)
+1610 If IniGetVal("Layout", "SknSet") <> vbNullString Then
+1620     GlSkn = Right$(IniGetVal("Layout", "SknSet"), 1)
 Else
-    GlSkn = 2 'Skinset Einstellung
+1630     GlSkn = 2 'Skinset Einstellung
 End If
-If IniGetVal("Layout", "TskBar") <> vbNullString Then
-    GlTkB = Right$(IniGetVal("Layout", "TskBar"), 1)
+1640 If IniGetVal("Layout", "TskBar") <> vbNullString Then
+1650     GlTkB = Right$(IniGetVal("Layout", "TskBar"), 1)
 Else
-    GlTkB = 2 'Taskbar Einstellung
+1660     GlTkB = 2 'Taskbar Einstellung
 End If
-If IniGetVal("Layout", "ManSpa") <> vbNullString Then
-    GlMsp = CInt(IniGetVal("Layout", "ManSpa"))
+1670 If IniGetVal("Layout", "ManSpa") <> vbNullString Then
+1680     GlMsp = CInt(IniGetVal("Layout", "ManSpa"))
 Else
-    GlMsp = False
+1690     GlMsp = False
 End If
-If IniGetVal("System", "BldVie") <> vbNullString Then
-    GlVew = Right$(IniGetVal("System", "BldVie"), 1)
+1700 If IniGetVal("System", "BldVie") <> vbNullString Then
+1710     GlVew = Right$(IniGetVal("System", "BldVie"), 1)
 Else
-    GlVew = 1 'interner Viewer verwenden
+1720     GlVew = 1 'interner Viewer verwenden
 End If
-If IniGetVal("System", "ViewTx") <> vbNullString Then
-    GlViT = Right$(IniGetVal("System", "ViewTx"), 1)
+1730 If IniGetVal("System", "ViewTx") <> vbNullString Then
+1740     GlViT = Right$(IniGetVal("System", "ViewTx"), 1)
 Else
-    GlViT = 2
+1750     GlViT = 2
 End If
-If IniGetVal("System", "ViewWo") <> vbNullString Then
-    GlViW = Right$(IniGetVal("System", "ViewWo"), 1)
+1760 If IniGetVal("System", "ViewWo") <> vbNullString Then
+1770     GlViW = Right$(IniGetVal("System", "ViewWo"), 1)
 Else
-    GlViW = 2
+1780     GlViW = 2
 End If
-If IniGetVal("System", "ViewPd") <> vbNullString Then
-    GlViP = Right$(IniGetVal("System", "ViewPd"), 1)
+1790 If IniGetVal("System", "ViewPd") <> vbNullString Then
+1800     GlViP = Right$(IniGetVal("System", "ViewPd"), 1)
 Else
-    GlViP = 1
+1810     GlViP = 1
 End If
-If IniGetVal("System", "ViewBi") <> vbNullString Then
-    GlViB = Right$(IniGetVal("System", "ViewBi"), 2)
+1820 If IniGetVal("System", "ViewBi") <> vbNullString Then
+1830     GlViB = Right$(IniGetVal("System", "ViewBi"), 2)
 Else
-    GlViB = 8
+1840     GlViB = 8
 End If
-If IniGetVal("System", "AdDoKl") <> vbNullString Then
-    GlAdO = Right$(IniGetVal("System", "AdDoKl"), 1)
+1850 If IniGetVal("System", "AdDoKl") <> vbNullString Then
+1860     GlAdO = Right$(IniGetVal("System", "AdDoKl"), 1)
 Else
-    GlAdO = 0
+1870     GlAdO = 0
 End If
-If IniGetVal("System", "VorTyp") <> vbNullString Then
-    GlVTy = Right$(IniGetVal("System", "VorTyp"), 1)
+1880 If IniGetVal("System", "VorTyp") <> vbNullString Then
+1890     GlVTy = Right$(IniGetVal("System", "VorTyp"), 1)
 Else
-    GlVTy = 1
+1900     GlVTy = 1
 End If
-If IniGetVal("System", "SeiGro") <> vbNullString Then
-    GlSGr = Right$(IniGetVal("System", "SeiGro"), 1)
+1910 If IniGetVal("System", "SeiGro") <> vbNullString Then
+1920     GlSGr = Right$(IniGetVal("System", "SeiGro"), 1)
 Else
-    GlSGr = 1
+1930     GlSGr = 1
 End If
-If IniGetVal("System", "ChpCrd") <> vbNullString Then
-    GlChp = Right$(IniGetVal("System", "ChpCrd"), 2)
+1940 If IniGetVal("System", "ChpCrd") <> vbNullString Then
+1950     GlChp = Right$(IniGetVal("System", "ChpCrd"), 2)
 Else
-    GlChp = 0
+1960     GlChp = 0
 End If
-If IniGetVal("System", "AutArt") <> vbNullString Then
-    GlEmA = Right$(IniGetVal("System", "AutArt"), 1)
+1970 If IniGetVal("System", "AutArt") <> vbNullString Then
+1980     GlEmA = Right$(IniGetVal("System", "AutArt"), 1)
 Else
-    GlEmA = 0
+1990     GlEmA = 0
 End If
-If IniGetVal("System", "StaMod") <> vbNullString Then
-    GlDiS = Right$(IniGetVal("System", "StaMod"), 2)
+2000 If IniGetVal("System", "StaMod") <> vbNullString Then
+2010     GlDiS = Right$(IniGetVal("System", "StaMod"), 2)
 Else
-    GlDiS = 1
+2020     GlDiS = 1
 End If
-If IniGetVal("System", "ReVerz") <> vbNullString Then
-    GlVrz = CBool(IniGetVal("System", "ReVerz"))
+2030 If IniGetVal("System", "ReVerz") <> vbNullString Then
+2040     GlVrz = CBool(IniGetVal("System", "ReVerz"))
 Else
-    GlVrz = True
+2050     GlVrz = True
 End If
-If IniGetVal("System", "DaVers") <> vbNullString Then
-    GlVrs = CBool(IniGetVal("System", "DaVers"))
+2060 If IniGetVal("System", "DaVers") <> vbNullString Then
+2070     GlVrs = CBool(IniGetVal("System", "DaVers"))
 Else
-    GlVrs = True 'Kennwort verschlüsselt
+2080     GlVrs = True 'Kennwort verschlüsselt
 End If
-If IniGetVal("System", "TmpPfa") <> vbNullString Then
-    GlTmp = IniGetVal("System", "TmpPfa")
+2090 If IniGetVal("System", "TmpPfa") <> vbNullString Then
+2100     GlTmp = IniGetVal("System", "TmpPfa")
 Else
-    GlTmp = GlDpf & "Temp\"
+2110     GlTmp = GlDpf & "Temp\"
 End If
-If IniGetVal("System", "ExpPfa") <> vbNullString Then
-    GlEPf = IniGetVal("System", "ExpPfa")
+2120 If IniGetVal("System", "ExpPfa") <> vbNullString Then
+2130     GlEPf = IniGetVal("System", "ExpPfa")
 Else
-    GlEPf = GlDpf & "Export\" 'Exportordner
+2140     GlEPf = GlDpf & "Export\" 'Exportordner
 End If
-If IniGetVal("System", "ImpPfa") <> vbNullString Then
-    GlIPf = IniGetVal("System", "ImpPfa")
+2150 If IniGetVal("System", "ImpPfa") <> vbNullString Then
+2160     GlIPf = IniGetVal("System", "ImpPfa")
 Else
-    GlIPf = GlDpf & "Import\"
+2170     GlIPf = GlDpf & "Import\"
 End If
-If IniGetVal("System", "ExpOrd") <> vbNullString Then
-    GlExO = IniGetVal("System", "ExpOrd")
+2180 If IniGetVal("System", "ExpOrd") <> vbNullString Then
+2190     GlExO = IniGetVal("System", "ExpOrd")
 Else
-    IniSetVal "System", "ExpOrd", LCase(GlEPf)
-    GlExO = GlEPf
+2200     IniSetVal "System", "ExpOrd", LCase(GlEPf)
+2210     GlExO = GlEPf
 End If
-If IniGetVal("System", "ImpOrd") <> vbNullString Then
-    GlImO = IniGetVal("System", "ImpOrd")
+2220 If IniGetVal("System", "ImpOrd") <> vbNullString Then
+2230     GlImO = IniGetVal("System", "ImpOrd")
 Else
-    IniSetVal "System", "ImpOrd", LCase(GlIPf)
-    GlImO = GlIPf
+2240     IniSetVal "System", "ImpOrd", LCase(GlIPf)
+2250     GlImO = GlIPf
 End If
-GlKaU = CBool(IniGetVal("Katalog", "KatZei"))
-GlKaZ = CBool(IniGetVal("Katalog", "KatMkr"))
-GlKaG = CBool(IniGetVal("Katalog", "KaGeGr"))
-GlGrD = CBool(IniGetVal("Katalog", "KaDeGr"))
-GlKLi = CBool(IniGetVal("Katalog", "KatGrl"))
-GlDbg = CBool(IniGetVal("System", "GlDbug"))
-GlPSt = CBool(IniGetVal("System", "StaSei"))
-GlSuW = CBool(IniGetVal("System", "SumWar"))
-GlReV = CBool(IniGetVal("System", "RecEma"))
-GlDiR = CBool(IniGetVal("System", "DiReUb"))
-GlDiK = CBool(IniGetVal("System", "DiKrUb"))
-GlDau = CBool(IniGetVal("System", "DauDia"))
-GlExp = CBool(IniGetVal("System", "TreExp"))
-GlJet = CBool(IniGetVal("System", "JetSav"))
-GlDaK = CBool(IniGetVal("System", "AktDat"))
-GlPzn = CBool(IniGetVal("System", "RezPZN"))
-GlICD = CBool(IniGetVal("System", "ICDEin"))
-GlStB = CBool(IniGetVal("System", "StapBu"))
-GlDeN = CBool(IniGetVal("System", "DebNum"))
-GlDeE = CBool(IniGetVal("System", "DebRep"))
-GlBuG = CBool(IniGetVal("System", "BuExGo"))
-GlDaP = CBool(IniGetVal("System", "BuExPa"))
-GlPop = CBool(IniGetVal("System", "PopFen"))
-GlBer = CBool(IniGetVal("System", "BerSor"))
-GlFoc = CBool(IniGetVal("System", "KraFoc"))
-GlKrE = CBool(IniGetVal("System", "KraEdi"))
-GlInt = CBool(IniGetVal("System", "IntTel"))
-GlAno = CBool(IniGetVal("System", "AnsAnr"))
-GlOrt = CBool(IniGetVal("System", "OrtAbf"))
-GlBnk = CBool(IniGetVal("System", "KurBnk"))
-GlFZe = CBool(IniGetVal("System", "FirZei"))
-GlRzE = CBool(IniGetVal("System", "RezBet"))
-GlAdF = CBool(IniGetVal("System", "AdrGeb"))
-GlFHi = CBool(IniGetVal("System", "FakHin"))
-GlWiG = CBool(IniGetVal("System", "WieGeb"))
-GlDrV = CBool(IniGetVal("System", "DruVor"))
-GlMaF = CBool(IniGetVal("System", "OutStM"))
-GlBuL = CBool(IniGetVal("System", "GloDel"))
-GlBS1 = CBool(IniGetVal("System", "BuSoAu"))
-GlBS2 = CBool(IniGetVal("System", "BuSoDa"))
-GlHS1 = CBool(IniGetVal("System", "BaSoAu"))
-GlHS2 = CBool(IniGetVal("System", "BaSoDa"))
-GlTS1 = CBool(IniGetVal("System", "TeSoAu"))
-GlPrt = CBool(IniGetVal("System", "DocPro"))
-GlBnm = CBool(IniGetVal("System", "BeNuSt"))
-GlIdi = CBool(IniGetVal("System", "IdiMod"))
-GlEmD = CBool(IniGetVal("System", "EmlDia"))
-GldId = CBool(IniGetVal("System", "DiaDat"))
-GlRsP = CBool(IniGetVal("System", "ResPru"))
-GlKdR = CBool(IniGetVal("System", "KatDia"))
-GlKeM = CBool(IniGetVal("System", "KetMar"))
-GlEmS = CBool(IniGetVal("System", "EmlSor"))
-GlRzM = CBool(IniGetVal("System", "RezMar"))
-GlNeD = CBool(IniGetVal("System", "NetDru"))
-GlIgL = CBool(IniGetVal("System", "PrBeIg"))
-GlAuR = CBool(IniGetVal("System", "RechAu"))
-GlDSo = CBool(IniGetVal("System", "DiaSor"))
-GlBCl = CBool(IniGetVal("System", "BiImCl"))
-GlDub = CBool(IniGetVal("System", "DubDru"))
-GlDrS = CBool(IniGetVal("System", "DruSep"))
-GlLaI = CBool(IniGetVal("System", "LaImVe"))
-GlLiM = CBool(IniGetVal("System", "LaImMa"))
-GlThO = CBool(IniGetVal("System", "TheDex"))
-GlWaL = CBool(IniGetVal("System", "WaLiCl"))
-GlTxB = CBool(IniGetVal("System", "TxMuDa"))
-GldKt = CBool(IniGetVal("System", "DaExKo"))
-GlKnF = CBool(IniGetVal("System", "KntFor"))
-GlDiZ = CBool(IniGetVal("System", "GeDiZu"))
-GlGut = CBool(IniGetVal("System", "GuthEr"))
-GlPvM = CBool(IniGetVal("System", "PvPoMe"))
-GlPhs = CBool(IniGetVal("System", "PhyAbr"))
-GlGDM = CBool(IniGetVal("System", "GDTMit"))
-GlGDD = CBool(IniGetVal("System", "GDTDia"))
-GlKrz = CBool(IniGetVal("System", "KraZah"))
-GlCur = CBool(IniGetVal("System", "EinCur"))
-GlRsK = CBool(IniGetVal("System", "MaVoKr"))
-GlLog = CBool(IniGetVal("System", "GloLog"))
-GlFDo = CBool(IniGetVal("System", "FraDoc"))
-GlFUp = CBool(IniGetVal("System", "FraUpl"))
-GlFrS = CBool(IniGetVal("System", "FraRed"))
-GlCav = CBool(IniGetVal("System", "CavTex"))
-GlDoK = CBool(IniGetVal("System", "DocKop"))
-GlTDe = CBool(IniGetVal("TerSys", "TerErw"))
-GlZSp = CBool(IniGetVal("TerSys", "TiSpOp"))
-GlKaF = CBool(IniGetVal("TerSys", "KalFon"))
-GlKFb = CBool(IniGetVal("TerSys", "KaFoBo"))
-GlTim = CBool(IniGetVal("TerSys", "TimAkt"))
-GlTeU = CBool(IniGetVal("TerSys", "TerUbe"))
-GlSeB = CBool(IniGetVal("TerSys", "SerBer"))
-GlMZe = CBool(IniGetVal("TerSys", "ManZei"))
-GlMFa = CBool(IniGetVal("TerSys", "ManFar"))
-GlRaF = CBool(IniGetVal("TerSys", "RauFar"))
-GlTGs = CBool(IniGetVal("TerSys", "TerGes"))
-GlMiW = CBool(IniGetVal("TerSys", "MitAus"))
-GlTeD = CBool(IniGetVal("TerSys", "TerDet"))
-GlTZe = CBool(IniGetVal("TerSys", "TeZeAn"))
-GlTVe = CBool(IniGetVal("TerSys", "TerVer"))
-GlMPl = CBool(IniGetVal("TerSys", "MitPla"))
-GlTRF = CBool(IniGetVal("TerSys", "KeFaRa"))
-GlTrG = CBool(IniGetVal("TerSys", "LeiAnz"))
-GlSSt = CBool(IniGetVal("TerSys", "StaRas"))
-GlTMa = CBool(IniGetVal("TerSys", "AuMark"))
-GlTBe = CBool(IniGetVal("TerSys", "TerBet"))
-GlTrS = CBool(IniGetVal("TerSys", "ReTeSe"))
-GlTRa = CBool(IniGetVal("TerSys", "RauMan"))
-GlTeW = CBool(IniGetVal("TerSys", "TerWar"))
-GlCaT = CBool(IniGetVal("TerSys", "TerCav"))
-GlKFo = CBool(IniGetVal("TerSys", "TeKaFo"))
-GlKrR = CBool(IniGetVal("Layout", "KrReIn"))
-XpStl = CBool(IniGetVal("Layout", "XPStyl"))
-GlZeK = CBool(IniGetVal("Layout", "ZeiMar"))
-GlDoc = CBool(IniGetVal("Layout", "DocLay"))
-GlLiT = CBool(IniGetVal("Layout", "LinTex"))
-GlLiW = CBool(IniGetVal("Layout", "LinWor"))
-GlLiV = CBool(IniGetVal("Layout", "LinPDF"))
-GlLiD = CBool(IniGetVal("Layout", "LinDru"))
-GlSPS = CBool(IniGetVal("Layout", "SpaSor"))
-GlM01 = CBool(IniGetVal("Layout", "MulM01"))
-GlM02 = CBool(IniGetVal("Layout", "MulM02"))
-GlM03 = CBool(IniGetVal("Layout", "MulM03"))
-GlM04 = CBool(IniGetVal("Layout", "MulM04"))
-GlM05 = CBool(IniGetVal("Layout", "MulM05"))
-GlM06 = CBool(IniGetVal("Layout", "MulM06"))
-GlM07 = CBool(IniGetVal("Layout", "MulM07"))
-GlM08 = CBool(IniGetVal("Layout", "MulM08"))
-GlM09 = CBool(IniGetVal("Layout", "MulM09"))
-GlM10 = CBool(IniGetVal("Layout", "MulM10"))
-GlM11 = CBool(IniGetVal("Layout", "MulM11"))
-GlM12 = CBool(IniGetVal("Layout", "Mulm12"))
-GlABi = CBool(IniGetVal("Layout", "AntBld"))
-GlVoA = CBool(IniGetVal("Layout", "VoZeAb"))
-GlVoK = CBool(IniGetVal("Layout", "VoZeKr"))
-GlZuK = CBool(IniGetVal("Layout", "ZeiUmb")) 'Zeilenumbruch Krankenblatt
-GlZTo = CBool(IniGetVal("Layout", "TolZei"))
-GlDiB = CBool(IniGetVal("Layout", "DirBea"))
-GlEDi = CBool(IniGetVal("Layout", "EigDia"))
-GlKrM = CBool(IniGetVal("Layout", "KraMaD")) 'Aufnahmemedikamente
-GlKrD = CBool(IniGetVal("Layout", "KraKaD")) 'Aufnahmediagnosen
-GlKrB = CBool(IniGetVal("Layout", "KraBlt"))
-GlInF = CBool(IniGetVal("Layout", "StaTab"))
-GlMOr = CBool(IniGetVal("Layout", "MaMiOr"))
-GlBty = CBool(IniGetVal("Layout", "SysBut"))
-GlFRg = CBool(IniGetVal("Layout", "FarReg"))
-GlFMo = CBool(IniGetVal("Layout", "FarMod"))
-GlAVo = CBool(IniGetVal("Layout", "AdrVor"))
-GlMeA = CBool(IniGetVal("Layout", "MenAni"))
-GlPoK = CBool(IniGetVal("Layout", "PopKal"))
-GlBiA = CBool(IniGetVal("Layout", "BilAkt"))
-GlFAE = CBool(IniGetVal("Layout", "FavoAE"))
-GlFBE = CBool(IniGetVal("Layout", "FavoBE"))
-GlFDE = CBool(IniGetVal("Layout", "FavoDE"))
-GlFKD = CBool(IniGetVal("Layout", "FavoKD"))
-GlFKM = CBool(IniGetVal("Layout", "FavoKM"))
-GlFLE = CBool(IniGetVal("Layout", "FavoLE"))
-GlFME = CBool(IniGetVal("Layout", "FavoME"))
-GlFAR = CBool(IniGetVal("Layout", "FavoAR"))
-GlFPE = CBool(IniGetVal("Layout", "FavoPE"))
-GlFRE = CBool(IniGetVal("Layout", "FavoRE"))
-GlFTE = CBool(IniGetVal("Layout", "FavoTE"))
-GlFTX = CBool(IniGetVal("Layout", "FavoTX"))
-GlSpU = CBool(IniGetVal("Layout", "SpalUb"))
-GlTTe = CBool(IniGetVal("TerSys", "ZeiBet"))
-GlTeO = CBool(IniGetVal("TerSys", "TeOrMi"))
-GlTAl = CBool(IniGetVal("TerSys", "TerErn"))
-GlTKo = CBool(IniGetVal("TerSys", "TimKop"))
-GlTKl = CBool(IniGetVal("TerSys", "TimKoK"))
-GlTKa = CBool(IniGetVal("TerSys", "KalMit"))
-GlTMo = CBool(IniGetVal("TerSys", "TimMon"))
-GlGaT = CBool(IniGetVal("TerSys", "GanzBe"))
-GlSpP = CBool(IniGetVal("TerSys", "SpreBe"))
-GlRSo = CBool(IniGetVal("TerSys", "RmuSor"))
-GlTAk = CBool(IniGetVal("TerSys", "TeLeAk"))
-GlTiD = CBool(IniGetVal("TerSys", "TeInMi"))
-GlTrE = CBool(IniGetVal("TerSys", "TeErSp"))
-GlCaF = CInt(IniGetVal("TerSys", "KaGrId"))
-GlCaS = CInt(IniGetVal("TerSys", "KaGrSu"))
-MonVo = CInt(IniGetVal("TerSys", "MonLad"))
-MonRu = CInt(IniGetVal("TerSys", "MonRuk"))
-GlTBr = CInt(IniGetVal("TerSys", "TiSpBr"))
-GlChR = CInt(IniGetVal("System", "SmaPor"))
-GlKeK = CInt(IniGetVal("System", "KetKen"))
-GlWZe = CInt(IniGetVal("System", "KetKen"))
-GlEiT = CInt(IniGetVal("System", "EinTyp"))
-GlMxK = CInt(IniGetVal("Layout", "MaxKal"))
-GlObG = CSng(IniGetVal("System", "ReObGr"))
-GlUnG = CSng(IniGetVal("System", "ReUnGr"))
-GlTlD = IniGetVal("TerSys", "TeLaAd")
-GlPxN = IniGetVal("TerSys", "ProxNa")
-GlSca = IniGetVal("TerSys", "TimSca")
-GlIvl = IniGetVal("TerSys", "TimInt")
-GlMaS = IniGetVal("Layout", "MaiSor")
-GlMTx = IniGetVal("Layout", "MaiTex")
-GlMKa = IniGetVal("Layout", "MaiKat")
-GlMxZ = IniGetVal("Layout", "MaxZei")
-GlKZe = IniGetVal("Layout", "ZeiFar")
-GlRFa = IniGetVal("Layout", "ReAbFa")
-GlUb1 = IniGetVal("Layout", "StaUb1")
-GlUb2 = IniGetVal("Layout", "StaUb2")
-GlUb3 = IniGetVal("Layout", "StaUb3")
-GlTvM = IniGetVal("Layout", "TeVoMu")
-GlFeB = IniGetVal("Layout", "FeVoBr")
-GlFeH = IniGetVal("Layout", "FeVoHo")
-GlVor = IniGetVal("System", "DocPfa")
-GlDox = IniGetVal("System", "DockPf")
-GlWoV = IniGetVal("System", "WorTre")
-GlBPf = IniGetVal("System", "BilPfa")
-GlFPf = IniGetVal("System", "FiltPf")
-GlFrO = IniGetVal("System", "ForPfa")
-GlTEx = IniGetVal("System", "TermPf")
-GlZeF = IniGetVal("Layout", "FarZei")
-GlToF = IniGetVal("Layout", "TolFoH")
-GlCal = IniGetVal("Layout", "KalAnz")
-GlFeG = IniGetVal("Layout", "FenGro")
-DoEvents
+2260 GlKaU = CBool(IniGetVal("Katalog", "KatZei"))
+2270 GlKaZ = CBool(IniGetVal("Katalog", "KatMkr"))
+2280 GlKaG = CBool(IniGetVal("Katalog", "KaGeGr"))
+2290 GlGrD = CBool(IniGetVal("Katalog", "KaDeGr"))
+2300 GlKLi = CBool(IniGetVal("Katalog", "KatGrl"))
+2310 GlDbg = CBool(IniGetVal("System", "GlDbug"))
+2320 GlPSt = CBool(IniGetVal("System", "StaSei"))
+2330 GlSuW = CBool(IniGetVal("System", "SumWar"))
+2340 GlReV = CBool(IniGetVal("System", "RecEma"))
+2350 GlDiR = CBool(IniGetVal("System", "DiReUb"))
+2360 GlDiK = CBool(IniGetVal("System", "DiKrUb"))
+2370 GlDau = CBool(IniGetVal("System", "DauDia"))
+2380 GlExp = CBool(IniGetVal("System", "TreExp"))
+2390 GlJet = CBool(IniGetVal("System", "JetSav"))
+2400 GlDaK = CBool(IniGetVal("System", "AktDat"))
+2410 GlPzn = CBool(IniGetVal("System", "RezPZN"))
+2420 GlICD = CBool(IniGetVal("System", "ICDEin"))
+2430 GlStB = CBool(IniGetVal("System", "StapBu"))
+2440 GlDeN = CBool(IniGetVal("System", "DebNum"))
+2450 GlDeE = CBool(IniGetVal("System", "DebRep"))
+2460 GlBuG = CBool(IniGetVal("System", "BuExGo"))
+2470 GlDaP = CBool(IniGetVal("System", "BuExPa"))
+2480 GlPop = CBool(IniGetVal("System", "PopFen"))
+2490 GlBer = CBool(IniGetVal("System", "BerSor"))
+2500 GlFoc = CBool(IniGetVal("System", "KraFoc"))
+2510 GlKrE = CBool(IniGetVal("System", "KraEdi"))
+2520 GlInt = CBool(IniGetVal("System", "IntTel"))
+2530 GlAno = CBool(IniGetVal("System", "AnsAnr"))
+2540 GlOrt = CBool(IniGetVal("System", "OrtAbf"))
+2550 GlBnk = CBool(IniGetVal("System", "KurBnk"))
+2560 GlFZe = CBool(IniGetVal("System", "FirZei"))
+2570 GlRzE = CBool(IniGetVal("System", "RezBet"))
+2580 GlAdF = CBool(IniGetVal("System", "AdrGeb"))
+2590 GlFHi = CBool(IniGetVal("System", "FakHin"))
+2600 GlWiG = CBool(IniGetVal("System", "WieGeb"))
+2610 GlDrV = CBool(IniGetVal("System", "DruVor"))
+2620 GlMaF = CBool(IniGetVal("System", "OutStM"))
+2630 GlBuL = CBool(IniGetVal("System", "GloDel"))
+2640 GlBS1 = CBool(IniGetVal("System", "BuSoAu"))
+2650 GlBS2 = CBool(IniGetVal("System", "BuSoDa"))
+2660 GlHS1 = CBool(IniGetVal("System", "BaSoAu"))
+2670 GlHS2 = CBool(IniGetVal("System", "BaSoDa"))
+2680 GlTS1 = CBool(IniGetVal("System", "TeSoAu"))
+2690 GlPrt = CBool(IniGetVal("System", "DocPro"))
+2700 GlBnm = CBool(IniGetVal("System", "BeNuSt"))
+2710 GlIdi = CBool(IniGetVal("System", "IdiMod"))
+2720 GlEmD = CBool(IniGetVal("System", "EmlDia"))
+2730 GldId = CBool(IniGetVal("System", "DiaDat"))
+2740 GlRsP = CBool(IniGetVal("System", "ResPru"))
+2750 GlKdR = CBool(IniGetVal("System", "KatDia"))
+2760 GlKeM = CBool(IniGetVal("System", "KetMar"))
+2770 GlEmS = CBool(IniGetVal("System", "EmlSor"))
+2780 GlRzM = CBool(IniGetVal("System", "RezMar"))
+2790 GlNeD = CBool(IniGetVal("System", "NetDru"))
+2800 GlIgL = CBool(IniGetVal("System", "PrBeIg"))
+2810 GlAuR = CBool(IniGetVal("System", "RechAu"))
+2820 GlDSo = CBool(IniGetVal("System", "DiaSor"))
+2830 GlBCl = CBool(IniGetVal("System", "BiImCl"))
+2840 GlDub = CBool(IniGetVal("System", "DubDru"))
+2850 GlDrS = CBool(IniGetVal("System", "DruSep"))
+2860 GlLaI = CBool(IniGetVal("System", "LaImVe"))
+2870 GlLiM = CBool(IniGetVal("System", "LaImMa"))
+2880 GlThO = CBool(IniGetVal("System", "TheDex"))
+2890 GlWaL = CBool(IniGetVal("System", "WaLiCl"))
+2900 GlTxB = CBool(IniGetVal("System", "TxMuDa"))
+2910 GldKt = CBool(IniGetVal("System", "DaExKo"))
+2920 GlKnF = CBool(IniGetVal("System", "KntFor"))
+2930 GlDiZ = CBool(IniGetVal("System", "GeDiZu"))
+2940 GlGut = CBool(IniGetVal("System", "GuthEr"))
+2950 GlPvM = CBool(IniGetVal("System", "PvPoMe"))
+2960 GlPhs = CBool(IniGetVal("System", "PhyAbr"))
+2970 GlGDM = CBool(IniGetVal("System", "GDTMit"))
+2980 GlGDD = CBool(IniGetVal("System", "GDTDia"))
+2990 GlKrz = CBool(IniGetVal("System", "KraZah"))
+3000 GlCur = CBool(IniGetVal("System", "EinCur"))
+3010 GlRsK = CBool(IniGetVal("System", "MaVoKr"))
+3020 GlLog = CBool(IniGetVal("System", "GloLog"))
+3030 GlFDo = CBool(IniGetVal("System", "FraDoc"))
+3040 GlFUp = CBool(IniGetVal("System", "FraUpl"))
+3050 GlFrS = CBool(IniGetVal("System", "FraRed"))
+3060 GlCav = CBool(IniGetVal("System", "CavTex"))
+3070 GlDoK = CBool(IniGetVal("System", "DocKop"))
+3080 GlTDe = CBool(IniGetVal("TerSys", "TerErw"))
+3090 GlZSp = CBool(IniGetVal("TerSys", "TiSpOp"))
+3100 GlKaF = CBool(IniGetVal("TerSys", "KalFon"))
+3110 GlKFb = CBool(IniGetVal("TerSys", "KaFoBo"))
+3120 GlTim = CBool(IniGetVal("TerSys", "TimAkt"))
+3130 GlTeU = CBool(IniGetVal("TerSys", "TerUbe"))
+3140 GlSeB = CBool(IniGetVal("TerSys", "SerBer"))
+3150 GlMZe = CBool(IniGetVal("TerSys", "ManZei"))
+3160 GlMFa = CBool(IniGetVal("TerSys", "ManFar"))
+3170 GlRaF = CBool(IniGetVal("TerSys", "RauFar"))
+3180 GlTGs = CBool(IniGetVal("TerSys", "TerGes"))
+3190 GlMiW = CBool(IniGetVal("TerSys", "MitAus"))
+3200 GlTeD = CBool(IniGetVal("TerSys", "TerDet"))
+3210 GlTZe = CBool(IniGetVal("TerSys", "TeZeAn"))
+3220 GlTVe = CBool(IniGetVal("TerSys", "TerVer"))
+3230 GlMPl = CBool(IniGetVal("TerSys", "MitPla"))
+3240 GlTRF = CBool(IniGetVal("TerSys", "KeFaRa"))
+3250 GlTrG = CBool(IniGetVal("TerSys", "LeiAnz"))
+3260 GlSSt = CBool(IniGetVal("TerSys", "StaRas"))
+3270 GlTMa = CBool(IniGetVal("TerSys", "AuMark"))
+3280 GlTBe = CBool(IniGetVal("TerSys", "TerBet"))
+3290 GlTrS = CBool(IniGetVal("TerSys", "ReTeSe"))
+3300 GlTRa = CBool(IniGetVal("TerSys", "RauMan"))
+3310 GlTeW = CBool(IniGetVal("TerSys", "TerWar"))
+3320 GlCaT = CBool(IniGetVal("TerSys", "TerCav"))
+3330 GlKFo = CBool(IniGetVal("TerSys", "TeKaFo"))
+3340 GlKrR = CBool(IniGetVal("Layout", "KrReIn"))
+3350 XpStl = CBool(IniGetVal("Layout", "XPStyl"))
+3360 GlZeK = CBool(IniGetVal("Layout", "ZeiMar"))
+3370 GlDoc = CBool(IniGetVal("Layout", "DocLay"))
+3380 GlLiT = CBool(IniGetVal("Layout", "LinTex"))
+3390 GlLiW = CBool(IniGetVal("Layout", "LinWor"))
+3400 GlLiV = CBool(IniGetVal("Layout", "LinPDF"))
+3410 GlLiD = CBool(IniGetVal("Layout", "LinDru"))
+3420 GlSPS = CBool(IniGetVal("Layout", "SpaSor"))
+3430 GlM01 = CBool(IniGetVal("Layout", "MulM01"))
+3440 GlM02 = CBool(IniGetVal("Layout", "MulM02"))
+3450 GlM03 = CBool(IniGetVal("Layout", "MulM03"))
+3460 GlM04 = CBool(IniGetVal("Layout", "MulM04"))
+3470 GlM05 = CBool(IniGetVal("Layout", "MulM05"))
+3480 GlM06 = CBool(IniGetVal("Layout", "MulM06"))
+3490 GlM07 = CBool(IniGetVal("Layout", "MulM07"))
+3500 GlM08 = CBool(IniGetVal("Layout", "MulM08"))
+3510 GlM09 = CBool(IniGetVal("Layout", "MulM09"))
+3520 GlM10 = CBool(IniGetVal("Layout", "MulM10"))
+3530 GlM11 = CBool(IniGetVal("Layout", "MulM11"))
+3540 GlM12 = CBool(IniGetVal("Layout", "Mulm12"))
+3550 GlABi = CBool(IniGetVal("Layout", "AntBld"))
+3560 GlVoA = CBool(IniGetVal("Layout", "VoZeAb"))
+3570 GlVoK = CBool(IniGetVal("Layout", "VoZeKr"))
+3580 GlZuK = CBool(IniGetVal("Layout", "ZeiUmb")) 'Zeilenumbruch Krankenblatt
+3590 GlZTo = CBool(IniGetVal("Layout", "TolZei"))
+3600 GlDiB = CBool(IniGetVal("Layout", "DirBea"))
+3610 GlEDi = CBool(IniGetVal("Layout", "EigDia"))
+3620 GlKrM = CBool(IniGetVal("Layout", "KraMaD")) 'Aufnahmemedikamente
+3630 GlKrD = CBool(IniGetVal("Layout", "KraKaD")) 'Aufnahmediagnosen
+3640 GlKrB = CBool(IniGetVal("Layout", "KraBlt"))
+3650 GlInF = CBool(IniGetVal("Layout", "StaTab"))
+3660 GlMOr = CBool(IniGetVal("Layout", "MaMiOr"))
+3670 GlBty = CBool(IniGetVal("Layout", "SysBut"))
+3680 GlFRg = CBool(IniGetVal("Layout", "FarReg"))
+3690 GlFMo = CBool(IniGetVal("Layout", "FarMod"))
+3700 GlAVo = CBool(IniGetVal("Layout", "AdrVor"))
+3710 GlMeA = CBool(IniGetVal("Layout", "MenAni"))
+3720 GlPoK = CBool(IniGetVal("Layout", "PopKal"))
+3730 GlBiA = CBool(IniGetVal("Layout", "BilAkt"))
+3740 GlFAE = CBool(IniGetVal("Layout", "FavoAE"))
+3750 GlFBE = CBool(IniGetVal("Layout", "FavoBE"))
+3760 GlFDE = CBool(IniGetVal("Layout", "FavoDE"))
+3770 GlFKD = CBool(IniGetVal("Layout", "FavoKD"))
+3780 GlFKM = CBool(IniGetVal("Layout", "FavoKM"))
+3790 GlFLE = CBool(IniGetVal("Layout", "FavoLE"))
+3800 GlFME = CBool(IniGetVal("Layout", "FavoME"))
+3810 GlFAR = CBool(IniGetVal("Layout", "FavoAR"))
+3820 GlFPE = CBool(IniGetVal("Layout", "FavoPE"))
+3830 GlFRE = CBool(IniGetVal("Layout", "FavoRE"))
+3840 GlFTE = CBool(IniGetVal("Layout", "FavoTE"))
+3850 GlFTX = CBool(IniGetVal("Layout", "FavoTX"))
+3860 GlSpU = CBool(IniGetVal("Layout", "SpalUb"))
+3870 GlTTe = CBool(IniGetVal("TerSys", "ZeiBet"))
+3880 GlTeO = CBool(IniGetVal("TerSys", "TeOrMi"))
+3890 GlTAl = CBool(IniGetVal("TerSys", "TerErn"))
+3900 GlTKo = CBool(IniGetVal("TerSys", "TimKop"))
+3910 GlTKl = CBool(IniGetVal("TerSys", "TimKoK"))
+3920 GlTKa = CBool(IniGetVal("TerSys", "KalMit"))
+3930 GlTMo = CBool(IniGetVal("TerSys", "TimMon"))
+3940 GlGaT = CBool(IniGetVal("TerSys", "GanzBe"))
+3950 GlSpP = CBool(IniGetVal("TerSys", "SpreBe"))
+3960 GlRSo = CBool(IniGetVal("TerSys", "RmuSor"))
+3970 GlTAk = CBool(IniGetVal("TerSys", "TeLeAk"))
+3980 GlTiD = CBool(IniGetVal("TerSys", "TeInMi"))
+3990 GlTrE = CBool(IniGetVal("TerSys", "TeErSp"))
+4000 GlCaF = CInt(IniGetVal("TerSys", "KaGrId"))
+4010 GlCaS = CInt(IniGetVal("TerSys", "KaGrSu"))
+4020 MonVo = CInt(IniGetVal("TerSys", "MonLad"))
+4030 MonRu = CInt(IniGetVal("TerSys", "MonRuk"))
+4040 GlTBr = CInt(IniGetVal("TerSys", "TiSpBr"))
+4050 GlChR = CInt(IniGetVal("System", "SmaPor"))
+4060 GlKeK = CInt(IniGetVal("System", "KetKen"))
+4070 GlWZe = CInt(IniGetVal("System", "KetKen"))
+4080 GlEiT = CInt(IniGetVal("System", "EinTyp"))
+4090 GlMxK = CInt(IniGetVal("Layout", "MaxKal"))
+4100 GlObG = CSng(IniGetVal("System", "ReObGr"))
+4110 GlUnG = CSng(IniGetVal("System", "ReUnGr"))
+4120 GlTlD = IniGetVal("TerSys", "TeLaAd")
+4130 GlPxN = IniGetVal("TerSys", "ProxNa")
+4140 GlSca = IniGetVal("TerSys", "TimSca")
+4150 GlIvl = IniGetVal("TerSys", "TimInt")
+4160 GlMaS = IniGetVal("Layout", "MaiSor")
+4170 GlMTx = IniGetVal("Layout", "MaiTex")
+4180 GlMKa = IniGetVal("Layout", "MaiKat")
+4190 GlMxZ = IniGetVal("Layout", "MaxZei")
+4200 GlKZe = IniGetVal("Layout", "ZeiFar")
+4210 GlRFa = IniGetVal("Layout", "ReAbFa")
+4220 GlUb1 = IniGetVal("Layout", "StaUb1")
+4230 GlUb2 = IniGetVal("Layout", "StaUb2")
+4240 GlUb3 = IniGetVal("Layout", "StaUb3")
+4250 GlTvM = IniGetVal("Layout", "TeVoMu")
+4260 GlFeB = IniGetVal("Layout", "FeVoBr")
+4270 GlFeH = IniGetVal("Layout", "FeVoHo")
+4280 GlVor = IniGetVal("System", "DocPfa")
+4290 GlDox = IniGetVal("System", "DockPf")
+4300 GlWoV = IniGetVal("System", "WorTre")
+4310 GlBPf = IniGetVal("System", "BilPfa")
+4320 GlFPf = IniGetVal("System", "FiltPf")
+4330 GlFrO = IniGetVal("System", "ForPfa")
+4340 GlTEx = IniGetVal("System", "TermPf")
+4350 GlZeF = IniGetVal("Layout", "FarZei")
+4360 GlToF = IniGetVal("Layout", "TolFoH")
+4370 GlCal = IniGetVal("Layout", "KalAnz")
+4380 GlFeG = IniGetVal("Layout", "FenGro")
+4390 DoEvents
 
-If GlRDP = True Then
-    If GlRLy = False Then 'RDP Layoutspeicherung
-        GlIdi = True 'Idiotenmodus
+4400 If GlRDP = True Then
+4410     If GlRLy = False Then 'RDP Layoutspeicherung
+4420         GlIdi = True 'Idiotenmodus
     End If
-    GlVTy = 1 'Einfache Druckvorschau
-    If GlDaD = False Then 'Filedialog für Admins
-        GlMTx = 2 'Mailtextanzeige (1=HTML 2=ASCII)
+4430     GlVTy = 1 'Einfache Druckvorschau
+4440     If GlDaD = False Then 'Filedialog für Admins
+4450         GlMTx = 2 'Mailtextanzeige (1=HTML 2=ASCII)
     End If
-    If GlTkB = 2 Then 'Taskbar Einstellung
-        GlABi = False 'Antlitzbild
+4460     If GlTkB = 2 Then 'Taskbar Einstellung
+4470         GlABi = False 'Antlitzbild
     End If
 End If
 
-If GlKop <= 0 Then
-    GlKop = 2
+4480 If GlKop <= 0 Then
+4490     GlKop = 2
 End If
 
-GlPaK = "P801"
-GlMaK = "P801"
-GlTxM = False 'Serienbriefmodus
-GlHeA = 0
-GlTxN = False 'Neues Dokument
+4500 GlPaK = "P801"
+4510 GlMaK = "P801"
+4520 GlTxM = False 'Serienbriefmodus
+4530 GlHeA = 0
+4540 GlTxN = False 'Neues Dokument
 
-GlDFi = Date 'Kalender Anfangsdatum
-Select Case GlCal 'Kalenderanzeige
+4550 GlDFi = Date 'Kalender Anfangsdatum
+4560 Select Case GlCal 'Kalenderanzeige
 Case 1:
-    GlDLa = GlDFi
+4570     GlDLa = GlDFi
 Case 2:
-    If Weekday(GlDFi, vbMonday) > 1 Then
-        GlDFi = DateAdd("d", -(Weekday(GlDFi, vbMonday) - 1), GlDFi)
+4580     If Weekday(GlDFi, vbMonday) > 1 Then
+4590         GlDFi = DateAdd("d", -(Weekday(GlDFi, vbMonday) - 1), GlDFi)
     End If
-    GlDLa = DateAdd("d", 4, GlDFi)
+4600     GlDLa = DateAdd("d", 4, GlDFi)
 Case 3:
-    If Weekday(GlDFi, vbMonday) > 1 Then
-        GlDFi = DateAdd("d", -(Weekday(GlDFi, vbMonday) - 1), GlDFi)
+4610     If Weekday(GlDFi, vbMonday) > 1 Then
+4620         GlDFi = DateAdd("d", -(Weekday(GlDFi, vbMonday) - 1), GlDFi)
     End If
-    GlDLa = DateAdd("d", 6, GlDFi)
+4630     GlDLa = DateAdd("d", 6, GlDFi)
 Case 4:
-    If Weekday(GlDFi, vbMonday) > 1 Then
-        GlDFi = DateAdd("d", -(Weekday(GlDFi, vbMonday) - 1), GlDFi)
+4640     If Weekday(GlDFi, vbMonday) > 1 Then
+4650         GlDFi = DateAdd("d", -(Weekday(GlDFi, vbMonday) - 1), GlDFi)
     End If
-    GlDLa = DateAdd("d", 6, GlDFi)
+4660     GlDLa = DateAdd("d", 6, GlDFi)
 Case 5:
-    GlDFi = "01." & Month(Date) & "." & Year(Date)
-    GlDFi = DateAdd("d", -5, GlDFi)
-    GlDLa = DateAdd("d", 40, GlDFi)
+4670     GlDFi = "01." & Month(Date) & "." & Year(Date)
+4680     GlDFi = DateAdd("d", -5, GlDFi)
+4690     GlDLa = DateAdd("d", 40, GlDFi)
 End Select
 
-ReDim Preserve GlTag(1)
-GlTag(1) = Date
-DoEvents
+4700 ReDim Preserve GlTag(1)
+4710 GlTag(1) = Date
+4720 DoEvents
 
-If GlRDP = True Then
-    GlSHt = ShoCut_Start
+4730 If GlRDP = True Then
+4740     GlSHt = ShoCut_Start
 Else
-    If GlPSt = True Then
-        GlSHt = ShoCut_Start
+4750     If GlPSt = True Then
+4760         GlSHt = ShoCut_Start
     Else
-        GlSHt = IniGetVal("System", "LasSht")
+4770         GlSHt = IniGetVal("System", "LasSht")
     End If
 End If
-GlBu0 = RibTab_Startseite
-GlBu1 = RibTab_Adressen
-GlBu2 = IniGetVal("System", "LasTa2")
-GlBu3 = IniGetVal("System", "LasTa3")
-GlBu4 = IniGetVal("System", "LasTa4")
-GlBu5 = IniGetVal("System", "LasTa5")
-GlBu6 = IniGetVal("System", "LasTa6")
-GlBu7 = RibTab_Kat_Eintrg
-GlBu8 = RibTab_Abrechnung
+4780 GlBu0 = RibTab_Startseite
+4790 GlBu1 = RibTab_Adressen
+4800 GlBu2 = IniGetVal("System", "LasTa2")
+4810 GlBu3 = IniGetVal("System", "LasTa3")
+4820 GlBu4 = IniGetVal("System", "LasTa4")
+4830 GlBu5 = IniGetVal("System", "LasTa5")
+4840 GlBu6 = IniGetVal("System", "LasTa6")
+4850 GlBu7 = RibTab_Kat_Eintrg
+4860 GlBu8 = RibTab_Abrechnung
 
-GlAlA = 0
-GlAlB = 0
-DoEvents
+4870 GlAlA = 0
+4880 GlAlB = 0
+4890 DoEvents
 
-If GlApp = False Then 'AppMode
-    Load frmMain
-    DoEvents
+4900 If GlApp = False Then 'AppMode
+4910     Load frmMain
+4920     DoEvents
 
-    Set FM = frmMain
-    Set TxCoN = FM.TexCont1
-    Set clFen = New clsFenster
-    clFen.hwnd = FM.hwnd
+4930     Set FM = frmMain
+4940     Set TxCoN = FM.TexCont1
+4950     Set clFen = New clsFenster
+4960     clFen.hwnd = FM.hwnd
 
-    With clFen
-        .FenDsk 2
-        DoEvents
-        GlxGr = .FenGro(3)
-        GlyGr = .FenGro(4)
-        Select Case Right$(GlFeG, 1) 'Fenstergröße Programmstart
+4970     With clFen
+4980         .FenDsk 2
+4990         DoEvents
+5000         GlxGr = .FenGro(3)
+5010         GlyGr = .FenGro(4)
+5020         Select Case Right$(GlFeG, 1) 'Fenstergröße Programmstart
         Case 1: 'Variable
-            If GlIdi = True Then 'Idiotenmodus
-                .FeSta = 0
-                .FeLin = 0
-                .FeObn = 0
-                .FeBre = GlxGr
-                .FeHoh = GlyGr
+5030             If GlIdi = True Then 'Idiotenmodus
+5040                 .FeSta = 0
+5050                 .FeLin = 0
+5060                 .FeObn = 0
+5070                 .FeBre = GlxGr
+5080                 .FeHoh = GlyGr
             Else
-                .FeSta = IniGetVal("GUI", "FenMax")
-                .FeLin = IniGetVal("GUI", "FenLin")
-                .FeObn = IniGetVal("GUI", "FenObe")
-                .FeBre = IniGetVal("GUI", "FenBre")
-                .FeHoh = IniGetVal("GUI", "FenHoh")
+5090                 .FeSta = IniGetVal("GUI", "FenMax")
+5100                 .FeLin = IniGetVal("GUI", "FenLin")
+5110                 .FeObn = IniGetVal("GUI", "FenObe")
+5120                 .FeBre = IniGetVal("GUI", "FenBre")
+5130                 .FeHoh = IniGetVal("GUI", "FenHoh")
             End If
         Case 2: 'Maximiert
-            .FeSta = 1
-            .FeLin = 0
-            .FeObn = 0
-            .FeBre = GlxGr
-            .FeHoh = GlyGr
+5140             .FeSta = 1
+5150             .FeLin = 0
+5160             .FeObn = 0
+5170             .FeBre = GlxGr
+5180             .FeHoh = GlyGr
         Case 3: 'Vorgegeben
-            .FeSta = 0
-            .FeLin = (GlxGr - GlFeB) / 2
-            .FeObn = (GlyGr - GlFeH) / 2
-            .FeBre = IIf(GlxGr >= GlFeB, GlFeB, GlxGr)
-            .FeHoh = IIf(GlyGr >= GlFeH, GlFeH, GlyGr)
+5190             .FeSta = 0
+5200             .FeLin = (GlxGr - GlFeB) / 2
+5210             .FeObn = (GlyGr - GlFeH) / 2
+5220             .FeBre = IIf(GlxGr >= GlFeB, GlFeB, GlxGr)
+5230             .FeHoh = IIf(GlyGr >= GlFeH, GlFeH, GlyGr)
         End Select
     End With
 Else
-    Load frmApMod
-    DoEvents
-    Set FM = frmApMod
+5240     Load frmApMod
+5250     DoEvents
+5260     Set FM = frmApMod
 End If
 
-FontLis FM.hDC
-DoEvents
-MenuAry
-DoEvents
+5270 FontLis FM.hDC
+5280 DoEvents
+5290 MenuAry
+5300 DoEvents
 
-If GlApp = False Then 'AppMode
-    SLayo
-    DoEvents
-    SMeAc
-    DoEvents
-    SMen1
-    DoEvents
-    SMen2
-    DoEvents
-    SMen3
-    DoEvents
-    SMen4
-    DoEvents
-    SMePa
-    DoEvents
-    SMeSu
-    DoEvents
-    KMnAE
-    DoEvents
-    KMnKD
-    DoEvents
-    KMnKM
-    DoEvents
-    KMnBE
-    DoEvents
-    KMnDE
-    DoEvents
-    KMnGE
-    DoEvents
-    KMnLE
-    DoEvents
-    KMnME
-    DoEvents
-    KMnPE
-    DoEvents
-    KMnAR
-    DoEvents
-    KMnRE
-    DoEvents
-    KMnTE
-    DoEvents
-    KMnTX
-    DoEvents
-    KMnBU
-    DoEvents
-    KMnRC
-    DoEvents
-    KMnBA
-    DoEvents
-    KMnBV
-    DoEvents
-    SDoPn
-    DoEvents
-    SInPa
-    DoEvents
-    SInit
-    DoEvents
-    STask
-    DoEvents
-    SOpen
-    DoEvents
-    SBuSt
-    DoEvents
-    SButD
-    DoEvents
-    If GlInF = True Then 'Infotabellen auf Startbildschirm
-        SSpLaS1
-        DoEvents
-        SSpLaS2
-        DoEvents
-        SSpLaS3
-        DoEvents
+5310 If GlApp = False Then 'AppMode
+5320     SLayo
+5330     DoEvents
+5340     SMeAc
+5350     DoEvents
+5360     SMen1
+5370     DoEvents
+5380     SMen2
+5390     DoEvents
+5400     SMen3
+5410     DoEvents
+5420     SMen4
+5430     DoEvents
+5440     SMePa
+5450     DoEvents
+5460     SMeSu
+5470     DoEvents
+5480     KMnAE
+5490     DoEvents
+5500     KMnKD
+5510     DoEvents
+5520     KMnKM
+5530     DoEvents
+5540     KMnBE
+5550     DoEvents
+5560     KMnDE
+5570     DoEvents
+5580     KMnGE
+5590     DoEvents
+5600     KMnLE
+5610     DoEvents
+5620     KMnME
+5630     DoEvents
+5640     KMnPE
+5650     DoEvents
+5660     KMnAR
+5670     DoEvents
+5680     KMnRE
+5690     DoEvents
+5700     KMnTE
+5710     DoEvents
+5720     KMnTX
+5730     DoEvents
+5740     KMnBU
+5750     DoEvents
+5760     KMnRC
+5770     DoEvents
+5780     KMnBA
+5790     DoEvents
+5800     KMnBV
+5810     DoEvents
+5820     SDoPn
+5830     DoEvents
+5840     SInPa
+5850     DoEvents
+5860     SInit
+5870     DoEvents
+5880     STask
+5890     DoEvents
+5900     SOpen
+5910     DoEvents
+5920     SBuSt
+5930     DoEvents
+5940     SButD
+5950     DoEvents
+5960     If GlInF = True Then 'Infotabellen auf Startbildschirm
+5970         SSpLaS1
+5980         DoEvents
+5990         SSpLaS2
+6000         DoEvents
+6010         SSpLaS3
+6020         DoEvents
     End If
-    SSpLa1
-    DoEvents
-    SSpLa2
-    DoEvents
-    SSpLa8
-    DoEvents
-    SSpLaM
-    DoEvents
-    SSpLaK
-    DoEvents
-    SSpLaX
-    DoEvents
-    SSpLaN
-    DoEvents
-    SSpLaT
-    DoEvents
-    SSpLa
-    DoEvents
-    SSuFe True
-    DoEvents
-    SFilSu
-    DoEvents
-    With clFen
-        .FenMov
-        DoEvents
-        Set CmBrs = FM.comBar01
-        DoEvents
-        CmBrs.RecalcLayout
-        DoEvents
-        CmBrs.PaintManager.RefreshMetrics
-        DoEvents
-        .FenDsk 3
+6030     SSpLa1
+6040     DoEvents
+6050     SSpLa2
+6060     DoEvents
+6070     SSpLa8
+6080     DoEvents
+6090     SSpLaM
+6100     DoEvents
+6110     SSpLaK
+6120     DoEvents
+6130     SSpLaX
+6140     DoEvents
+6150     SSpLaN
+6160     DoEvents
+6170     SSpLaT
+6180     DoEvents
+6190     SSpLa
+6200     DoEvents
+6210     SSuFe True
+6220     DoEvents
+6230     SFilSu
+6240     DoEvents
+6250     With clFen
+6260         .FenMov
+6270         DoEvents
+6280         Set CmBrs = FM.comBar01
+6290         DoEvents
+6300         CmBrs.RecalcLayout
+6310         DoEvents
+6320         CmBrs.PaintManager.RefreshMetrics
+6330         DoEvents
+6340         .FenDsk 3
     End With
-    DoEvents
-    SPosi
-    DoEvents
-    SResi
-    DoEvents
+6350     DoEvents
+6360     SPosi
+6370     DoEvents
+6380     SResi
+6390     DoEvents
     
-    Set clFen = Nothing
+6400     Set clFen = Nothing
     
-    Select Case GlBut
+6410     Select Case GlBut
     Case RibTab_Tex_Dokumt:
-        If FeSta = 1 Then TxCoN.SetFocus
+6420         If FeSta = 1 Then TxCoN.SetFocus
     Case RibTab_Tex_Vorlag:
-        If FeSta = 1 Then TxCoN.SetFocus
+6430         If FeSta = 1 Then TxCoN.SetFocus
     Case RibTab_Tex_Rezept:
-        If FeSta = 1 Then TxCoN.SetFocus
+6440         If FeSta = 1 Then TxCoN.SetFocus
     Case RibTab_Tex_NewsLe:
-        If FeSta = 1 Then TxCoN.SetFocus
+6450         If FeSta = 1 Then TxCoN.SetFocus
     End Select
-    DoEvents
+6460     DoEvents
 Else
 
 End If
 
-SDBSta True
-DoEvents
+6470 SDBSta True
+6480 DoEvents
 
-GlSta = False
+6490 GlSta = False
     
-If GlApp = False Then 'AppMode
-    STxFo
-    DoEvents
-    SStPo
-    DoEvents
+6500 If GlApp = False Then 'AppMode
+6510     STxFo
+6520     DoEvents
+6530     SStPo
+6540     DoEvents
 
-    frmMain.Show
+6550     frmMain.Show
 Else
-    frmApMod.Show
+6560     frmApMod.Show
 End If
 
-Exit Sub
+6570 Exit Sub
 
 LaErr:
+ErLin = Erl
 ErNum = Err.Number 'sichern, bevor SSplS2/DoEvents das Err-Objekt zuruecksetzen
 ErDes = Err.Description
 ErSrc = Err.Source
-If GlLog = True Then
-    SLogi "Main Err: " & ErDes & " #" & ErNum & " - " & ErSrc
+If GlLog = True Or ErNum = 7 Or ErNum = 28 Then
+    SLogi "Main Err: " & ErDes & " #" & ErNum & " - " & ErSrc & " [Main:" & ErLin & "]"
 ElseIf GlDbg = True Then
-    SErLog ErDes & " Main " & ErNum & " - " & ErSrc
+    SErLog ErDes & " Main " & ErNum & " - " & ErSrc & " [Main:" & ErLin & "]"
+End If
+If ErNum = 7 Or ErNum = 28 Then
+    'Nach Speicher-/Stackfehlern nicht mit unvollstaendigem Zustand fortfahren.
+    On Error Resume Next
+    For TimZa = 1 To 8
+        TimEnde TimZa
+    Next TimZa
+    If Not clFen Is Nothing Then clFen.FenDsk 3
+    Screen.MousePointer = vbNormal
+    MsgBox "Der Programmstart wurde wegen eines Speicherfehlers abgebrochen." & vbCrLf & _
+           "Fehler " & ErNum & " in Main:" & ErLin & vbCrLf & ErDes, vbCritical, App.Title
+    End
 End If
 If GlDbg = True Then
     SSplS2 'Splashscreen schliessen (eigener Handler)
