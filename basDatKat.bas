@@ -4062,6 +4062,7 @@ Dim BoTyp As String
 Dim GesZe As Long
 Dim FraUn As Integer
 Dim AnzDo As Integer
+Dim GebOk As Boolean
 
 Dim VerNr As Integer
 Dim RpCo1 As XtremeReportControl.ReportControl
@@ -4259,13 +4260,22 @@ If GesZe > 0 Then
             If RS140.RecordCount > 0 Then
                 PaKur = "? (E-Mail: " & RS140.Fields("IDKurz").Value & ")"
                 If RS140.RecordCount = 1 Then
-                    If PaNam <> vbNullString And PaVor <> vbNullString And IsDate(PaGeb) Then
+                    If PaNam <> vbNullString And PaVor <> vbNullString Then
                         If StrComp(Trim$(RS140.Fields("Name").Value & vbNullString), PaNam, vbTextCompare) = 0 And StrComp(Trim$(RS140.Fields("Vorname").Value & vbNullString), PaVor, vbTextCompare) = 0 Then
-                            If IsDate(RS140.Fields("Geboren").Value) Then
-                                If DateValue(RS140.Fields("Geboren").Value) = DateValue(PaGeb) Then
-                                    PatNr = RS140.Fields("ID0").Value
-                                    PaKur = RS140.Fields("IDKurz").Value
-                                End If
+                            'Fehlendes Geburtsdatum oder Nulldatum (30.12.1899) beim Patienten ist kein Widerspruch;
+                            'ein abweichendes echtes Datum oder ein Formular ohne Datum bleibt beim "?"
+                            GebOk = False
+                            If Not IsDate(RS140.Fields("Geboren").Value) Then
+                                GebOk = True
+                            ElseIf Year(RS140.Fields("Geboren").Value) < 1900 Then
+                                GebOk = True
+                            ElseIf IsDate(PaGeb) Then
+                                GebOk = (DateValue(RS140.Fields("Geboren").Value) = DateValue(PaGeb))
+                            End If
+                            If GebOk Then
+                                PatNr = RS140.Fields("ID0").Value
+                                PaKur = RS140.Fields("IDKurz").Value & vbNullString
+                                If PaKur = vbNullString Then PaKur = PaNam & ", " & PaVor
                             End If
                         End If
                     End If
@@ -4820,6 +4830,7 @@ Dim AdKur As String
 Dim TmStr As String
 Dim PaVer As Integer
 Dim PaTyp As Integer
+Dim GebNeu As Boolean
 Dim RpRow As XtremeReportControl.ReportRow
 Dim RpRws As XtremeReportControl.ReportRows
 Dim RpCo1 As XtremeReportControl.ReportControl
@@ -4887,6 +4898,19 @@ For Each RpRow In RpRws
                     End With
                     If RS114.RecordCount > 0 Then
                         If RS114.Supports(adUpdate) Then
+                            'Fehlendes Geburtsdatum oder Nulldatum beim Patienten aus dem Formular ergaenzen (z.B. nach
+                            'E-Mail-Zuordnung in F_An1): nur bei gleichem Namen und Vornamen vor der Uebernahme und wenn
+                            '"Geburtstag uebernehmen" nicht abgewaehlt ist; IDKurz bildet Adr_Er1 neu
+                            GebNeu = False
+                            If Mid$(TmStr, 3, 1) <> "0" And PaGeb Like "##.##.####" Then
+                                If StrComp(Trim$(RS114.Fields("Name").Value & vbNullString), PaNam, vbTextCompare) = 0 And StrComp(Trim$(RS114.Fields("Vorname").Value & vbNullString), PaVor, vbTextCompare) = 0 Then
+                                    If Not IsDate(RS114.Fields("Geboren").Value) Then
+                                        GebNeu = True
+                                    ElseIf Year(RS114.Fields("Geboren").Value) < 1900 Then
+                                        GebNeu = True
+                                    End If
+                                End If
+                            End If
 
                             If Mid$(TmStr, 1, 1) = "1" Then
                                 RS114.Fields("Vorname").Value = PaVor
@@ -4922,6 +4946,8 @@ For Each RpRow In RpRws
                             If Mid$(TmStr, 11, 1) = "1" Then
                                 RS114.Fields("Abteilung").Value = PaVer
                             End If
+                            'PaGeb hat F_An1 als dd.mm.yyyy formatiert: ohne Laendereinstellung lesen
+                            If GebNeu Then RS114.Fields("Geboren").Value = DateSerial(CInt(Mid$(PaGeb, 7, 4)), CInt(Mid$(PaGeb, 4, 2)), CInt(Left$(PaGeb, 2)))
                             RS114.Fields("Anrede").Value = PaAnr
                             RS114.Update
                             

@@ -1411,6 +1411,42 @@ If GlDbg = True Then MsgBox Err.Description, 48, "FSuda " & Err.Number
 Resume Next
 
 End Sub
+Public Sub FVorb(ByVal Kurz As String)
+On Error GoTo SeErr
+'Vorbelegung aus der Fragebogenzuordnung (frmZuord, E-Mail-Treffer): Suche nach dem Kurztext des Patienten vor dem
+'Anzeigen. Vorgewaehlt wird nur ein einziger exakt gleicher Kurztext (die Suche liefert auch Teiltreffer wie
+'"Alt-Meyer" zu "Meyer"); dann erscheint die Trefferliste (Fokus in Form_Activate), sonst die leere Suchmaske
+Dim LiIts As XtremeSuiteControls.ListViewItems
+Dim Treff As XtremeSuiteControls.ListViewItem
+Dim TrAnz As Long
+Dim AktNr As Long
+
+If Trim$(Kurz) = vbNullString Then Exit Sub
+Set LiIts = Me.lstView3.ListItems
+If Adr_Fil(1, Kurz, 1) > 0 Then
+    For AktNr = 1 To LiIts.Count
+        If StrComp(LiIts(AktNr).Text, Kurz, vbBinaryCompare) = 0 Then
+            Set Treff = LiIts(AktNr)
+            TrAnz = TrAnz + 1
+        End If
+    Next AktNr
+End If
+If TrAnz = 1 Then
+    Me.frmRahm1.Visible = False
+    Me.frmRahm2.Visible = True
+    Treff.Selected = True
+    Me.btnZurück.Enabled = True
+Else
+    LiIts.Clear
+End If
+Set Treff = Nothing
+Set LiIts = Nothing
+Exit Sub
+SeErr:
+Set Treff = Nothing
+Set LiIts = Nothing
+If GlLog = True Then SLogi "FVorb Err: Suche nicht vorbelegt #" & Err.Number
+End Sub
 Private Sub FZur()
 On Error Resume Next
 
@@ -1465,6 +1501,8 @@ Set Rahm2 = Me.frmRahm2
 
 If Rahm1.Visible = True Then
     FTex1.SetFocus
+ElseIf Rahm2.Visible = True Then
+    Me.lstView3.SetFocus 'Trefferliste, z.B. nach FVorb
 End If
         
 End Sub

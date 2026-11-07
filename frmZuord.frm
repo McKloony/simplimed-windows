@@ -297,6 +297,7 @@ Dim Zeile As XtremeReportControl.ReportRecord
 Dim RestCount As Long
 Dim GutCount As Long
 Dim LoeschAnz As Long
+Dim OhnePat As Long
 Dim Meldung As String
 
 For Each Zeile In Me.repCont1.Records
@@ -304,13 +305,25 @@ For Each Zeile In Me.repCont1.Records
         LoeschAnz = LoeschAnz + 1
     ElseIf Val(Zeile.Item(17).Value) <= 0 Or Zeile.Item(0).Value = vbNullString Then
         RestCount = RestCount + 1
+        If Val(Zeile.Item(17).Value) <= 0 Then OhnePat = OhnePat + 1
     Else
         GutCount = GutCount + 1
     End If
 Next Zeile
-If RestCount > 0 Then
+If RestCount > 0 And GutCount = 0 And LoeschAnz = 0 Then
+    'Nichts uebernehmbar: kein Import und keine neue CSV/INI, die Abrufdateien bleiben unveraendert liegen
+    If OhnePat = RestCount Then
+        Meldung = "Es ist noch keinem Fragebogen ein Patient zugeordnet."
+    Else
+        Meldung = "Es kann noch kein Fragebogen uebernommen werden (Zuordnung oder Vorlage fehlt)."
+    End If
+    Meldung = Meldung & vbCrLf & "Bitte die Zeilen mit ""?"" per Doppelklick einem Patienten zuordnen oder mit ""Neuer Patient"" anlegen." & vbCrLf & "Um es spaeter zu tun, das Fenster schliessen; die Frageboegen bleiben gespeichert."
+    WindowMess Meldung, Dial2, "Fragebogenimport", Me.hwnd
+    FePru = True
+ElseIf RestCount > 0 Then
     Meldung = GutCount & " Frageboegen werden uebernommen, " & RestCount & " Frageboegen bleiben fuer spaeter gespeichert (Zuordnung oder Vorlage fehlt)."
     If LoeschAnz > 0 Then Meldung = Meldung & vbCrLf & LoeschAnz & " Frageboegen werden bewusst verworfen."
+    If OhnePat > 0 Then Meldung = Meldung & vbCrLf & "Zeilen mit ""?"" lassen sich vorher per Doppelklick einem Patienten zuordnen."
     Meldung = Meldung & vbCrLf & "Fortfahren?"
     FePru = (WindowMess(Meldung, Dial1, "Fragebogenimport", Me.hwnd) <> 6)
 End If
@@ -642,6 +655,7 @@ Dim TeFus As String
 Dim RpRws As XtremeReportControl.ReportRows
 Dim RpRow As XtremeReportControl.ReportRow
 Dim RpCo1 As XtremeReportControl.ReportControl
+Dim ZuKur As String
 
 Set FM = frmZuord
 Set RpCo1 = FM.repCont1
@@ -667,6 +681,12 @@ Case Else:
                     RpRow.Record(17).Value = 0
                 End If
             End If
+        End If
+        'E-Mail-Treffer ohne Zuordnung: Patientensuche mit diesem Patienten als Treffer oeffnen
+        ZuKur = RpRow.Record(16).Value & vbNullString
+        If Left$(ZuKur, 11) = "? (E-Mail: " And Right$(ZuKur, 1) = ")" And ZuKur <> "? (E-Mail: mehrere Patienten)" Then
+            Load frmAdrSuch
+            frmAdrSuch.FVorb Mid$(ZuKur, 12, Len(ZuKur) - 12)
         End If
         frmAdrSuch.Show vbModal
     End If

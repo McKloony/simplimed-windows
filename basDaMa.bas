@@ -207,7 +207,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
             ElseIf ErrSt <> vbNullString Then
                 SPopu "Downloadfehler", ErrSt, IC48_Information
             Else
-                SPopu "Fragebogenabruf", "Es liegen keine neuen Frageboegen vor.", IC48_Information
+                SPopu "Fragebogenabruf", "Es liegen keine neuen Frageboegen vor." & SAnRest(), IC48_Information
             End If
 
             If ErrSt <> vbNullString Then
@@ -303,6 +303,74 @@ Screen.MousePointer = vbNormal
 If GlLog = True Then SLogi "S_AnBoC Err: Abruf abgebrochen #" & Err.Number
 WindowMess "Der Fragebogenabruf wurde abgebrochen. Vorhandene Abrufdateien bleiben gespeichert.", Dial2, "Fragebogenabruf", frmMain.hwnd
 End Sub
+Private Function SAnRest() As String
+On Error GoTo SuErr
+'Hinweis fuer "keine neuen Frageboegen": Einreichungen in liegengebliebenen Abrufen (D*.csv im Termineordner)
+Dim CsvNames As Collection
+Dim CsvName As String
+Dim DateiNr As Long
+Dim BogAnz As Long
+Dim Summe As Long
+Dim Unklar As Long
+
+Set CsvNames = New Collection
+CsvName = Dir$(GlTEx & "D*.csv")
+Do While CsvName <> vbNullString
+    CsvNames.Add CsvName
+    CsvName = Dir$()
+Loop
+For DateiNr = 1 To CsvNames.Count
+    BogAnz = SAnZahl(GlTEx & CsvNames(DateiNr))
+    If BogAnz < 0 Then
+        Unklar = Unklar + 1
+    Else
+        Summe = Summe + BogAnz
+    End If
+Next DateiNr
+Set CsvNames = Nothing
+If Summe = 1 Then
+    SAnRest = " 1 Fragebogen wartet noch auf die Zuordnung zu einem Patienten."
+ElseIf Summe > 1 Then
+    SAnRest = " " & Summe & " Frageboegen warten noch auf die Zuordnung zu einem Patienten."
+End If
+If Unklar > 0 Then SAnRest = SAnRest & " " & Unklar & " liegengebliebene Abrufdatei(en) konnten nicht gelesen werden."
+Exit Function
+SuErr:
+Set CsvNames = Nothing
+If GlLog = True Then SLogi "SAnRest Err: wartende Frageboegen nicht gezaehlt #" & Err.Number
+End Function
+Private Function SAnZahl(ByVal CsvName As String) As Long
+On Error GoTo SuErr
+'Zahl der Einreichungen einer Abrufdatei, -1 bei unlesbarer Datei
+Dim CsvRead As ADODB.Stream
+Dim CsvRows As ADODB.Recordset
+Dim KopfZeile As String
+Dim BogCount As Long
+
+Set CsvRead = New ADODB.Stream
+CsvRead.Type = adTypeText
+CsvRead.Charset = "windows-1252"
+CsvRead.Open
+CsvRead.LoadFromFile CsvName
+Set CsvRows = SAnParse(CsvRead.ReadText, KopfZeile, BogCount)
+CsvRead.Close
+Set CsvRead = Nothing
+If CsvRows.State <> adStateClosed Then CsvRows.Close
+Set CsvRows = Nothing
+SAnZahl = BogCount
+Exit Function
+SuErr:
+On Error Resume Next 'Nur lokale Ressourcen freigeben.
+If Not CsvRead Is Nothing Then
+    If CsvRead.State <> adStateClosed Then CsvRead.Close
+End If
+If Not CsvRows Is Nothing Then
+    If CsvRows.State <> adStateClosed Then CsvRows.Close
+End If
+Set CsvRead = Nothing
+Set CsvRows = Nothing
+SAnZahl = -1
+End Function
 Private Function SAnCloud() As Boolean
 On Error GoTo SuErr
 'Eine neu erzeugte Cloud-ID vor der ersten Online-Nutzung bestaetigen.
@@ -525,7 +593,7 @@ If BogCount > 0 Then
 Else
     Kill CsvName 'Gueltige CSV ohne Einreichungen.
     If Dir$(IniName) <> vbNullString Then Kill IniName
-    If ShowEmpty Then SPopu "Fragebogenabruf", "Es liegen keine neuen Frageboegen vor.", IC48_Information
+    If ShowEmpty Then SPopu "Fragebogenabruf", "Es liegen keine neuen Frageboegen vor." & SAnRest(), IC48_Information
 End If
 If CsvRows.State <> adStateClosed Then CsvRows.Close
 Set CsvRows = Nothing
