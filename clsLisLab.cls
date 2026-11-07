@@ -5441,209 +5441,482 @@ Resume Next
 End Sub
 Public Sub LLExDv()
 On Error GoTo DeErr
-'Exportiert DATEV-Rechnungsbelege ohne ZIP/Email-Logik
-
-Dim FormIds() As Long
-Dim FormCnt As Long
-Dim GesZa As Long
-Dim AktZa As Long
-Dim RetWe As Long
-Dim StaPr As Boolean
-Dim DruNa As String * 100 'Druckername
-Dim PorNa As String * 100 'Portname
-Dim DaNeu As String 'neuer Dateiname
+'DATEV liest die Formularzuordnung; IDF bleibt unveraendert.
+Dim FormNames As Object
+Dim FormFiles As Object
+Dim HeadRS As ADODB.Recordset
+Dim AktPo As Long
+Dim AnzPo As Long
+Dim FailCount As Long
+Dim FormName As String
+Dim FormFile As String
+Dim StdFile As String
+Dim RawFile As String
+Dim ExPfa As String
+Dim DaNeu As String
 Dim DauDg As String
 Dim MxCod As String
-Dim ExPfa As String 'Exportpfad
-Dim XReDa As String
-Dim AktPo As Integer 'Aktuelle Position
-Dim AnzPo As Integer 'Gesamtpositionen
-Dim DruOk As Boolean
-Dim ZuFer As Boolean
-Dim DevMo As DEVMODEA
-Dim DatNa() As String
-Dim SQL1, SQL2 As String
-Dim Mld1, Tit1 As String
+Dim ErrText As String
+Dim ErrCode As Long
 
 Set FM = frmMain
 Set FS = frmStatus
 Set PrBr1 = FS.prbStat1
 Set PrBr2 = FS.prbStat2
-
-Mld1 = "Es existieren keine Daten, die exportiert werden koennen"
-Tit1 = "Keine Daten vorhanden"
+Set clFil = New clsFile
 AnzPo = UBound(GloDr)
-If Right$(TmPfa, 1) <> "\" Then TmPfa = TmPfa & "\"
-ExPfa = StVer
+If AnzPo < 1 Then GoTo DeEnd
+TmPfa = LLNormPfad(TmPfa)
+ExPfa = LLNormPfad(StVer)
 If ExPfa = vbNullString Then ExPfa = TmPfa
-If ExPfa <> vbNullString Then
-    If Right$(ExPfa, 1) <> "\" Then ExPfa = ExPfa & "\"
+StdFile = FiNam
+If GlFrn <> vbNullString Then
+    RawFile = LLNormPfad(GlFrn) & "standardrechnung.blg"
+Else
+    RawFile = LLNormPfad(GlFrO) & "standardrechnung.blg"
 End If
-
-If ExFmt = "PDA" Then
-    ExFmt = "PDF"
-    ZuFer = True 'ZUGFeRD
-End If
-
-ReDim DatNa(AnzPo)
-If AnzPo > 0 Then ReDim FormIds(1 To AnzPo)
-
-SQL1 = "qryPrSimRe1"
-SQL2 = "qryPrSimRe2"
-
-If SQL1 = vbNullString Then
-    WindowMess Mld1, Dial4, Tit1, FM.hwnd
-    Exit Sub
-End If
-
-mHwnd = LlJobOpen(CMBTLANG_DEFAULT)
-LLOpt
-RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Path", ExPfa)
-RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Quiet", 1)
-RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.ShowResult", 0)
+Set FormNames = CreateObject("Scripting.Dictionary")
+Set FormFiles = CreateObject("Scripting.Dictionary")
+LLDvForms AnzPo, FormNames, FormFiles
+PrBr1.Min = 0
+PrBr1.Max = AnzPo
+FS.Caption = "Erzeugen der Druckdateien..."
+FS.Show
 
 For AktPo = 1 To AnzPo
-    PrBr1.Min = 0
-    PrBr1.Max = AnzPo
-    FS.Caption = "Erzeugen der Druckdateien..."
-    DauDg = vbNullString
-    MxCod = vbNullString
+    FormName = vbNullString
+    FormFile = vbNullString
+    If FormNames.Exists(GloDr(AktPo)) Then
+        FormName = FormNames(GloDr(AktPo))
+        FormFile = LLNormPfad(GlFrO) & FormFiles(GloDr(AktPo))
+    End If
     DauDg = S_DrDi(GloDr(AktPo))
-    If GlFri = 5 Then 'Naturheilpraktiker (Tarif 590)
-        MxCod = S_ReMx(GloDr(AktPo))
+    MxCod = vbNullString
+    If GlFri = 5 Then MxCod = S_ReMx(GloDr(AktPo))
+    Set HeadRS = DBCmRe1("qryPrSimRe1", "@IdStr", GloDr(AktPo))
+    If Not HeadRS.EOF Then
+        DaNeu = "Rechnung_Beleg_" & HeadRS.Fields("Rechnungsnummer").Value & "." & LCase$(ExFmt)
+        If Not LLDvTry(GloDr(AktPo), HeadRS, FormName, FormFile, StdFile, RawFile, ExPfa, DaNeu, DauDg, MxCod) Then
+            FailCount = FailCount + 1
+        End If
+    Else
+        FailCount = FailCount + 1
     End If
+    HeadRS.Close
+    Set HeadRS = Nothing
+    PrBr1.Value = AktPo
+    DoEvents
+Next AktPo
+If FailCount > 0 Then
+    SPopu "DATEV-PDF-Export", "Fuer " & CStr(FailCount) & " Beleg(e) konnte auch mit dem Standardformular keine Druckdatei erstellt werden.", IC48_Forbidden
+End If
 
-    Set RS31 = New ADODB.Recordset
-    RS31.CursorLocation = adUseClient
-    Set RS31 = DBCmRe1(SQL1, "@IdStr", GloDr(AktPo))
-    
-    Set RS32 = New ADODB.Recordset
-    RS32.CursorLocation = adUseClient
-    Set RS32 = DBCmRe1(SQL2, "@IdStr", GloDr(AktPo))
+DeEnd:
+'Nur die Ressourcenfreigabe darf einen Folgefehler ignorieren.
+On Error Resume Next
+If Not HeadRS Is Nothing Then
+    If HeadRS.State <> adStateClosed Then HeadRS.Close
+End If
+If mHwnd <> 0 Then LlJobClose mHwnd
+mHwnd = 0
+Set HeadRS = Nothing
+Set FormNames = Nothing
+Set FormFiles = Nothing
+Set clFil = Nothing
+Unload FS
+On Error GoTo 0
+Exit Sub
 
-    If RS31.RecordCount > 0 Then
-        If RS32.RecordCount > 0 Then
-            StaPr = True
+DeErr:
+ErrText = Err.Description
+ErrCode = Err.Number
+If GlLog = True Then SLogi "LLExDv Err: " & ErrText & " #" & ErrCode
+SPopu "DATEV-PDF-Export", "Die Druckdateien konnten nicht vollstaendig erstellt werden.", IC48_Forbidden
+Resume DeEnd
+End Sub
+
+Private Sub LLDvForms(ByVal AnzPo As Long, ByVal FormNames As Object, ByVal FormFiles As Object)
+On Error GoTo FoErr
+Dim FormRS As ADODB.Recordset
+Dim IdxNr As Long
+Dim BatchCnt As Long
+Dim ReNum As Long
+Dim IdList As String
+Dim SqlText As String
+Dim ErrText As String
+Dim ErrCode As Long
+
+'Maximal eine reine Leseabfrage pro 200 Rechnungen, kein IDF-UPDATE.
+For IdxNr = 1 To AnzPo
+    If GloDr(IdxNr) > 0 Then
+        If Len(IdList) > 0 Then IdList = IdList & ","
+        IdList = IdList & SqlNum(GloDr(IdxNr))
+        BatchCnt = BatchCnt + 1
+    End If
+    If BatchCnt = 200 Or IdxNr = AnzPo Then
+        If BatchCnt > 0 Then
+            SqlText = "SELECT R.[ID1], F.[IdNam], F.[IdDat] FROM Tabelle_AbreRe R INNER JOIN Tabelle_Formulare F ON R.[IDF] = F.[ID1] WHERE R.[ID1] IN (" & IdList & ") AND R.[IDF] > 0"
+            Set FormRS = New ADODB.Recordset
+            FormRS.Open SqlText, DB1, adOpenForwardOnly, adLockReadOnly, adCmdText
+            Do While Not FormRS.EOF
+                If Not IsNull(FormRS.Fields("IdNam").Value) And Not IsNull(FormRS.Fields("IdDat").Value) Then
+                    If Len(Trim$(FormRS.Fields("IdNam").Value)) > 0 And Len(Trim$(FormRS.Fields("IdDat").Value)) > 0 Then
+                        ReNum = CLng(FormRS.Fields("ID1").Value)
+                        FormNames(ReNum) = Trim$(FormRS.Fields("IdNam").Value)
+                        FormFiles(ReNum) = Trim$(FormRS.Fields("IdDat").Value)
+                    End If
+                End If
+                FormRS.MoveNext
+            Loop
+            FormRS.Close
+            Set FormRS = Nothing
+            IdList = vbNullString
+            BatchCnt = 0
         End If
     End If
+Next IdxNr
+Exit Sub
 
-    If StaPr = True Then
-        DaNeu = "Rechnung_Beleg_" & RS31.Fields("Rechnungsnummer").Value & "." & LCase(ExFmt)
-        DatNa(AktPo) = DaNeu
+FoErr:
+ErrText = Err.Description
+ErrCode = Err.Number
+On Error Resume Next
+If Not FormRS Is Nothing Then
+    If FormRS.State <> adStateClosed Then FormRS.Close
+End If
+Set FormRS = Nothing
+FormNames.RemoveAll
+FormFiles.RemoveAll
+On Error GoTo 0
+If GlLog = True Then SLogi "LLDvForms Err: " & ErrText & " #" & ErrCode
+End Sub
 
-        AktZa = 1
-        GesZa = RS32.RecordCount
-        PrBr2.Min = 0
-        PrBr2.Max = GesZa
+Private Function LLDvTry(ByVal ReNum As Long, ByVal HeadRS As ADODB.Recordset, ByVal FormName As String, ByVal FormFile As String, ByVal StdFile As String, ByVal RawFile As String, ByVal ExPfa As String, ByVal DaNeu As String, ByVal DauDg As String, ByVal MxCod As String) As Boolean
+Dim TryNames(1 To 3) As String
+Dim TryFiles(1 To 3) As String
+Dim Tried As Object
+Dim TryNo As Long
+Dim TryKey As String
 
-        If GlFri = 5 Then 'Naturheilpraktiker (Tarif 590)
-            LLDeV RS31, DauDg, False, MxCod, True
-        Else
-            LLDeV RS31, DauDg, , , True
-        End If
-        LLDeF RS32
-
-        RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.File", DaNeu)
-        Select Case ExFmt
-        Case "TXT":
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "TXT.SeparatorChar", ";")
-        Case "HTML":
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.AllInOneFile", 1)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "HTML.Title", "Rechnu")
-        Case "MHTML":
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.AllInOneFile", 1)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "HTML.Title", "Rechnu")
-        Case "XLS":
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.OnlyTableData", 0)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "XLS.Title", "Rechnu")
-        Case "RTF":
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Verbosity.Drawing", 0)
-        Case "PDF":
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.FitText", 1)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.Title", "Rechnu")
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.FontMode", 5)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.CompressStreamMethod", 1)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.DontStackWorldModifications", 0)
-            RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.Encryption.EnablePrinting", 1)
-        End Select
-
-        RetWe = LlPreviewSetTempPath(mHwnd, TmPfa)
-        RetWe = LlPrintStart(mHwnd, LL_PROJECT_LIST, FiNam, LL_PRINT_EXPORT, 0)
-        RetWe = LlPrintSetOptionString(mHwnd, LL_PRNOPTSTR_EXPORT, ExFmt)
-        RetWe = LlPrintSetOption(mHwnd, LL_PRNOPT_COPIES, LL_COPIES_HIDE)
-
-        If RetWe = 0 Then
-            If AktPo = 1 Then
-                FS.Show
-                DoEvents
-            End If
-            RetWe = LlPrint(mHwnd)
-            If RetWe = 0 Then
-                While Not RS32.EOF
-                    LLDeF RS32
-                    PrBr2.Value = AktZa
-                    DoEvents
-                    While LlPrintFields(mHwnd) = LL_WRN_REPEAT_DATA
-                        RetWe = LlPrint(mHwnd)
-                    Wend
-                    AktZa = AktZa + 1
-                    RS32.MoveNext
-                Wend
-                Do
-                RetWe = LlPrintFieldsEnd(mHwnd)
-                Loop Until RetWe <> LL_WRN_REPEAT_DATA
-                RetWe = LlPrintEnd(mHwnd, 0)
-                If RetWe = 0 Then
-                    DruOk = True
-                    FormCnt = FormCnt + 1
-                    FormIds(FormCnt) = GloDr(AktPo)
+'Ein fehlgeschlagener Beleg darf keine alte PDF im DATEV-Paket hinterlassen.
+If clFil.FilVor(ExPfa & DaNeu) Then Kill ExPfa & DaNeu
+TryNames(1) = FormName
+TryFiles(1) = FormFile
+TryNames(2) = "Rechnu"
+TryFiles(2) = StdFile
+TryNames(3) = "Rechnu"
+TryFiles(3) = RawFile
+Set Tried = CreateObject("Scripting.Dictionary")
+Tried.CompareMode = vbTextCompare
+For TryNo = 1 To 3
+    If Len(TryNames(TryNo)) > 0 And Len(TryFiles(TryNo)) > 0 Then
+        TryKey = TryNames(TryNo) & vbNullChar & TryFiles(TryNo)
+        If Not Tried.Exists(TryKey) Then
+            Tried.Add TryKey, True
+            If clFil.FilVor(TryFiles(TryNo)) Then
+                If LLDvPrint(ReNum, HeadRS, TryNames(TryNo), TryFiles(TryNo), ExPfa, DaNeu, DauDg, MxCod) Then
+                    LLDvTry = True
+                    Exit Function
                 End If
             End If
         End If
     End If
-    RS31.Close
-    RS32.Close
-    Set RS31 = Nothing
-    Set RS32 = Nothing
-    
-    DoEvents
-    PrBr1.Value = AktPo
-    StaPr = False
-Next AktPo
+Next TryNo
+End Function
 
-If FormCnt > 0 Then
-    Call S_ReFoSet(FormIds, FormCnt, S_ReFoId("Rechnu"))
+Private Function LLDvPrint(ByVal ReNum As Long, ByVal HeadRS As ADODB.Recordset, ByVal FormName As String, ByVal FormFile As String, ByVal ExPfa As String, ByVal DaNeu As String, ByVal DauDg As String, ByVal MxCod As String) As Boolean
+On Error GoTo PrErr
+Dim LineRS As ADODB.Recordset
+Dim RetWe As Long
+Dim AktZa As Long
+Dim Started As Boolean
+Dim FileSet As Boolean
+Dim OldName As String
+Dim SqlName As String
+Dim OutFile As String
+Dim ErrText As String
+Dim ErrCode As Long
+
+OldName = ForNa
+ForNa = FormName
+OutFile = ExPfa & DaNeu
+Select Case FormName
+Case "RechKo", "RechFa", "RechKu", "RechSk"
+    Set LineRS = LLDvCompact(ReNum)
+Case Else
+    SqlName = "qryPrSimRe2"
+    Select Case FormName
+    Case "EMRAbr": SqlName = "qryPrSimRe2a"
+    Case "RechAl", "Besche": SqlName = "qryPrSimRe2b"
+    End Select
+    Set LineRS = DBCmRe1(SqlName, "@IdStr", ReNum)
+End Select
+If LineRS Is Nothing Then GoTo PrFail
+If LineRS.EOF Then GoTo PrFail
+LineRS.MoveFirst
+HeadRS.MoveFirst
+PrBr2.Min = 0
+PrBr2.Max = LineRS.RecordCount
+AktZa = 0
+If mHwnd = 0 Then
+    mHwnd = LlJobOpen(CMBTLANG_DEFAULT)
+    If mHwnd <= 0 Then
+        mHwnd = 0
+        GoTo PrFail
+    End If
+    LLOpt
 End If
-Erase FormIds
-
-Unload FS
-DoEvents
-
-If DruOk = True Then
-    If ZuFer = True Then 'ZUGFeRD
-        S_ReExX
+If GlFri = 5 Then
+    LLDeV HeadRS, DauDg, False, MxCod, True
+Else
+    LLDeV HeadRS, DauDg, , , True
+End If
+LLDeF LineRS
+RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Path", ExPfa)
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.Quiet", 1)
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.ShowResult", 0)
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "Export.File", DaNeu)
+If RetWe <> 0 Then GoTo PrFail
+If ExFmt = "PDF" Then
+    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.FitText", 1)
+    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.Title", FormName)
+    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.FontMode", 5)
+    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.CompressStreamMethod", 1)
+    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.DontStackWorldModifications", 0)
+    RetWe = LlXSetParameter(mHwnd, LL_LLX_EXTENSIONTYPE_EXPORT, ExFmt, "PDF.Encryption.EnablePrinting", 1)
+End If
+'Keine alte oder unvollstaendige Datei als neuen Beleg uebernehmen.
+If clFil.FilVor(OutFile) Then Kill OutFile
+FileSet = True
+RetWe = LlPreviewSetTempPath(mHwnd, TmPfa)
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlPrintStart(mHwnd, LL_PROJECT_LIST, FormFile, LL_PRINT_EXPORT, 0)
+If RetWe <> 0 Then GoTo PrFail
+Started = True
+RetWe = LlPrintSetOptionString(mHwnd, LL_PRNOPTSTR_EXPORT, ExFmt)
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlPrintSetOption(mHwnd, LL_PRNOPT_COPIES, LL_COPIES_HIDE)
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlPrint(mHwnd)
+If RetWe <> 0 Then GoTo PrFail
+Do While Not LineRS.EOF
+    LLDeF LineRS
+    Do
+        RetWe = LlPrintFields(mHwnd)
+        If RetWe <> LL_WRN_REPEAT_DATA Then Exit Do
+        RetWe = LlPrint(mHwnd)
+        If RetWe <> 0 Then GoTo PrFail
         DoEvents
-        For AktPo = 1 To AnzPo
-            XReDa = "X" & Left$(DatNa(AktPo), (Len(DatNa(AktPo)) - 3)) & "xml"
-            SERech ExPfa & DatNa(AktPo), ExPfa & XReDa
-        Next AktPo
+    Loop
+    If RetWe <> 0 Then GoTo PrFail
+    AktZa = AktZa + 1
+    PrBr2.Value = AktZa
+    LineRS.MoveNext
+    DoEvents
+Loop
+Do
+    RetWe = LlPrintFieldsEnd(mHwnd)
+    DoEvents
+Loop While RetWe = LL_WRN_REPEAT_DATA
+If RetWe <> 0 Then GoTo PrFail
+RetWe = LlPrintEnd(mHwnd, 0)
+Started = False
+If RetWe <> 0 Then GoTo PrFail
+If Not clFil.FilVor(OutFile) Then GoTo PrFail
+If FileLen(OutFile) = 0 Then GoTo PrFail
+LineRS.Close
+Set LineRS = Nothing
+ForNa = OldName
+LLDvPrint = True
+Exit Function
+
+PrErr:
+ErrText = Err.Description
+ErrCode = Err.Number
+If GlLog = True Then SLogi "LLDvPrint Err: " & ErrText & " #" & ErrCode
+Resume PrFail
+
+PrFail:
+If GlLog = True Then SLogi "LLDvPrint: Exportversuch fehlgeschlagen, Status " & RetWe
+'Fehlerhaften Druckjob vor dem Standardversuch vollstaendig freigeben.
+On Error Resume Next
+If Started Then
+    RetWe = LlPrintAbort(mHwnd)
+    RetWe = LlPrintEnd(mHwnd, 0)
+End If
+If mHwnd <> 0 Then LlJobClose mHwnd
+mHwnd = 0
+If Not LineRS Is Nothing Then
+    If LineRS.State <> adStateClosed Then LineRS.Close
+End If
+Set LineRS = Nothing
+If FileSet Then
+    If clFil.FilVor(OutFile) Then Kill OutFile
+End If
+ForNa = OldName
+On Error GoTo 0
+End Function
+Private Function LLDvCompact(ByVal ReNum As Long) As ADODB.Recordset
+On Error GoTo KoErr
+Dim RS32 As ADODB.Recordset
+Dim RS33 As ADODB.Recordset
+Dim RS34 As ADODB.Recordset
+Dim RS35 As ADODB.Recordset
+Dim AkDat As Date
+Dim TaSum As Currency
+Dim AnSum As Currency
+Dim MeStr As String
+Dim Warun As String
+Dim AkZif As String
+Dim LeiZa As Long
+Dim GeZei As Long
+Dim ErrText As String
+Dim ErrCode As Long
+Set RS33 = DBCmRe1("qryPrSimRe5", "@IdStr", ReNum)
+Set RS34 = DBCmRe1("qryPrSimRe4", "@IdStr", ReNum)
+If RS33.EOF Or RS34.EOF Then GoTo KoEnd
+Set RS32 = New ADODB.Recordset
+With RS32
+    .CursorLocation = adUseClient
+    .Fields.Append "Datum", adDate
+    .Fields.Append "Behandlungsdatum", adChar, 10
+    .Fields.Append "Ziffer", adChar, 100
+    .Fields.Append "Bezeichnung", adVariant
+    .Fields.Append "Kommentar", adVariant
+    .Fields.Append "Einzelbetrag", adDouble
+    .Fields.Append "Gesamtbetrag", adDouble
+    .Fields.Append "Anzahlungsbetrag", adDouble
+    .Fields.Append "W" & Chr$(228) & "hrung", adChar, 10
+    .Fields.Append "Anzahl", adInteger
+    .Fields.Append "Multi", adDouble
+    .Fields.Append "Typ", adInteger
+    .Fields.Append "Zeit", adInteger
+    .Fields.Append "ICD", adVariant
+    .Fields.Append "Diagnose", adVariant
+    .Fields.Append "Analog", adInteger
+    .Open
+End With
+
+Do
+If RS34.Fields("Datum").Value <> vbNullString Then
+    AkDat = RS34.Fields("Datum").Value
+    Set RS35 = New ADODB.Recordset
+    RS35.CursorLocation = adUseClient
+    Set RS35 = DBCmRe2("qryPrSimRe6", "@IdStr", "@IdDat", ReNum, AkDat)
+    If RS35.RecordCount > 0 Then
+        MeStr = vbNullString
+        TaSum = 0
+        AnSum = 0
+        GeZei = 0
+        Do
+        If RS35.Fields("Ziffer").Value <> vbNullString Then
+            AkZif = RS35.Fields("Ziffer").Value
+            LeiZa = RS35.Fields("Anzahl").Value
+
+            If MeStr = vbNullString Then
+                If LeiZa = 1 Then
+                    MeStr = AkZif
+                Else
+                    MeStr = LeiZa & "x" & AkZif
+                End If
+            Else
+                If LeiZa = 1 Then
+                    MeStr = MeStr & "; " & AkZif
+                Else
+                    MeStr = MeStr & "; " & LeiZa & "x" & AkZif
+                End If
+            End If
+        End If
+        If RS35.Fields("W" & Chr$(228) & "hrung").Value <> vbNullString Then
+            Warun = RS35.Fields("W" & Chr$(228) & "hrung").Value
+        Else
+            Warun = Chr$(128)
+        End If
+        If RS35.Fields("Zeit").Value <> 0 Then
+            GeZei = GeZei + RS35.Fields("Zeit").Value
+        End If
+        If RS35.Fields("Gesamtbetrag").Value <> 0 Then
+            TaSum = TaSum + RS35.Fields("Gesamtbetrag").Value
+        End If
+        If RS35.Fields("Anzahlungsbetrag").Value <> 0 Then
+            AnSum = AnSum + RS35.Fields("Anzahlungsbetrag").Value
+        End If
+        RS35.MoveNext
+        Loop Until RS35.EOF
+        RS32.AddNew
+        RS32.Fields("Datum").Value = AkDat
+        RS32.Fields("Behandlungsdatum").Value = Format$(AkDat, "dd.mm.yyyy")
+        RS32.Fields("Bezeichnung").Value = MeStr
+        RS32.Fields("Gesamtbetrag").Value = TaSum
+        RS32.Fields("Anzahlungsbetrag").Value = AnSum
+        RS32.Fields("W" & Chr$(228) & "hrung").Value = Warun
+        RS32.Fields("Zeit").Value = GeZei
+        RS32.Fields("Typ").Value = 0
+    End If
+    RS35.Close
+    Set RS35 = Nothing
+End If
+RS34.MoveNext
+Loop Until RS34.EOF
+
+Do
+RS32.AddNew
+If RS33.Fields("Ziffer").Value <> vbNullString Then RS32.Fields("Ziffer").Value = RS33.Fields("Ziffer").Value
+If RS33.Fields("Bezeichnung").Value <> vbNullString Then RS32.Fields("Bezeichnung").Value = RS33.Fields("Bezeichnung").Value
+If RS33.Fields("ICD").Value <> vbNullString Then RS32.Fields("ICD").Value = RS33.Fields("ICD").Value
+If RS33.Fields("Diagnose").Value <> vbNullString Then RS32.Fields("Diagnose").Value = RS33.Fields("Diagnose").Value
+If RS33.Fields("Multi").Value <> vbNullString Then RS32.Fields("Multi").Value = RS33.Fields("Multi").Value
+RS32.Fields("Typ").Value = RS33.Fields("Typ").Value
+If RS33.Fields("Einzelbetrag").Value <> 0 Then
+    RS32.Fields("Einzelbetrag").Value = RS33.Fields("Einzelbetrag").Value
+    RS32.Fields("W" & Chr$(228) & "hrung").Value = RS33.Fields("W" & Chr$(228) & "hrung").Value
+End If
+If GlAnl = True Then
+    If RS33.Fields("Analog").Value <> vbNullString Then
+        RS32.Fields("Analog").Value = RS33.Fields("Analog").Value
+    Else
+        RS32.Fields("Analog").Value = 0
     End If
 Else
-    SPopu "Fehler beim Exportieren", "Beim Exportieren ist ein Fehler aufgetreten!", IC48_Forbidden
+    RS32.Fields("Analog").Value = 0
 End If
+If RS33.Fields("Kommentar").Value <> vbNullString Then RS32.Fields("Kommentar").Value = RS33.Fields("Kommentar").Value
+RS33.MoveNext
+Loop Until RS33.EOF
 
-Set clFil = Nothing
-
-DoEvents
-LlJobClose mHwnd
-
-Exit Sub
-
-DeErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "LLExDv " & Err.Number
-Resume Next
-
-End Sub
+RS32.Update
+RS32.MoveFirst
+Set LLDvCompact = RS32
+Set RS32 = Nothing
+KoEnd:
+On Error Resume Next
+If Not RS32 Is Nothing Then
+    If RS32.State <> adStateClosed Then RS32.Close
+End If
+If Not RS33 Is Nothing Then
+    If RS33.State <> adStateClosed Then RS33.Close
+End If
+If Not RS34 Is Nothing Then
+    If RS34.State <> adStateClosed Then RS34.Close
+End If
+If Not RS35 Is Nothing Then
+    If RS35.State <> adStateClosed Then RS35.Close
+End If
+Set RS32 = Nothing
+Set RS33 = Nothing
+Set RS34 = Nothing
+Set RS35 = Nothing
+On Error GoTo 0
+Exit Function
+KoErr:
+ErrText = Err.Description
+ErrCode = Err.Number
+If GlLog = True Then SLogi "LLDvCompact Err: " & ErrText & " #" & ErrCode
+Resume KoEnd
+End Function
 
 Public Sub LLExFr()
 On Error GoTo DeErr

@@ -13830,7 +13830,7 @@ If GesPo > 0 Then
                 .MitaVo = GlMiV
                 .ArztVo = GlArV
                 .MandVo = GlMaV
-                .LLExBl
+                .LLExDv
             End With
             Set clLis = Nothing
         End If

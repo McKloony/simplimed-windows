@@ -9702,7 +9702,7 @@ Case Else:
                     .MitaVo = GlMiV
                     .ArztVo = GlArV
                     .MandVo = GlMaV
-                    .LLExBl
+                    .LLExDv
                 End With
                 Set clLis = Nothing
             End If
