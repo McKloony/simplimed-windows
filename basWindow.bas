@@ -1789,7 +1789,7 @@ WinArgQu = ErgSt & String$(AnzBs * 2, "\") & """"
 
 End Function
 
-Public Function SZipp(ByVal ZipFil As String, ByVal SrcPfa As String, Optional ByVal DelSrc As Boolean = False, Optional ByVal UnZip As Boolean = False, Optional ByVal VerPa As String) As Boolean
+Public Function SZipp(ByVal ZipFil As String, ByVal SrcPfa As String, Optional ByVal DelSrc As Boolean = False, Optional ByVal UnZip As Boolean = False, Optional ByVal VerPa As String, Optional ByVal PdfVe As Boolean = False) As Boolean
 On Error GoTo ErrHdl
 
 Dim RetWe As Long
@@ -1836,9 +1836,10 @@ If GlLog = True Then
     SLogi "  ZIP Datei: " & ZipFil
     SLogi "  Quelle: " & SrcPfa
     SLogi "  Quelle loeschen: " & CStr(DelSrc)
+    SLogi "  PDF verschluesseln: " & CStr(PdfVe)
 End If
 
-' Build command line parameters: "zip-file" "source-path" [-delete] [-unzip] [-pw "password"]
+' Build command line parameters: "zip-file" "source-path" [-delete] [-unzip] [-pdf] [-pw "password"]
 ' Note: -delete must NOT be in quotes
 PaStr = WinArgQu(ZipFil) & " " & WinArgQu(SrcPfa)
 
@@ -1848,6 +1849,10 @@ End If
 
 If UnZip = True Then
     PaStr = PaStr & " -unzip"
+End If
+
+If PdfVe = True Then 'PDF-Kopie mit Kennwort statt ZIP: ZipFil = Ziel-PDF, SrcPfa = Quell-PDF (SimpliZip 0.3.0)
+    PaStr = PaStr & " -pdf"
 End If
 
 ' Copy for the log: the password itself is never logged

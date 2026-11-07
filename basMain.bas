@@ -12163,7 +12163,9 @@ Dim EmEmp As String
 Dim EmTex As String
 Dim EmPas As String
 Dim EmBet As String
+Dim DaExt As String
 Dim EmVer As Boolean
+Dim VerOk As Boolean
 
 S_AdDe GlAdr
 With GlADt
@@ -12204,6 +12206,7 @@ If EmVer = True Then
             .FilPfa FilNa
             DaNam = .DaNam
             DaNaO = .DaNaO
+            DaExt = LCase$(.DaExt)
             ZpDir = GlTmp & DaNaO
             NeuNa = ZpDir & "\" & DaNam
             ZipNa = GlTmp & DaNaO & ".zip"
@@ -12215,12 +12218,29 @@ If EmVer = True Then
                 .DaLoe = NeuNa & vbNullChar
                 .FilLoe
             End If
-            .DaCop = FilNa & ";" & NeuNa & vbNullChar
-            .FilCop 1
         End With
-        DoEvents
-        SZipp ZipNa, ZpDir, True, False, EmPas
-        FilNa = ZipNa
+        VerOk = False
+        If DaExt = "pdf" Then 'PDF selbst mit dem Kennwort schuetzen, oeffnet in jedem PDF-Programm
+            VerOk = SZipp(NeuNa, FilNa, False, False, EmPas, True)
+            If VerOk = True Then FilNa = NeuNa
+        End If
+        If VerOk = False Then 'andere Formate oder nicht verschluesselbares PDF: AES-ZIP wie bisher
+            With clFile
+                If .FilVor(NeuNa) = True Then
+                    .DaLoe = NeuNa & vbNullChar
+                    .FilLoe
+                End If
+                .DaCop = FilNa & ";" & NeuNa & vbNullChar
+                .FilCop 1
+            End With
+            DoEvents
+            VerOk = SZipp(ZipNa, ZpDir, True, False, EmPas)
+            If VerOk = True Then FilNa = ZipNa
+        End If
+        If VerOk = False Then 'nie unverschluesselt oder ohne Anlage versenden
+            SPopu "Dokument nicht versendet", "Das Dokument konnte nicht verschlüsselt werden und wurde deshalb nicht versendet.", IC48_Forbidden
+            Exit Sub
+        End If
     End If
 End If
 
@@ -12356,6 +12376,7 @@ Dim Posit As Integer
 Dim AnzDa As Integer
 Dim Lange As Integer
 Dim Frage As Integer
+Dim VerOk As Boolean
 Dim DiNam() As String
 Dim Tit1, Mld1, Mld2, Mld3 As String
 Dim RpCo6 As XtremeReportControl.ReportControl
@@ -12708,11 +12729,24 @@ Case RibTab_Krankenbla:
                                     .DaLoe = NeuNa & vbNullChar
                                     .FilLoe
                                 End If
-                                .DaCop = FilNa & ";" & NeuNa & vbNullChar
-                                .FilCop 1
                             End With
+                            S_AdDe GlAdr 'Adressendetails: Kennwort des Patienten
+                            VerOk = True
+                            If LCase$(DaExt) = "pdf" And GlADt.AdAut = True And GlADt.AdPas <> vbNullString Then 'PDF mit dem Patientenkennwort schuetzen
+                                VerOk = SZipp(NeuNa, FilNa, False, False, GlADt.AdPas, True)
+                            Else
+                                With clFil
+                                    .DaCop = FilNa & ";" & NeuNa & vbNullChar
+                                    .FilCop 1
+                                End With
+                            End If
                             DoEvents
-                            TmStr = SMCUp(NeuNa, GlAdr)
+                            If VerOk = True Then
+                                TmStr = SMCUp(NeuNa, GlAdr)
+                            Else 'nie unverschluesselt hochladen
+                                TmStr = vbNullString
+                                SPopu "Kein Downloadlink", "Das Dokument konnte nicht verschlüsselt werden, es wurde kein Downloadlink erstellt.", IC48_Forbidden
+                            End If
                             DoEvents
 
                             If TmStr <> vbNullString Then
