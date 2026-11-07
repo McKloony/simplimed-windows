@@ -25039,6 +25039,7 @@ If RS121.RecordCount > 0 Then
         End If
         RS122.Fields("GuiID").Value = GuiID
         If AuStr <> vbNullString Then RS122.Fields("IDA").Value = AuStr
+        S_ReFoNew RS122
         RS122.Update
     End If
     RS122.Close

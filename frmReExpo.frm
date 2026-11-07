@@ -1204,7 +1204,7 @@ If RpSel.Count > 0 Then
     AbrNr = RpRow.Index
 End If
 
-ForNa = GlFrm(2, 0)
+ForNa = "Rechnu"
 GlDru.ForNa = ForNa
 
 LiIdx = CmFma.ListIndex

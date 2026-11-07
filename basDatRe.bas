@@ -1,6 +1,8 @@
 Attribute VB_Name = "basDatRe"
 Option Explicit
 
+Private ReFoMap As Object
+Private ReFoVals As Object
 Private FM As Form
 Private TxDum As VB.TextBox
 Private TxReT As VB.TextBox
@@ -15107,6 +15109,7 @@ If AnzPa > 0 Then
                         RS122.Fields("Offen").Value = 0
                     End If
                 Next FL101
+                S_ReFoNew RS122
                 RS122.Update
             End If
             
@@ -15634,6 +15637,139 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_PaImT " & Err.Number
 Exit Sub
 
 End Sub
+Public Sub S_ReFoClr()
+'Cache bei Datenbankwechsel verwerfen.
+Set ReFoMap = Nothing
+Set ReFoVals = Nothing
+End Sub
+
+Public Function S_ReFoId(ByVal ForNam As String, Optional ByRef Bekannt As Boolean = False) As Long
+On Error GoTo FoErr
+
+Dim FormRS As ADODB.Recordset
+Dim FormMap As Object
+Dim ValidIds As Object
+Dim FormId As Long
+Dim FormKey As String
+Dim ErrText As String
+Dim ErrCode As Long
+
+Bekannt = False
+If ReFoMap Is Nothing Then
+    Set FormMap = CreateObject("Scripting.Dictionary")
+    FormMap.CompareMode = vbTextCompare
+    Set ValidIds = CreateObject("Scripting.Dictionary")
+    Set FormRS = New ADODB.Recordset
+    FormRS.Open "SELECT [ID1], [IdNam] FROM Tabelle_Formulare WHERE [ID1] > 0 AND [ID1] <= 32767 ORDER BY [ID1]", DB1, adOpenForwardOnly, adLockReadOnly, adCmdText
+    Do While Not FormRS.EOF
+        FormId = CLng(FormRS.Fields("ID1").Value)
+        ValidIds(FormId) = True
+        If Not IsNull(FormRS.Fields("IdNam").Value) Then
+            FormKey = Trim$(FormRS.Fields("IdNam").Value)
+            If Len(FormKey) > 0 Then
+                If Not FormMap.Exists(FormKey) Then FormMap.Add FormKey, FormId
+            End If
+        End If
+        FormRS.MoveNext
+    Loop
+    FormRS.Close
+    Set FormRS = Nothing
+    If Not FormMap.Exists("Rechnu") Then
+        Err.Raise vbObjectError + 2101, "S_ReFoId", "Standardrechnungsformular fehlt in Tabelle_Formulare."
+    End If
+    Set ReFoMap = FormMap
+    Set ReFoVals = ValidIds
+End If
+
+FormKey = Trim$(ForNam)
+Bekannt = ReFoMap.Exists(FormKey)
+If Bekannt Then
+    S_ReFoId = CLng(ReFoMap(FormKey))
+Else
+    S_ReFoId = CLng(ReFoMap("Rechnu"))
+End If
+Exit Function
+
+FoErr:
+ErrText = Err.Description
+ErrCode = Err.Number
+'Nur das Freigeben eines eventuell offenen Recordsets darf fehlschlagen.
+On Error Resume Next
+If Not FormRS Is Nothing Then
+    If FormRS.State <> adStateClosed Then FormRS.Close
+End If
+Set FormRS = Nothing
+Set FormMap = Nothing
+Set ValidIds = Nothing
+On Error GoTo 0
+If GlLog = True Then SLogi "S_ReFoId Err: " & ErrText & " #" & ErrCode
+End Function
+
+Public Sub S_ReFoNew(ByVal Recrd As ADODB.Recordset)
+On Error GoTo FoErr
+
+Dim FormId As Long
+FormId = S_ReFoId(vbNullString)
+If FormId <= 0 Then Err.Raise vbObjectError + 2102, "S_ReFoNew", "Standardrechnungsformular nicht verfuegbar."
+If Not IsNull(Recrd.Fields("IDF").Value) Then
+    If ReFoVals.Exists(CLng(Recrd.Fields("IDF").Value)) Then Exit Sub
+End If
+'Teil des vorhandenen INSERT/UPDATE, kein weiterer Datenbankaufruf.
+Recrd.Fields("IDF").Value = FormId
+Exit Sub
+
+FoErr:
+If GlLog = True Then SLogi "S_ReFoNew Err: " & Err.Description & " #" & Err.Number
+SPopu "Rechnungsformular", "Die Formularzuordnung konnte nicht gespeichert werden. Bitte die Formulareinstellungen pruefen.", IC48_Forbidden
+End Sub
+
+Public Function S_ReFoSet(ByRef ReIds() As Long, ByVal ReCount As Long, ByVal FormId As Long, Optional ByVal NurLeer As Boolean = False) As Boolean
+On Error GoTo FoErr
+
+Dim IdxNr As Long
+Dim BatchCnt As Long
+Dim IdList As String
+Dim SqlText As String
+Dim Filter As String
+
+If ReCount <= 0 Then
+    S_ReFoSet = True
+    Exit Function
+End If
+If FormId <= 0 Then Err.Raise vbObjectError + 2103, "S_ReFoSet", "Rechnungsformular nicht verfuegbar."
+If ReCount > UBound(ReIds) Then Err.Raise 9, "S_ReFoSet", "Ungueltige Rechnungsanzahl."
+
+If NurLeer Then
+    Filter = " AND ([IDF] IS NULL OR [IDF] <= 0 OR [IDF] NOT IN (SELECT [ID1] FROM Tabelle_Formulare WHERE [ID1] IS NOT NULL))"
+Else
+    Filter = " AND ([IDF] IS NULL OR [IDF] <> " & SqlNum(FormId) & ")"
+End If
+
+For IdxNr = 1 To ReCount
+    If ReIds(IdxNr) > 0 Then
+        If Len(IdList) > 0 Then IdList = IdList & ","
+        'Nur typisierte Long-IDs und der vorhandene SQL-Formatierer.
+        IdList = IdList & SqlNum(ReIds(IdxNr))
+        BatchCnt = BatchCnt + 1
+    End If
+    If BatchCnt = 200 Or IdxNr = ReCount Then
+        If BatchCnt > 0 Then
+            SqlText = "UPDATE Tabelle_AbreRe SET [IDF] = " & SqlNum(FormId) & " WHERE [ID1] IN (" & IdList & ")" & Filter
+            'Kein Parameters.Refresh und kein Recordset pro Rechnung.
+            DB1.Execute SqlText, , adCmdText Or adExecuteNoRecords
+            IdList = vbNullString
+            BatchCnt = 0
+        End If
+    End If
+Next IdxNr
+S_ReFoSet = True
+Exit Function
+
+FoErr:
+If GlLog = True Then SLogi "S_ReFoSet Err: " & Err.Description & " #" & Err.Number
+SPopu "Rechnungsformular", "Die Formularzuordnung konnte nicht gespeichert werden. Bitte den Vorgang wiederholen.", IC48_Forbidden
+End Function
+
 Public Function S_ReAn(ByVal KeiAn As Boolean, Optional ByVal ReAbs As Boolean = False, Optional ByVal NeuDa As Date) As Boolean
 On Error GoTo LiErr
 'Passt das Rechnungsdatum an und legt Rechnungsnummer an
@@ -15662,7 +15798,10 @@ Dim AkJah As Integer
 Dim ReJah As Integer
 Dim ZaZil As Integer
 Dim AktPo As Integer
-Dim ForNr As Integer
+Dim ForNr As Long
+Dim FormIds() As Long
+Dim FormCnt As Long
+Dim FormOK As Boolean
 Dim ReAbg As Boolean
 Dim TeAbg As Boolean
 Dim RpCo3 As XtremeReportControl.ReportControl
@@ -15704,6 +15843,21 @@ AkJah = Year(Date)
 
 If AnzPo > 0 Then
     ReDim GloRe(AnzPo)
+    ReDim FormIds(1 To AnzPo)
+    Set RpCol = RpCls.Find(Rec_ID1)
+    For Each RpRow In RpSel
+        If RpRow.GroupRow = False Then
+            FormCnt = FormCnt + 1
+            FormIds(FormCnt) = CLng(RpRow.Record(RpCol.ItemIndex).Value)
+        End If
+    Next RpRow
+    ForNr = S_ReFoId(GlDru.ForNa, FormOK)
+    'Auch Wiederholungsdruck und Ausgabe ohne Abschluss erfassen.
+    If Not S_ReFoSet(FormIds, FormCnt, ForNr, Not FormOK) Then
+        S_ReAn = True
+        GoTo FoEnd
+    End If
+    Erase FormIds
 
     If AnzPo > 1 Then
         frmStatus.Show
@@ -15734,12 +15888,6 @@ If AnzPo > 0 Then
             If AktPo <= AnzPo Then
                 GloRe(AktPo) = RowNr
             End If
-            For ForNr = 0 To 105
-                If GlFrm(2, ForNr) = GlDru.ForNa Then
-                    ForNr = ForNr + 1
-                    Exit For
-                End If
-            Next ForNr
 
             Set RpCol = RpCls.Find(Rec_ID1)
             ReNum = RpRow.Record(RpCol.ItemIndex).Value
@@ -15924,7 +16072,6 @@ If AnzPo > 0 Then
                     DoEvents
                     DBCmEx2 "qrySimReBer", "@IdDat", "@IdxNr", Date, ReNum
                     DoEvents
-                    DBCmEx2 "qrySimReFor", "@IdFor", "@IdxNr", ForNr, ReNum
                 End If
                 If Len(ReStr) < 3 Then 'Bindestrich
                     Select Case GlRFm 'Rechnungsnummernformat
@@ -15959,6 +16106,7 @@ If AnzPo > 0 Then
     Screen.MousePointer = vbNormal
 End If
 
+FoEnd:
 Set RpCls = Nothing
 Set RpSel = Nothing
 Set RpCo3 = Nothing
@@ -16151,7 +16299,7 @@ ZaZil = CmZil.ItemData(CmZil.ListIndex)
 ManNr = CmMan.ItemData(CmMan.ListIndex)
 MitNr = CmMit.ItemData(CmMit.ListIndex)
 PatNr = CmPat.ItemData(CmPat.ListIndex)
-ForNr = CmFor.ItemData(CmFor.ListIndex)
+ForNr = S_ReFoId(GlFrm(2, CmFor.ItemData(CmFor.ListIndex) - 1))
 Versa = CmVrs.ItemData(CmVrs.ListIndex)
 NeDat = CDate(TxDa1.Text)
 AnzKo = CInt(TxKop.Text)
@@ -23563,6 +23711,7 @@ If AnzRe > 0 Then
                     If ReAbs = True Then RS122.Fields("Selekt").Value = -1
                 End If
             Next FL101
+            S_ReFoNew RS122
             RS122.Update
         End If
         
@@ -24819,6 +24968,7 @@ If RS120.Supports(adAddNew) Then
             End If
         End If
     End If
+    S_ReFoNew RS120
     RS120.Update
 End If
 RS120.Close

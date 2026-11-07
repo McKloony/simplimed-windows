@@ -19221,6 +19221,7 @@ If RS121.RecordCount > 0 Then
                 End If
             End If
         End If
+        S_ReFoNew RS120
         RS120.Update
 
     End If

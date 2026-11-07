@@ -3106,6 +3106,7 @@ If DB1.State <> adStateOpen Then
     Exit Sub
 End If
 
+S_ReFoClr
 AktZa = 0
 SQL1 = "SELECT * FROM qryFormu ORDER BY [ID1]"
 

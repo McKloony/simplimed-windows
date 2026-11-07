@@ -5093,6 +5093,8 @@ Public Sub LLExBl()
 On Error GoTo DeErr
 'Exportiert einen Einzelauftrag
 
+Dim FormIds() As Long
+Dim FormCnt As Long
 Dim GesZa As Long
 Dim AktZa As Long
 Dim RetWe As Long
@@ -5152,6 +5154,7 @@ If ExFmt = "PDA" Then
 End If
 
 ReDim DatNa(AnzPo)
+If AnzPo > 0 Then ReDim FormIds(1 To AnzPo)
 
 Select Case ForNa
 Case "EMRAbr":
@@ -5354,7 +5357,13 @@ For AktPo = 1 To AnzPo
                 RetWe = LlPrintFieldsEnd(mHwnd)
                 Loop Until RetWe <> LL_WRN_REPEAT_DATA
                 RetWe = LlPrintEnd(mHwnd, 0)
-                If RetWe = 0 Then DruOk = True
+                If RetWe = 0 Then
+                    DruOk = True
+                    If SQL1 = "qryPrSimRe1" Then
+                        FormCnt = FormCnt + 1
+                        FormIds(FormCnt) = GloDr(AktPo)
+                    End If
+                End If
             End If
         End If
     End If
@@ -5367,6 +5376,11 @@ For AktPo = 1 To AnzPo
     PrBr1.Value = AktPo
     StaPr = False
 Next AktPo
+
+If FormCnt > 0 Then
+    Call S_ReFoSet(FormIds, FormCnt, S_ReFoId(ForNa))
+End If
+Erase FormIds
 
 Unload FS
 DoEvents
@@ -5429,6 +5443,8 @@ Public Sub LLExDv()
 On Error GoTo DeErr
 'Exportiert DATEV-Rechnungsbelege ohne ZIP/Email-Logik
 
+Dim FormIds() As Long
+Dim FormCnt As Long
 Dim GesZa As Long
 Dim AktZa As Long
 Dim RetWe As Long
@@ -5470,6 +5486,7 @@ If ExFmt = "PDA" Then
 End If
 
 ReDim DatNa(AnzPo)
+If AnzPo > 0 Then ReDim FormIds(1 To AnzPo)
 
 SQL1 = "qryPrSimRe1"
 SQL2 = "qryPrSimRe2"
@@ -5576,7 +5593,11 @@ For AktPo = 1 To AnzPo
                 RetWe = LlPrintFieldsEnd(mHwnd)
                 Loop Until RetWe <> LL_WRN_REPEAT_DATA
                 RetWe = LlPrintEnd(mHwnd, 0)
-                If RetWe = 0 Then DruOk = True
+                If RetWe = 0 Then
+                    DruOk = True
+                    FormCnt = FormCnt + 1
+                    FormIds(FormCnt) = GloDr(AktPo)
+                End If
             End If
         End If
     End If
@@ -5589,6 +5610,11 @@ For AktPo = 1 To AnzPo
     PrBr1.Value = AktPo
     StaPr = False
 Next AktPo
+
+If FormCnt > 0 Then
+    Call S_ReFoSet(FormIds, FormCnt, S_ReFoId("Rechnu"))
+End If
+Erase FormIds
 
 Unload FS
 DoEvents
@@ -6092,6 +6118,8 @@ Public Sub LLExKo()
 On Error GoTo DeErr
 'Exportiert mehrere kompakte Rechungen
 
+Dim FormIds() As Long
+Dim FormCnt As Long
 Dim GesZa As Long
 Dim AktZa As Long
 Dim RetWe As Long
@@ -6176,6 +6204,7 @@ If ExFmt = "PDA" Then
 End If
 
 ReDim DatNa(AnzPo)
+If AnzPo > 0 Then ReDim FormIds(1 To AnzPo)
 
 Select Case ForNa
 Case "RechKo":
@@ -6477,7 +6506,13 @@ For AktPo = 1 To AnzPo
                     RetWe = LlPrintFieldsEnd(mHwnd)
                     Loop Until RetWe <> LL_WRN_REPEAT_DATA
                     RetWe = LlPrintEnd(mHwnd, 0)
-                    If RetWe = 0 Then DruOk = True
+                    If RetWe = 0 Then
+                        DruOk = True
+                        If SQL1 = "qryPrSimRe1" Then
+                            FormCnt = FormCnt + 1
+                            FormIds(FormCnt) = GloDr(AktPo)
+                        End If
+                    End If
                 End If
             End If
         Else
@@ -6501,6 +6536,11 @@ For AktPo = 1 To AnzPo
         StaPr = False
     End If
 Next AktPo
+
+If FormCnt > 0 Then
+    Call S_ReFoSet(FormIds, FormCnt, S_ReFoId(ForNa))
+End If
+Erase FormIds
 
 Unload FS
 DoEvents

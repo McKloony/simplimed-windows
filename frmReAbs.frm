@@ -502,6 +502,7 @@ If AnzPo > 0 Then
     Set RpCol = RpCls.Find(Rec_Datum)
     AltDa = RpRow.Record(RpCol.ItemIndex).Value
 
+    GlDru.ForNa = vbNullString 'Hier wurde kein Druckformular ausgewaehlt.
     If DatAn = True Then 'Rechnungsnummer und Rechnungsdatum generieren
         RetWe = S_ReAn(False, ReAbs, NeuDa)
     Else
