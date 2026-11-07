@@ -1038,9 +1038,9 @@ On Error GoTo ErrHandler
     End If
 
     ' DATEV header fields - ErzeugtAm ohne Leerzeichen (YYYYMMDDHHMMSS)
-    DaSt4 = Format$(Now, "YYYYMMDD") & Format$(Now, "HHMMSS")
-    BerSt = Left$(Format$(GlDvB, "00000"), 5)
-    MaNam = Left$(Format$(GlDvM, "00000"), 5)
+    DaSt4 = Format$(Now, "yyyymmddhhnnss")
+    BerSt = CStr(GlDvB)
+    MaNam = CStr(GlDvM)
     If GldKt = True Then
         AnzKo = 4
     Else
@@ -1292,7 +1292,7 @@ On Error GoTo ErrHandler
     ' Extract basic fields using Column Captions
     ' Debitoren-Modus: andere Caption-Namen und Feldzuordnung
     If m_InvMod Then
-        ' Caption "ID1" = Rechnung-PK, "Mandant" = IDP (Patient-Ref)
+        ' ID1 = Rechnung-PK, ID0 = Patienten-ID; Mandant bezeichnet den Behandler.
         IdxNr = SafeLongField(RST, "ID1")
         BuTyp = 2  ' Immer Einnahme
         GeKto = 0
@@ -1313,12 +1313,9 @@ On Error GoTo ErrHandler
     If m_InvMod Then
         ' Rechnungen (manuelle Auswahl): Rec_ID0 enthaelt die Patientennummer
         PatNr = SafeLongField(RST, "ID0")
-        If PatNr = 0 Then PatNr = SafeLongField(RST, "Mandant")
     Else
         ' Buchungen (manuelle Auswahl): Buh_IDP enthaelt die Patientennummer
         PatNr = SafeLongField(RST, "IDP")
-        If PatNr = 0 Then PatNr = SafeLongField(RST, "Mandant")
-        If PatNr = 0 Then PatNr = SafeLongField(RST, "ID0")
     End If
 
     ' Determine amount (Einnahme/Ausgabe)
@@ -1476,23 +1473,8 @@ On Error GoTo ErrHandler
     End If
     BuStr = SanitizeTextField(BuStr, MAX_BOOKING_TEXT_LENGTH)
 
-    ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
-    ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
-    Dim NeedPatNr As Boolean
-    NeedPatNr = Config.IncludePatientNumber Or (Config.ReplaceAccountWithDebtor And m_InvMod)
-
-    If NeedPatNr Then
-        PidNr = PatNr
-        If PidNr <= 0 Then
-            Dim TmSt2 As String
-            On Error Resume Next
-            TmSt2 = S_AdIdx(IdxNr, "IDP")
-            On Error GoTo ErrHandler
-            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then
-                PidNr = CLng(TmSt2)
-            End If
-        End If
-    End If
+    ' Patienten-ID steht bereits im Datensatz (Buchungen: IDP -> Patienten.ID0).
+    PidNr = PatNr
 
     ' Patient number (Diverse Adressnummer / Feld 16)
     PaNum = vbNullString
@@ -1513,8 +1495,8 @@ On Error GoTo ErrHandler
     End If
 
     ' DATEV-Debitorennummer
-    ' Debitorenrechnung: Personenkonto aus der Patientennummer ([Mandant] im
-    ' Patientenstamm) in Feld 7 Konto; ohne gueltige Nummer bleibt das Geldkonto
+    ' Debitorenrechnung: Personenkonto aus der Patienten-ID [ID0] in Feld 7.
+    ' Ohne gueltige Patienten-ID bleibt das Geldkonto.
     DebNr = 0
     If m_InvMod Then
         DebNr = GetPatientDebtor(SafeLongField(RST, "ID0"), Config.FourDigitAccounts)
@@ -1525,11 +1507,7 @@ On Error GoTo ErrHandler
         End If
     ElseIf PidNr > 0 Then
         ' Buchungen: unveraendert Patientennr + Basis (nur Beleginfo)
-        If Config.FourDigitAccounts Then
-            DebNr = 10000 + PidNr
-        Else
-            DebNr = 1000000 + PidNr
-        End If
+        DebNr = DATEV_DebtorAccount(CStr(PidNr), Config.FourDigitAccounts)
     End If
 
     ' Kostenstelle
@@ -1654,18 +1632,16 @@ On Error GoTo ErrHandler
     TmpSt = TmpSt & vbNullString & ExSep   ' 115: Leistungsdatum
     TmpSt = TmpSt & vbNullString & ExSep   ' 116: Datum Zuord. Steuerperiode
 
-    ' Fields 117-125: DATEV v700 Format v13 additional fields
-    ' Textfelder mit "" quotieren, numerische Felder leer
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep   ' 117: Generalumkehr (GU) - Text
-    TmpSt = TmpSt & vbNullString & ExSep          ' 118: Steuersatz - Numeric
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep   ' 119: Land - Text
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep   ' 120: Abrechnungsreferenz - Text
-    TmpSt = TmpSt & vbNullString & ExSep          ' 121: BVV-Position - Numeric
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep   ' 122: EU-Land u. UStID (Ursprungsland) - Text
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep   ' 123: EU-USt-IdNr (Ursprung) - Text
-    TmpSt = TmpSt & vbNullString & ExSep          ' 124: Sachverhalt Warenbewegung - Numeric
-    TmpSt = TmpSt & vbNullString                  ' 125: Steuerschluessel Devisen - Numeric (last field)
-
+    ' Fields 117-125: DATEV Buchungsstapel v13 (offizielle Reihenfolge).
+    TmpSt = TmpSt & vbNullString & ExSep         '117 Faelligkeit
+    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep  '118 Generalumkehr
+    TmpSt = TmpSt & vbNullString & ExSep         '119 Steuersatz
+    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep  '120 Land
+    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep  '121 Abrechnungsreferenz
+    TmpSt = TmpSt & vbNullString & ExSep         '122 BVV-Position
+    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep  '123 EU-Mitgliedstaat u. UStID (Ursprung)
+    TmpSt = TmpSt & vbNullString & ExSep         '124 EU-Steuersatz (Ursprung)
+    TmpSt = TmpSt & vbNullString                '125 Abw. Skontokonto
     BuildCSVDataLineFromReportControl = TmpSt
 
     ' GoBD Festschreibung
@@ -2428,21 +2404,14 @@ Private Function BuildDATEVHeaderLine(ByVal DaSt1 As String, ByVal DaSt2 As Stri
         Chr$(34) & Chr$(34) & ExSep & _
         "1" & ExSep & "0" & ExSep & "0" & ExSep & _
         Chr$(34) & "EUR" & Chr$(34) & ExSep & _
-        ExSep & ExSep & ExSep & ExSep & _
+        ExSep & Chr$(34) & Chr$(34) & ExSep & ExSep & ExSep & _
         Chr$(34) & Chr$(34) & ExSep & _
-        ExSep & ExSep & ExSep & _
+        ExSep & ExSep & Chr$(34) & Chr$(34) & ExSep & _
         Chr$(34) & Chr$(34)
 End Function
 
 Private Function BuildColumnHeaderLine() As String
-    BuildColumnHeaderLine = "Umsatz;Soll/Haben;WKZ_Umsatz;Kurs;Basisumsatz;WKZ_Basisumsatz;Konto;Gegenkonto;BU-Schluessel;Belegdatum;Belegfeld1;Belegfeld2;Skonto;Buchungstext;" & _
-        "Postensperre;Adressnummer;Geschaeftspartnerbank;Sachverhalt;Zinssperre;Beleglink;Beleginfo1a;Beleginfo1b;Beleginfo2a;Beleginfo2b;Beleginfo3a;Beleginfo3b;" & _
-        "Beleginfo4a;Beleginfo4b;Beleginfo5a;Beleginfo5b;Beleginfo6a;Beleginfo6b;Beleginfo7a;Beleginfo7b;Beleginfo8a;Beleginfo8b;KOST1;KOST2;Menge;UStID;" & _
-        "Steuersatz;Versteuerungsart;L+L1;L+L2;BU49a;BU49b;BU49c;Info1a;Infor1b;Info2a;Info2b;Zusatzin3a;Info3b;Info4a;Info4b;Info5a;Info5b;Info6a;Info6b;" & _
-        "Info7a;Info7b;Info8a;Info8b;Info9a;Info9b;Info10a;Info10b;Info11a;Info11b;Info12a;Info12b;Info13a;Info13b;Info14a;Info14b;Info15a;Info15b;Info16a;" & _
-        "Info16b;Info17a;Info17b;Info18a;Info18b;Info19a;Info19b;Info20a;Info20b;Stueck;Gewicht;Zahlweise;Forderungsart;Veranlagungsjahr;Faelligkeit;Skontotyp;" & _
-        "Auftragsnummer;Buchungstyp;Ust-Schluessel;EU-Land;L+L3;Steuersatz;Erloeskonto;Herkunft;GUID;KOST-Datum;SEPA-Mandatsreferenz;Skontosperre;Gesellschaftername;" & _
-        "Beteiligtennummer;Identifikationsnummer;Zeichnernummer;Postensperre;SoBil-Sachverhalt;SoBil-Buchung;Festschreibung"
+    BuildColumnHeaderLine = BuildColumnHeaders()
 End Function
 
 '================================================================================
@@ -4261,7 +4230,7 @@ End Function
 ' Purpose:     DATEV-Debitorenkonto (Personenkonto) aus einer Patientennummer
 '              fuer Buchungsstapel Feld 7 "Konto" bilden
 '
-' Parameters:  PatNoStr    - Patientennummer als Text (Patientenstamm [Mandant])
+' Parameters:  PatNoStr    - Patienten-ID [ID0] als Text
 '              FourDigit   - True = Sachkontenlaenge 4, False = 6 (wie GldKt)
 '
 ' DATEV:       Personenkontenlaenge = Sachkontennummernlaenge + 1 (Header Feld 14)
@@ -4642,83 +4611,66 @@ Private Function BuildEXTFHeader(ByRef Config As DATEV_ExportConfig) As String
     Header = Header & "0" & DATEV_SEPARATOR                                 ' 21: Festschreibung (0=keine)
     Header = Header & Q & DATEV_CURRENCY & Q & DATEV_SEPARATOR              ' 22: WKZ
     Header = Header & DATEV_SEPARATOR                                       ' 23: reserviert
-    Header = Header & DATEV_SEPARATOR                                       ' 24: Derivatskennzeichen
+    Header = Header & Q & Q & DATEV_SEPARATOR                               ' 24: Derivatskennzeichen
     Header = Header & DATEV_SEPARATOR                                       ' 25: reserviert
     Header = Header & DATEV_SEPARATOR                                       ' 26: reserviert
     Header = Header & Q & Q & DATEV_SEPARATOR                               ' 27: SKR
     Header = Header & DATEV_SEPARATOR                                       ' 28: Branchenloesung-Id
     Header = Header & DATEV_SEPARATOR                                       ' 29: reserviert
-    Header = Header & DATEV_SEPARATOR                                       ' 30: reserviert
+    Header = Header & Q & Q & DATEV_SEPARATOR                               ' 30: reserviert
     Header = Header & Q & Q                                                 ' 31: Anwendungsinformation
 
     BuildEXTFHeader = Header
 End Function
 
 Private Function BuildColumnHeaders() As String
-    ' DATEV column headers - 125 fields for Buchungsstapel format v13
-    ' Must match exactly the DATEV specification
-    ' Split into multiple assignments to avoid VB6 line continuation limit (max ~25)
+    ' DATEV Buchungsstapel v13: 125 Spalten (offizielle Musterdatei).
+    Dim KopfZ As String
 
-    Dim h As String
+    KopfZ = "Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;"
+    KopfZ = KopfZ & "Kurs;Basis-Umsatz;WKZ Basis-Umsatz;"
+    KopfZ = KopfZ & "Konto;Gegenkonto (ohne BU-Schl" & Chr$(252) & "ssel);BU-Schl" & Chr$(252) & "ssel;"
+    KopfZ = KopfZ & "Belegdatum;Belegfeld 1;Belegfeld 2;"
+    KopfZ = KopfZ & "Skonto;Buchungstext;Postensperre;"
+    KopfZ = KopfZ & "Diverse Adressnummer;Gesch" & Chr$(228) & "ftspartnerbank;Sachverhalt;"
+    KopfZ = KopfZ & "Zinssperre;Beleglink;Beleginfo - Art 1;"
+    KopfZ = KopfZ & "Beleginfo - Inhalt 1;Beleginfo - Art 2;Beleginfo - Inhalt 2;"
+    KopfZ = KopfZ & "Beleginfo - Art 3;Beleginfo - Inhalt 3;Beleginfo - Art 4;"
+    KopfZ = KopfZ & "Beleginfo - Inhalt 4;Beleginfo - Art 5;Beleginfo - Inhalt 5;"
+    KopfZ = KopfZ & "Beleginfo - Art 6;Beleginfo - Inhalt 6;Beleginfo - Art 7;"
+    KopfZ = KopfZ & "Beleginfo - Inhalt 7;Beleginfo - Art 8;Beleginfo - Inhalt 8;"
+    KopfZ = KopfZ & "KOST1 - Kostenstelle;KOST2 - Kostenstelle;Kost-Menge;"
+    KopfZ = KopfZ & "EU-Land u. UStID (Bestimmung);EU-Steuersatz (Bestimmung);Abw. Versteuerungsart;"
+    KopfZ = KopfZ & "Sachverhalt L+L;Funktionserg" & Chr$(228) & "nzung L+L;BU 49 Hauptfunktionstyp;"
+    KopfZ = KopfZ & "BU 49 Hauptfunktionsnummer;BU 49 Funktionserg" & Chr$(228) & "nzung;Zusatzinformation - Art 1;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 1;Zusatzinformation - Art 2;Zusatzinformation- Inhalt 2;"
+    KopfZ = KopfZ & "Zusatzinformation - Art 3;Zusatzinformation- Inhalt 3;Zusatzinformation - Art 4;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 4;Zusatzinformation - Art 5;Zusatzinformation- Inhalt 5;"
+    KopfZ = KopfZ & "Zusatzinformation - Art 6;Zusatzinformation- Inhalt 6;Zusatzinformation - Art 7;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 7;Zusatzinformation - Art 8;Zusatzinformation- Inhalt 8;"
+    KopfZ = KopfZ & "Zusatzinformation - Art 9;Zusatzinformation- Inhalt 9;Zusatzinformation - Art 10;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 10;Zusatzinformation - Art 11;Zusatzinformation- Inhalt 11;"
+    KopfZ = KopfZ & "Zusatzinformation - Art 12;Zusatzinformation- Inhalt 12;Zusatzinformation - Art 13;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 13;Zusatzinformation - Art 14;Zusatzinformation- Inhalt 14;"
+    KopfZ = KopfZ & "Zusatzinformation - Art 15;Zusatzinformation- Inhalt 15;Zusatzinformation - Art 16;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 16;Zusatzinformation - Art 17;Zusatzinformation- Inhalt 17;"
+    KopfZ = KopfZ & "Zusatzinformation - Art 18;Zusatzinformation- Inhalt 18;Zusatzinformation - Art 19;"
+    KopfZ = KopfZ & "Zusatzinformation- Inhalt 19;Zusatzinformation - Art 20;Zusatzinformation- Inhalt 20;"
+    KopfZ = KopfZ & "St" & Chr$(252) & "ck;Gewicht;Zahlweise;"
+    KopfZ = KopfZ & "Forderungsart;Veranlagungsjahr;Zugeordnete F" & Chr$(228) & "lligkeit;"
+    KopfZ = KopfZ & "Skontotyp;Auftragsnummer;Buchungstyp;"
+    KopfZ = KopfZ & "USt-Schl" & Chr$(252) & "ssel (Anzahlungen);EU-Land (Anzahlungen);Sachverhalt L+L (Anzahlungen);"
+    KopfZ = KopfZ & "EU-Steuersatz (Anzahlungen);Erl" & Chr$(246) & "skonto (Anzahlungen);Herkunft-Kz;"
+    KopfZ = KopfZ & "Buchungs GUID;KOST-Datum;SEPA-Mandatsreferenz;"
+    KopfZ = KopfZ & "Skontosperre;Gesellschaftername;Beteiligtennummer;"
+    KopfZ = KopfZ & "Identifikationsnummer;Zeichnernummer;Postensperre bis;"
+    KopfZ = KopfZ & "Bezeichnung SoBil-Sachverhalt;Kennzeichen SoBil-Buchung;Festschreibung;"
+    KopfZ = KopfZ & "Leistungsdatum;Datum Zuord. Steuerperiode;F" & Chr$(228) & "lligkeit;"
+    KopfZ = KopfZ & "Generalumkehr (GU);Steuersatz;Land;"
+    KopfZ = KopfZ & "Abrechnungsreferenz;BVV-Position;EU-Land u. UStID (Ursprung);"
+    KopfZ = KopfZ & "EU-Steuersatz (Ursprung);Abw. Skontokonto"
 
-    ' Fields 1-20
-    h = "Umsatz (ohne Soll/Haben-Kz);Soll/Haben-Kennzeichen;WKZ Umsatz;"
-    h = h & "Kurs;Basis-Umsatz;WKZ Basis-Umsatz;Konto;Gegenkonto (ohne BU-Schluessel);"
-    h = h & "BU-Schluessel;Belegdatum;Belegfeld 1;Belegfeld 2;Skonto;Buchungstext;"
-    h = h & "Postensperre;Diverse Adressnummer;Geschaeftspartnerbank;Sachverhalt;"
-    h = h & "Zinssperre;Beleglink;"
-
-    ' Fields 21-40 (Beleginfo + KOST)
-    h = h & "Beleginfo - Art 1;Beleginfo - Inhalt 1;"
-    h = h & "Beleginfo - Art 2;Beleginfo - Inhalt 2;Beleginfo - Art 3;Beleginfo - Inhalt 3;"
-    h = h & "Beleginfo - Art 4;Beleginfo - Inhalt 4;Beleginfo - Art 5;Beleginfo - Inhalt 5;"
-    h = h & "Beleginfo - Art 6;Beleginfo - Inhalt 6;Beleginfo - Art 7;Beleginfo - Inhalt 7;"
-    h = h & "Beleginfo - Art 8;Beleginfo - Inhalt 8;KOST1 - Kostenstelle;"
-    h = h & "KOST2 - Kostenstelle;Kost-Menge;EU-Land u. UStID;"
-
-    ' Fields 41-50
-    h = h & "EU-Steuersatz;Abw. Versteuerungsart;Sachverhalt L+L;Funktionsergaenzung L+L;"
-    h = h & "BU 49 Hauptfunktionstyp;BU 49 Hauptfunktionsnummer;BU 49 Funktionsergaenzung;"
-    h = h & "Zusatzinformation - Art 1;Zusatzinformation- Inhalt 1;Zusatzinformation - Art 2;"
-
-    ' Fields 51-70 (Zusatzinformation 2-11)
-    h = h & "Zusatzinformation- Inhalt 2;Zusatzinformation - Art 3;Zusatzinformation- Inhalt 3;"
-    h = h & "Zusatzinformation - Art 4;Zusatzinformation- Inhalt 4;Zusatzinformation - Art 5;"
-    h = h & "Zusatzinformation- Inhalt 5;Zusatzinformation - Art 6;Zusatzinformation- Inhalt 6;"
-    h = h & "Zusatzinformation - Art 7;Zusatzinformation- Inhalt 7;Zusatzinformation - Art 8;"
-    h = h & "Zusatzinformation- Inhalt 8;Zusatzinformation - Art 9;Zusatzinformation- Inhalt 9;"
-    h = h & "Zusatzinformation - Art 10;Zusatzinformation- Inhalt 10;Zusatzinformation - Art 11;"
-    h = h & "Zusatzinformation- Inhalt 11;"
-
-    ' Fields 71-88 (Zusatzinformation 12-20 + misc)
-    h = h & "Zusatzinformation - Art 12;Zusatzinformation- Inhalt 12;"
-    h = h & "Zusatzinformation - Art 13;Zusatzinformation- Inhalt 13;"
-    h = h & "Zusatzinformation - Art 14;Zusatzinformation- Inhalt 14;"
-    h = h & "Zusatzinformation - Art 15;Zusatzinformation- Inhalt 15;"
-    h = h & "Zusatzinformation - Art 16;Zusatzinformation- Inhalt 16;"
-    h = h & "Zusatzinformation - Art 17;Zusatzinformation- Inhalt 17;"
-    h = h & "Zusatzinformation - Art 18;Zusatzinformation- Inhalt 18;"
-    h = h & "Zusatzinformation - Art 19;Zusatzinformation- Inhalt 19;"
-    h = h & "Zusatzinformation - Art 20;Zusatzinformation- Inhalt 20;"
-
-    ' Fields 89-100
-    h = h & "Stueck;Gewicht;Zahlweise;Forderungsart;Veranlagungsjahr;Zugeordnete Faelligkeit;"
-    h = h & "Skontotyp;Auftragsnummer;Buchungstyp;USt-Schluessel (Anzahlungen);"
-    h = h & "EU-Land (Anzahlungen);Sachverhalt L+L (Anzahlungen);"
-
-    ' Fields 101-116
-    h = h & "EU-Steuersatz (Anzahlungen);Erloeskonto (Anzahlungen);"
-    h = h & "Herkunft-Kz;Buchungs GUID;KOST-Datum;SEPA-Mandatsreferenz;Skontosperre;"
-    h = h & "Gesellschaftername;Beteiligtennummer;Identifikationsnummer;Zeichnernummer;"
-    h = h & "Postensperre bis;Bezeichnung SoBil-Sachverhalt;Kennzeichen SoBil-Buchung;"
-    h = h & "Festschreibung;Leistungsdatum;Datum Zuord. Steuerperiode;"
-
-    ' Fields 117-125 (DATEV v700 Format v13)
-    h = h & "Generalumkehr (Storno);Steuersatz;Land;"
-    h = h & "Abrechnungsreferenz;BVV-Position;EU-Land u. UStID (Ursprungsland);"
-    h = h & "EU-USt-IdNr (Ursprung);Sachverhalt Warenbewegung;Steuerschloessel Devisen"
-
-    BuildColumnHeaders = h
+    BuildColumnHeaders = KopfZ
 End Function
 
 '--------------------------------------------------------------------------------
@@ -4814,10 +4766,10 @@ On Error GoTo ErrHandler
     BLock = SafeBool(RST.Fields("Lock").Value)
     If m_InvMod Then
         ' qrySimReSu: Patientennummer liegt in ID0
-        PatNr = SafeLong(GetFieldValue(RST, "ID0", "IDP"))
+        PatNr = SafeLongField(RST, "ID0")
     Else
         ' qrySimBuSu: Patientennummer liegt in IDP
-        PatNr = SafeLong(GetFieldValue(RST, "IDP", "ID0"))
+        PatNr = SafeLongField(RST, "IDP")
     End If
 
     ' ========================================================================
@@ -4959,22 +4911,8 @@ On Error GoTo ErrHandler
 
     Komme = SanitizeTextField(SafeString(RST.Fields("Kommentar").Value), 60)
 
-    ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
-    ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
-    Dim NeedPatNr As Boolean
-    NeedPatNr = Config.IncludePatientNumber Or (Config.ReplaceAccountWithDebtor And m_InvMod)
-
-    If NeedPatNr Then
-        PidNr = PatNr
-        If PidNr <= 0 Then
-            On Error Resume Next
-            TmSt2 = S_AdIdx(IdxNr, "IDP")
-            On Error GoTo ErrHandler
-            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then
-                PidNr = CLng(TmSt2)
-            End If
-        End If
-    End If
+    ' Patienten-ID steht bereits im Datensatz (Buchungen: IDP -> Patienten.ID0).
+    PidNr = PatNr
 
     ' Get patient number if configured (Diverse Adressnummer / Feld 16)
     PaNum = vbNullString
@@ -4989,8 +4927,8 @@ On Error GoTo ErrHandler
     End If
 
     ' DATEV-Debitorennummer
-    ' Debitorenrechnung: Personenkonto aus der Patientennummer ([Mandant] im
-    ' Patientenstamm) in Feld 7 Konto; ohne gueltige Nummer bleibt das Geldkonto
+    ' Debitorenrechnung: Personenkonto aus der Patienten-ID [ID0] in Feld 7.
+    ' Ohne gueltige Patienten-ID bleibt das Geldkonto.
     DebNr = 0
     If m_InvMod Then
         DebNr = GetPatientDebtor(PatNr, Config.FourDigitAccounts)
@@ -5001,11 +4939,7 @@ On Error GoTo ErrHandler
         End If
     ElseIf PidNr > 0 Then
         ' Buchungen: unveraendert Patientennr + Basis (nur Beleginfo)
-        If Config.FourDigitAccounts Then
-            DebNr = 10000 + PidNr
-        Else
-            DebNr = 1000000 + PidNr
-        End If
+        DebNr = DATEV_DebtorAccount(CStr(PidNr), Config.FourDigitAccounts)
     End If
 
     ' Get cost center
@@ -5220,19 +5154,16 @@ On Error GoTo ErrHandler
     Fields(114) = vbNullString
     Fields(115) = vbNullString
 
-    ' Fields 117-125: DATEV v700 Format v13 additional fields (all empty)
-    ' Textfelder mit "" quotieren, numerische Felder leer lassen
-    ' HINWEIS: DATEV Prueftool gibt Warnungen fuer leere Textfelder - das ist normal
-    Fields(116) = m_EmptyQuoted ' 117: Generalumkehr (Storno) - Text
-    Fields(117) = vbNullString  ' 118: Steuersatz - Numeric
-    Fields(118) = m_EmptyQuoted ' 119: Land - Text
-    Fields(119) = m_EmptyQuoted ' 120: Abrechnungsreferenz - Text
-    Fields(120) = vbNullString  ' 121: BVV-Position - Numeric
-    Fields(121) = m_EmptyQuoted ' 122: EU-Land u. UStID (Ursprungsland) - Text
-    Fields(122) = m_EmptyQuoted ' 123: EU-USt-IdNr (Ursprung) - Text
-    Fields(123) = vbNullString  ' 124: Sachverhalt Warenbewegung - Numeric
-    Fields(124) = vbNullString  ' 125: Steuerschloessel Devisen - Numeric
-
+    ' Fields 117-125: DATEV Buchungsstapel v13 (offizielle Reihenfolge).
+    Fields(116) = vbNullString  '117 Faelligkeit
+    Fields(117) = m_EmptyQuoted '118 Generalumkehr
+    Fields(118) = vbNullString  '119 Steuersatz
+    Fields(119) = m_EmptyQuoted '120 Land
+    Fields(120) = m_EmptyQuoted '121 Abrechnungsreferenz
+    Fields(121) = vbNullString  '122 BVV-Position
+    Fields(122) = m_EmptyQuoted '123 EU-Mitgliedstaat u. UStID (Ursprung)
+    Fields(123) = vbNullString  '124 EU-Steuersatz (Ursprung)
+    Fields(124) = vbNullString  '125 Abw. Skontokonto
     ' ========================================================================
     ' Step 8: Join all fields with separator (single operation)
     ' ========================================================================
@@ -5736,10 +5667,10 @@ On Error GoTo ErrHandler
     BLock = SafeBool(RST.Fields("Lock").Value)
     If m_InvMod Then
         ' qrySimReSu: Patientennummer liegt in ID0
-        PatNr = SafeLong(GetFieldValue(RST, "ID0", "IDP"))
+        PatNr = SafeLongField(RST, "ID0")
     Else
         ' qrySimBuSu: Patientennummer liegt in IDP
-        PatNr = SafeLong(GetFieldValue(RST, "IDP", "ID0"))
+        PatNr = SafeLongField(RST, "IDP")
     End If
 
     ' Get document filename if present
@@ -5851,20 +5782,8 @@ On Error GoTo ErrHandler
         Komme = Format$(CLng(Komme), "00000000")
     End If
 
-    ' Patientennr aufloesen, sobald sie fuer PaNum ODER DebNr (GlDeE) benoetigt wird.
-    ' Entkoppelt GlDeE von GlDeN: Konto-Replacement muss auch wirken, wenn GlDeN=False.
-    Dim NeedPatNr As Boolean
-    NeedPatNr = Config.IncludePatientNumber Or (Config.ReplaceAccountWithDebtor And m_InvMod)
-
-    If NeedPatNr Then
-        PidNr = PatNr
-        If PidNr <= 0 Then
-            TmSt2 = S_AdIdx(IdxNr, "IDP")
-            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then
-                PidNr = CLng(TmSt2)
-            End If
-        End If
-    End If
+    ' Patienten-ID steht bereits im Datensatz (Buchungen: IDP -> Patienten.ID0).
+    PidNr = PatNr
 
     ' Get patient number if configured (Diverse Adressnummer / Feld 16)
     PaNum = vbNullString
@@ -5881,11 +5800,7 @@ On Error GoTo ErrHandler
     ' DATEV-konforme Debitorennummer (Patientennr + Basis)
     DebNr = 0
     If PidNr > 0 Then
-        If Config.FourDigitAccounts Then
-            DebNr = 10000 + PidNr
-        Else
-            DebNr = 1000000 + PidNr
-        End If
+        DebNr = DATEV_DebtorAccount(CStr(PidNr), Config.FourDigitAccounts)
     End If
 
     ' GlDeE: Replace account (Konto) with debtor number (invoices only)
@@ -6686,28 +6601,21 @@ End Function
 '--------------------------------------------------------------------------------
 Private Function CalculateDebtorNumber(ByVal PatientID As Long, _
                                        ByRef Config As DATEV_ExportConfig) As Long
-    If PatientID <= 0 Then
-        CalculateDebtorNumber = 0
-    ElseIf Config.FourDigitAccounts Then
-        CalculateDebtorNumber = 10000 + PatientID
-    Else
-        CalculateDebtorNumber = 1000000 + PatientID
-    End If
+    CalculateDebtorNumber = DATEV_DebtorAccount(CStr(PatientID), Config.FourDigitAccounts)
 End Function
 
 '--------------------------------------------------------------------------------
 ' GetPatientDebtor - DATEV-Debitorenkonto fuer eine Debitorenrechnung
 '--------------------------------------------------------------------------------
-' Liest die Patientennummer aus dem Patientenstamm ([Mandant] ueber qryAdrIdx,
-' wie der bisherige DATEV-Export in basDatRe) und bildet daraus per
-' DATEV_DebtorAccount das Personenkonto. PatId = ID0 der Rechnung.
+' Bildet das Personenkonto direkt aus der Patienten-ID [ID0] der Rechnung.
+' DATEV_DebtorAccount prueft den Wertebereich und addiert die Kontenbasis.
 ' Returns 0, wenn kein gueltiges Debitorenkonto gebildet werden kann.
 '--------------------------------------------------------------------------------
 Private Function GetPatientDebtor(ByVal PatId As Long, _
                                   ByVal FourDigit As Boolean) As Long
     GetPatientDebtor = 0
     If PatId <= 0 Then Exit Function
-    GetPatientDebtor = DATEV_DebtorAccount(S_AdIdx(PatId, "Mandant"), FourDigit)
+    GetPatientDebtor = DATEV_DebtorAccount(CStr(PatId), FourDigit)
 End Function
 
 '--------------------------------------------------------------------------------
@@ -7786,14 +7694,7 @@ On Error GoTo ErrHandler
     If UseAccountsReceivable Then
         IdxNr = SafeLongField(RST, "ID1")
         PatNr = SafeLongField(RST, "ID0")
-        If PatNr = 0 Then PatNr = SafeLongField(RST, "Mandant")
         PidNr = PatNr
-        If PidNr <= 0 Then
-            On Error Resume Next
-            TmSt2 = S_AdIdx(IdxNr, "IDP")
-            On Error GoTo ErrHandler
-            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then PidNr = CLng(TmSt2)
-        End If
         DebNr = CalculateDebtorNumber(PidNr, Config)
         LedgerElementName = XML_EXT_ACCOUNTS_RECEIVABLE
     Else
@@ -8009,14 +7910,8 @@ On Error GoTo ErrHandler
     UseAccountsReceivable = (m_InvMod And IsRevenue)
     If UseAccountsReceivable Then
         IdxNr = SafeLong(RST.Fields("ID1").Value)
-        PatNr = SafeLong(GetFieldValue(RST, "ID0", "IDP"))
+        PatNr = SafeLongField(RST, "ID0")
         PidNr = PatNr
-        If PidNr <= 0 Then
-            On Error Resume Next
-            TmSt2 = S_AdIdx(IdxNr, "IDP")
-            On Error GoTo ErrHandler
-            If Len(TmSt2) > 0 And IsNumeric(TmSt2) Then PidNr = CLng(TmSt2)
-        End If
         DebNr = CalculateDebtorNumber(PidNr, Config)
         LedgerElementName = XML_EXT_ACCOUNTS_RECEIVABLE
     Else

@@ -1780,6 +1780,15 @@ Public Sub S_AdEx(ByVal DaExt As String)
 On Error GoTo LiErr
 'Exporiert die Adressen
 
+Dim DtvRun As Boolean
+Dim DtvSaved As Boolean
+Dim GutAnz As Long
+Dim FehlAnz As Long
+Dim WarnAnz As Long
+Dim Bericht As String
+Dim OwnRS As Boolean
+Dim ErrNum As Long
+Dim ErrMsg As String
 Dim AnzSe As Long 'Selektierte Adressen
 Dim AnzAd As Long 'Anzahl Rechnungen
 Dim IdxNr As Long 'Adressennummer
@@ -1794,17 +1803,8 @@ Dim FiNam As String 'Filename
 Dim AnwNa As String 'Anmwendername
 Dim DaPfa As String
 Dim ZipNa As String
-Dim ManNa As String
 Dim TmpSt As String
 Dim DaKop As String
-Dim ExSep As String
-Dim DaSt1 As String
-Dim DaSt2 As String
-Dim DaSt3 As String
-Dim DaSt4 As String
-Dim CSVep As String
-Dim BerSt As String
-Dim ManSt As String
 Dim MaNam As String
 Dim MaVor As String
 Dim MaEma As String
@@ -1817,7 +1817,6 @@ Dim Frage As Integer
 Dim AkBlo As Integer
 Dim BloZa As Integer
 Dim ArSpa As Integer
-Dim AnzKo As Integer
 Dim AdrAy As Variant
 Dim TmAry() As String
 Dim Mld1, Tit1 As String
@@ -1838,29 +1837,12 @@ Set RpCo2 = FM.repCont2
 Set RpSel = RpCo2.SelectedRows
 Set RpCls = RpCo2.Columns
 
-If GldKt = True Then 'DATEV Sachkonten vierstellig
-    AnzKo = 4
-Else
-    AnzKo = 6
-End If
-
-ExSep = Chr$(59) 'DATEV Seperator
-CSVep = Chr$(34) & Chr$(59) & Chr$(34)
-BerSt = Left$(Format$(GlDvB, "00000"), 5)
-ManSt = Left$(Format$(GlDvM, "00000"), 5)
 OutAd = CBool(IniGetVal("System", "OutAdr"))
 OutGb = CBool(IniGetVal("System", "OutGeb"))
 Tit1 = "Adressenexport"
 AnzSe = RpSel.Count
 
-DaKop = "Adressnummer;Konto;Anrede;Firma;Unternehmensgegenstand;Kurzbezeichnung;Name;Vorname;Name2;Adressatentyp;Titel;Adelstitel;" & _
-"Namensvorsatz;Anrede2;Adressart;Straße;Postfach;Postleitzahl;Ort;Land;Versandzusatz;Adresszusatz;Zustellbezeichnung1;Zustellbezeichnung2;" & _
-"Korrespondenzadresse;Gültig_von;Gültig_bis;R_Anrede;R_Adressart;R_Straße;R_Postfach;R_Postleitzahl;R_Ort;R_Land;R_Versandzusatz;" & _
-"R_Adresszusatz;R_Zustellbezeichnung1;R_Zustellbezeichnung2;R_Gültig_von;R_Gültig_bis;Telefon1;Bemerkung_Telefon1;Telefon2;Bemerkung_Telefon2;" & _
-"Email;Bemerkung_Email;Internet;Bemerkung_Internet;Telefax;Bemerkung_Telefax;Telefon4;Bemerkung_Telefon4;Bankleitzahl1;Bankbezeichnung1;" & _
-"Bankkontonummer1;Länderkennzeichen1;IBANNr1;Leerfeld1;SWIFTCode1;Kontoinhaber1;Kennzeichnung_Bankverbindung1;Bank1_Gültig_von;" & _
-"Bank1_Gültig_bis;Bankleitzahl2;Bankbezeichnung2;Bankkontonummer2;Länderkennzeichen2;IBANNr2;Leerfeld2;SWIFTCode2;Kontoinhaber2;" & _
-"Kennzeichnung_Bankverbindung2;Bank2_Gültig_von;Bank2_Gültig_bis"
+If DaExt = "dtv" Then DaKop = S_DaExH() & vbCrLf & S_DaKop() & vbCrLf
 
 Set clFil = New clsFile
 clFil.hwnd = FM.hwnd
@@ -2027,7 +2009,7 @@ If AnzSe > 0 Then
     
         AnwNa = Replace(AnwNa, Chr$(32), "_", 1)
         If DaExt = "dtv" Then
-            DaNam = AnwNa & ".csv"
+            DaNam = "EXTF_" & AnwNa & ".csv"
         Else
             DaNam = AnwNa & "." & DaExt
         End If
@@ -2067,13 +2049,14 @@ If AnzSe > 0 Then
 
         With clFil
             .FilPfa FiNam
-            If .FilVor(FiNam) = True Then
+            If DaExt <> "dtv" And .FilVor(FiNam) = True Then
                 .DaLoe = FiNam & vbNullChar
                 .FilLoe
             End If
         End With
            
         If Not IsNull(FiNam) And Not FiNam = vbNullString Then
+            DtvRun = (DaExt = "dtv")
             Screen.MousePointer = vbHourglass
             DBCmEx0 "qryAdrMark" 'remarkieren aller noch markierter Adressen
             DoEvents
@@ -2099,15 +2082,22 @@ If AnzSe > 0 Then
             Next RpRow
     
             Set RS122 = New ADODB.Recordset
+            OwnRS = True
             With RS122
                 .CursorLocation = adUseClient
-                .Source = "qrySimAdDru" 'Markierte Adressen
                 .ActiveConnection = DB1
                 .CursorType = adOpenForwardOnly
                 .LockType = adLockReadOnly
-                .Open Options:=adCmdTableDirect
+                If DaExt = "dtv" Then
+                    .Source = "SELECT * FROM qrySimAdDru ORDER BY [ID0]"
+                    .Open Options:=adCmdText
+                Else
+                    .Source = "qrySimAdDru"
+                    .Open Options:=adCmdTableDirect
+                End If
             End With
             AnzAd = RS122.RecordCount
+            If DaExt = "dtv" And AnzAd = 0 Then Err.Raise vbObjectError + 2105, "S_AdEx", "Keine Adressen fuer den DATEV-Export vorhanden."
 
             If AnzAd > 0 Then
                 If DaExt = "wgm" Then 'WEGAMED
@@ -2158,53 +2148,12 @@ If AnzSe > 0 Then
                     RS126.Close
                     Set RS126 = Nothing
 
-                ElseIf DaExt = "dtv" Then 'DATEV 4.0 Dateien
-
-                    If ManNr > 0 Then
-                        For AktZa = 1 To UBound(GlMan)
-                            If ManNr = GlMan(AktZa, 2) Then
-                                ManNa = GlMan(AktZa, 3)
-                                Exit For
-                            End If
-                        Next AktZa
-                    Else
-                        ManNa = GlMan(GlSMa, 3)
-                    End If
-                    If Len(ManNa) > 2 Then
-                        ManNa = SUmw(ManNa, False, True, True, True)
-                        If Len(ManNa) > 25 Then
-                            ManNa = Left$(ManNa, 25)
-                        End If
-                    Else
-                        ManNa = "Admin"
-                    End If
-                    
-                    If InStr(1, ManNa, Chr$(32), 1) > 0 Then
-                        ManNa = Replace(ManNa, Chr$(32), vbNullString, 1)
-                    End If
-                    
-                    If InStr(1, ManNa, Chr$(58), 1) > 0 Then
-                        ManNa = Replace(ManNa, Chr$(58), vbNullString, 1)
-                    End If
-
-                    DaSt1 = Format$(Date, "YYYYMMDD")
-                    DaSt2 = Format$(Date, "YYYYMMDD")
-                    DaSt3 = Format$(Date, "YYYYMMDD")
-                    DaSt4 = Format$(Now, "YYYYMMDD_HHMMSS")
-
-                    TmpSt = Chr$(34) & "EXTF" & Chr$(34) & ExSep & "300" & ExSep & "21" & ExSep & Chr$(34) & "Buchungsstapel" & Chr$(34) & ExSep & "4" & ExSep & DaSt4 & "000" & ExSep & ExSep & Chr$(34) & "SV" & CSVep & ManNa & CSVep & Chr$(34) & ExSep & BerSt & ExSep & ManSt & ExSep & DaSt3 & ExSep & AnzKo & ExSep & DaSt1 & ExSep & DaSt2 & ExSep & Chr$(34) & "Buchungen" & CSVep & Chr$(34) & ExSep & "1" & ExSep & "0" & ExSep & Chr$(34) & "0" & Chr$(34) & ExSep & Chr$(34) & "EUR" & Chr$(34) & ExSep & ExSep & ExSep & ExSep & vbCrLf
-                    TmpSt = TmpSt & DaKop & vbCrLf
-
-                    Do
-                    TmpSt = TmpSt + S_DaExA(RS122)
-                    RS122.MoveNext
-                    Loop Until RS122.EOF
-                    
-                    With clFil
-                        .StrDa = TmpSt
-                        RetWe = .FilWrSt
-                    End With
-
+                ElseIf DaExt = "dtv" Then 'DATEV Debitoren/Kreditoren v5
+                    TmpSt = S_DaBatch(RS122, GutAnz, FehlAnz, WarnAnz, Bericht)
+                    If GlLog And (FehlAnz > 0 Or WarnAnz > 0) Then SLogi "S_AdEx DATEV-Pruefung: " & Bericht
+                    If GutAnz = 0 Then Err.Raise vbObjectError + 2105, "S_AdEx", "Keine exportierbaren Adressen. Bitte Debitoren-IDs und Zeichensatz der ausgewaehlten Adressen pruefen."
+                    S_DaWrite FiNam, DaKop & TmpSt
+                    DtvSaved = True
                 Else 'Textdateien CSV, TXT usw.
                 
                     AdrAy = RS122.GetRows 'Zuweisen des Arrays
@@ -2339,6 +2288,7 @@ If AnzSe > 0 Then
                 
             End If
             RS122.Close
+            OwnRS = False
             Set RS122 = Nothing
             
             Screen.MousePointer = vbNormal
@@ -2346,6 +2296,13 @@ If AnzSe > 0 Then
     End If
 End If
 
+If DaExt = "dtv" Then
+    If Not DtvSaved Then GoTo AdDone
+    ' Auslassungen im bestehenden internen Exportvermerk sichtbar halten.
+    Bericht = CStr(GutAnz) & " Adressen exportiert; " & CStr(FehlAnz) & " ausgelassen; " & CStr(WarnAnz) & " mit Hinweisen; " & _
+              CStr(UBound(Split(Bericht, "Adressblock ausgelassen:"))) & " Adressbloecke ausgelassen."
+    If GlLog Then SLogi "S_AdEx DATEV: " & Bericht
+End If
 DoEvents
 GlNeK = GlKoX 'Protokolleintrag
 With GlNeK
@@ -2358,7 +2315,9 @@ With GlNeK
     .NeuEi = True
     .KeiAk = True
     .Mitar = GlMiA(GlSmI, 2)
-    If DaExt = "pst" Then
+    If DaExt = "dtv" Then
+        .TeStr = "DATEV-Adressen: " & Bericht
+    ElseIf DaExt = "pst" Then
         .TeStr = "Exportiert Outlookadressen - " & DaExt & " - (" & AnzSe & " Positionen)"
     Else
         .TeStr = "Exportiert Adressen - " & DaExt & " - (" & AnzSe & " Positionen)"
@@ -2366,6 +2325,7 @@ With GlNeK
 End With
 S_Prot
 
+AdDone:
 Set KoItm = Nothing
 Set NaSpa = Nothing
 Set MapFo = Nothing
@@ -2382,6 +2342,26 @@ Set clFil = Nothing
 Exit Sub
 
 LiErr:
+If DaExt = "dtv" Then
+    ErrNum = Err.Number
+    ErrMsg = Err.Description
+    On Error Resume Next 'Nur Aufraeumen nach abgebrochenem DATEV-Export.
+    If OwnRS Then
+        If RS122.State <> adStateClosed Then RS122.Close
+        Set RS122 = Nothing
+    End If
+    If DtvRun Then
+        DBCmEx0 "qryAdrMark"
+        Unload frmStatus
+        Set frmStatus = Nothing
+    End If
+    Screen.MousePointer = vbNormal
+    If ErrNum <> 32755 Then 'Abbruch im Speichern-Dialog
+        If GlLog = True Then SLogi "S_AdEx Err: " & ErrMsg & " #" & ErrNum
+        SPopu "DATEV-Export", "Export abgebrochen: " & ErrMsg, IC48_Warning
+    End If
+    GoTo AdDone
+End If
 If GlDbg = True Then MsgBox Err.Description, 48, "S_AdEx " & Err.Number
 Resume Next
 
@@ -4048,328 +4028,565 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_BuPr " & Err.Number
 Resume Next
 
 End Function
-Public Function S_DaExA(ByRef RST As ADODB.Recordset) As String
-On Error GoTo SuErr
-'DATEV Stammdatenexport
+Private Function S_DaKop() As String
+' DATEV Debitoren/Kreditoren v5: 254 Spalten (offizielle Musterdatei).
+Dim KopfZ As String
 
-Dim PatNr As Long
-Dim PidNr As Long
-Dim PaNum As String
-Dim ExSep As String
-Dim CSVep As String
-Dim TmpSt As String
-Dim TmStr As String
+KopfZ = "Konto;Name (Adressattyp Unternehmen);Unternehmensgegenstand;"
+KopfZ = KopfZ & "Name (Adressattyp nat" & Chr$(252) & "rl. Person);Vorname (Adressattyp nat" & Chr$(252) & "rl. Person);Name (Adressattyp keine Angabe);"
+KopfZ = KopfZ & "Adressattyp;Kurzbezeichnung;EU-Land;"
+KopfZ = KopfZ & "EU-UStID;Anrede;Titel/Akad. Grad;"
+KopfZ = KopfZ & "Adelstitel;Namensvorsatz;Adressart;"
+KopfZ = KopfZ & "Stra" & Chr$(223) & "e;Postfach;Postleitzahl;"
+KopfZ = KopfZ & "Ort;Land;Versandzusatz;"
+KopfZ = KopfZ & "Adresszusatz;Abweichende Anrede;Abw. Zustellbezeichnung 1;"
+KopfZ = KopfZ & "Abw. Zustellbezeichnung 2;Kennz. Korrespondenzadresse;Adresse G" & Chr$(252) & "ltig von;"
+KopfZ = KopfZ & "Adresse G" & Chr$(252) & "ltig bis;Telefon;Bemerkung (Telefon);"
+KopfZ = KopfZ & "Telefon GL;Bemerkung (Telefon GL);E-Mail;"
+KopfZ = KopfZ & "Bemerkung (E-Mail);Internet;Bemerkung (Internet);"
+KopfZ = KopfZ & "Fax;Bemerkung (Fax);Sonstige;"
+KopfZ = KopfZ & "Bemerkung (Sonstige);Bankleitzahl 1;Bankbezeichnung 1;"
+KopfZ = KopfZ & "Bank-Kontonummer 1;L" & Chr$(228) & "nderkennzeichen 1;IBAN-Nr. 1;"
+KopfZ = KopfZ & "Leerfeld;SWIFT-Code 1;Abw. Kontoinhaber 1;"
+KopfZ = KopfZ & "Kennz. Hauptbankverb. 1;Bankverb 1 G" & Chr$(252) & "ltig von;Bankverb 1 G" & Chr$(252) & "ltig bis;"
+KopfZ = KopfZ & "Bankleitzahl 2;Bankbezeichnung 2;Bank-Kontonummer 2;"
+KopfZ = KopfZ & "L" & Chr$(228) & "nderkennzeichen 2;IBAN-Nr. 2;Leerfeld;"
+KopfZ = KopfZ & "SWIFT-Code 2;Abw. Kontoinhaber 2;Kennz. Hauptbankverb. 2;"
+KopfZ = KopfZ & "Bankverb 2 G" & Chr$(252) & "ltig von;Bankverb 2 G" & Chr$(252) & "ltig bis;Bankleitzahl 3;"
+KopfZ = KopfZ & "Bankbezeichnung 3;Bank-Kontonummer 3;L" & Chr$(228) & "nderkennzeichen 3;"
+KopfZ = KopfZ & "IBAN-Nr. 3;Leerfeld;SWIFT-Code 3;"
+KopfZ = KopfZ & "Abw. Kontoinhaber 3;Kennz. Hauptbankverb. 3;Bankverb 3 G" & Chr$(252) & "ltig von;"
+KopfZ = KopfZ & "Bankverb 3 G" & Chr$(252) & "ltig bis;Bankleitzahl 4;Bankbezeichnung 4;"
+KopfZ = KopfZ & "Bank-Kontonummer 4;L" & Chr$(228) & "nderkennzeichen 4;IBAN-Nr. 4;"
+KopfZ = KopfZ & "Leerfeld;SWIFT-Code 4;Abw. Kontoinhaber 4;"
+KopfZ = KopfZ & "Kennz. Hauptbankverb. 4;Bankverb 4 G" & Chr$(252) & "ltig von;Bankverb 4 G" & Chr$(252) & "ltig bis;"
+KopfZ = KopfZ & "Bankleitzahl 5;Bankbezeichnung 5;Bank-Kontonummer 5;"
+KopfZ = KopfZ & "L" & Chr$(228) & "nderkennzeichen 5;IBAN-Nr. 5;Leerfeld;"
+KopfZ = KopfZ & "SWIFT-Code 5;Abw. Kontoinhaber 5;Kennz. Hauptbankverb. 5;"
+KopfZ = KopfZ & "Bankverb 5 G" & Chr$(252) & "ltig von;Bankverb 5 G" & Chr$(252) & "ltig bis;Leerfeld;"
+KopfZ = KopfZ & "Briefanrede;Gru" & Chr$(223) & "formel;Kunden-/Lief.-Nr.;"
+KopfZ = KopfZ & "Steuernummer;Sprache;Ansprechpartner;"
+KopfZ = KopfZ & "Vertreter;Sachbearbeiter;Diverse-Konto;"
+KopfZ = KopfZ & "Ausgabeziel;W" & Chr$(228) & "hrungssteuerung;Kreditlimit (Debitor);"
+KopfZ = KopfZ & "Zahlungsbedingung;F" & Chr$(228) & "lligkeit in Tagen (Debitor);Skonto in Prozent (Debitor);"
+KopfZ = KopfZ & "Kreditoren-Ziel 1 Tg.;Kreditoren-Skonto 1 %;Kreditoren-Ziel 2 Tg.;"
+KopfZ = KopfZ & "Kreditoren-Skonto 2 %;Kreditoren-Ziel 3 Brutto Tg.;Kreditoren-Ziel 4 Tg.;"
+KopfZ = KopfZ & "Kreditoren-Skonto 4 %;Kreditoren-Ziel 5 Tg.;Kreditoren-Skonto 5 %;"
+KopfZ = KopfZ & "Mahnung;Kontoauszug;Mahntext 1;"
+KopfZ = KopfZ & "Mahntext 2;Mahntext 3;Kontoauszugstext;"
+KopfZ = KopfZ & "Mahnlimit Betrag;Mahnlimit %;Zinsberechnung;"
+KopfZ = KopfZ & "Mahnzinssatz 1;Mahnzinssatz 2;Mahnzinssatz 3;"
+KopfZ = KopfZ & "Lastschrift;Leerfeld;Mandantenbank;"
+KopfZ = KopfZ & "Zahlungstr" & Chr$(228) & "ger;Indiv. Feld 1;Indiv. Feld 2;"
+KopfZ = KopfZ & "Indiv. Feld 3;Indiv. Feld 4;Indiv. Feld 5;"
+KopfZ = KopfZ & "Indiv. Feld 6;Indiv. Feld 7;Indiv. Feld 8;"
+KopfZ = KopfZ & "Indiv. Feld 9;Indiv. Feld 10;Indiv. Feld 11;"
+KopfZ = KopfZ & "Indiv. Feld 12;Indiv. Feld 13;Indiv. Feld 14;"
+KopfZ = KopfZ & "Indiv. Feld 15;Abweichende Anrede (Rechnungsadresse);Adressart (Rechnungsadresse);"
+KopfZ = KopfZ & "Stra" & Chr$(223) & "e (Rechnungsadresse);Postfach (Rechnungsadresse);Postleitzahl (Rechnungsadresse);"
+KopfZ = KopfZ & "Ort (Rechnungsadresse);Land (Rechnungsadresse);Versandzusatz (Rechnungsadresse);"
+KopfZ = KopfZ & "Adresszusatz (Rechnungsadresse);Abw. Zustellbezeichnung 1 (Rechnungsadresse);Abw. Zustellbezeichnung 2 (Rechnungsadresse);"
+KopfZ = KopfZ & "Adresse G" & Chr$(252) & "ltig von (Rechnungsadresse);Adresse G" & Chr$(252) & "ltig bis (Rechnungsadresse);Bankleitzahl 6;"
+KopfZ = KopfZ & "Bankbezeichnung 6;Bank-Kontonummer 6;L" & Chr$(228) & "nderkennzeichen 6;"
+KopfZ = KopfZ & "IBAN-Nr. 6;Leerfeld;SWIFT-Code 6;"
+KopfZ = KopfZ & "Abw. Kontoinhaber 6;Kennz. Hauptbankverb. 6;Bankverb 6 G" & Chr$(252) & "ltig von;"
+KopfZ = KopfZ & "Bankverb 6 G" & Chr$(252) & "ltig bis;Bankleitzahl 7;Bankbezeichnung 7;"
+KopfZ = KopfZ & "Bank-Kontonummer 7;L" & Chr$(228) & "nderkennzeichen 7;IBAN-Nr. 7;"
+KopfZ = KopfZ & "Leerfeld;SWIFT-Code 7;Abw. Kontoinhaber 7;"
+KopfZ = KopfZ & "Kennz. Hauptbankverb. 7;Bankverb 7 G" & Chr$(252) & "ltig von;Bankverb 7 G" & Chr$(252) & "ltig bis;"
+KopfZ = KopfZ & "Bankleitzahl 8;Bankbezeichnung 8;Bank-Kontonummer 8;"
+KopfZ = KopfZ & "L" & Chr$(228) & "nderkennzeichen 8;IBAN-Nr. 8;Leerfeld;"
+KopfZ = KopfZ & "SWIFT-Code 8;Abw. Kontoinhaber 8;Kennz. Hauptbankverb. 8;"
+KopfZ = KopfZ & "Bankverb 8 G" & Chr$(252) & "ltig von;Bankverb 8 G" & Chr$(252) & "ltig bis;Bankleitzahl 9;"
+KopfZ = KopfZ & "Bankbezeichnung 9;Bank-Kontonummer 9;L" & Chr$(228) & "nderkennzeichen 9;"
+KopfZ = KopfZ & "IBAN-Nr. 9;Leerfeld;SWIFT-Code 9;"
+KopfZ = KopfZ & "Abw. Kontoinhaber 9;Kennz. Hauptbankverb. 9;Bankverb 9 G" & Chr$(252) & "ltig von;"
+KopfZ = KopfZ & "Bankverb 9 G" & Chr$(252) & "ltig bis;Bankleitzahl 10;Bankbezeichnung 10;"
+KopfZ = KopfZ & "Bank-Kontonummer 10;L" & Chr$(228) & "nderkennzeichen 10;IBAN-Nr. 10;"
+KopfZ = KopfZ & "Leerfeld;SWIFT-Code 10;Abw. Kontoinhaber 10;"
+KopfZ = KopfZ & "Kennz. Hauptbankverb. 10;Bankverb 10 G" & Chr$(252) & "ltig von;Bankverb 10 G" & Chr$(252) & "ltig bis;"
+KopfZ = KopfZ & "Nummer Fremdsystem;Insolvent;SEPA-Mandatsreferenz 1;"
+KopfZ = KopfZ & "SEPA-Mandatsreferenz 2;SEPA-Mandatsreferenz 3;SEPA-Mandatsreferenz 4;"
+KopfZ = KopfZ & "SEPA-Mandatsreferenz 5;SEPA-Mandatsreferenz 6;SEPA-Mandatsreferenz 7;"
+KopfZ = KopfZ & "SEPA-Mandatsreferenz 8;SEPA-Mandatsreferenz 9;SEPA-Mandatsreferenz 10;"
+KopfZ = KopfZ & "Verkn" & Chr$(252) & "pftes OPOS-Konto;Mahnsperre bis;Lastschriftsperre bis;"
+KopfZ = KopfZ & "Zahlungssperre bis;Geb" & Chr$(252) & "hrenberechnung;Mahngeb" & Chr$(252) & "hr 1;"
+KopfZ = KopfZ & "Mahngeb" & Chr$(252) & "hr 2;Mahngeb" & Chr$(252) & "hr 3;Pauschalenberechnung;"
+KopfZ = KopfZ & "Verzugspauschale 1;Verzugspauschale 2;Verzugspauschale 3;"
+KopfZ = KopfZ & "Alternativer Suchname;Status;Anschrift manuell ge" & Chr$(228) & "ndert (Korrespondenzadresse);"
+KopfZ = KopfZ & "Anschrift individuell (Korrespondenzadresse);Anschrift manuell ge" & Chr$(228) & "ndert (Rechnungsadresse);Anschrift individuell (Rechnungsadresse);"
+KopfZ = KopfZ & "Fristberechnung bei Debitor;Mahnfrist 1;Mahnfrist 2;"
+KopfZ = KopfZ & "Mahnfrist 3;Letzte Frist"
 
-ExSep = Chr$(59) 'DATEV Seperator
-CSVep = Chr$(34) & Chr$(59) & Chr$(34)
-
-If RST.EOF Or RST.BOF Then Exit Function
-
-If IsNull(RST.Fields("ID0").Value) = True Then Exit Function
-
-PatNr = RST.Fields("ID0").Value
-TmStr = S_AdIdx(PatNr, "Mandant")
-DoEvents
-
-If TmStr <> vbNullString Then
-    If IsNumeric(TmStr) = True Then
-        PidNr = CLng(TmStr)
-        If GldKt = True Then 'DATEV Schnittstelle Sachkonten vierstellig
-            PaNum = Format$(PidNr, "00000")
-        Else
-            PaNum = Format$(PidNr, "0000000")
-        End If
-    Else
-        If GldKt = True Then 'DATEV Schnittstelle Sachkonten vierstellig
-            PaNum = Space$(5)
-        Else
-            PaNum = Space$(7)
-        End If
-    End If
-Else
-    If GldKt = True Then 'DATEV Schnittstelle Sachkonten vierstellig
-        PaNum = Space$(5)
-    Else
-        PaNum = Space$(7)
-    End If
-End If
-
-TmpSt = vbNullString
-TmpSt = TmpSt & Chr$(34) & PaNum & Chr$(34) & ExSep 'Adressnummer
-TmpSt = TmpSt & Chr$(34) & PaNum & Chr$(34) & ExSep 'Konto
-If RST.Fields("Anrede").Value <> vbNullString Then 'Anrede
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Anrede").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Firma2").Value <> vbNullString Then 'Firma
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Firma2").Value, 50) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Beruf").Value <> vbNullString Then 'Unternehmensgegenstand
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Beruf").Value, 50) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("IDKurz").Value <> vbNullString Then 'Kurzbezeichnung
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("IDKurz").Value, 15) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Name").Value <> vbNullString Then 'Name
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Name").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Vorname").Value <> vbNullString Then 'Vorname
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Vorname").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Name2
-If RST.Fields("Anrede").Value <> vbNullString Then
-    If LCase(RST.Fields("Anrede").Value) = "firma" Then
-        TmpSt = TmpSt & Chr$(34) & "2" & Chr$(34) & ExSep 'Adressatentyp
-    Else
-        TmpSt = TmpSt & Chr$(34) & "1" & Chr$(34) & ExSep 'Adressatentyp
-    End If
-Else
-    TmpSt = TmpSt & Chr$(34) & "0" & Chr$(34) & ExSep 'Adressatentyp
-End If
-If RST.Fields("Titel").Value <> vbNullString Then 'Titel
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Titel").Value, 25) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Adelstitel
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Namensvorsatz
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Anrede2
-If RST.Fields("Straße").Value <> vbNullString Then 'Adressart
-    TmpSt = TmpSt & Chr$(34) & "STR" & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & "GK" & Chr$(34) & ExSep
-End If
-If RST.Fields("Straße").Value <> vbNullString Then 'Straße
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Straße").Value, 36) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Postfach
-If RST.Fields("PLZ").Value <> vbNullString Then 'Postleitzahl
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("PLZ").Value, 10) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Ort").Value <> vbNullString Then 'Ort
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Ort").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Land").Value <> vbNullString Then 'Land
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Land").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & "Persönlich/Vertraulich" & Chr$(34) & ExSep 'Versandzusatz
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Adresszusatz
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Zustellbezeichnung1
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Zustellbezeichnung2
-TmpSt = TmpSt & Chr$(34) & "1" & Chr$(34) & ExSep 'Korrespondenzadresse
-If RST.Fields("Geändert").Value <> vbNullString Then 'Gültig_von
-    TmpSt = TmpSt & Chr$(34) & Format$(RST.Fields("Geändert").Value, "ddmmyyyy") & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep 'Gültig_bis
-If RST.Fields("R_Anrede").Value <> vbNullString Then 'R_Anrede
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("R_Anrede").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("R_Straße").Value <> vbNullString Then 'R_Adressart
-    TmpSt = TmpSt & Chr$(34) & "STR" & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & "GK" & Chr$(34) & ExSep
-End If
-If RST.Fields("R_Straße").Value <> vbNullString Then 'R_Straße
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("R_Straße").Value, 36) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'R_Postfach
-If RST.Fields("R_PLZ").Value <> vbNullString Then 'R_Postleitzahl
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("R_PLZ").Value, 10) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("R_Ort").Value <> vbNullString Then 'R_Ort
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("R_Ort").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("R_Land").Value <> vbNullString Then 'R_Land
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("R_Land").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & "Persönlich/Vertraulich" & Chr$(34) & ExSep 'R_Versandzusatz
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'R_Adresszusatz
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'R_Zustellbezeichnung1
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'R_Zustellbezeichnung2
-If RST.Fields("Geändert").Value <> vbNullString Then 'R_Gültig_von
-    TmpSt = TmpSt & Chr$(34) & Format$(RST.Fields("Geändert").Value, "ddmmyyyy") & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep 'R_Gültig_bis
-If RST.Fields("Telefon1").Value <> vbNullString Then 'Telefon1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Telefon1").Value, 60) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("TelTyp1").Value <> vbNullString Then 'Bemerkung_Telefon1
-    TmpSt = TmpSt & Chr$(34) & RST.Fields("TelTyp1").Value & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Telefon2").Value <> vbNullString Then 'Telefon2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Telefon2").Value, 60) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("TelTyp2").Value <> vbNullString Then 'Bemerkung_Telefon2
-    TmpSt = TmpSt & Chr$(34) & RST.Fields("TelTyp2").Value & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Telefon5").Value <> vbNullString Then 'Email
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Telefon5").Value, 60) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("TelTyp5").Value <> vbNullString Then 'Bemerkung_Telefon5
-    TmpSt = TmpSt & Chr$(34) & RST.Fields("TelTyp5").Value & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Internet").Value <> vbNullString Then 'Email
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Internet").Value, 60) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep 'Bemerkung_Internet
-If RST.Fields("Telefon3").Value <> vbNullString Then 'Telefax
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Telefon3").Value, 60) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("TelTyp3").Value <> vbNullString Then 'Bemerkung_Telefax
-    TmpSt = TmpSt & Chr$(34) & RST.Fields("TelTyp3").Value & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Telefon4").Value <> vbNullString Then 'Telefon4 Mobil
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Telefon4").Value, 60) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("TelTyp4").Value <> vbNullString Then 'Bemerkung_Telefon4
-    TmpSt = TmpSt & Chr$(34) & RST.Fields("TelTyp4").Value & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("BLZ").Value <> vbNullString Then 'Bankleitzahl1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("BLZ").Value, 8) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Bank").Value <> vbNullString Then 'Bankleitzahl1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Bank").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Konto").Value <> vbNullString Then 'Bankkontonummer1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Konto").Value, 10) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & "D" & Chr$(34) & ExSep 'Länderkennzeichen1
-If RST.Fields("IBAN").Value <> vbNullString Then 'IBANNr1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("IBAN").Value, 34) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Space$(1) & Chr$(34) & ExSep 'Leerfeld1
-If RST.Fields("BIC").Value <> vbNullString Then 'SWIFTCode1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("BIC").Value, 11) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Kontoinhaber").Value <> vbNullString Then 'Kontoinhaber1
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Kontoinhaber").Value, 70) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & "1" & Chr$(34) & ExSep 'Kennzeichnung_Bankverbindung1
-If RST.Fields("Geändert").Value <> vbNullString Then 'Bank1_Gültig_von
-    TmpSt = TmpSt & Chr$(34) & Format$(RST.Fields("Geändert").Value, "ddmmyyyy") & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep 'Bank1_Gültig_bis
-If RST.Fields("BLZ2").Value <> vbNullString Then 'Bankleitzahl2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("BLZ2").Value, 8) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Bank2").Value <> vbNullString Then 'Bankleitzahl2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Bank2").Value, 30) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Konto2").Value <> vbNullString Then 'Bankkontonummer2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Konto2").Value, 10) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & "D" & Chr$(34) & ExSep 'Länderkennzeichen2
-If RST.Fields("IBAN2").Value <> vbNullString Then 'IBANNr2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("IBAN2").Value, 34) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Space$(1) & Chr$(34) & ExSep 'Leerfeld2
-If RST.Fields("BIC2").Value <> vbNullString Then 'SWIFTCode2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("BIC2").Value, 11) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-If RST.Fields("Kontoinhaber").Value <> vbNullString Then 'Kontoinhaber2
-    TmpSt = TmpSt & Chr$(34) & Left$(RST.Fields("Kontoinhaber").Value, 70) & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & "0" & Chr$(34) & ExSep 'Kennzeichnung_Bankverbindung2
-If RST.Fields("Geändert").Value <> vbNullString Then 'Bank2_Gültig_von
-    TmpSt = TmpSt & Chr$(34) & Format$(RST.Fields("Geändert").Value, "ddmmyyyy") & Chr$(34) & ExSep
-Else
-    TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep
-End If
-TmpSt = TmpSt & Chr$(34) & Format$(Date, "ddmmyyyy") & Chr$(34) & ExSep 'Bank2_Gültig_bis
-
-TmpSt = TmpSt & vbCrLf 'Abschließender Zeilenumbruch
-DoEvents
-
-S_DaExA = TmpSt
-
-Exit Function
-
-SuErr:
-If GlDbg = True Then MsgBox Err.Description, 48, "S_DaExA " & Err.Number
-Resume Next
-
+S_DaKop = KopfZ
 End Function
+
+Private Function S_DaExH() As String
+' DATEV EXTF 700, Kategorie 16, Formatversion 5, 31 Headerfelder.
+Dim KopfZ(0 To 30) As String
+Dim AktZa As Long
+
+If GlDvB < 1001 Or GlDvB > 9999999 Then
+    Err.Raise vbObjectError + 2101, "S_DaExH", "DATEV-Beraternummer muss zwischen 1001 und 9999999 liegen."
+End If
+If GlDvM < 1 Or GlDvM > 99999 Then
+    Err.Raise vbObjectError + 2102, "S_DaExH", "DATEV-Mandantennummer muss zwischen 1 und 99999 liegen."
+End If
+For AktZa = 0 To 30
+    Select Case AktZa
+    Case 0, 3, 7, 8, 9, 16, 17, 21, 23, 26, 29, 30
+        KopfZ(AktZa) = Chr$(34) & Chr$(34)
+    End Select
+Next AktZa
+KopfZ(0) = S_DaQuote("EXTF", 4)
+KopfZ(1) = "700"
+KopfZ(2) = "16"
+KopfZ(3) = S_DaQuote("Debitoren/Kreditoren", 30)
+KopfZ(4) = "5"
+KopfZ(5) = Format$(Now, "yyyymmddhhnnss") & "000"
+KopfZ(7) = S_DaQuote("SV", 2)
+KopfZ(10) = CStr(GlDvB)
+KopfZ(11) = CStr(GlDvM)
+KopfZ(12) = Format$(DateSerial(Year(Date), 1, 1), "yyyymmdd")
+If GldKt Then
+    KopfZ(13) = "4"
+Else
+    KopfZ(13) = "6"
+End If
+KopfZ(16) = S_DaQuote("Patientenstamm", 30)
+KopfZ(30) = S_DaQuote("SimpliMed", 16)
+S_DaExH = Join(KopfZ, ";")
+End Function
+
+Public Function S_DaExA(ByRef RST As ADODB.Recordset) As String
+Dim Hinweis As String
+S_DaExA = S_DaSatz(RST, Hinweis)
+If GlLog And Len(Hinweis) > 0 Then SLogi "S_DaExA: " & Hinweis
+End Function
+Private Function S_DaSatz(ByRef RST As ADODB.Recordset, ByRef Hinweis As String) As String
+On Error GoTo SuErr
+' DATEV Debitoren/Kreditoren v5. Feldnummern in Kommentaren sind 1-basiert.
+Dim FeldZ(0 To 253) As String
+Dim DebNr As Long
+Dim Anrede As String
+Dim FirmNa As String
+Dim BankNr As Long
+Dim BankPos As Long
+Dim Suffix As String
+Dim IbanNr As String
+Dim BankLand As String
+Dim HauptB As Boolean
+Dim BankKto As String
+Dim BankBLZ As String
+Dim Swift As String
+Dim AktZa As Long
+Dim BankOK As Boolean
+
+Hinweis = vbNullString
+If RST.EOF Or RST.BOF Then Exit Function
+DebNr = DATEV_DebtorAccount(S_DaWert(RST, "ID0"), GldKt)
+If DebNr = 0 Then
+    Err.Raise vbObjectError + 2103, "S_DaExA", "Patienten-ID fehlt oder liegt ausserhalb des DATEV-Debitorenbereichs. Bitte ID0 und Sachkontenlaenge pruefen."
+End If
+FeldZ(0) = CStr(DebNr) '1 Konto, numerisch
+Anrede = S_DaWert(RST, "Anrede")
+If LCase$(Anrede) = "firma" Then
+    FirmNa = S_DaWert(RST, "Firma2")
+    If Len(FirmNa) = 0 Then FirmNa = S_DaWert(RST, "Name")
+    If Len(FirmNa) > 50 Then S_DaHinw Hinweis, "Firmenname: auf DATEV-Feldlaenge gekuerzt"
+    FeldZ(1) = S_DaQuote(FirmNa, 50)
+    FeldZ(2) = S_DaText(RST, "Beruf", 50, Hinweis)
+    FeldZ(6) = S_DaQuote("2", 1)
+Else
+    FeldZ(3) = S_DaText(RST, "Name", 30, Hinweis)
+    FeldZ(4) = S_DaText(RST, "Vorname", 30, Hinweis)
+    FeldZ(6) = S_DaQuote("1", 1)
+    FeldZ(11) = S_DaText(RST, "Titel", 25, Hinweis)
+End If
+FeldZ(7) = S_DaText(RST, "IDKurz", 15, Hinweis)
+FeldZ(10) = S_DaText(RST, "Anrede", 30, Hinweis)
+S_DaAdr RST, vbNullString, FeldZ, 14, Hinweis
+If Len(FeldZ(19)) > 0 And Len(S_DaWert(RST, "Stra" & Chr$(223) & "e") & S_DaWert(RST, "Postfach") & _
+       S_DaWert(RST, "PLZ") & S_DaWert(RST, "Ort")) > 0 Then FeldZ(25) = "1"
+' Keine erfundenen Gueltigkeitsdaten: insbesondere kein Ablauf am Exporttag.
+FeldZ(28) = S_DaText(RST, "Telefon1", 60, Hinweis)
+FeldZ(29) = S_DaText(RST, "TelTyp1", 40, Hinweis)
+FeldZ(30) = S_DaText(RST, "Telefon2", 60, Hinweis)
+FeldZ(31) = S_DaText(RST, "TelTyp2", 40, Hinweis)
+FeldZ(32) = S_DaText(RST, "Telefon5", 60, Hinweis)
+FeldZ(33) = S_DaText(RST, "TelTyp5", 40, Hinweis)
+FeldZ(34) = S_DaText(RST, "Internet", 60, Hinweis)
+FeldZ(36) = S_DaText(RST, "Telefon3", 60, Hinweis)
+FeldZ(37) = S_DaText(RST, "TelTyp3", 40, Hinweis)
+FeldZ(38) = S_DaText(RST, "Telefon4", 60, Hinweis)
+FeldZ(39) = S_DaText(RST, "TelTyp4", 40, Hinweis)
+
+For BankNr = 1 To 2
+    Suffix = vbNullString
+    If BankNr = 2 Then Suffix = "2"
+    BankPos = 40 + (BankNr - 1) * 11
+    IbanNr = UCase$(Replace$(Replace$(Replace$(S_DaWert(RST, "IBAN" & Suffix), " ", vbNullString), vbTab, vbNullString), Chr$(160), vbNullString))
+    BankKto = S_DaWert(RST, "Konto" & Suffix)
+    BankBLZ = S_DaWert(RST, "BLZ" & Suffix)
+    Swift = UCase$(Replace$(S_DaWert(RST, "BIC" & Suffix), " ", vbNullString))
+    If Len(IbanNr & BankKto & BankBLZ) > 0 Then
+        BankOK = True
+        BankLand = vbNullString
+        If Len(IbanNr) > 0 Then
+            BankOK = S_DaIban(IbanNr)
+            If BankOK Then BankLand = Left$(IbanNr, 2)
+        Else
+            ' Deutsche Altbankverbindung nur mit vollstaendiger BLZ/Kontonummer.
+            BankOK = S_DaZiff(BankKto, 10) And S_DaZiff(BankBLZ, 8) And Len(BankBLZ) = 8
+            If Len(Swift) > 0 And Mid$(Swift, 5, 2) <> "DE" Then BankOK = False
+            If BankOK Then BankLand = "DE"
+        End If
+        If BankOK Then
+            If Len(BankBLZ) > 0 And Not S_DaZiff(BankBLZ, 8) Then
+                BankBLZ = vbNullString
+                S_DaHinw Hinweis, "BLZ: ungueltigen optionalen Wert ausgelassen"
+            End If
+            If Len(BankKto) > 0 And Not S_DaZiff(BankKto, 10) Then
+                BankKto = vbNullString
+                S_DaHinw Hinweis, "Bankkonto: ungueltigen optionalen Wert ausgelassen"
+            End If
+            If Len(Swift) > 0 Then
+                BankOK = (Len(Swift) = 8 Or Len(Swift) = 11)
+                If Mid$(Swift, 5, 2) <> BankLand Then BankOK = False
+                For AktZa = 1 To Len(Swift)
+                    If AktZa <= 6 Then
+                        If InStr(1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", Mid$(Swift, AktZa, 1), vbBinaryCompare) = 0 Then BankOK = False
+                    Else
+                        If InStr(1, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", Mid$(Swift, AktZa, 1), vbBinaryCompare) = 0 Then BankOK = False
+                    End If
+                Next AktZa
+                If Not BankOK Then
+                    Swift = vbNullString
+                    S_DaHinw Hinweis, "BIC: ungueltigen optionalen Wert ausgelassen"
+                End If
+            End If
+            FeldZ(BankPos) = S_DaQuote(BankBLZ, 8)
+            FeldZ(BankPos + 1) = S_DaText(RST, "Bank" & Suffix, 30, Hinweis)
+            FeldZ(BankPos + 2) = S_DaQuote(BankKto, 10)
+            FeldZ(BankPos + 3) = S_DaQuote(BankLand, 2)
+            FeldZ(BankPos + 4) = S_DaQuote(IbanNr, 34)
+            FeldZ(BankPos + 6) = S_DaQuote(Swift, 11)
+            FeldZ(BankPos + 7) = S_DaText(RST, "Kontoinhaber", 70, Hinweis)
+            If HauptB Then
+                FeldZ(BankPos + 8) = S_DaQuote("0", 1)
+            Else
+                FeldZ(BankPos + 8) = S_DaQuote("1", 1)
+                HauptB = True
+            End If
+        Else
+            S_DaHinw Hinweis, "Bankverbindung " & CStr(BankNr) & ": unvollstaendig/ungueltig, ausgelassen"
+        End If
+    End If
+Next BankNr
+
+' Abweichende Rechnungsadresse steht in v5 in den Feldern 152-164.
+S_DaAdr RST, "R_", FeldZ, 152, Hinweis
+S_DaSatz = Join(FeldZ, ";") & vbCrLf
+Exit Function
+SuErr:
+Err.Raise Err.Number, "S_DaSatz", Err.Description
+End Function
+
+Private Function S_DaWert(ByRef RST As ADODB.Recordset, ByVal FelNa As String) As String
+On Error GoTo WertErr
+If Not IsNull(RST.Fields(FelNa).Value) Then S_DaWert = Trim$(CStr(RST.Fields(FelNa).Value))
+Exit Function
+WertErr:
+' Optionale Spalten fehlen teilweise in aelteren Kundendatenbanken.
+If Err.Number = 3265 And FelNa <> "ID0" Then Exit Function
+Err.Raise Err.Number, "S_DaWert", "Adressfeld konnte nicht gelesen werden."
+End Function
+
+Private Function S_DaText(ByRef RST As ADODB.Recordset, ByVal FelNa As String, ByVal MaxLen As Long, ByRef Hinweis As String) As String
+Dim TextVal As String
+Dim AktZa As Long
+TextVal = S_DaWert(RST, FelNa)
+If Len(TextVal) > MaxLen Then S_DaHinw Hinweis, FelNa & ": auf DATEV-Feldlaenge gekuerzt"
+For AktZa = 0 To 31
+    If InStr(1, TextVal, Chr$(AktZa), vbBinaryCompare) > 0 Then S_DaHinw Hinweis, FelNa & ": Steuerzeichen bereinigt"
+Next AktZa
+S_DaText = S_DaQuote(TextVal, MaxLen)
+End Function
+
+Private Function S_DaQuote(ByVal TextVal As String, ByVal MaxLen As Long) As String
+Dim AktZa As Long
+Dim CodeNr As Long
+' Vor dem Escaping begrenzen, damit doppelte Anfuehrungszeichen intakt bleiben.
+TextVal = Replace$(TextVal, vbCrLf, " ")
+TextVal = Replace$(TextVal, vbNullChar, vbNullString)
+For AktZa = 1 To 31
+    TextVal = Replace$(TextVal, Chr$(AktZa), " ")
+Next AktZa
+TextVal = Replace$(TextVal, Chr$(127), " ")
+TextVal = Left$(TextVal, MaxLen)
+' Kein stiller Unicode-Verlust durch ADODB.Stream/windows-1252.
+For AktZa = 1 To Len(TextVal)
+    CodeNr = AscW(Mid$(TextVal, AktZa, 1))
+    If CodeNr < 0 Or CodeNr > 255 Or (CodeNr >= 128 And CodeNr <= 159) Then
+        Select Case CodeNr
+        Case 8364, 8218, 402, 8222, 8230, 8224, 8225, 710, 8240, 352, 8249, 338, 381, _
+             8216, 8217, 8220, 8221, 8226, 8211, 8212, 732, 8482, 353, 8250, 339, 382, 376
+        Case Else
+            Err.Raise vbObjectError + 2106, "S_DaQuote", "Text enthaelt Zeichen ausserhalb von Windows-1252."
+        End Select
+    End If
+Next AktZa
+S_DaQuote = Chr$(34) & Replace$(TextVal, Chr$(34), Chr$(34) & Chr$(34)) & Chr$(34)
+End Function
+
+Private Function S_DaLand(ByVal LandNa As String) As String
+' ISO 3166-1 alpha-2; leer/unbekannt wird erst im Adresskontext behandelt.
+Dim Codes As String
+LandNa = Replace$(Replace$(Replace$(LandNa, vbTab, " "), vbCr, " "), vbLf, " ")
+LandNa = UCase$(Trim$(Replace$(LandNa, Chr$(160), " ")))
+Select Case LandNa
+Case vbNullString, "-", "--", ".", "0", "UNBEKANNT": Exit Function
+Case "D", "DEU", "DEUTSCHLAND", "GERMANY", "BRD", "BUNDESREPUBLIK DEUTSCHLAND": LandNa = "DE"
+Case "A", "AUT", "OESTERREICH", Chr$(214) & "STERREICH", "AUSTRIA": LandNa = "AT"
+Case "CHE", "SCHWEIZ", "SWITZERLAND", "SUISSE": LandNa = "CH"
+Case "F", "FRA", "FRANKREICH", "FRANCE": LandNa = "FR"
+Case "I", "ITA", "ITALIEN", "ITALY": LandNa = "IT"
+Case "NLD", "NIEDERLANDE", "NETHERLANDS", "HOLLAND": LandNa = "NL"
+Case "B", "BEL", "BELGIEN", "BELGIUM": LandNa = "BE"
+Case "L", "LUX", "LUXEMBURG", "LUXEMBOURG": LandNa = "LU"
+Case "POL", "POLEN", "POLAND": LandNa = "PL"
+Case "CZE", "TSCHECHIEN", "TSCHECHISCHE REPUBLIK", "CZECHIA": LandNa = "CZ"
+Case "DNK", "DAENEMARK", "D" & Chr$(196) & "NEMARK", "DENMARK": LandNa = "DK"
+Case "GBR", "UK", "GROSSBRITANNIEN", "GRO" & Chr$(223) & "BRITANNIEN", "UNITED KINGDOM", "ENGLAND": LandNa = "GB"
+Case "USA", "UNITED STATES", "UNITED STATES OF AMERICA", "VEREINIGTE STAATEN": LandNa = "US"
+Case "E", "ESP", "SPANIEN", "SPAIN": LandNa = "ES"
+Case "P", "PRT", "PORTUGAL": LandNa = "PT"
+Case "IRL", "IRLAND", "IRELAND": LandNa = "IE"
+Case "GRC", "GRIECHENLAND", "GREECE": LandNa = "GR"
+Case "S", "SWE", "SCHWEDEN", "SWEDEN": LandNa = "SE"
+Case "N", "NOR", "NORWEGEN", "NORWAY": LandNa = "NO"
+Case "FIN", "FINNLAND", "FINLAND": LandNa = "FI"
+Case "H", "HUN", "UNGARN", "HUNGARY": LandNa = "HU"
+Case "ROU", "RUMAENIEN", "RUM" & Chr$(196) & "NIEN", "ROMANIA": LandNa = "RO"
+Case "BGR", "BULGARIEN", "BULGARIA": LandNa = "BG"
+Case "HRV", "KROATIEN", "CROATIA": LandNa = "HR"
+Case "SVK", "SLOWAKEI", "SLOVAKIA": LandNa = "SK"
+Case "SVN", "SLOWENIEN", "SLOVENIA": LandNa = "SI"
+Case "TUR", "TUERKEI", "T" & Chr$(220) & "RKEI", "TURKEY", "TURKIYE": LandNa = "TR"
+Case "LIE", "LIECHTENSTEIN": LandNa = "LI"
+Case "CAN", "KANADA", "CANADA": LandNa = "CA"
+Case "AUS", "AUSTRALIEN", "AUSTRALIA": LandNa = "AU"
+Case "RUS", "RUSSLAND", "RUSSIA": LandNa = "RU"
+Case "UKR", "UKRAINE": LandNa = "UA"
+End Select
+Codes = "|AD|AE|AF|AG|AI|AL|AM|AO|AQ|AR|AS|AT|AU|AW|AX|AZ|BA|BB|BD|BE|BF|BG|BH|BI|BJ|BL|BM|BN|BO|BQ|BR|BS|BT|BV|BW|BY|BZ|"
+Codes = Codes & "CA|CC|CD|CF|CG|CH|CI|CK|CL|CM|CN|CO|CR|CU|CV|CW|CX|CY|CZ|DE|DJ|DK|DM|DO|DZ|EC|EE|EG|EH|ER|ES|ET|FI|FJ|FK|FM|FO|FR|"
+Codes = Codes & "GA|GB|GD|GE|GF|GG|GH|GI|GL|GM|GN|GP|GQ|GR|GS|GT|GU|GW|GY|HK|HM|HN|HR|HT|HU|ID|IE|IL|IM|IN|IO|IQ|IR|IS|IT|JE|JM|JO|JP|"
+Codes = Codes & "KE|KG|KH|KI|KM|KN|KP|KR|KW|KY|KZ|LA|LB|LC|LI|LK|LR|LS|LT|LU|LV|LY|MA|MC|MD|ME|MF|MG|MH|MK|ML|MM|MN|MO|MP|MQ|MR|MS|MT|MU|MV|MW|MX|MY|MZ|"
+Codes = Codes & "NA|NC|NE|NF|NG|NI|NL|NO|NP|NR|NU|NZ|OM|PA|PE|PF|PG|PH|PK|PL|PM|PN|PR|PS|PT|PW|PY|QA|RE|RO|RS|RU|RW|SA|SB|SC|SD|SE|SG|SH|SI|SJ|SK|SL|SM|SN|SO|SR|SS|ST|SV|SX|SY|SZ|"
+Codes = Codes & "TC|TD|TF|TG|TH|TJ|TK|TL|TM|TN|TO|TR|TT|TV|TW|TZ|UA|UG|UM|US|UY|UZ|VA|VC|VE|VG|VI|VN|VU|WF|WS|YE|YT|ZA|ZM|ZW|"
+If Len(LandNa) = 2 Then
+    If InStr(1, Codes, "|" & LandNa & "|", vbBinaryCompare) > 0 Then S_DaLand = LandNa
+End If
+End Function
+
+Private Function S_DaLeer(ByVal Wert As String) As Boolean
+Wert = Replace$(Replace$(Replace$(Wert, vbTab, " "), vbCr, " "), vbLf, " ")
+Select Case UCase$(Trim$(Replace$(Wert, Chr$(160), " ")))
+Case vbNullString, "-", "--", ".", "0", "UNBEKANNT": S_DaLeer = True
+End Select
+End Function
+
+Private Function S_DaZiff(ByVal Wert As String, ByVal MaxLen As Long) As Boolean
+Dim AktZa As Long
+If Len(Wert) = 0 Or Len(Wert) > MaxLen Then Exit Function
+For AktZa = 1 To Len(Wert)
+    If InStr(1, "0123456789", Mid$(Wert, AktZa, 1), vbBinaryCompare) = 0 Then Exit Function
+Next AktZa
+S_DaZiff = True
+End Function
+
+Private Sub S_DaHinw(ByRef Hinweis As String, ByVal Meldung As String)
+If InStr(1, Hinweis, Meldung, vbBinaryCompare) = 0 Then
+    If Len(Hinweis) > 0 Then Hinweis = Hinweis & " / "
+    Hinweis = Hinweis & Meldung
+End If
+End Sub
+
+Private Sub S_DaAdr(ByRef RST As ADODB.Recordset, ByVal Prefix As String, _
+                    ByRef FeldZ() As String, ByVal StartNr As Long, ByRef Hinweis As String)
+Dim LandNa As String
+Dim LandLK As String
+Dim LandPL As String
+Dim LandISO As String
+Dim PostZ As String
+Dim Trenn As Long
+Dim Strass As String
+Dim OrtsNa As String
+Dim Postfa As String
+Strass = S_DaWert(RST, Prefix & "Stra" & Chr$(223) & "e")
+OrtsNa = S_DaWert(RST, Prefix & "Ort")
+PostZ = S_DaWert(RST, Prefix & "PLZ")
+If Len(Prefix) = 0 Then Postfa = S_DaWert(RST, "Postfach")
+' Keine Rechnungsadresse nur aus vorbelegtem Land oder Anrede erzeugen.
+If Prefix = "R_" And Len(Strass & OrtsNa & PostZ) = 0 Then Exit Sub
+LandNa = S_DaLand(S_DaWert(RST, Prefix & "Land"))
+LandLK = S_DaLand(S_DaWert(RST, Prefix & "LK"))
+If (Len(LandNa) = 0 And Not S_DaLeer(S_DaWert(RST, Prefix & "Land"))) Or _
+   (Len(LandLK) = 0 And Not S_DaLeer(S_DaWert(RST, Prefix & "LK"))) Then GoTo LandErr
+Trenn = InStr(1, PostZ, "-", vbBinaryCompare)
+If Trenn >= 2 And Trenn <= 4 Then
+    If Not S_DaZiff(Left$(PostZ, Trenn - 1), 3) Then
+        LandPL = S_DaLand(Left$(PostZ, Trenn - 1))
+        If Len(LandPL) = 0 Then GoTo LandErr
+        PostZ = Trim$(Mid$(PostZ, Trenn + 1))
+        S_DaHinw Hinweis, Prefix & "PLZ: Laenderpraefix normalisiert"
+    End If
+End If
+LandISO = LandNa
+If Len(LandISO) = 0 Then LandISO = LandLK
+If Len(LandISO) = 0 Then LandISO = LandPL
+If (Len(LandNa) > 0 And LandNa <> LandISO) Or _
+   (Len(LandLK) > 0 And LandLK <> LandISO) Or _
+   (Len(LandPL) > 0 And LandPL <> LandISO) Then GoTo LandErr
+If Len(LandISO) = 0 Then
+    ' Ohne Land koennen auslaendische PLZ nicht als deutsche Adresse gelten.
+    If Len(PostZ) > 0 Then
+        If Len(PostZ) <> 5 Or Not S_DaZiff(PostZ, 5) Then GoTo LandErr
+    End If
+    LandISO = "DE"
+    S_DaHinw Hinweis, Prefix & "Land: Deutschland vorbelegt"
+End If
+If Len(PostZ) > 0 Then
+    If Not S_DaZiff(PostZ, 10) Or (LandISO = "DE" And Len(PostZ) <> 5) Then
+        PostZ = vbNullString
+        S_DaHinw Hinweis, Prefix & "PLZ: nicht formatgerechter optionaler Wert ausgelassen"
+    End If
+End If
+If Len(Strass) > 0 Then
+    FeldZ(StartNr) = S_DaQuote("STR", 3)
+ElseIf Len(Postfa) > 0 Then
+    FeldZ(StartNr) = S_DaQuote("PF", 3)
+End If
+FeldZ(StartNr + 1) = S_DaText(RST, Prefix & "Stra" & Chr$(223) & "e", 36, Hinweis)
+If Len(Postfa) > 0 Then FeldZ(StartNr + 2) = S_DaText(RST, "Postfach", 10, Hinweis)
+FeldZ(StartNr + 3) = S_DaQuote(PostZ, 10)
+FeldZ(StartNr + 4) = S_DaText(RST, Prefix & "Ort", 30, Hinweis)
+FeldZ(StartNr + 5) = S_DaQuote(LandISO, 2)
+If Prefix = "R_" Then FeldZ(151) = S_DaText(RST, "R_Anrede", 30, Hinweis)
+Exit Sub
+LandErr:
+' Ein unklarer Adressblock darf nicht stillschweigend als Deutschland gelten.
+S_DaHinw Hinweis, Prefix & "Adressblock ausgelassen: Land/LK/PLZ unbekannt oder widerspruechlich"
+End Sub
+
+Private Function S_DaIban(ByVal Wert As String) As Boolean
+Dim AktZa As Long
+Dim Rest97 As Long
+Dim Zahl As Long
+Dim Pruef As String
+If Len(Wert) < 15 Or Len(Wert) > 34 Then Exit Function
+If S_DaLand(Left$(Wert, 2)) <> Left$(Wert, 2) Then Exit Function
+If Not S_DaZiff(Mid$(Wert, 3, 2), 2) Then Exit Function
+If CLng(Mid$(Wert, 3, 2)) < 2 Or CLng(Mid$(Wert, 3, 2)) > 98 Then Exit Function
+If Left$(Wert, 2) = "DE" And Len(Wert) <> 22 Then Exit Function
+Pruef = Mid$(Wert, 5) & Left$(Wert, 4)
+For AktZa = 1 To Len(Pruef)
+    Zahl = InStr(1, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", Mid$(Pruef, AktZa, 1), vbBinaryCompare) - 1
+    If Zahl < 0 Then Exit Function
+    If Zahl < 10 Then
+        Rest97 = (Rest97 * 10 + Zahl) Mod 97
+    Else
+        Rest97 = (Rest97 * 100 + Zahl) Mod 97
+    End If
+Next AktZa
+S_DaIban = (Rest97 = 1)
+End Function
+
+Private Function S_DaRow(ByRef RST As ADODB.Recordset, ByRef Hinweis As String, ByRef Fehler As String) As String
+' Nur bekannte Datenfehler isolieren; SQL-/Schema-/Programmierfehler weitergeben.
+On Error GoTo RowErr
+Hinweis = vbNullString
+Fehler = vbNullString
+S_DaRow = S_DaSatz(RST, Hinweis)
+Exit Function
+RowErr:
+Select Case Err.Number
+Case vbObjectError + 2103, vbObjectError + 2104, vbObjectError + 2106
+    Fehler = Err.Description
+Case Else
+    Err.Raise Err.Number, "S_DaRow", Err.Description
+End Select
+End Function
+
+Private Function S_DaBatch(ByRef RST As ADODB.Recordset, ByRef GutAnz As Long, _
+                          ByRef FehlAnz As Long, ByRef WarnAnz As Long, ByRef Bericht As String) As String
+Dim SatzZ() As String
+Dim LogZ() As String
+Dim Kapaz As Long
+Dim QuellNr As Long
+Dim Hinweis As String
+Dim Fehler As String
+Dim Zeile As String
+GutAnz = 0
+FehlAnz = 0
+WarnAnz = 0
+Kapaz = 256
+ReDim SatzZ(0 To Kapaz - 1)
+ReDim LogZ(0 To Kapaz - 1)
+Do While Not RST.EOF
+    If QuellNr = Kapaz Then
+        Kapaz = Kapaz * 2
+        ReDim Preserve SatzZ(0 To Kapaz - 1)
+        ReDim Preserve LogZ(0 To Kapaz - 1)
+    End If
+    Zeile = S_DaRow(RST, Hinweis, Fehler)
+    If Len(Zeile) > 0 Then
+        SatzZ(GutAnz) = Zeile
+        GutAnz = GutAnz + 1
+        If Len(Hinweis) > 0 Then
+            WarnAnz = WarnAnz + 1
+            LogZ(QuellNr) = "Auswahlposition " & CStr(QuellNr + 1) & "; CSV-Zeile " & CStr(GutAnz + 2) & "; " & Hinweis & vbCrLf
+        End If
+    Else
+        FehlAnz = FehlAnz + 1
+        LogZ(QuellNr) = "Auswahlposition " & CStr(QuellNr + 1) & "; NICHT EXPORTIERT; " & Fehler & vbCrLf
+    End If
+    QuellNr = QuellNr + 1
+    RST.MoveNext
+Loop
+Bericht = "DATEV-Adresspruefung (Auswahl nach ID0 sortiert). Keine Patientendaten im Protokoll." & vbCrLf & _
+          "Geprueft: " & CStr(QuellNr) & "; exportierbar: " & CStr(GutAnz) & "; ausgelassen: " & CStr(FehlAnz) & "; mit Hinweisen: " & CStr(WarnAnz) & vbCrLf & _
+          "Dieses Pruefprotokoll allein bestaetigt keine erfolgreiche Dateierstellung." & vbCrLf & Join(LogZ, vbNullString)
+If GutAnz > 0 Then
+    ReDim Preserve SatzZ(0 To GutAnz - 1)
+    S_DaBatch = Join(SatzZ, vbNullString)
+End If
+End Function
+
+Private Sub S_DaWrite(ByVal FileNa As String, ByVal Inhalt As String)
+On Error GoTo WrErr
+Dim Ausgab As ADODB.Stream
+Dim ErrNum As Long
+Dim ErrMsg As String
+Set Ausgab = New ADODB.Stream
+Ausgab.Type = adTypeText
+Ausgab.Charset = "windows-1252"
+Ausgab.Open
+Ausgab.WriteText Inhalt
+Ausgab.SaveToFile FileNa, adSaveCreateOverWrite
+Ausgab.Close
+Set Ausgab = Nothing
+Exit Sub
+WrErr:
+ErrNum = Err.Number
+ErrMsg = Err.Description
+On Error Resume Next 'Nur Aufraeumen nach fehlgeschlagenem Schreiben.
+If Not Ausgab Is Nothing Then Ausgab.Close
+Set Ausgab = Nothing
+On Error GoTo 0
+Err.Raise ErrNum, "S_DaWrite", ErrMsg
+End Sub
 Public Function S_DaExB(ByRef RST As ADODB.Recordset, ByVal ExTyp As String, Optional ByVal ZeiEx As Boolean) As String
 On Error GoTo SuErr
 
@@ -4535,8 +4752,14 @@ Else
     End If
 End If
 
-PatNr = RST.Fields("ID0").Value
-TmSt2 = S_AdIdx(PatNr, "Mandant")
+If LCase$(ExTyp) = "csv" Then
+    PatNr = 0
+    If Not IsNull(RST.Fields("IDP").Value) Then PatNr = CLng(RST.Fields("IDP").Value)
+    TmSt2 = CStr(PatNr)
+Else
+    PatNr = RST.Fields("ID0").Value
+    TmSt2 = S_AdIdx(PatNr, "Mandant")
+End If
 DoEvents
 
 If GlDeN = True Then 'DATEV Patientennummer exportieren
@@ -5351,8 +5574,14 @@ If DaNam <> vbNullString Then
     End If
 End If
 
-PatNr = RST.Fields("ID0").Value
-TmStr = S_AdIdx(PatNr, "Mandant")
+If LCase$(ExTyp) = "csv" Then
+    PatNr = 0
+    If Not IsNull(RST.Fields("ID0").Value) Then PatNr = CLng(RST.Fields("ID0").Value)
+    TmStr = CStr(PatNr)
+Else
+    PatNr = RST.Fields("ID0").Value
+    TmStr = S_AdIdx(PatNr, "Mandant")
+End If
 DoEvents
 
 If GlDeN = True Then 'DATEV Patientennummer exportieren
