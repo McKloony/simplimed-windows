@@ -633,6 +633,8 @@ Dim ImStr As String
 Dim DaPfa As String
 Dim AktZa As Integer
 Dim GesZa As Integer
+Dim SmRet As Long
+Dim SslOk As Boolean
 
 Set FM = frmStatus
 Set Lab01 = FM.lblLab01
@@ -762,16 +764,22 @@ With MaiSend
             For AktZa = 1 To GesZa
                 TmStr = vbNullString
                 TmStr = MTrim(GlAtt(AktZa), ";")
-                .AddAttachment TmStr
+                If .AddAttachment(TmStr) <> 0 Then 'Rueckgabe <> 0: Anlage fehlt in der Mail
+                    If GlLog = True Then SLogi "MaiSen: Anlage NICHT angefuegt: " & TmStr & " - " & .GetLastErrDescription
+                End If
             Next AktZa
         End If
     ElseIf mAtFi <> vbNullString Then
         .AddAttachment mAtFi
     End If
     If mFiln <> vbNullString Then
-        .SaveMail mFiln
+        SmRet = .SaveMail(mFiln)
+        If SmRet <> 0 Then
+            If GlLog = True Then SLogi "MaiSen: SaveMail Rueckgabe " & SmRet & " - " & .GetLastErrDescription & " - " & mFiln
+        End If
     End If
     DoEvents
+    SslOk = True
     .SSL_starttls = mTLSs
     DoEvents
     If .SSL_init() <> 0 Then
@@ -781,7 +789,7 @@ With MaiSend
             If .SSL_init() <> 0 Then
                 .SSL_starttls = 2
                 If .SSL_init() <> 0 Then
-                    Exit Function
+                    SslOk = False
                 Else
                     mTLSs = 2
                 End If
@@ -793,7 +801,7 @@ With MaiSend
             If .SSL_init() <> 0 Then
                 .SSL_starttls = 0
                 If .SSL_init() <> 0 Then
-                    Exit Function
+                    SslOk = False
                 Else
                     mTLSs = 0
                 End If
@@ -805,7 +813,7 @@ With MaiSend
             If .SSL_init() <> 0 Then
                 .SSL_starttls = 1
                 If .SSL_init() <> 0 Then
-                    Exit Function
+                    SslOk = False
                 Else
                     mTLSs = 1
                 End If
@@ -814,11 +822,20 @@ With MaiSend
             End If
         End Select
     End If
+    If SslOk = False Then 'SSL_init ist laut EASendMail veraltet (ersetzt durch ConnectType): nicht still abbrechen
+        If GlLog = True Then SLogi "MaiSen: SSL_init gescheitert (" & .GetLastErrDescription & "), Versand ueber ConnectType"
+        .ConnectType = ConnectSSLAuto 'SSL direkt oder STARTTLS je nach Port
+    End If
     DoEvents
     mCanc = False
     mErro = False
     mIdle = False
-    .SendMail
+    SmRet = .SendMail()
+    If SmRet <> 0 Then 'sofort gescheitert: ohne OnClosed/OnError liefe die Warteschleife endlos
+        mErro = True
+        mIdle = True
+        SErLog "MaiSen: SendMail Rueckgabe " & SmRet & " - " & .GetLastErrDescription
+    End If
 End With
 
 Do While Not mIdle
@@ -851,6 +868,8 @@ StErr:
 If GlDbg = True Then
     MsgBox Err.Description, 48, "MaiSen " & Err.Number
     SErLog Err.Description & " MaiSen " & Err.Number & " - " & Err.Source
+ElseIf GlLog = True Then
+    SLogi "MaiSen Err: " & Err.Description & " #" & Err.Number 'sonst stumm (Resume Next)
 End If
 Resume Next
 

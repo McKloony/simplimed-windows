@@ -614,11 +614,7 @@ If RS127.RecordCount > 0 Then
         Else
             .AdBeh = vbNullString
         End If
-        If RS127.Fields("Em_Pass").Value > 0 Then
-            .AdPas = RS127.Fields("Em_Pass").Value
-        Else
-            .AdPas = vbNullString
-        End If
+        .AdPas = RS127.Fields("Em_Pass").Value & vbNullString 'als Text: "> 0" machte "0000" leer und loeste bei Text Fehler 13 aus
         If RS127.Fields("Geboren").Value > 0 Then
             If IsDate(RS127.Fields("Geboren").Value) = True Then
                 .AdGeb = CDate(RS127.Fields("Geboren").Value)
@@ -27746,6 +27742,9 @@ MaBes = CmAcs(TX_Mail_Notific).Checked = True
 TmGui = CreateID("M")
 DaNam = TmGui & EmExt
 FiNam = GlDpf & "Emails\" & DaNam
+If clFil.FilDir(GlDpf & "Emails\") = False Then 'FilDir legt den Ordner fuer die Postausgangs-Kopie bei Bedarf an
+    If GlLog = True Then SLogi "S_MaSe: Emailordner nicht vorhanden und nicht anlegbar: " & GlDpf & "Emails\"
+End If
 
 If CmEmp.Text = vbNullString Then
     SPopu "Kein Empfänger", "Es wurde kein Empfänger einteragen", IC48_Information
@@ -27948,7 +27947,9 @@ If MaHtm <> vbNullString Then
         End With
 
         If RetWe = 0 Then
-            MaSiz = FileLen(FiNam)
+            If clFil.FilVor(FiNam) = True Then 'ohne gespeicherte Kopie (SaveMail gescheitert) bleibt die Groesse 0
+                MaSiz = FileLen(FiNam)
+            End If
         End If
 
         RS130.AddNew
@@ -28062,6 +28063,8 @@ DaErr:
 If GlDbg = True Then
     MsgBox Err.Description, 48, "S_MaSe " & Err.Number
     SErLog Err.Description & " S_MaSe " & Err.Number & " - " & Err.Source
+ElseIf GlLog = True Then
+    SLogi "S_MaSe Err: " & Err.Description & " #" & Err.Number 'sonst stumm (Resume Next)
 End If
 Resume Next
 

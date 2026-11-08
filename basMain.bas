@@ -12163,9 +12163,10 @@ Dim EmEmp As String
 Dim EmTex As String
 Dim EmPas As String
 Dim EmBet As String
-Dim DaExt As String
+Dim TmPfa As String
 Dim EmVer As Boolean
 Dim VerOk As Boolean
+Dim clEnc As clsFile
 
 S_AdDe GlAdr
 With GlADt
@@ -12202,45 +12203,49 @@ EmTex = EmTex & vbCrLf & vbCrLf & SEmTx()
 
 If EmVer = True Then
     If EmPas <> vbNullString Then
-        With clFile
+        Set clEnc = New clsFile 'eigene Instanz: clFile ist ByRef das Modul-clFil von SKrDo, ein erneuter Aufruf waehrend SZipp kann es ersetzen
+        TmPfa = GlTmp
+        If Right$(TmPfa, 1) <> "\" Then TmPfa = TmPfa & "\"
+        With clEnc
             .FilPfa FilNa
             DaNam = .DaNam
             DaNaO = .DaNaO
-            DaExt = LCase$(.DaExt)
-            ZpDir = GlTmp & DaNaO
-            NeuNa = ZpDir & "\" & DaNam
-            ZipNa = GlTmp & DaNaO & ".zip"
-            If Dir$(ZpDir, vbDirectory) = vbNullString Then
-                MkDir ZpDir
+        End With
+        ZipNa = TmPfa & DaNaO & ".zip"
+        If WindowLoad("frmMaiView") = True Then
+            If SKrEmAt(ZipNa) = True Then 'offener Entwurf mit demselben Temp-ZIP: vorher schliessen, sein FDele loescht sonst das neue ZIP
+                Unload frmMaiView
                 DoEvents
             End If
-            If .FilVor(NeuNa) = True Then
-                .DaLoe = NeuNa & vbNullChar
-                .FilLoe
-            End If
-        End With
-        VerOk = False
-        If DaExt = "pdf" Then 'PDF selbst mit dem Kennwort schuetzen, oeffnet in jedem PDF-Programm
-            VerOk = SZipp(NeuNa, FilNa, False, False, EmPas, True)
-            If VerOk = True Then FilNa = NeuNa
         End If
-        If VerOk = False Then 'andere Formate oder nicht verschluesselbares PDF: AES-ZIP wie bisher
-            With clFile
-                If .FilVor(NeuNa) = True Then
-                    .DaLoe = NeuNa & vbNullChar
+        VerOk = False
+        If DaNam <> vbNullString Then 'ohne Dateinamen keine Temp-Pfade
+            ZpDir = TmPfa & CreateID("Z") 'jedes Format (auch PDF) als AES-ZIP: Kopie in eigenen Arbeitsordner, ZIP direkt in Temp
+            NeuNa = ZpDir & "\" & DaNam
+            MkDir ZpDir
+            With clEnc
+                .DaCop = FilNa & ";" & NeuNa & vbNullChar
+                If .FilCop(1) = True Then
+                    If .FilVor(NeuNa) = True Then 'nie ein leeres ZIP versenden
+                        DoEvents
+                        VerOk = SZipp(ZipNa, ZpDir, True, False, EmPas) '-delete loescht nur die archivierte Kopie, nie das ZIP
+                    End If
+                End If
+                If .FilVor(ZpDir) = True Then 'Arbeitsordner mit der unverschluesselten Kopie nie liegen lassen
+                    .DaLoe = ZpDir & vbNullChar
                     .FilLoe
                 End If
-                .DaCop = FilNa & ";" & NeuNa & vbNullChar
-                .FilCop 1
             End With
-            DoEvents
-            VerOk = SZipp(ZipNa, ZpDir, True, False, EmPas)
-            If VerOk = True Then FilNa = ZipNa
+            If VerOk = True Then FilNa = ZipNa 'angehaengt wird das ZIP; FDele loescht es nach dem Versand (Elternordner Temp)
         End If
+        Set clEnc = Nothing
         If VerOk = False Then 'nie unverschluesselt oder ohne Anlage versenden
             SPopu "Dokument nicht versendet", "Das Dokument konnte nicht verschlüsselt werden und wurde deshalb nicht versendet.", IC48_Forbidden
             Exit Sub
         End If
+    Else 'verschluesselter Versand eingestellt, aber kein Kennwort: nie im Klartext versenden
+        SPopu "Dokument nicht versendet", "Für den Patienten ist verschlüsselter Versand eingestellt, aber kein Kennwort hinterlegt.", IC48_Forbidden
+        Exit Sub
     End If
 End If
 
@@ -12249,7 +12254,35 @@ SMaNe GlAdr, EmEmp, , EmTex, EmBet, FilNa
 Exit Sub
 PoErr:
     If GlLog = True Then SLogi "SKrEm Err: " & Err.Description & " #" & Err.Number
+    If ZpDir <> vbNullString Then 'eigener Arbeitsordner (CreateID) mit der unverschluesselten Kopie nicht liegen lassen
+        Set clEnc = New clsFile
+        If clEnc.FilVor(ZpDir) = True Then
+            clEnc.DaLoe = ZpDir & vbNullChar
+            clEnc.FilLoe
+        End If
+        Set clEnc = Nothing
+    End If
 End Sub
+Private Function SKrEmAt(ByVal ZipNa As String) As Boolean
+On Error GoTo AtErr
+'Fuehrt der offene Mailentwurf dieses Temp-ZIP als Anlage?
+
+Dim AktZa As Integer
+
+SKrEmAt = False
+If GlAtV = True Then
+    For AktZa = 1 To UBound(GlAtt) 'GlAtt kann trotz GlAtV geleert sein (MaNav) -> AtErr
+        If LCase$(GlAtt(AktZa)) = LCase$(ZipNa) Then
+            SKrEmAt = True
+            Exit For
+        End If
+    Next AktZa
+End If
+
+Exit Function
+AtErr:
+    SKrEmAt = False
+End Function
 
 Private Sub SKrWoKv(ByVal Tit1 As String, ByVal Mld1 As String, ByVal Mld2 As String, ByVal Mld3 As String, ByVal FilNa As String, ByVal DaNam As String, ByVal KrDat As Date, ByVal KrZei As Date, ByVal TmpNa As String, ByVal IdxNr As Long, ByVal VoTyp As Integer, ByVal FHwnd As Long)
 On Error GoTo PoErr
