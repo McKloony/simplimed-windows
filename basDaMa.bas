@@ -3308,6 +3308,10 @@ Set RS152 = Nothing
 DoEvents
 
 '------------------------------------------ Setup -----------------------------------------------
+'Tabelle_Setup wird ueber die Position gelesen: der n-te Datensatz (ORDER BY [ID1]) steht in
+'GlSet(x, n - 1), gespeichert wird ueber [ID1] = n (S_SeSe). Aelteren Datenbanken fehlen Datensaetze
+'am Ende; welche Bloecke (GlS02 bis GlS11) angefuegt werden, entscheidet die Anzahl (GesZa).
+'Index 0 bis 109 sind fest belegt, weitere Datensaetze ([ID1] > 110) werden nur eingelesen.
 
 AktZa = 0
 SQL1 = "SELECT * FROM qrySetup ORDER BY [ID1]"
@@ -3325,90 +3329,108 @@ GesZa = RS153.RecordCount
 
 DoEvents
 If GesZa > 0 Then
-    If GesZa < 20 Then
+    If GesZa < 110 Then 'aeltere Datenbank: fehlende Einstellungen anfuegen
 
-        If GesZa = 19 Then 'bestehenden Wert anpassen
-            S_SeSe 19, , , , False
-            S_SeSe 19, , 1
-        ElseIf GesZa = 18 Then 'eine fehlende Einstellung hinzufügen
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", "1108#Standard-Laborkatalog", vbNullString, 1, 0, 0
+        If GesZa < 20 Then
+            If GesZa = 19 Then 'bestehenden Wert anpassen
+                S_SeSe 19, , , , False
+                S_SeSe 19, , 1
+            ElseIf GesZa = 18 Then 'eine fehlende Einstellung hinzufügen
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", "1108#Standard-Laborkatalog", vbNullString, 1, 0, 0
+            End If
+            DoEvents
+
+            SSet02
+            DoEvents
+            For AktZa = 0 To 10 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS02(0, AktZa)), CStr(GlS02(1, AktZa)), CLng(GlS02(2, AktZa)), CSng(GlS02(3, AktZa)), CBool(GlS02(4, AktZa))
+            Next AktZa
+            DoEvents
         End If
-        DoEvents
-        
-        SSet02
-        DoEvents
-        SSet03
-        DoEvents
-        SSet04
-        DoEvents
-        SSet05
-        DoEvents
-        SSet06
-        DoEvents
-        SSet07
-        DoEvents
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
+
+        If GesZa < 40 Then
+            SSet03
+            DoEvents
+            For AktZa = 0 To 9 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS03(0, AktZa)), CStr(GlS03(1, AktZa)), CLng(GlS03(2, AktZa)), CSng(GlS03(3, AktZa)), CBool(GlS03(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 64 Then
+            SSet04
+            DoEvents
+            For AktZa = 0 To 23 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS04(0, AktZa)), CStr(GlS04(1, AktZa)), CLng(GlS04(2, AktZa)), CSng(GlS04(3, AktZa)), CBool(GlS04(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 70 Then
+            SSet05
+            DoEvents
+            For AktZa = 0 To 5 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS05(0, AktZa)), CStr(GlS05(1, AktZa)), CLng(GlS05(2, AktZa)), CSng(GlS05(3, AktZa)), CBool(GlS05(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 75 Then
+            SSet06
+            DoEvents
+            For AktZa = 0 To 4 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS06(0, AktZa)), CStr(GlS06(1, AktZa)), CLng(GlS06(2, AktZa)), CSng(GlS06(3, AktZa)), CBool(GlS06(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 80 Then
+            SSet07
+            DoEvents
+            For AktZa = 0 To 4 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 90 Then
+            SSet08
+            DoEvents
+            For AktZa = 0 To 9 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 96 Then
+            SSet09
+            DoEvents
+            For AktZa = 0 To 5 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        If GesZa < 100 Then
+            SSet10
+            DoEvents
+            For AktZa = 0 To 3 'WICHTIG!
+                DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
+            Next AktZa
+            DoEvents
+        End If
+
+        'GlS11 fehlt jeder Datenbank mit weniger als 110 Datensaetzen
         SSet11
         DoEvents
-
-        For AktZa = 0 To 10 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS02(0, AktZa)), CStr(GlS02(1, AktZa)), CLng(GlS02(2, AktZa)), CSng(GlS02(3, AktZa)), CBool(GlS02(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS03(0, AktZa)), CStr(GlS03(1, AktZa)), CLng(GlS03(2, AktZa)), CSng(GlS03(3, AktZa)), CBool(GlS03(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 23 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS04(0, AktZa)), CStr(GlS04(1, AktZa)), CLng(GlS04(2, AktZa)), CSng(GlS04(3, AktZa)), CBool(GlS04(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS05(0, AktZa)), CStr(GlS05(1, AktZa)), CLng(GlS05(2, AktZa)), CSng(GlS05(3, AktZa)), CBool(GlS05(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS06(0, AktZa)), CStr(GlS06(1, AktZa)), CLng(GlS06(2, AktZa)), CSng(GlS06(3, AktZa)), CBool(GlS06(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
         For AktZa = 0 To 9 'WICHTIG!
             DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
         Next AktZa
         DoEvents
-        
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
+
+        RS153.Close 'Einstellungen nach dem Anfuegen neu einlesen
+        Set RS153 = New ADODB.Recordset
+        With RS153
             .CursorLocation = adUseClient
             .Source = SQL1
             .ActiveConnection = DB1
@@ -3416,655 +3438,36 @@ If GesZa > 0 Then
             .LockType = adLockReadOnly
             .Open Options:=adCmdText
         End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-                
-    ElseIf GesZa < 40 Then
-    
-        SSet03
-        DoEvents
-        SSet04
-        DoEvents
-        SSet05
-        DoEvents
-        SSet06
-        DoEvents
-        SSet07
-        DoEvents
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS03(0, AktZa)), CStr(GlS03(1, AktZa)), CLng(GlS03(2, AktZa)), CSng(GlS03(3, AktZa)), CBool(GlS03(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 23 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS04(0, AktZa)), CStr(GlS04(1, AktZa)), CLng(GlS04(2, AktZa)), CSng(GlS04(3, AktZa)), CBool(GlS04(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS05(0, AktZa)), CStr(GlS05(1, AktZa)), CLng(GlS05(2, AktZa)), CSng(GlS05(3, AktZa)), CBool(GlS05(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS06(0, AktZa)), CStr(GlS06(1, AktZa)), CLng(GlS06(2, AktZa)), CSng(GlS06(3, AktZa)), CBool(GlS06(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
+        GesZa = RS153.RecordCount
         DoEvents
 
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-        
-    ElseIf GesZa < 64 Then
-            
-        SSet04
-        DoEvents
-        SSet05
-        DoEvents
-        SSet06
-        DoEvents
-        SSet07
-        DoEvents
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-
-        For AktZa = 0 To 23 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS04(0, AktZa)), CStr(GlS04(1, AktZa)), CLng(GlS04(2, AktZa)), CSng(GlS04(3, AktZa)), CBool(GlS04(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS05(0, AktZa)), CStr(GlS05(1, AktZa)), CLng(GlS05(2, AktZa)), CSng(GlS05(3, AktZa)), CBool(GlS05(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS06(0, AktZa)), CStr(GlS06(1, AktZa)), CLng(GlS06(2, AktZa)), CSng(GlS06(3, AktZa)), CBool(GlS06(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-
-    ElseIf GesZa < 70 Then
-    
-        SSet05
-        DoEvents
-        SSet06
-        DoEvents
-        SSet07
-        DoEvents
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS05(0, AktZa)), CStr(GlS05(1, AktZa)), CLng(GlS05(2, AktZa)), CSng(GlS05(3, AktZa)), CBool(GlS05(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS06(0, AktZa)), CStr(GlS06(1, AktZa)), CLng(GlS06(2, AktZa)), CSng(GlS06(3, AktZa)), CBool(GlS06(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-        
-    ElseIf GesZa < 75 Then
-    
-        SSet06
-        DoEvents
-        SSet07
-        DoEvents
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS06(0, AktZa)), CStr(GlS06(1, AktZa)), CLng(GlS06(2, AktZa)), CSng(GlS06(3, AktZa)), CBool(GlS06(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-    
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-
-    ElseIf GesZa < 80 Then
-    
-        SSet07
-        DoEvents
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-        
-        For AktZa = 0 To 4 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS07(0, AktZa)), CStr(GlS07(1, AktZa)), CLng(GlS07(2, AktZa)), CSng(GlS07(3, AktZa)), CBool(GlS07(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-    
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-        
-    ElseIf GesZa < 90 Then
-    
-        SSet08
-        DoEvents
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS08(0, AktZa)), CStr(GlS08(1, AktZa)), CLng(GlS08(2, AktZa)), CSng(GlS08(3, AktZa)), CBool(GlS08(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-        
-    ElseIf GesZa < 96 Then
-    
-        SSet09
-        DoEvents
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-
-        For AktZa = 0 To 5 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS09(0, AktZa)), CStr(GlS09(1, AktZa)), CLng(GlS09(2, AktZa)), CSng(GlS09(3, AktZa)), CBool(GlS09(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-
-    ElseIf GesZa < 100 Then
-
-        SSet10
-        DoEvents
-        SSet11
-        DoEvents
-                
-        For AktZa = 0 To 3 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS10(0, AktZa)), CStr(GlS10(1, AktZa)), CLng(GlS10(2, AktZa)), CSng(GlS10(3, AktZa)), CBool(GlS10(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-
-    ElseIf GesZa < 110 Then
-
-        SSet11
-        DoEvents
-
-        For AktZa = 0 To 9 'WICHTIG!
-            DBCmEx5 "qrySetAd", "@IdStr", "@SeTex", "@SeInt", "@SeRea", "@SeBit", CStr(GlS11(0, AktZa)), CStr(GlS11(1, AktZa)), CLng(GlS11(2, AktZa)), CSng(GlS11(3, AktZa)), CBool(GlS11(4, AktZa))
-        Next AktZa
-        DoEvents
-        
-        AktZa = 0
-        Set RS154 = New ADODB.Recordset 'Read Setup
-        With RS154
-            .CursorLocation = adUseClient
-            .Source = SQL1
-            .ActiveConnection = DB1
-            .CursorType = adOpenForwardOnly
-            .LockType = adLockReadOnly
-            .Open Options:=adCmdText
-        End With
-        GesZa = RS154.RecordCount
-        DoEvents
-        ReDim GlSet(5, 110) 'WICHTIG!
-        Do 'alle vorhandenen Einstellungen durchlaufen
-        If RS154.Fields("IDKurz").Value <> vbNullString Then
-            GlSet(0, AktZa) = RS154.Fields("IDKurz").Value
-        End If
-        If RS154.Fields("SetTex").Value <> vbNullString Then
-            GlSet(1, AktZa) = RS154.Fields("SetTex").Value
-        End If
-        GlSet(2, AktZa) = RS154.Fields("SetInt").Value
-        GlSet(3, AktZa) = RS154.Fields("SetDec").Value
-        GlSet(4, AktZa) = RS154.Fields("SetBit").Value
-        AktZa = AktZa + 1
-        RS154.MoveNext
-        Loop Until RS154.EOF
-        RS154.Close
-        Set RS154 = Nothing
-        
-    ElseIf GesZa = 110 Then
-        
-        AktZa = 0
-        ReDim GlSet(5, 110) 'WICHTIG!
-
+    Else
         ' Ensure RS153 is positioned at first record
         If Not RS153.EOF And Not RS153.BOF Then
             RS153.MoveFirst
         End If
-
-        If Not RS153.EOF Then
-            Do 'alle vorhandenen Einstellungen durchlaufen
-            If RS153.Fields("IDKurz").Value <> vbNullString Then
-                GlSet(0, AktZa) = RS153.Fields("IDKurz").Value
-            End If
-            If RS153.Fields("SetTex").Value <> vbNullString Then
-                GlSet(1, AktZa) = RS153.Fields("SetTex").Value
-            End If
-            GlSet(2, AktZa) = RS153.Fields("SetInt").Value
-            GlSet(3, AktZa) = RS153.Fields("SetDec").Value
-            GlSet(4, AktZa) = RS153.Fields("SetBit").Value
-            AktZa = AktZa + 1
-            RS153.MoveNext
-            Loop Until RS153.EOF
-        End If
-        
     End If
+
+    GesLe = 110 'WICHTIG! Mindestgroesse, Index 0 bis 109 sind fest belegt
+    If GesZa - 1 > GesLe Then 'mehr Datensaetze: hoechster Index = Anzahl - 1
+        GesLe = GesZa - 1
+    End If
+    ReDim GlSet(5, GesLe)
+
+    AktZa = 0
+    Do Until RS153.EOF 'alle vorhandenen Einstellungen durchlaufen
+        If RS153.Fields("IDKurz").Value <> vbNullString Then
+            GlSet(0, AktZa) = RS153.Fields("IDKurz").Value
+        End If
+        If RS153.Fields("SetTex").Value <> vbNullString Then
+            GlSet(1, AktZa) = RS153.Fields("SetTex").Value
+        End If
+        GlSet(2, AktZa) = RS153.Fields("SetInt").Value
+        GlSet(3, AktZa) = RS153.Fields("SetDec").Value
+        GlSet(4, AktZa) = RS153.Fields("SetBit").Value
+        AktZa = AktZa + 1
+        RS153.MoveNext
+    Loop
 Else
     SSet01 'keine zentralen Einstellungen vorhanden
     DoEvents
@@ -4310,10 +3713,6 @@ End If
 If Not RS153 Is Nothing Then
     If RS153.State <> adStateClosed Then RS153.Close
     Set RS153 = Nothing
-End If
-If Not RS154 Is Nothing Then
-    If RS154.State <> adStateClosed Then RS154.Close
-    Set RS154 = Nothing
 End If
 
 Exit Sub
