@@ -159,6 +159,10 @@ Private Declare Function ExtractIconEx Lib "shell32.dll" Alias "ExtractIconExA" 
 Private Declare Function DestroyIcon Lib "user32" (ByVal hIcon As Long) As Long
 Private Declare Function CharToOem Lib "user32" Alias "CharToOemA" (ByVal lpszSrc As String, ByVal lpszDst As String) As Long
 Private Declare Function OemToChar Lib "user32" Alias "OemToCharA" (ByVal lpszSrc As String, ByVal lpszDst As String) As Long
+Private Declare Function GetFileVersionInfoSize Lib "version.dll" Alias "GetFileVersionInfoSizeA" (ByVal lptstrFilename As String, lpdwHandle As Long) As Long
+Private Declare Function GetFileVersionInfo Lib "version.dll" Alias "GetFileVersionInfoA" (ByVal lptstrFilename As String, ByVal dwHandle As Long, ByVal dwLen As Long, lpData As Any) As Long
+Private Declare Function VerQueryValue Lib "version.dll" Alias "VerQueryValueA" (pBlock As Any, ByVal lpSubBlock As String, lplpBuffer As Long, puLen As Long) As Long
+Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (Destination As Any, Source As Any, ByVal Length As Long)
 Function SArSor(ByRef KeyAr As Variant) As Variant()
 On Error GoTo LaErr
 'Array sortieren
@@ -1290,6 +1294,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
     If GlMes = 33565 Then
                 
         PaStr = "getsign" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & "--zip=" & Chr$(34) & ZipNa & Chr$(34) & Space$(1) & "--file=" & Chr$(34) & IniNa & Chr$(34)
+        PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
         DoEvents
 
@@ -1648,6 +1653,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
         DoEvents
     
         PaStr = "createsign" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaNam & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & PaNum & Chr$(34) & Space$(1) & Chr$(34) & PatVo & Chr$(34) & Space$(1) & Chr$(34) & PatNa & Chr$(34) & Space$(1) & Chr$(34) & PatEm & Chr$(34) & Space$(1) & Chr$(34) & DaNaO & Chr$(34) & Space$(1) & Chr$(34) & DaNam & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--ocr=0" & Space$(1) & "--days=" & GlVrw
+        PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
         DoEvents
         
@@ -2794,6 +2800,93 @@ If GlDbg = True Then SErLog Err.Description & " SMePa " & Err.Number
 Resume Next
 
 End Sub
+Public Function SMFAn(ByVal PrNam As String, ByVal PaStr As String) As String
+On Error GoTo AnErr
+'Befehlszeile fuer smforms.exe: ab Dateiversion 2.0.0.0 wird der Windows-Anmeldename der Sitzung als
+'--login="<Name>" direkt hinter dem Befehlswort uebergeben. Altes Programm, nicht lesbare Version oder
+'unbrauchbarer Name: PaStr bleibt Zeichen fuer Zeichen wie bisher. Einzige Stelle fuer diese Entscheidung.
+'Version und Name werden bei jedem Aufruf neu gelesen (PrNam wie beim Start, mit oder ohne Anfuehrungszeichen).
+
+Dim LoNam As String
+
+SMFAn = PaStr
+
+If Len(PrNam) > 2 Then
+    If Left$(PrNam, 1) = Chr$(34) And Right$(PrNam, 1) = Chr$(34) Then PrNam = Mid$(PrNam, 2, Len(PrNam) - 2)
+End If
+
+Set clNet = New clsNetz
+LoNam = clNet.NetBen 'Windows-Anmeldename, unveraendert
+Set clNet = Nothing
+
+SMFAn = SMFEi(PaStr, SMFVe(PrNam), LoNam)
+
+Exit Function
+
+AnErr:
+If GlLog = True Then SLogi "SMFAn Err: " & Err.Description & " #" & Err.Number
+Set clNet = Nothing
+SMFAn = PaStr
+
+End Function
+Private Function SMFEi(ByVal PaStr As String, ByVal VeMaj As Long, ByVal LoNam As String) As String
+'Fuegt --login="<LoNam>" hinter dem Befehlswort (vor dem ersten Argument) ein, genau einmal.
+'PaStr bleibt unveraendert bei VeMaj < 2 (altes Programm oder Version nicht lesbar), bei leerem Namen,
+'bei mehr als 20 Zeichen und bei anderen Zeichen als A-Z, a-z, 0-9, Punkt, Bindestrich, Unterstrich.
+
+Const ErlZe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_"
+Dim Posit As Long
+Dim AktZa As Long
+
+SMFEi = PaStr
+If VeMaj < 2 Then Exit Function
+If Len(LoNam) < 1 Or Len(LoNam) > 20 Then Exit Function
+
+For AktZa = 1 To Len(LoNam)
+    If InStr(1, ErlZe, Mid$(LoNam, AktZa, 1), vbBinaryCompare) = 0 Then Exit Function
+Next AktZa
+
+Posit = InStr(1, PaStr, Space$(1), vbBinaryCompare)
+If Posit < 2 Then Exit Function 'kein Befehlswort mit Argumenten
+If Mid$(PaStr, Posit + 1, 8) = "--login=" Then Exit Function 'steht schon dort
+
+SMFEi = Left$(PaStr, Posit) & "--login=" & Chr$(34) & LoNam & Chr$(34) & Space$(1) & Mid$(PaStr, Posit + 1)
+
+End Function
+Private Function SMFVe(ByVal FiNam As String) As Long
+On Error GoTo VeErr
+'Hauptnummer der Dateiversion aus dem festen Teil der Versionsangabe (VS_FIXEDFILEINFO); das Programm wird
+'dafuer nicht gestartet. 0 = Datei fehlt, hat keine Versionsangabe oder ist nicht lesbar (gilt als altes Programm).
+'Nichts wird gemerkt: eine waehrend der Sitzung getauschte Datei zaehlt beim naechsten Aufruf.
+
+Dim VeLae As Long
+Dim Dummy As Long
+Dim ZeiAd As Long
+Dim ZeiLa As Long
+Dim VeBuf() As Byte
+Dim VeTei(0 To 5) As Integer
+
+SMFVe = 0
+If FiNam = vbNullString Then Exit Function
+
+VeLae = GetFileVersionInfoSize(FiNam, Dummy)
+If VeLae <= 0 Then Exit Function
+
+ReDim VeBuf(0 To VeLae - 1)
+If GetFileVersionInfo(FiNam, 0&, VeLae, VeBuf(0)) = 0 Then Exit Function
+If VerQueryValue(VeBuf(0), "\", ZeiAd, ZeiLa) = 0 Then Exit Function
+If ZeiAd = 0 Or ZeiLa < 12 Then Exit Function
+
+CopyMemory VeTei(0), ByVal ZeiAd, 12 'dwSignature, dwStrucVersion, dwFileVersionMS
+If VeTei(0) <> &H4BD Or VeTei(1) <> &HFEEF Then Exit Function 'Signatur &HFEEF04BD
+SMFVe = CLng(VeTei(5)) And &HFFFF& 'hohes Wort von dwFileVersionMS = Hauptnummer
+
+Exit Function
+
+VeErr:
+SMFVe = 0
+
+End Function
 Public Function SMFUp(ByVal FiNam As String, Optional ByVal MaEma As String, Optional ByVal MaBrf As String, Optional ByVal BogNa As String) As String
 On Error GoTo SuErr
 'Veröffentlicht (Publiziert) das Neuaufnahmeformular
@@ -2914,6 +3007,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
             PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
         End If
 
+        PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
         DoEvents
 

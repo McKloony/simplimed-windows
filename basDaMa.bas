@@ -175,6 +175,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
     If GlMes = 33565 Then
         
         PaStr = "download" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & "--csv=" & Chr$(34) & FiNam & Chr$(34) & Space$(1) & "--file=" & Chr$(34) & IniNa & Chr$(34) & Space$(1) & "--zip=" & Chr$(34) & ImpOr & Chr$(34)
+        PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
         DoEvents
 
@@ -1039,6 +1040,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
         If GlMes = 33565 Then
         
             PaStr = "delete" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34)
+            PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
             WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
             DoEvents
 
@@ -1968,6 +1970,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
         DaIni = GlTmp & IniNa
 
         PaStr = "unlock" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & SbStr & Chr$(34) & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34)
+        PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
         DoEvents
     
@@ -2401,6 +2404,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
             PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & FiNam & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
         End If
 
+        PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
         WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
         DoEvents
 
@@ -2611,6 +2615,7 @@ If GlCID <> vbNullString Then 'Cloud-ID
         PaStr = "upload" & Space$(1) & Chr$(34) & GlCID & Chr$(34) & Space$(1) & Chr$(34) & MaBrf & Chr$(34) & Space$(1) & Chr$(34) & MaEma & Chr$(34) & Space$(1) & Chr$(34) & GuiKy & Chr$(34) & Space$(1) & Chr$(34) & BogNa & Chr$(34) & Space$(1) & Chr$(34) & Chr$(34) & Space$(1) & FrSet & Space$(1) & FrTer & Space$(1) & FrUpl & Space$(1) & "--file=" & Chr$(34) & DaIni & Chr$(34) & Space$(1) & "--reducedMandatory=" & FrRed & Space$(1) & "--extendedForm=" & FrRec
     End If
 
+    PaStr = SMFAn(PrNam, PaStr) 'smforms ab 2.0: --login mit dem Windows-Anmeldenamen hinter dem Befehlswort
     WindowStart PrNam & Space$(1) & PaStr, vbNormalFocus, True, True
     DoEvents
 
