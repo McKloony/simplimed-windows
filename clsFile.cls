@@ -347,7 +347,7 @@ Private Declare Function WriteFile Lib "kernel32" (ByVal hFile As Long, lpBuffer
 Private Declare Function CreateFile Lib "kernel32" Alias "CreateFileA" (ByVal lpFileName As String, ByVal dwDesiredAccess As Long, ByVal dwShareMode As Long, ByVal lpSecurityAttributes As Long, ByVal dwCreationDisposition As Long, ByVal dwFlagsAndAttributes As Long, ByVal hTemplateFile As Long) As Long
 Private Declare Function GetFileTime Lib "kernel32.dll" (ByVal hFile As Long, lpCreationTime As FILETIME, lpLastAccessTime As FILETIME, lpLastWriteTime As FILETIME) As Long
 Private Declare Function FlushFileBuffers Lib "kernel32" (ByVal hFile As Long) As Long
-Private Declare Function FileTimeToLocalFileTime Lib "kernel32" (lpFileTime As FILETIME, lpLocalFileTime As FILETIME) As Long
+Private Declare Function SystemTimeToTzSpecificLocalTime Lib "kernel32" (lpTimeZoneInformation As Any, lpUniversalTime As SYSTEMTIME, lpLocalTime As SYSTEMTIME) As Long
 Private Declare Function FileTimeToSystemTime Lib "kernel32" (lpFileTime As FILETIME, lpSystemTime As SYSTEMTIME) As Long
 Private Declare Function OpenProcess Lib "kernel32" (ByVal dwDesiredAccess As Long, ByVal bInheritHandle As Long, ByVal dwProcessId As Long) As Long
 Private Declare Function GetExitCodeProcess Lib "kernel32" (ByVal hProcess As Long, lpExitCode As Long) As Long
@@ -1087,6 +1087,7 @@ On Error Resume Next
 Dim hFile As Long
 Dim ZeStr As String
 Dim CTime As FILETIME
+Dim UTime As SYSTEMTIME
 Dim STime As SYSTEMTIME
 Dim Dummi As FILETIME
 
@@ -1096,9 +1097,8 @@ If hFile = -1 Then Exit Function
 
 GetFileTime hFile, CTime, Dummi, Dummi
   
-FileTimeToLocalFileTime CTime, CTime
-
-FileTimeToSystemTime CTime, STime
+FileTimeToSystemTime CTime, UTime 'UTC
+SystemTimeToTzSpecificLocalTime ByVal 0&, UTime, STime 'Ortszeit mit dem Sommerzeit-Versatz des Datums, nicht dem heutigen
 
 ZeStr = Format$(STime.wYear, "0000") & "." & Format$(STime.wMonth, "00") & "." & Format$(STime.wDay, "00") & " - " & Format$(STime.wHour, "00") & ":" & Format$(STime.wMinute, "00") & ":" & Format$(STime.wSecond, "00")
 
