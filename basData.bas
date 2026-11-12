@@ -18546,6 +18546,7 @@ Else
                         Else
                             KrLok = False
                         End If
+                        If KrLok = False And KrTyp = 24 Then KrLok = STxFk(IdxNr) 'Textdokument: Festschreibung frisch lesen (Druck an einem anderen Arbeitsplatz)
                     End If
                     
                     If KrLok = False Then

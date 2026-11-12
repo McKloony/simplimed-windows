@@ -530,6 +530,8 @@ Dim GesZa As Integer
 Dim CmBrs As XtremeCommandBars.CommandBars
 Dim RpCo1 As XtremeReportControl.ReportControl
 
+If STxPr() = False Then Exit Sub 'geaendertes Textdokument vor dem Patientenwechsel sichern (D4)
+
 Set FTex1 = Me.txtKurz
 Set LiVw3 = Me.lstView3
 Set LiIts = LiVw3.ListItems

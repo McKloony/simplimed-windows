@@ -186,6 +186,12 @@ Private Knote As XtremeSuiteControls.TreeViewNode
 Private ChCon As XtremeChartControl.ChartControl
 Private ShCut As XtremeShortcutBar.ShortcutBar
 Private TxCoN As Tx4oleLib.TXTextControl
+Private TxWaD As String 'STxPr: Zuordnung, fuer die fremder Inhalt schon gemeldet wurde (STxMo True loescht)
+Private TxFeD As String 'STxFa: Datei des festgeschriebenen Dokuments, fuer das der Schreibschutz gesetzt wurde
+Private TxFeF As Boolean 'STxFl: der letzte Zugriff auf das Sperrfeld scheiterte (Datenbankfehler), Stand unbekannt (STxFu)
+Private TxFeH As String 'STxFh: Datei, fuer die der Hinweis auf die Festschreibung schon gezeigt wurde
+Private TxFeM As Boolean 'STxFa: der Schreibschutz von TexCont1 stammt von dort (nur dann wird er aufgehoben)
+Private TxWoA As Boolean 'STxWo: Umwandlung abgewiesen, weil das Ziel ein festgeschriebenes Dokument ist (SKrWoKv)
 Private TxRu1 As Tx4oleLib.TXRuler
 Private TxRu2 As Tx4oleLib.TXRuler
 
@@ -614,6 +620,8 @@ Global GlSuW As Boolean 'Warnung vor Summe
 Global GlLiz As Boolean 'Lizenzierung
 Global GlSav As Boolean 'Speichern Krankenblatt
 Global GlTSV As Boolean 'Speichern Textverarbeitung
+Global GlTxA As Boolean 'Textverarbeitung: Aenderung durch den Anwender seit Laden/Speichern (STxMo)
+Global GlTxH As String 'Textverarbeitung: Datei, aus der der Inhalt von TexCont1 stammt (STxZu); GlTxF teilt sich die Vorschau
 Global GlDau As Boolean 'Dauerdiagnose
 Global GlExp As Boolean 'Gliederungsexpansion
 Global GlUm1 As Boolean 'Umschalten Terminliste
@@ -3466,6 +3474,8 @@ Dim CmMit As XtremeSuiteControls.ComboBox
 Dim RpCo2 As XtremeReportControl.ReportControl
 Dim RpCls As XtremeReportControl.ReportColumns
 Dim ImMan As XtremeCommandBars.ImageManager
+
+If STxPr() = False Then Exit Sub 'geaendertes Textdokument vor dem Adressformular sichern (D4)
 
 Set FM = frmMain
 Set RpCo2 = FM.repCont2
@@ -12301,6 +12311,7 @@ Case 1: 'Nachfragen Konvertierung
         DoEvents
         STxWo GlAdr, FilNa, KrDat, KrZei, TmpNa
         DoEvents
+        If TxWoA = True Then Exit Sub 'Umwandlung abgewiesen (Ziel ist ein festgeschriebenes Dokument): der Eintrag der Word-Datei bleibt
         If GlBuL = True Then
             DBCmEx1 "qrySimAbLo", "@IdxNr", IdxNr
         Else
@@ -12320,6 +12331,7 @@ Case 2: 'Automatische Konvertierung
     DoEvents
     STxWo GlAdr, FilNa, KrDat, KrZei, TmpNa
     DoEvents
+    If TxWoA = True Then Exit Sub 'Umwandlung abgewiesen (Ziel ist ein festgeschriebenes Dokument): der Eintrag der Word-Datei bleibt
     If GlBuL = True Then
         DBCmEx1 "qrySimAbLo", "@IdxNr", IdxNr
     Else
@@ -12720,6 +12732,7 @@ Case RibTab_Krankenbla:
                             NeuNa = .FileName
                             If .FileTitle = vbNullString Then Exit Sub
                         End With
+                        If STxFw(NeuNa, "ersetzt", False) = True Then Exit Sub 'festgeschriebenes Textdokument nie ersetzen (meldet selbst)
                         With clFil
                             If .FilVor(NeuNa) = True Then
                                 .DaLoe = NeuNa & vbNullChar
@@ -16727,27 +16740,30 @@ Case RibTab_Tex_Dokumt:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht wechseln
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Tex_Vorlag:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht wechseln
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Tex_Rezept:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht wechseln
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Krankenbla:
@@ -16988,6 +17004,12 @@ Set clFil = New clsFile
 
 TxCoN.ResetContents
 DoEvents
+GlTDa = vbNullString 'Inhalt geleert: keine Zuordnung mehr, STxLa setzt sie neu (keine Kopien)
+GlTxF = vbNullString
+GlTxH = vbNullString
+GlTxN = False
+GlTSV = False 'Speichern Textverarbeitung
+STxMo True
 
 If GlAdr > 0 Then
     LiIts.Clear
@@ -22918,11 +22940,11 @@ Case RibTab_LabBericht:
 Case RibTab_LabAuftrag:
             S_LaSa
 Case RibTab_Tex_Dokumt:
-            STxSa
+            If GlTSV = True Then STxSj 'nach Zuordnung speichern, kein fremdes Dokument ueberschreiben
 Case RibTab_Tex_Vorlag:
             STxSv
 Case RibTab_Tex_Rezept:
-            STxSa
+            If GlTSV = True Then STxSj 'nach Zuordnung speichern, kein fremdes Dokument ueberschreiben
 Case RibTab_Tex_NewsLe:
             STxSa
 Case RibTab_Buchungen:
@@ -25213,27 +25235,30 @@ Case RibTab_Tex_Dokumt:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht wechseln
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Tex_Vorlag:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht wechseln
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Tex_Rezept:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht wechseln
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Krankenbla:
@@ -32031,6 +32056,8 @@ End Sub
 Public Sub STxDi()
 On Error GoTo PoErr
 
+If STxPr() = False Then Exit Sub 'geaendertes Dokument vor dem Word-Import sichern (D4)
+
 Set FM = frmAdrWord
 
 FM.Show vbModal
@@ -32056,6 +32083,8 @@ Dim SeiPo As Variant
 Dim RetWe As Boolean
 Dim TxFnt As New StdFont
 Dim CmBrs As XtremeCommandBars.CommandBars
+
+If STxPr() = False Then Exit Sub 'geaendertes Dokument vor dem Ersetzen sichern (D4)
 
 GlAkt = True
 
@@ -32419,6 +32448,7 @@ clFen.FenDsk 3
 Screen.MousePointer = vbNormal
 
 GlTSV = True 'Speichern Textverarbeitung
+STxMo True 'Inhalt vom Programm angelegt: noch keine Aenderung des Anwenders
 GlAkt = False
 
 Set CmAcs = Nothing
@@ -32650,6 +32680,7 @@ If LiIts.Count > 0 Then
     End With
 
     GlTxF = FiNam 'Filname für Textcontrol Error
+    GlTxH = FiNam 'Inhalt stammt aus dieser Datei (STxZu)
     GlTxU = LCase(DaExt)
     
     Select Case LCase(DaExt)
@@ -32740,7 +32771,9 @@ Dim RetWe As Boolean
 Dim DoSav As Boolean
 Dim TmDat() As Byte
 
-If GlTSV = True Then 'Speichern Textverarbeitung
+If STxZu() <> 0 Then 'Einzelbrief im Textmodul: vor jeder Ausgabe speichern (D1)
+    If STxDr(False) = False Then Exit Sub
+ElseIf GlTSV = True Then 'Speichern Textverarbeitung
     RetWe = STxSa()
     DoEvents
 End If
@@ -32947,6 +32980,7 @@ Set CmAcs = CmBrs.Actions
 
 GlTDa = vbNullString
 GlTxF = vbNullString 'Filname fuer Textcontrol Error
+GlTxH = vbNullString 'Inhalt stammt aus keiner Datei (STxZu)
 
 GlTxB = False 'Beispiele in Datenfeldern anzeigen
 
@@ -33067,6 +33101,8 @@ With TxCoN
     End Select
 End With
 
+STxMo True 'leeres Dokument vom Programm angelegt: noch keine Aenderung des Anwenders
+
 Set CmAcs = Nothing
 
 Exit Sub
@@ -33094,6 +33130,8 @@ Dim AkZei As Integer
 Dim SeiPo As Variant
 Dim TxFnt As New StdFont
 Dim CmBrs As XtremeCommandBars.CommandBars
+
+If STxPr() = False Then Exit Sub 'geaendertes Dokument vor dem Ersetzen sichern (D4)
 
 Set FM = frmMain
 Set CmBrs = FM.comBar01
@@ -33493,6 +33531,7 @@ DoEvents
 
 TxCoN.Save FilNa, 0, 3
 GlTxF = FilNa 'Filname fuer Textcontrol Error
+GlTxH = FilNa 'Inhalt stammt jetzt aus dieser Datei (STxZu)
 STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
 DoEvents 'Speichern des neuen Dokumentes
 
@@ -33761,6 +33800,8 @@ Dim RetWe As Boolean
 Dim TxFnt As New StdFont
 Dim CmBrs As XtremeCommandBars.CommandBars
 Dim CmCom As XtremeCommandBars.CommandBarComboBox
+
+If STxPr() = False Then Exit Sub 'geaendertes Dokument vor dem Ersetzen sichern (D4)
 
 If GlSHt <> ShoCut_Texte Then
     GlBu6 = RibTab_Tex_Rezept
@@ -34056,6 +34097,7 @@ clFen.FenDsk 3
 Screen.MousePointer = vbNormal
 
 GlTSV = True 'Speichern Textverarbeitung
+STxMo True 'Inhalt vom Programm angelegt: noch keine Aenderung des Anwenders
 GlAkt = False
 
 Set CmAcs = Nothing
@@ -34071,32 +34113,537 @@ Resume Next
 
 End Sub
 Public Function STxMo(Optional ByVal ZuRue As Boolean = False) As Boolean
-On Error GoTo MoErr
-'Meldet, ob das Textcontrol seit Laden/Speichern geaendert wurde
-'Spaete Bindung: fehlt die Eigenschaft, gilt das bisherige Verhalten (immer True)
-
-Dim TxObj As Object
-
-Set TxObj = frmMain.TexCont1
+'Meldet, ob der Anwender das Textdokument seit Laden/Speichern geaendert hat (GlTxA).
+'tx4ole26 hat keine Eigenschaft Changed: die Marke setzen TexCont1_Change und FTxGe (frmMain).
+'Ausserhalb der Text-Reiter (Krankenblattdokument, Newsletter) bleibt es beim bisherigen Verhalten (True).
 
 If ZuRue = True Then
-    TxObj.Changed = False
+    GlTxA = False
+    TxWaD = vbNullString 'nach Laden/Speichern/Verwerfen gilt eine neue Warnung
     STxMo = False
-Else
-    STxMo = CBool(TxObj.Changed)
-End If
-
-Set TxObj = Nothing
-
-Exit Function
-
-MoErr:
-If ZuRue = True Then
-    STxMo = False
+    STxFa 'Schreibschutz passend zum Inhalt: ein festgeschriebenes Dokument wird nur angezeigt
+ElseIf STxRe() = True Then
+    STxMo = GlTxA
 Else
     STxMo = True
 End If
-Set TxObj = Nothing
+
+End Function
+Public Sub STxAe()
+'Aenderung durch den Anwender in einem Text-Reiter (TexCont1_Change, FTxGe): Marke setzen.
+'Eine fruehere Warnung zu fremdem Inhalt (STxPr) gilt danach nicht mehr, der naechste Wechsel meldet erneut.
+
+GlTxA = True
+TxWaD = vbNullString
+
+End Sub
+Public Function STxRe() As Boolean
+'True in den Text-Reitern mit Patientendokumenten (Dokumente, Vorlagen, Langrezepte)
+
+Select Case GlBut
+Case RibTab_Tex_Dokumt, RibTab_Tex_Vorlag, RibTab_Tex_Rezept: STxRe = True
+Case Else: STxRe = False
+End Select
+
+End Function
+Public Function STxZu() As Integer
+'Zuordnung des Textdokuments vor einem automatischen oder erzwungenen Speichern (keine Kopien):
+'0 = nicht zustaendig (anderer Reiter, Serienbrief, ohne Patient)
+'1 = Dokument des Patienten: STxSa ueberschreibt die Datei in GlDox, aus der der Inhalt stammt (GlTxH)
+'2 = neues Dokument: STxSa legt genau eine Datei mit Krankenblatteintrag an
+'3 = fremder Inhalt (Vorlage, fremde Datei, Dokument eines anderen Patienten): nie automatisch speichern,
+'    auf ausdruecklichen Wunsch (Drucken, Ausgabe, Dokument Speichern) als neues Dokument des Patienten (STxSf)
+'Massgeblich ist GlTxH, nicht GlTxF: GlTxF ueberschreibt auch die Vorschau (VoTxIni).
+
+Dim DaNam As String
+Dim Posit As Long
+
+STxZu = 0
+If STxRe() = False Then Exit Function
+If GlTxM = True Then Exit Function 'Serienbriefmodus
+If GlAdr <= 0 Then Exit Function
+
+If GlTxN = True And GlTDa = vbNullString Then 'neues Textdokument, noch nie gespeichert
+    STxZu = 2
+    Exit Function
+End If
+
+If GlTxH = vbNullString Then 'Inhalt stammt aus keiner Datei
+    If GlTDa = vbNullString Then
+        STxZu = 2 'frisch angelegter Inhalt
+    Else
+        STxZu = 3 'Dateiname ohne geladene Datei
+    End If
+    Exit Function
+End If
+
+Posit = InStrRev(GlTxH, "\")
+DaNam = Mid$(GlTxH, Posit + 1)
+If LCase$(GlTxH) = LCase$(GlDox & DaNam) And UCase$(Left$(DaNam, 9)) = "TD" & Format$(GlAdr, "000000") & "_" Then 'Schreibweise td/TD ist fuer Windows dieselbe Datei
+    STxZu = 1 'Datei des Patienten im Dokumentordner
+Else
+    STxZu = 3
+End If
+
+End Function
+Public Function STxTi(ByVal DaNam As String) As String
+'Titel eines Textdokuments aus dem Dateinamen: TD<Nr>_<ID>_<Titel>.txm ergibt <Titel>, andere Namen ohne Endung
+
+Dim Posit As Long
+
+STxTi = vbNullString
+If Left$(DaNam, 2) = "TD" And Mid$(DaNam, 9, 1) = "_" Then 'Patientendokument
+    If Mid$(DaNam, 43, 1) <> "_" Then Exit Function 'ohne Titel
+    DaNam = Mid$(DaNam, 44)
+End If
+Posit = InStrRev(DaNam, ".")
+If Posit > 1 Then DaNam = Left$(DaNam, Posit - 1)
+STxTi = DaNam
+
+End Function
+Private Function STxFq(ByVal DaNam As String) As String
+'Abfrage der Krankenblatteintraege (Typ 24) zu einem Patienten-Textdokument TD<Patient>_<Kennung>[_<Titel>].<Endung>,
+'leer = kein solcher Name. Gefunden wird der Eintrag ueber den Dateinamen in [Kommentar] (jeder Eintrag traegt ihn) oder
+'ueber den Anfang der Kennung in [Kommentar2]: dort stehen 32 Zeichen (STxSa), 33 Zeichen (Dokument Kopieren) oder
+'nichts (Dokumentimport STxWo). Sicht und Spalten wie im Krankenblatt (SKrSu), universeller Dialekt.
+
+Const ErlZi = "0123456789"
+Const ErlZe = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+Dim AktZa As Long
+Dim PatNr As Long
+Dim TmGui As String
+Dim KeBed As String
+Dim KoStr As String
+
+STxFq = vbNullString
+If Len(DaNam) < 10 Then Exit Function
+If UCase$(Left$(DaNam, 2)) <> "TD" Or Mid$(DaNam, 9, 1) <> "_" Then Exit Function 'Windows unterscheidet die Schreibweise nicht
+For AktZa = 3 To 8
+    If InStr(1, ErlZi, Mid$(DaNam, AktZa, 1), vbBinaryCompare) = 0 Then Exit Function
+Next AktZa
+PatNr = CLng(Mid$(DaNam, 3, 6))
+If PatNr <= 0 Then Exit Function
+
+TmGui = Mid$(DaNam, 10, 32)
+If Len(TmGui) = 32 Then
+    KeBed = "[Kommentar2] LIKE '" & TmGui & "%' OR "
+    For AktZa = 1 To 32
+        If InStr(1, ErlZe, Mid$(TmGui, AktZa, 1), vbBinaryCompare) = 0 Then KeBed = vbNullString 'keine Kennung: nur der Dateiname
+    Next AktZa
+End If
+KoStr = Replace(Replace(Replace(SqlStr(DaNam), "[", "[[]"), "%", "[%]"), "_", "[_]") 'Platzhalterzeichen im Dateinamen woertlich nehmen
+
+STxFq = "SELECT [ID2], [Lock] FROM qrySimAbKra13 WHERE [ID0] = " & PatNr & " AND [Typ] = 24 AND (" & KeBed & "[Kommentar] LIKE '" & KoStr & "')"
+
+End Function
+Public Function STxFl(ByVal DaNam As String, Optional ByVal Setze As Boolean = False) As Boolean
+On Error GoTo FlErr
+'Festschreibung eines Patienten-Textdokuments: Sperrfeld (Lock) am Krankenblatteintrag Typ 24, dasselbe Feld wie bei
+'der GoBD Festschreibung der Dokumentation (frmAbschl). Setze = False: nur lesen, True: festschreiben.
+'True = der Eintrag ist (jetzt) festgeschrieben. Ohne Krankenblatteintrag gibt es keine Festschreibung (False),
+'ebenso bei einem Datenbankfehler (Protokoll, danach STxFu = True): was dann gilt, entscheiden die Aufrufer.
+
+Dim AnzEi As Long
+Dim AnzGe As Long
+Dim SQL1 As String
+Dim RSFe As ADODB.Recordset
+
+STxFl = False
+TxFeF = False
+SQL1 = STxFq(DaNam)
+If SQL1 = vbNullString Then Exit Function 'kein Patientendokument
+
+Set RSFe = New ADODB.Recordset
+With RSFe
+    .CursorLocation = adUseClient
+    .Source = SQL1
+    Set .ActiveConnection = DB1
+    .CursorType = adOpenForwardOnly
+    If Setze = True Then
+        .LockType = adLockOptimistic
+    Else
+        .LockType = adLockReadOnly
+    End If
+    .Open Options:=adCmdText
+End With
+
+Do While RSFe.EOF = False
+    AnzEi = AnzEi + 1
+    If RSFe.Fields("Lock").Value <> 0 Then
+        AnzGe = AnzGe + 1
+    ElseIf Setze = True Then
+        RSFe.Fields("Lock").Value = True
+        RSFe.Update
+        AnzGe = AnzGe + 1
+    End If
+    RSFe.MoveNext
+Loop
+RSFe.Close
+Set RSFe = Nothing
+
+If Setze = True Then
+    STxFl = (AnzEi > 0 And AnzGe = AnzEi)
+Else
+    STxFl = (AnzGe > 0)
+End If
+
+Exit Function
+
+FlErr:
+TxFeF = True 'Stand unbekannt
+SErLog "STxFl " & Err.Description & " #" & Err.Number
+Set RSFe = Nothing
+STxFl = False
+
+End Function
+Public Function STxFd(ByVal FiNam As String) As Boolean
+'True, wenn FiNam ein festgeschriebenes Patientendokument (.txm, .txr) im Dokumentordner (GlDox) ist. Scheitert die
+'Abfrage (STxFu), gilt der letzte bekannte Stand: ein als festgeschrieben geladenes Dokument bleibt geschuetzt.
+
+Dim Posit As Long
+
+STxFd = False
+TxFeF = False
+Posit = InStrRev(FiNam, "\")
+If Posit < 1 Then Exit Function
+If LCase$(Left$(FiNam, Posit)) <> LCase$(GlDox) Then Exit Function
+Select Case LCase$(Right$(FiNam, 4))
+Case ".txm", ".txr": 'die Dokumentdatei selbst
+Case Else: Exit Function 'Vorschaubild, PDF und andere Dateien mit derselben Kennung
+End Select
+STxFd = STxFl(Mid$(FiNam, Posit + 1))
+If TxFeF = True Then STxFd = (TxFeM = True And LCase$(FiNam) = LCase$(TxFeD))
+
+End Function
+Public Function STxFe() As Boolean
+'True, wenn der Inhalt von TexCont1 aus einem festgeschriebenen Dokument des aktuellen Patienten stammt.
+'Scheitert die Abfrage (STxFu), gilt der letzte bekannte Stand dieses Dokuments.
+
+STxFe = False
+TxFeF = False
+If STxZu() <> 1 Then Exit Function
+STxFe = STxFl(Mid$(GlTxH, InStrRev(GlTxH, "\") + 1))
+If TxFeF = True Then STxFe = (TxFeM = True And GlTxH = TxFeD)
+
+End Function
+Public Function STxFu() As Boolean
+'True, wenn der letzte Zugriff auf das Sperrfeld scheiterte (Datenbankfehler): der Stand ist dann unbekannt
+
+STxFu = TxFeF
+
+End Function
+Public Function STxFk(ByVal IdxNr As Long) As Boolean
+On Error GoTo FkErr
+'Krankenblatteintrag IdxNr (ID2) festgeschrieben? Frisch aus der Datenbank gelesen, fuer das Entfernen eines
+'Textdokuments im Krankenblatt (S_KrLo): die Liste dort kann aelter sein als ein Druck an einem anderen Arbeitsplatz.
+'Kann der Stand nicht gelesen werden, gilt der Eintrag als festgeschrieben (nicht entfernen).
+
+Dim RSFe As ADODB.Recordset
+
+STxFk = False
+If IdxNr <= 0 Then Exit Function
+
+Set RSFe = New ADODB.Recordset
+With RSFe
+    .CursorLocation = adUseClient
+    .Source = "SELECT [ID2], [Lock] FROM qrySimAbKra13 WHERE [ID2] = " & IdxNr
+    Set .ActiveConnection = DB1
+    .CursorType = adOpenForwardOnly
+    .LockType = adLockReadOnly
+    .Open Options:=adCmdText
+End With
+
+Do While RSFe.EOF = False
+    If RSFe.Fields("Lock").Value <> 0 Then STxFk = True
+    RSFe.MoveNext
+Loop
+RSFe.Close
+Set RSFe = Nothing
+
+Exit Function
+
+FkErr:
+SErLog "STxFk " & Err.Description & " #" & Err.Number
+Set RSFe = Nothing
+STxFk = True
+
+End Function
+Public Function STxFw(ByVal FiNam As String, ByVal Vorga As String, ByVal AuOhn As Boolean) As Boolean
+On Error GoTo FwErr
+'Vor dem Ersetzen oder Entfernen einer Datei durch den Anwender: True = abweisen (der Hinweis ist erfolgt), weil FiNam
+'ein festgeschriebenes Dokument ist oder der Stand nicht gelesen werden konnte. Vorga = "ersetzt" oder "entfernt".
+'AuOhn = auch pruefen, wenn die Datei fehlt (Entfernen loescht auch den Krankenblatteintrag).
+
+Dim clFiX As clsFile
+
+STxFw = False
+TxFeF = False
+If AuOhn = False Then
+    Set clFiX = New clsFile
+    If clFiX.FilVor(FiNam) = False Then 'keine vorhandene Datei: nichts zu schuetzen
+        Set clFiX = Nothing
+        Exit Function
+    End If
+    Set clFiX = Nothing
+End If
+
+If STxFd(FiNam) = True Then
+    SErLog "STxFw: festgeschriebenes Dokument nicht " & Vorga
+    SPopu "Dokument festgeschrieben", "Das Dokument ist festgeschrieben und wird nicht " & Vorga & ".", IC48_Forbidden
+    STxFw = True
+ElseIf TxFeF = True Then
+    SErLog "STxFw: Festschreibung nicht lesbar, Dokument nicht " & Vorga
+    SPopu "Festschreibung nicht lesbar", "Der Stand der Festschreibung konnte nicht gelesen werden. Das Dokument wird nicht " & Vorga & ".", IC48_Forbidden
+    STxFw = True
+End If
+
+Exit Function
+
+FwErr:
+SErLog "STxFw " & Err.Description & " #" & Err.Number
+
+End Function
+Public Sub STxFn()
+'TexCont1_GotFocus: Festschreibung des angezeigten Dokuments neu lesen. Sie kann inzwischen an einem anderen
+'Arbeitsplatz (Druck) oder ueber die GoBD Festschreibung gesetzt worden sein. Ein Schreibschutz, der nicht mehr zum
+'Inhalt passt, wird dabei aufgehoben.
+
+If TxFeM = True Or STxZu() = 1 Then STxFa
+
+End Sub
+Public Sub STxFa()
+On Error GoTo FaErr
+'Schreibschutz der Textverarbeitung passend zum Inhalt: ein festgeschriebenes Dokument wird nur angezeigt
+'(EditMode 1 wie in der Vorschau), jeder andere Inhalt ist wieder bearbeitbar. Aufgehoben wird nur ein Schreibschutz,
+'der hier gesetzt wurde (TxFeM). Aufruf aus STxMo True, also nach jedem Laden, Speichern und Verwerfen.
+
+If STxFe() = True Then
+    If frmMain.TexCont1.EditMode <> 1 Then frmMain.TexCont1.EditMode = 1
+    TxFeM = True
+    TxFeD = GlTxH
+ElseIf TxFeM = True Then
+    frmMain.TexCont1.EditMode = 0
+    TxFeM = False
+    TxFeD = vbNullString
+    TxFeH = vbNullString
+End If
+
+Exit Sub
+
+FaErr:
+SErLog "STxFa " & Err.Description & " #" & Err.Number
+
+End Sub
+Public Function STxFp() As Boolean
+'True = TexCont1 zeigt ein festgeschriebenes Dokument (Schreibschutz aus STxFa). Sicherheitsnetz fuer
+'TexCont1_GotFocus und TexCont1_KeyDown: zeigt TexCont1 inzwischen etwas anderes (anderer Reiter, anderer Inhalt),
+'wird der Schreibschutz neu bestimmt und dabei aufgehoben.
+
+STxFp = False
+If TxFeM = False Then Exit Function
+If STxZu() <> 1 Or GlTxH <> TxFeD Then STxFa
+STxFp = TxFeM
+
+End Function
+Public Sub STxFh()
+'Hinweis beim Tippen in ein festgeschriebenes Dokument (TexCont1_KeyPress), einmal je geladenem Dokument
+
+If TxFeM = False Then Exit Sub
+If TxFeH = TxFeD Then Exit Sub 'schon gemeldet
+If STxZu() <> 1 Or GlTxH <> TxFeD Then Exit Sub
+TxFeH = TxFeD
+SPopu "Dokument festgeschrieben", "Dieses Dokument ist festgeschrieben und kann nicht bearbeitet werden. Dokument Kopieren legt eine bearbeitbare Kopie an.", IC48_Information
+
+End Sub
+Public Sub STxFs()
+On Error GoTo FsErr
+'Nach dem Druck eines Einzelbriefs (Tex_DocDru): das gedruckte Dokument des Patienten festschreiben. Es bleibt lesbar
+'und druckbar, bearbeitet wird eine Kopie (Dokument Kopieren). Kein PDF, keine weitere Datei, kein weiterer Eintrag.
+
+Dim DaNam As String
+
+If STxZu() <> 1 Then Exit Sub 'nur ein gespeichertes Dokument des Patienten (kein Serienbrief, keine Vorlage)
+If TxFeM = True And GlTxH = TxFeD Then Exit Sub 'war schon festgeschrieben (erneuter Druck)
+DaNam = Mid$(GlTxH, InStrRev(GlTxH, "\") + 1)
+
+If STxFl(DaNam, True) = True Then
+    If frmMain.TexCont1.EditMode <> 1 Then frmMain.TexCont1.EditMode = 1 'eben bestaetigt: Schreibschutz ohne erneutes Lesen
+    TxFeM = True 'erst danach: die Merker gelten nur, wenn das Control wirklich geschuetzt ist
+    TxFeD = GlTxH
+    TxFeH = GlTxH 'der folgende Hinweis genuegt
+    SPopu "Dokument festgeschrieben", "Das gedruckte Dokument ist jetzt festgeschrieben und kann nicht mehr bearbeitet werden. Dokument Kopieren legt eine bearbeitbare Kopie an.", IC48_Information
+ElseIf TxFeF = True Then
+    SErLog "STxFs: gedrucktes Dokument nicht festgeschrieben, Datenbankfehler"
+    SPopu "Dokument nicht festgeschrieben", "Die Festschreibung des gedruckten Dokuments konnte nicht gespeichert werden.", IC48_Warning
+Else
+    SErLog "STxFs: gedrucktes Dokument nicht festgeschrieben, kein Krankenblatteintrag gefunden"
+    SPopu "Dokument nicht festgeschrieben", "Zum gedruckten Dokument wurde kein Krankenblatteintrag gefunden. Es bleibt bearbeitbar.", IC48_Warning
+End If
+
+Exit Sub
+
+FsErr:
+SErLog "STxFs " & Err.Description & " #" & Err.Number
+
+End Sub
+Public Function STxSf(ByVal ZuSta As Integer) As Boolean
+'Speichert das Textdokument erzwungen (auch ohne Aenderung), ZuSta aus STxZu (keine Kopien):
+'1 = in die Datei des Patienten, aus der der Inhalt stammt (GlTxH)
+'2 = als genau ein neues Dokument mit Krankenblatteintrag
+'3 = fremder Inhalt als neues Dokument des Patienten; die Herkunftsdatei bleibt unveraendert
+
+Dim TiStr As String
+
+Select Case ZuSta
+Case 1:
+    GlTDa = Mid$(GlTxH, InStrRev(GlTxH, "\") + 1) 'Name der Datei, aus der der Inhalt stammt
+Case 2:
+    If GlTDa = vbNullString Then GlTxN = True 'Neues Textdokument
+Case 3:
+    If GlTDa <> vbNullString Then
+        TiStr = STxTi(GlTDa)
+    Else
+        TiStr = STxTi(Mid$(GlTxH, InStrRev(GlTxH, "\") + 1))
+    End If
+    If TiStr <> vbNullString Then GlTxK = TiStr 'Info Krankenblatteintrag
+    GlTDa = vbNullString
+    GlTxN = True 'Neues Textdokument
+Case Else:
+    STxSf = False
+    Exit Function
+End Select
+
+GlTSV = True 'Speichern Textverarbeitung
+STxSf = STxSa()
+
+End Function
+Public Function STxSj() As Boolean
+'Speichern auf ausdruecklichen Wunsch (Dokument Speichern, Ja einer vorhandenen Frage) nach Zuordnung, keine Kopien
+
+Dim ZuSta As Integer
+Dim FeNeu As Boolean
+
+ZuSta = STxZu()
+If ZuSta = 1 Then
+    If STxFe() = True Then 'festgeschrieben (gedruckt): die Datei bleibt, wie sie ist
+        If STxMo() = False Then 'nichts geaendert: nichts zu speichern
+            GlTSV = False
+            SPopu "Dokument festgeschrieben", "Das Dokument ist festgeschrieben und wird nicht erneut gespeichert.", IC48_Information
+            STxSj = True
+            Exit Function
+        End If
+        ZuSta = 3 'geaenderter Inhalt: nur als neues Dokument des Patienten
+        FeNeu = True
+    End If
+End If
+If ZuSta = 0 Then 'nicht zustaendig (anderer Reiter, Serienbrief, ohne Patient): wie bisher
+    STxSj = STxSa()
+Else
+    STxSj = STxSf(ZuSta)
+    If FeNeu = True And STxSj = True Then SPopu "Neues Dokument", "Das festgeschriebene Dokument bleibt erhalten. Die Bearbeitung wurde als neues Dokument gespeichert.", IC48_Information
+End If
+
+End Function
+Public Function STxPr(Optional ByVal KeiHi As Boolean = False) As Boolean
+On Error GoTo PrErr
+'Sichert vor dem Ersetzen oder Verlassen ein vom Anwender geaendertes Textdokument, ohne Rueckfrage (D4).
+'True = Aufrufer faehrt fort, False = Aufrufer bricht ab (Speichern gescheitert oder fremder Inhalt gemeldet).
+'KeiHi = kein Hinweis nach erfolgreichem Speichern (Programmende)
+
+Dim ZuSta As Integer
+Dim AktZu As String
+
+STxPr = True
+ZuSta = STxZu()
+If ZuSta = 0 Then Exit Function 'nicht zustaendig
+If STxMo() = False Then Exit Function 'keine Aenderung durch den Anwender (STxMo True loescht auch TxWaD)
+If ZuSta = 1 Then
+    If STxFe() = True Then ZuSta = 4 'festgeschrieben (gedruckt): nie ueberschreiben, weiter wie bei fremdem Inhalt
+End If
+
+Select Case ZuSta
+Case 1, 2:
+    If ZuSta = 2 Then
+        If frmMain.TexCont1.Text = vbNullString Then Exit Function 'leeres neues Dokument nicht anlegen
+    End If
+    If STxSf(ZuSta) = False Then
+        STxPr = False
+    ElseIf KeiHi = False Then
+        SPopu "Dokument gespeichert", "Das Dokument wurde automatisch gespeichert.", IC48_Information
+    End If
+Case Else: 'fremder Inhalt oder festgeschriebenes Dokument: automatisch angelegt waere es ein zusaetzliches Dokument
+    AktZu = GlTxH & "|" & GlTDa
+    If TxWaD <> AktZu Then 'erster Versuch: melden und abbrechen
+        TxWaD = AktZu
+        If ZuSta = 4 Then
+            SErLog "STxPr: Bearbeitung eines festgeschriebenen Dokuments nicht gespeichert"
+            SPopu "Dokument nicht gespeichert", "Das Dokument ist festgeschrieben, die Bearbeitung wurde nicht gespeichert. Dokument Speichern legt sie als neues Dokument an, ein zweiter Versuch verwirft sie.", IC48_Warning
+        Else
+            SErLog "STxPr: fremder Inhalt nicht automatisch gespeichert"
+            SPopu "Dokument nicht gespeichert", "Das Dokument stammt aus einer Vorlage oder fremden Datei und wurde nicht automatisch gespeichert. Dokument Speichern legt es als neues Dokument an, ein zweiter Versuch verwirft die Bearbeitung.", IC48_Warning
+        End If
+        STxPr = False
+    Else 'zweiter Versuch ohne Speichern dazwischen: Bearbeitung verwerfen
+        STxMo True
+        GlTSV = False
+    End If
+End Select
+
+Exit Function
+
+PrErr:
+SErLog "STxPr " & Err.Description & " #" & Err.Number
+STxPr = True 'interner Fehler: den Anwender nicht festhalten
+
+End Function
+Public Function STxDr(ByVal IstDr As Boolean) As Boolean
+On Error GoTo DrErr
+'Vor Druck oder Ausgabe eines Einzelbriefs: Dokument speichern (D1). IstDr = Druck (nur Wortlaut der Meldung).
+'Fremder Inhalt wird dabei als neues Dokument des Patienten angelegt (im Reiter Vorlagen Ausgabe wie bisher).
+'True = Ausgabe darf erfolgen, False = abgebrochen (Meldung ist erfolgt)
+
+Dim ZuSta As Integer
+Dim AbTit As String
+Dim AbStr As String
+Dim FeNeu As Boolean
+
+If IstDr = True Then
+    AbTit = "Druck abgebrochen"
+    AbStr = "Der Druck wurde abgebrochen."
+Else
+    AbTit = "Ausgabe abgebrochen"
+    AbStr = "Die Ausgabe wurde abgebrochen."
+End If
+
+STxDr = False
+ZuSta = STxZu()
+If ZuSta = 3 And GlBut = RibTab_Tex_Vorlag Then ZuSta = 0 'Vorlage in Bearbeitung: keine Ablage
+If ZuSta = 1 Then
+    If STxFe() = True Then 'festgeschrieben (gedruckt): die Datei bleibt, wie sie ist
+        If STxMo() = False Then 'unveraendert: Ausgabe ohne erneutes Speichern
+            STxDr = True
+            Exit Function
+        End If
+        ZuSta = 3 'geaenderter Inhalt: als neues Dokument des Patienten
+        FeNeu = True
+    End If
+End If
+
+If ZuSta = 0 Then 'nicht zustaendig (Serienbrief, ohne Patient, Vorlage in Bearbeitung): wie bisher
+    STxDr = True
+ElseIf STxSf(ZuSta) = False Then
+    SPopu AbTit, "Das Dokument konnte nicht gespeichert werden. " & AbStr, IC48_Forbidden
+Else
+    STxDr = True
+    If FeNeu = True Then SPopu "Neues Dokument", "Das festgeschriebene Dokument bleibt erhalten. Die Bearbeitung wurde als neues Dokument gespeichert.", IC48_Information
+End If
+
+Exit Function
+
+DrErr:
+SErLog "STxDr " & Err.Description & " #" & Err.Number
+SPopu AbTit, "Das Dokument konnte nicht gespeichert werden. " & AbStr, IC48_Forbidden
+STxDr = False
 
 End Function
 Public Function STxSa(Optional ByVal KeiAk As Boolean = False) As Boolean
@@ -34120,6 +34667,10 @@ Dim Lange As Integer
 Dim AnzPo As Integer
 Dim Frage As Integer
 Dim AktDa As String
+Dim AltDa As String
+Dim SaDes As String
+Dim SaNum As Long
+Dim SaRet As Long
 Dim SeiPo As Variant
 
 If InSav = True Then
@@ -34131,6 +34682,7 @@ AltAkt = GlAkt
 GlAkt = True
 InSav = True
 NeuDa = False
+AltDa = GlTDa 'Name vor dem Speichern (Fehlerfall)
 
 Set FM = frmMain
 Set TxCoN = FM.TexCont1
@@ -34197,6 +34749,19 @@ If GlTSV = True Then 'Speichern Textverarbeitung
         End If
     End If
 
+    If NeuDa = False And GlTxM = False Then 'vorhandene Datei im Dokumentordner
+        If STxFd(FiNam) = True Then 'festgeschrieben (gedruckt, GoBD): nie ueberschreiben
+            GlTDa = AltDa
+            SErLog "STxSa: festgeschriebenes Dokument nicht ueberschrieben"
+            SPopu "Dokument festgeschrieben", "Das Dokument ist festgeschrieben und wurde nicht gespeichert. Dokument Kopieren legt eine bearbeitbare Kopie an.", IC48_Forbidden
+            Set CoDia = Nothing
+            Screen.MousePointer = vbNormal
+            GlAkt = AltAkt
+            InSav = False
+            STxSa = False
+            Exit Function
+        End If
+    End If
     Set clFil = New clsFile
         
     clFil.FilPfa FiNam
@@ -34261,9 +34826,37 @@ If GlTSV = True Then 'Speichern Textverarbeitung
         SeiPo(2) = 0
         .CurrentInputPosition = SeiPo
         DoEvents
-        .Save FiNam, 0, 3
+        On Error Resume Next 'Speicherfehler selbst auswerten (D5), nicht still weiterlaufen
+        SaRet = .Save(FiNam, 0, 3) 'liefert die Position hinter den Daten, 0 = nicht gespeichert
+        SaNum = Err.Number
+        SaDes = Err.Description
+        On Error GoTo SuErr
     End With
+    If SaNum = 0 And SaRet = 0 Then
+        SaNum = -1
+        SaDes = "Die Datei konnte nicht geschrieben werden."
+    End If
+    If SaNum = 0 Then
+        Set clFil = New clsFile
+        If clFil.FilVor(FiNam) = False Then
+            SaNum = 53
+            SaDes = "Datei nach dem Speichern nicht vorhanden"
+        End If
+        Set clFil = Nothing
+    End If
+    If SaNum <> 0 Then 'nicht gespeichert: Marke, GlTSV und GlTxN bleiben, kein Listeneintrag, kein K_Einf
+        GlTDa = AltDa
+        SErLog "STxSa: Dokument nicht gespeichert: " & SaDes & " #" & SaNum
+        SPopu "Dokument nicht gespeichert", "Das Dokument konnte nicht gespeichert werden: " & SaDes, IC48_Forbidden
+        Set CoDia = Nothing
+        Screen.MousePointer = vbNormal
+        GlAkt = AltAkt
+        InSav = False
+        STxSa = False
+        Exit Function
+    End If
     GlTxF = FiNam 'Filname fuer Textcontrol Error
+    GlTxH = FiNam 'Inhalt stammt jetzt aus dieser Datei (STxZu)
     STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
     DoEvents
 
@@ -34306,7 +34899,10 @@ If GlTxN = True And NeuDa = True Then 'Neues Textdokument, Erstspeicherung
                 .NeuEi = True
                 .Mitar = GlMiA(GlSmI, 2)
             End With
-            K_Einf
+            If K_Einf() = False Then 'Datei gespeichert, Eintrag fehlt: sichtbar melden
+                SErLog "STxSa: Krankenblatteintrag zum neuen Dokument nicht angelegt"
+                SPopu "Krankenblatteintrag fehlt", "Das Dokument wurde gespeichert, der Krankenblatteintrag konnte aber nicht angelegt werden.", IC48_Warning
+            End If
         End If
     End If
 End If
@@ -34343,6 +34939,8 @@ Dim SeiPo As Variant
 Dim RetWe As Boolean
 Dim TxFnt As New StdFont
 Dim CmBrs As XtremeCommandBars.CommandBars
+
+If STxPr() = False Then Exit Sub 'geaendertes Dokument vor dem Ersetzen sichern (D4)
 
 If GlSHt <> ShoCut_Texte Then
     GlBu6 = RibTab_Tex_Dokumt
@@ -34680,6 +35278,7 @@ clFen.FenDsk 3
 Screen.MousePointer = vbNormal
 
 GlTSV = True 'Speichern Textverarbeitung
+STxMo True 'Inhalt vom Programm angelegt: noch keine Aenderung des Anwenders
 GlAkt = False
 
 Set CmAcs = Nothing
@@ -34746,6 +35345,11 @@ Case RibTab_Tex_NewsLe:
         If Right$(FiNam, 4) <> ".txn" Then FiNam = FiNam & ".txn"
 End Select
     
+If STxFw(FiNam, "ersetzt", False) = True Then 'festgeschriebenes Patientendokument nie ersetzen (meldet selbst)
+    Set clFil = Nothing
+    Exit Sub
+End If
+
 With clFil
     If .FilVor(FiNam) = True Then
         .DaLoe = FiNam & vbNullChar
@@ -35392,6 +35996,8 @@ Dim RpCls As XtremeReportControl.ReportColumns
 Dim RpRws As XtremeReportControl.ReportRows
 Dim CmBrs As XtremeCommandBars.CommandBars
 
+If STxPr() = False Then Exit Sub 'geaendertes Dokument vor dem Ersetzen sichern (D4)
+
 Set FM = frmMain
 Set CoDia = FM.comDialo
 Set RpCo2 = FM.repCont2
@@ -35657,6 +36263,7 @@ Screen.MousePointer = vbNormal
 GlTxN = (GlTDa = vbNullString) 'Nur bis zur ersten Speicherung neu
 GlTSV = True 'Speichern Textverarbeitung
 GlTxS = False
+STxMo True 'Vorlage vom Programm eingelesen: noch keine Aenderung des Anwenders
 GlAkt = False
 
 Set clFil = Nothing
@@ -35712,6 +36319,12 @@ End If
 
 Lange = Len(NeuNa)
 NeNam = "TD" & Right$(NeuNa, Lange - 1)
+
+TxWoA = False
+If STxFw(GlDox & NeNam, "ersetzt", False) = True Then 'Ziel ist schon ein festgeschriebenes Dokument: nicht umwandeln
+    TxWoA = True 'SKrWoKv laesst den Krankenblatteintrag der Word-Datei dann stehen
+    Exit Sub
+End If
 
 GlTDa = NeNam 'Textverarbeitung Dateiname
 FilNa = GlDox & GlTDa
@@ -35799,6 +36412,8 @@ With TxCoN
     .Save FilNa, 0, 3
     DoEvents
 End With
+GlTxF = FilNa 'Filname fuer Textcontrol Error
+GlTxH = FilNa 'Inhalt stammt jetzt aus dieser Datei (STxZu)
 DoEvents
 
 If GlTDa <> vbNullString Then 'Textverarbeitung Dateiname
@@ -35838,6 +36453,7 @@ Set clFil = Nothing
 GlTSV = False 'Speichern Textverarbeitung
 GlTxN = False
 GlTxS = False
+STxMo True 'Import gespeichert: noch keine Aenderung des Anwenders
 
 Exit Sub
 

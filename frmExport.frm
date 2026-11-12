@@ -690,6 +690,8 @@ Case 9: 'Textverarbeitung
         End If
     End If
 
+    If STxFw(FiNam, "ersetzt", False) = True Then Exit Sub 'festgeschriebenes Patientendokument nie ersetzen (meldet selbst)
+
     Set clFil = New clsFile
     With clFil
         If .FilVor(FiNam) = True Then

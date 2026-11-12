@@ -7732,7 +7732,10 @@ Dim ObjHo As Long
 Dim SclBr As Long
 Dim SclHo As Long
 Dim ColID As Long
+Dim SaRet As Long
+Dim DrNum As Long
 Dim PaStr As String
+Dim DrDes As String
 Dim ExVer As String
 Dim SuFix As String
 Dim FiNam As String
@@ -7782,7 +7785,7 @@ Mld3 = "Soll das markierte Dokument wirklich kopiert werden?"
 
 Select Case TxFun
 Case Tex_DatSpe:
-    RetWe = STxSa()
+    RetWe = STxSj() 'Dokument Speichern speichert immer (D2), nach Zuordnung ohne Kopie
 Case Tex_EinGr1:
     With CoDia
         .CancelError = True
@@ -7974,6 +7977,11 @@ Case Tex_ClpInh:
         End If
     End With
 Case Tex_DatLoa:
+    If STxPr() = False Then 'geaendertes Dokument vor dem Laden sichern (D4)
+        Set CoDia = Nothing
+        Set clFil = Nothing
+        Exit Sub
+    End If
     With clFil
         .hwnd = FM.hwnd
         .StaVe = GlVor
@@ -8014,6 +8022,7 @@ Case Tex_DatLoa:
         End With
 
         GlTxF = FiNam 'Filname für Textcontrol Error
+        GlTxH = FiNam 'Inhalt stammt aus dieser Datei (STxZu)
         GlTxU = LCase(SuFix)
 
         Select Case LCase(SuFix)
@@ -8108,6 +8117,12 @@ Case Tex_DatSpV:
             If Right$(FiNam, 4) <> ".txn" Then FiNam = FiNam & ".txn"
     End Select
 
+    If STxFw(FiNam, "ersetzt", False) = True Then 'festgeschriebenes Patientendokument nie ersetzen (meldet selbst)
+        Set CoDia = Nothing
+        Set clFil = Nothing
+        Exit Sub
+    End If
+
     With clFil
         If .FilVor(FiNam) = True Then
             Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
@@ -8121,14 +8136,19 @@ Case Tex_DatSpV:
     End With
     
     If Frage = 6 Then
-        TxCoN.Save FiNam, 0, 3
+        SaRet = 0
+        SaRet = TxCoN.Save(FiNam, 0, 3) '0 = nicht gespeichert (bleibt auch nach einem Laufzeitfehler 0)
         DoEvents
-    End If
-
-    STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
-    GlTSV = False 'Speichern Textverarbeitung
-    GlTxN = False 'Kein neues Dokument mehr
-    GlTxS = False
+        If SaRet <> 0 Then
+            STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
+            GlTSV = False 'Speichern Textverarbeitung
+            GlTxN = False 'Kein neues Dokument mehr
+            GlTxS = False
+        Else 'nicht gespeichert: die Aenderungsmarke bleibt
+            SErLog "FObje: Vorlage/Seriendokument nicht gespeichert"
+            SPopu "Dokument nicht gespeichert", "Das Dokument konnte nicht gespeichert werden: Die Datei konnte nicht geschrieben werden.", IC48_Forbidden
+        End If
+    End If 'Ueberschreiben abgelehnt: nichts gespeichert, die Aenderungsmarke bleibt
 Case Tex_DatSav:
     DaNam = SDaNa()
     With CoDia
@@ -8171,6 +8191,12 @@ Case Tex_DatSav:
             If Right$(FiNam, 4) <> ".txn" Then FiNam = FiNam & ".txn"
     End Select
     
+    If STxFw(FiNam, "ersetzt", False) = True Then 'festgeschriebenes Patientendokument nie ersetzen (meldet selbst)
+        Set CoDia = Nothing
+        Set clFil = Nothing
+        Exit Sub
+    End If
+
     With clFil
         If .FilVor(FiNam) = True Then
             Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
@@ -8184,14 +8210,19 @@ Case Tex_DatSav:
     End With
 
     If Frage = 6 Then
-        TxCoN.Save FiNam, 0, 3
+        SaRet = 0
+        SaRet = TxCoN.Save(FiNam, 0, 3) '0 = nicht gespeichert (bleibt auch nach einem Laufzeitfehler 0)
         DoEvents
-    End If
-
-    STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
-    GlTSV = False 'Speichern Textverarbeitung
-    GlTxN = False 'Kein neues Dokument mehr
-    GlTxS = False
+        If SaRet <> 0 Then
+            STxMo True 'Aenderungsmarke des Textcontrols zuruecksetzen
+            GlTSV = False 'Speichern Textverarbeitung
+            GlTxN = False 'Kein neues Dokument mehr
+            GlTxS = False
+        Else 'nicht gespeichert: die Aenderungsmarke bleibt
+            SErLog "FObje: Vorlage/Seriendokument nicht gespeichert"
+            SPopu "Dokument nicht gespeichert", "Das Dokument konnte nicht gespeichert werden: Die Datei konnte nicht geschrieben werden.", IC48_Forbidden
+        End If
+    End If 'Ueberschreiben abgelehnt: nichts gespeichert, die Aenderungsmarke bleibt
 Case Tex_DaFeVe:
     GlAkt = True
     
@@ -8208,6 +8239,16 @@ Case Tex_DatLoe:
         WindowMess "Sie besitzen keine Berechtigung für diesen Vorgang", Dial3, "Entfernen", FM.hwnd
         Exit Sub
     End If
+    For Each LiItm In LiIts 'festgeschriebenes Dokument (gedruckt, GoBD) bleibt erhalten
+        If LiItm.Selected = True Then
+            If STxFw(GlDox & LiItm.Tag, "entfernt", True) = True Then 'meldet selbst, auch wenn der Stand nicht lesbar ist
+                Set CoDia = Nothing
+                Set clFil = Nothing
+                Exit Sub
+            End If
+            Exit For
+        End If
+    Next LiItm
     Frage = WindowMess(Mld2, Dial1, Tit2, FM.hwnd)
     If Frage = 6 Then
         If LiIts.Count > 0 Then
@@ -8254,6 +8295,11 @@ Case Tex_DatLoe:
     End If
 Case Tex_DatKop:
     If KopAkt = True Then Exit Sub
+    If STxPr() = False Then 'Aenderungen vorher sichern, damit die Kopie sie enthaelt (D4)
+        Set CoDia = Nothing
+        Set clFil = Nothing
+        Exit Sub
+    End If
     KopAkt = True
 
     TeTit = "Dokument Kopieren"
@@ -8354,7 +8400,19 @@ Case Tex_DocVor:
 
 Case Tex_DocDru:
     If GlTxM = False Then 'Serienbriefmodus
-        TxCoN.PrintDialog GlTDa
+        If STxDr(True) = True Then 'vorher speichern (D1)
+            On Error Resume Next 'Druckfehler selbst auswerten: ohne Druck keine Festschreibung
+            Err.Clear
+            TxCoN.PrintDialog GlTDa
+            DrNum = Err.Number
+            DrDes = Err.Description
+            On Error GoTo PoErr
+            If DrNum = 0 Then
+                STxFs 'gedrucktes Dokument festschreiben: Sperrfeld am Krankenblatteintrag, kein PDF
+            Else
+                SErLog "FObje: Druck gescheitert, Dokument nicht festgeschrieben: " & DrDes & " #" & DrNum
+            End If
+        End If
     Else
         If GlTxS = True Then 'Seriendokument
             TxCoN.PrintDialog GlTDa
@@ -8370,6 +8428,13 @@ Case Tex_NweVor:
     frmTxStat.EmSen = True
     frmTxStat.EmTes = True
     frmTxStat.Show vbModal
+End Select
+
+Select Case TxFun 'Aenderungen am Dokument als Speicherbedarf melden (D3)
+Case Tex_EinGr1, Tex_EinGr2, Tex_EinGr3, Tex_EinMar, Tex_EinTex, Tex_EinTab, Tex_EinObj, Tex_TexRah
+    FTxGe
+Case IC16_FarVor, IC16_FarHin, Tex_FaVor6, Tex_FaHin6, Tex_ClpEin, Tex_ClpInh, Tex_DaFeVe
+    FTxGe
 End Select
 
 Set CoDia = Nothing
@@ -10741,9 +10806,10 @@ Case RibTab_Tex_Dokumt:
         If RbTab.id <> RibTab_Tex_Vorlag Then
             Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
             If Frage = 6 Then
-                STxSa
+                STxSj 'nach Zuordnung speichern, keine Kopie (Reiterwechsel ist nicht mehr abbrechbar)
             Else
                 GlTSV = False
+                STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
             End If
         End If
     End If
@@ -10752,9 +10818,10 @@ Case RibTab_Tex_Vorlag:
         If RbTab.id <> RibTab_Tex_Dokumt Then
             Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
             If Frage = 6 Then
-                STxSa
+                STxSj 'nach Zuordnung speichern, keine Kopie (Reiterwechsel ist nicht mehr abbrechbar)
             Else
                 GlTSV = False
+                STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
             End If
         End If
     End If
@@ -10762,9 +10829,10 @@ Case RibTab_Tex_Rezept:
     If GlTSV = True Then 'Speichern Textverarbeitung
         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
         If Frage = 6 Then
-            STxSa
+            STxSj 'nach Zuordnung speichern, keine Kopie (Reiterwechsel ist nicht mehr abbrechbar)
         Else
             GlTSV = False
+            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
         End If
     End If
 Case RibTab_Krankenbla:
@@ -10788,6 +10856,7 @@ Set RbTab = RbBar.SelectedTab
 GlAkt = True
 
 GlBut = RbTab.id
+STxFp 'Schreibschutz eines festgeschriebenen Textdokuments gilt nur in seinem Reiter
 
 Select Case GlSHt
 Case ShoCut_Start:
@@ -12274,7 +12343,7 @@ Case RibCon_Reset: SRest
 Case RibCon_Wegamed: SWega
 Case RibCon_GDT_Appli: SGDT
 Case RibCon_Remote: SRemo
-Case RibCon_Refresh: SBuLa True
+Case RibCon_Refresh: If STxPr() = True Then SBuLa True 'geaendertes Textdokument vor dem Neuladen sichern (D4)
 
 Case SY_AD_Adresse_Hinzufueg: SAdre 1
 Case SY_AD_Adresse_Bearbeiten: SAdre 2
@@ -13002,7 +13071,7 @@ Case Tex_DaNeAr: STxEi 4
 Case Tex_DaNePl: STxEi 5
 Case Tex_DaNeRz: STxVo True
 Case Tex_DaNeNe: STxVo True
-Case Tex_DaNeN1: STxNe
+Case Tex_DaNeN1: If STxPr() = True Then STxNe
 Case Tex_DaNeN2: STxNw 1
 Case Tex_DaNeN3: STxNw 2
 Case Tex_DaNR01: STxRz 1
@@ -13231,6 +13300,13 @@ Set TxCoN = FM.TexCont1
 Set CmBrs = FM.comBar01
 Set CmAcs = CmBrs.Actions
 
+Select Case TxFun 'nur echte Aenderungen melden (D3), die Auswahllisten fuehrt auch STxFo nach
+Case Tex_FntAu1, Tex_FntAu2, Tex_FntAu3, Tex_FntAu4: If TxCoN.FontName <> TxStr Then FTxGe
+Case Tex_FntGr1, Tex_FntGr2, Tex_FntGr3, Tex_FntGr4: If CStr(TxCoN.FontSize) <> TxStr Then FTxGe
+Case Tex_TexMar: 'nur Ansicht (Steuerzeichen)
+Case Else: FTxGe
+End Select
+
 Select Case TxFun
 Case Tex_AusrLi: TxCoN.Alignment = 0
 Case Tex_AusrRe: TxCoN.Alignment = 1
@@ -13313,6 +13389,11 @@ Case Tex_EdUndo: TxCoN.Undo
 Case Tex_EdRedo: TxCoN.Redo
 End Select
 
+Select Case TxFun 'Aenderungen am Dokument als Speicherbedarf melden (D3)
+Case Tex_TexCop, Tex_Suchen: 'Kopieren und Suchen aendern nichts
+Case Else: FTxGe
+End Select
+
 STxFo
 
 Exit Sub
@@ -13357,6 +13438,8 @@ With TxCoN
         .SelText = Space$(1)
     End If
 End With
+
+FTxGe 'Datenfeld eingefuegt: Speicherbedarf melden (D3)
 
 STxFo
 
@@ -13611,6 +13694,8 @@ Set CmAcs = Nothing
 Set CmBrs = Nothing
 Set CoDia = Nothing
 
+If TxFun <> Tex_DaFeLo Or Frage = 6 Then FTxGe 'Aenderung als Speicherbedarf melden (D3)
+
 STxFo
 
 Exit Sub
@@ -13637,6 +13722,8 @@ Case Tex_ZeiAb6: TxCoN.LineSpacing = 250
 Case Tex_ZeiAb7: TxCoN.LineSpacing = 300
 End Select
 
+FTxGe 'Aenderung als Speicherbedarf melden (D3)
+
 STxFo
 
 Exit Sub
@@ -13645,6 +13732,17 @@ PoErr:
 If GlDbg = True Then MsgBox Err.Description, 48, "FTxFZ " & Err.Number
 Resume Next
 
+End Sub
+Private Sub FTxGe()
+'Aenderung durch einen Befehl (Menueband, Tastenkuerzel, Objekt) als Speicherbedarf melden (D3), nur Text-Reiter
+    If GlAkt = False Then
+        If STxRe() = True Then
+            If Me.TexCont1.Text <> vbNullString Or GlTxH <> vbNullString Then 'auch Leeren eines gespeicherten Dokuments
+                STxAe 'Aenderung seit Laden/Speichern (STxMo), Warnung zu fremdem Inhalt gilt neu
+                GlTSV = True 'Speichern Textverarbeitung
+            End If
+        End If
+    End If
 End Sub
 Private Sub FTxKr()
 On Error GoTo PoErr
@@ -13707,8 +13805,12 @@ Mld1 = "Soll ein neues Dokument hinzugefügt werden?"
 
 Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
 If Frage = 6 Then
-    If GlTSV = True Then 'Speichern Textverarbeitung
-        STxSa
+    If STxZu() = 0 Then 'Serienbrief, Newsletter, Vorlage: wie bisher
+        If GlTSV = True Then 'Speichern Textverarbeitung
+            STxSa
+        End If
+    ElseIf STxPr() = False Then 'geaendertes Patientendokument still sichern (D4)
+        Exit Sub
     End If
     STxVo True
 End If
@@ -13787,6 +13889,8 @@ Else
     End Select
 End If
 
+FTxGe 'Rueckgaengig/Wiederholen als Speicherbedarf melden (D3)
+
 Exit Sub
 
 PoErr:
@@ -13800,6 +13904,16 @@ On Error GoTo PoErr
 
 Dim RetWe As Boolean
 Dim CmBrs As XtremeCommandBars.CommandBars
+
+If (Me.TabCont1.Selected.Index = 1) = GlTxM Then Exit Sub 'kein Moduswechsel (z. B. Reiter nach Abbruch zurueckgesetzt)
+If STxPr() = False Then 'Dokument sichern, bevor Einzel-/Serienbrief wechselt (D4)
+    If GlTxM = True Then 'abgebrochen: Reiter zuruecksetzen, der Modus bleibt
+        Me.TabCont1.SelectedItem = 1
+    Else
+        Me.TabCont1.SelectedItem = 0
+    End If
+    Exit Sub
+End If
 
 Set FM = frmMain
 Set LiVw4 = FM.lstView4
@@ -13885,6 +13999,11 @@ Resume Next
 End Sub
 Private Sub Form_Unload(Cancel As Integer)
 On Error Resume Next
+
+If STxPr(True) = False Then 'geaendertes Textdokument vor dem Beenden sichern (D4)
+    Cancel = True 'Speichern gescheitert: Anwendung bleibt offen
+    Exit Sub
+End If
 
 If GlRes = False Then 'Reset der Einstellungen
     FClos
@@ -14014,10 +14133,11 @@ If GlAkt = False Then
                     If GlTSV = True Then 'Speichern Textverarbeitung
                         Frage = WindowMess(Mld1, Dial1, Tit1, FM.hwnd)
                         If Frage = 6 Then
-                            STxSa
+                            If STxSj() = False Then Exit Sub 'Speichern gescheitert: nicht laden
                             DoEvents
                         Else
                             GlTSV = False
+                            STxMo True 'Aenderung verworfen: nicht spaeter automatisch speichern
                         End If
                     End If
                     STxLa LiVw4.HitTest(x, y).Tag
@@ -16156,6 +16276,18 @@ Private Sub TabCont1_SelectedChanged(ByVal Item As XtremeSuiteControls.ITabContr
     End If
 End Sub
 
+Private Sub TexCont1_Change()
+'Inhaltsaenderung als Speicherbedarf melden (D3); beim Laden ist GlAkt gesetzt, leerer Inhalt zaehlt nicht
+    If GlAkt = False Then
+        If Me.TexCont1.Text <> vbNullString Then
+            GlTSV = True 'Speichern Textverarbeitung
+            If STxRe() = True Then STxAe 'Aenderung seit Laden/Speichern (STxMo), Warnung zu fremdem Inhalt gilt neu
+        ElseIf STxRe() = True And GlTxH <> vbNullString Then 'gespeichertes Dokument vollstaendig geleert
+            GlTSV = True
+            STxAe
+        End If
+    End If
+End Sub
 Private Sub TexCont1_Error(Number As Integer, Description As String, Scode As Long, Source As String, HelpFile As String, HelpContext As Long, CancelDisplay As Boolean)
 On Error Resume Next
 
@@ -16240,6 +16372,7 @@ End If
 End Sub
 
 Private Sub TexCont1_GotFocus()
+    STxFn 'Festschreibung des angezeigten Dokuments neu lesen (anderer Arbeitsplatz, GoBD), Schreibschutz passend
     If GlAkt = False Then
         If GlBut = RibTab_Krankenbla Then
             GlMen = True
@@ -16257,6 +16390,11 @@ On Error Resume Next
 Set FM = frmMain
 Set TxCoN = FM.TexCont1
 
+If STxFp() = True Then 'festgeschriebenes Dokument: auch nicht per Tastenkuerzel einfuegen
+    If Shift = vbCtrlMask And KeyCode = vbKeyV Then KeyCode = 0
+    Exit Sub
+End If
+
 If Shift = vbCtrlMask Then
     If KeyCode = vbKeyV Then
         KeyCode = 0
@@ -16267,6 +16405,8 @@ End If
 End Sub
 Private Sub TexCont1_KeyPress(KeyAscii As Integer)
 On Error Resume Next
+
+If KeyAscii >= 32 Or KeyAscii = 13 Or KeyAscii = 8 Then STxFh 'Hinweis beim Tippen in ein festgeschriebenes Dokument
 
 Select Case KeyAscii
 Case 9: TxPhr = vbNullString
@@ -16299,6 +16439,15 @@ End If
 Set CmAcs = Nothing
 Set CmBrs = Nothing
 
+End Sub
+Private Sub TexCont1_ObjectDeleted(ByVal ObjectId As Integer)
+    FTxGe 'Bild oder Objekt entfernt
+End Sub
+Private Sub TexCont1_ObjectMoved(ByVal ObjectId As Integer)
+    FTxGe 'Bild oder Objekt verschoben
+End Sub
+Private Sub TexCont1_ObjectSized(ByVal ObjectId As Integer)
+    FTxGe 'Bild oder Objekt in der Groesse geaendert
 End Sub
 Private Sub TexCont1_PosChange()
     If GlAkt = False Then
