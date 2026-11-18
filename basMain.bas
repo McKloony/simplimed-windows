@@ -192,6 +192,9 @@ Private TxFeF As Boolean 'STxFl: der letzte Zugriff auf das Sperrfeld scheiterte
 Private TxFeH As String 'STxFh: Datei, fuer die der Hinweis auf die Festschreibung schon gezeigt wurde
 Private TxFeM As Boolean 'STxFa: der Schreibschutz von TexCont1 stammt von dort (nur dann wird er aufgehoben)
 Private TxWoA As Boolean 'STxWo: Umwandlung abgewiesen, weil das Ziel ein festgeschriebenes Dokument ist (SKrWoKv)
+Private TxMaK As String 'STxFv 1: Kandidat (Datei|Stand), das Dokument, dessen Inhalt gerade fuer eine Mail entnommen wird
+Private TxMaD As String 'STxFv 2: Vormerkung (Datei|Stand) des Patientendokuments im offenen Mailfenster
+Private TxMaV As String 'STxFv 3: Vormerkung der Mail, deren Versand gerade laeuft (STxFm)
 Private TxRu1 As Tx4oleLib.TXRuler
 Private TxRu2 As Tx4oleLib.TXRuler
 
@@ -32854,12 +32857,14 @@ Else 'Dokument als Nachricht
         End With
         EmBet = SEmTx()
 
+        STxFv 1 'Dokument, dessen Inhalt jetzt in die Nachricht geht, als Kandidat festhalten (kein DoEvents bis SaveToMemory)
         TmDat = TxCoN.SaveToMemory(3, False)
         SMaNe GlAdr, EmAdr, EmBCC, EmTex, EmBet
         DoEvents
         Set FM = frmMaiView
         Set TxCoN = FM.TexCont3
         TxCoN.LoadFromMemory TmDat, 3, False 'Laden des Dokumentes
+        STxFv 2 'Dokument als Nachricht aus der Textverarbeitung: vormerken, nach dem Versand festschreiben (STxFm)
     Else
         TxCoN.PrintDialog DaNam
     End If
@@ -34484,6 +34489,109 @@ Exit Sub
 
 FsErr:
 SErLog "STxFs " & Err.Description & " #" & Err.Number
+
+End Sub
+Public Sub STxFv(Optional ByVal Stufe As Integer = 0)
+'Emailversand aus der Textverarbeitung (Emailanlage ueber frmExport, Nachricht ueber STxMa): fuehrt das Dokument des
+'Patienten bis zum Versand mit. Festgeschrieben wird erst danach (STxFm aus S_MaSe).
+'0 = Vormerkung loeschen: jedes neu geladene Mailfenster beginnt ohne sie (frmMaiView Form_Load), eine nicht
+'    versendete Mail schreibt also nichts fest
+'1 = Kandidat festhalten, unmittelbar bevor der Inhalt fuer die Mail entnommen wird: Datei und ihr Stand
+'2 = Kandidat vormerken, sobald das Mailfenster angelegt ist
+'3 = Versand beginnt (S_MaSe): die Vormerkung gehoert jetzt zu diesem Versand, ein inzwischen neu geladenes
+'    Mailfenster loescht sie nicht mehr
+
+Dim StStr As String
+
+Select Case Stufe
+Case 1:
+    TxMaK = vbNullString
+    If STxZu() <> 1 Then Exit Sub 'nur ein gespeichertes Dokument des Patienten (kein Serienbrief, keine Vorlage, kein anderer Reiter)
+    If GlTxA = True Then Exit Sub 'Anzeige weicht vom gespeicherten Stand ab: die Mail enthielte nicht die Datei
+    StStr = STxFz(GlTxH)
+    If StStr <> vbNullString Then TxMaK = GlTxH & "|" & StStr
+Case 2:
+    TxMaD = vbNullString
+    If WindowLoad("frmMaiView") = True Then TxMaD = TxMaK 'ohne Mailfenster keine Vormerkung
+    TxMaK = vbNullString
+Case 3:
+    TxMaV = TxMaD 'die Vormerkung bleibt am Mailfenster: bricht S_MaSe vor dem Versand ab, gilt sie fuer den naechsten Versuch
+Case Else:
+    TxMaD = vbNullString
+End Select
+
+End Sub
+Private Function STxFz(ByVal FiNam As String) As String
+On Error GoTo FzErr
+'Stand einer Datei (Groesse und Aenderungszeit) als Zeichenkette, leer = nicht lesbar. Dient nur dem Vergleich
+'"seit dem Anlegen der Mail unveraendert" innerhalb derselben Sitzung.
+
+STxFz = vbNullString
+STxFz = CStr(FileLen(FiNam)) & "/" & CStr(CDbl(FileDateTime(FiNam)))
+
+Exit Function
+
+FzErr:
+STxFz = vbNullString
+
+End Function
+Public Sub STxFm(Optional ByVal AnFeh As Integer = 0)
+On Error GoTo FmErr
+'Versand gelungen (S_MaSe, MaiSen = 0): das Dokument des Patienten, das mit dieser Mail versendet wurde (STxFv),
+'festschreiben, wie nach dem Druck (STxFs). Kein PDF, keine weitere Datei, kein weiterer Eintrag. Massgeblich ist der
+'Dateiname: Patient und Reiter koennen seit dem Anlegen der Mail gewechselt haben. Nicht festgeschrieben wird, wenn
+'der Mail eine Anlage fehlt (AnFeh) oder die Datei seit dem Anlegen der Mail geaendert wurde: dann laege in der Akte
+'nicht der versendete Stand.
+
+Dim Posit As Long
+Dim FiNam As String
+Dim DaNam As String
+Dim StStr As String
+Dim WarFe As Boolean
+
+StStr = TxMaV
+TxMaV = vbNullString 'gilt fuer genau einen Versand
+If TxMaD = StStr Then TxMaD = vbNullString 'das Mailfenster dieser Vormerkung ist versandt
+Posit = InStr(1, StStr, "|", vbBinaryCompare)
+If Posit < 2 Then Exit Sub 'Mail ohne Dokument aus der Textverarbeitung
+FiNam = Left$(StStr, Posit - 1)
+StStr = Mid$(StStr, Posit + 1)
+DaNam = Mid$(FiNam, InStrRev(FiNam, "\") + 1)
+
+WarFe = STxFl(DaNam, False) 'schon festgeschrieben (Druck, GoBD, frueherer Versand): dann ohne Hinweis
+If WarFe = False Then
+    If AnFeh > 0 Then
+        SErLog "STxFm: versendetes Dokument nicht festgeschrieben, der Mail fehlt eine Anlage"
+        SPopu "Dokument nicht festgeschrieben", "In der versendeten Mail fehlt eine Anlage. Das Dokument ist deshalb nicht festgeschrieben.", IC48_Warning
+        Exit Sub
+    End If
+    If STxFz(FiNam) <> StStr Then
+        SErLog "STxFm: versendetes Dokument nicht festgeschrieben, nach dem Anlegen der Mail bearbeitet"
+        SPopu "Dokument nicht festgeschrieben", "Das Dokument wurde nach dem Anlegen der Mail noch bearbeitet und ist deshalb nicht festgeschrieben.", IC48_Warning
+        Exit Sub
+    End If
+End If
+
+If STxFl(DaNam, True) = True Then
+    If STxZu() = 1 And GlTxH = FiNam Then 'die Textverarbeitung zeigt dieses Dokument noch: nur noch anzeigen
+        If frmMain.TexCont1.EditMode <> 1 Then frmMain.TexCont1.EditMode = 1 'eben bestaetigt: Schreibschutz ohne erneutes Lesen
+        TxFeM = True 'erst danach: die Merker gelten nur, wenn das Control wirklich geschuetzt ist
+        TxFeD = GlTxH
+        TxFeH = GlTxH 'der folgende Hinweis genuegt
+    End If
+    If WarFe = False Then SPopu "Dokument festgeschrieben", "Das versendete Dokument ist jetzt festgeschrieben und kann nicht mehr bearbeitet werden. Dokument Kopieren legt eine bearbeitbare Kopie an.", IC48_Information
+ElseIf TxFeF = True Then
+    SErLog "STxFm: versendetes Dokument nicht festgeschrieben, Datenbankfehler"
+    SPopu "Dokument nicht festgeschrieben", "Die Festschreibung des versendeten Dokuments konnte nicht gespeichert werden.", IC48_Warning
+Else
+    SErLog "STxFm: versendetes Dokument nicht festgeschrieben, kein Krankenblatteintrag gefunden"
+    SPopu "Dokument nicht festgeschrieben", "Zum versendeten Dokument wurde kein Krankenblatteintrag gefunden. Es bleibt bearbeitbar.", IC48_Warning
+End If
+
+Exit Sub
+
+FmErr:
+SErLog "STxFm " & Err.Description & " #" & Err.Number
 
 End Sub
 Public Function STxSf(ByVal ZuSta As Integer) As Boolean

@@ -23,6 +23,7 @@ Private mAtFi As String  'Attachmentfile
 Private mAlAk As Boolean 'Emailabfrufalter aktivieren
 Private mAlTy As Integer 'Emailabfrufalter Typ
 Private mAtVo As Boolean 'Attachment vorhanden
+Private mAtOk As Integer 'Anzahl der Anlagen, die MaiSen der Mail beigelegt hat
 Private mAsyn As Integer 'Asynchronous
 Private mAuTy As Integer 'Athentifizierungstyp
 Private mAuUs As Boolean 'Benutzerauthentifizierung
@@ -642,6 +643,7 @@ Set PrBr1 = FM.prbStat1
 Set PrBr2 = FM.prbStat2
 
 DaPfa = GlDpf & "MailDat"
+mAtOk = 0 'Anlagen, die dieser Versand der Mail beigelegt hat
 
 If mAtVo = True Then
     GesZa = UBound(GlAtt)
@@ -766,6 +768,8 @@ With MaiSend
                 TmStr = MTrim(GlAtt(AktZa), ";")
                 If .AddAttachment(TmStr) <> 0 Then 'Rueckgabe <> 0: Anlage fehlt in der Mail
                     If GlLog = True Then SLogi "MaiSen: Anlage NICHT angefuegt: " & TmStr & " - " & .GetLastErrDescription
+                Else
+                    mAtOk = mAtOk + 1 'der Mail beigelegt
                 End If
             Next AktZa
         End If
@@ -914,6 +918,9 @@ Public Property Let moAlTy(Flag As Integer)
 End Property
 Public Property Get moAlTy() As Integer
     moAlTy = mAlTy
+End Property
+Public Property Get moAtOk() As Integer
+    moAtOk = mAtOk
 End Property
 Public Property Let moAtFi(Flag As String)
     mAtFi = Flag

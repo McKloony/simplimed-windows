@@ -27623,6 +27623,32 @@ If GlDbg = True Then SErLog Err.Description & " S_MaMa " & Err.Number
 Resume Next
 
 End Sub
+Private Function S_MaAf(ByVal AnzLi As Long, ByVal AnzOk As Long) As Integer
+On Error GoTo AfErr
+'Zahl der Anlagen, die einer versandten Mail fehlen. Soll ist die groessere Zahl aus den im Mailfenster angezeigten
+'Anlagen (AnzLi) und den nichtleeren Plaetzen der Anlagenliste GlAtt: eine beim Oeffnen der Mail fehlende Datei steht
+'nur dort, und FDial laesst Plaetze leer. Ist sind die von MaiSen beigelegten Anlagen (AnzOk).
+
+Dim AktZa As Long
+Dim AnzGl As Long
+Dim AnzSo As Long
+
+S_MaAf = 0
+AnzSo = AnzLi
+If AnzSo > AnzOk Then S_MaAf = AnzSo - AnzOk 'gilt, falls die Liste nicht lesbar ist (AfErr)
+If GlAtV = True Then
+    For AktZa = 1 To UBound(GlAtt)
+        If GlAtt(AktZa) <> vbNullString Then AnzGl = AnzGl + 1
+    Next AktZa
+End If
+If AnzGl > AnzSo Then AnzSo = AnzGl
+If AnzSo > AnzOk Then S_MaAf = AnzSo - AnzOk
+
+Exit Function
+
+AfErr:
+
+End Function
 Public Sub S_MaSe()
 On Error GoTo DaErr
 'Email-Sendings
@@ -27657,10 +27683,11 @@ Dim AttZa As Integer
 Dim GesZa As Integer
 Dim NeTLS As Integer
 Dim AdrZa As Integer
+Dim AnFeh As Integer
 Dim MaAtt As Boolean
 Dim MaAci As Boolean
 Dim MaBes As Boolean
-Dim RetWe As Boolean
+Dim RetWe As Integer
 Dim KoGef As Boolean
 
 Dim Mld1, Tit1 As String
@@ -27808,9 +27835,12 @@ End If
 EmKom = Replace(EmKom, vbCrLf, Space$(1), 1)
 EmKom = Trim$(EmKom)
 
+STxFv 3 'Versand beginnt: ein vorgemerktes Textdokument gehoert jetzt zu diesem Versand (STxFm). Vor dem ersten DoEvents, bei dem ein anderes Mailfenster geladen werden kann
+AnFeh = S_MaAf(CmAtt.ListCount, 0) 'erwartete Anlagen, ebenfalls jetzt: MaOpn leert die Anlagenliste eines neuen Mailfensters
 Screen.MousePointer = vbHourglass
 DoEvents
 
+RetWe = -1 'noch kein Versand versucht (MaiSen liefert 0 = versandt, 1 = abgebrochen, 2 = Fehler)
 If MaHtm <> vbNullString Then
     MaHtm = Replace(MaHtm, "</sup>", vbNullString, 1)
     MaHtm = Replace(MaHtm, "<sup>", vbNullString, 1)
@@ -27943,6 +27973,8 @@ If MaHtm <> vbNullString Then
                 End If
             End If
             RetWe = .MaiSen()
+            AnFeh = AnFeh - .moAtOk 'fehlende Anlagen = erwartete - beigelegte
+            If AnFeh < 0 Then AnFeh = 0
             DoEvents
             NeTLS = .moTLSs
         End With
@@ -27951,6 +27983,7 @@ If MaHtm <> vbNullString Then
             If clFil.FilVor(FiNam) = True Then 'ohne gespeicherte Kopie (SaveMail gescheitert) bleibt die Groesse 0
                 MaSiz = FileLen(FiNam)
             End If
+            STxFm AnFeh 'Mail versandt (MaiSen = 0): das mit ihr versendete Textdokument festschreiben, wenn keine Anlage fehlt (STxFv)
         End If
 
         RS130.AddNew
@@ -27980,7 +28013,7 @@ If MaHtm <> vbNullString Then
         Unload FM
         DoEvents
 
-        If PatNr > 0 Then
+        If PatNr > 0 And RetWe = 0 Then 'nur eine wirklich versandte Mail (MaiSen = 0) im Krankenblatt dokumentieren
             If GlEKr = True Then 'Emails in Krankenblatt dokumentieren
                 GlNeK = GlKoX
                 With GlNeK
@@ -28030,6 +28063,9 @@ If MaHtm <> vbNullString Then
         clFen.FenDsk 3
         Screen.MousePointer = vbNormal
         DoEvents
+    Else 'Postausgang nicht beschreibbar: kein Versand, das Mailfenster bleibt offen
+        SErLog "S_MaSe: Postausgang nicht beschreibbar, Nachricht nicht versandt"
+        SPopu "Nachricht nicht versandt", "Die Nachricht wurde nicht versandt, der Postausgang kann nicht beschrieben werden.", IC48_Warning
     End If
 Else
     Tit1 = "Kein Emailtext"
@@ -28037,8 +28073,10 @@ Else
     WindowMess Mld1, Dial2, Tit1, FM.hwnd
 End If
 
-GlAtV = False
-Erase GlAtt 'Array zurücksetzen
+If RetWe <> -1 Then 'Versand versucht, das Mailfenster ist geschlossen: Anlagen freigeben. Ohne Versuch bleibt es mit seinen Anlagen offen
+    GlAtV = False
+    Erase GlAtt 'Array zurücksetzen
+End If
 
 DoEvents
 Screen.MousePointer = vbNormal
@@ -28048,11 +28086,16 @@ Set clFil = Nothing
 Set clFen = Nothing
 
 If RetWe = 0 Then
-    SPopu "Nachricht wurde versandt", "Die Nachricht wurde an " & EmpAd & " versandt.", IC48_Information
+    If AnFeh > 0 Then 'versandt, aber nicht vollstaendig: sichtbar warnen statt nur im Log
+        SErLog "S_MaSe: Nachricht ohne " & AnFeh & " Anlage(n) versandt"
+        SPopu "Anlage fehlt", "Die Nachricht wurde an " & EmpAd & " versandt, ihr fehlt aber mindestens eine Anlage.", IC48_Warning
+    Else
+        SPopu "Nachricht wurde versandt", "Die Nachricht wurde an " & EmpAd & " versandt.", IC48_Information
+    End If
     Unload frmMaiView
 ElseIf RetWe = 1 Then
     SPopu "Emailversand abgebrochen", "Der Emailversand wurde abgebrochen.", IC48_Warning
-Else
+ElseIf RetWe > 1 Then 'ohne Versandversuch (-1) ist die Meldung schon erfolgt
     SPopu "Emailversand fehlerhaft", "Der Emailversand war fehlerhaft.", IC48_Warning
 End If
 

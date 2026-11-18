@@ -692,6 +692,13 @@ Case 9: 'Textverarbeitung
 
     If STxFw(FiNam, "ersetzt", False) = True Then Exit Sub 'festgeschriebenes Patientendokument nie ersetzen (meldet selbst)
 
+    If Zuord = False And (EmlSe = 1 Or EmlSe = 2) And SeUpl = 0 Then 'gleich folgt eine Mail mit dieser Datei als Anlage (SMaNe: nur Patient oder Mandant)
+        If WindowLoad("frmMaiView") = True Then 'ein offenes Mailfenster schliesst SMaNe ohnehin; schon jetzt, weil sein Aufraeumen (FDele) sonst die neue Anlage gleichen Namens loescht
+            Unload frmMaiView
+            DoEvents
+        End If
+    End If
+
     Set clFil = New clsFile
     With clFil
         If .FilVor(FiNam) = True Then
@@ -717,6 +724,7 @@ Case 9: 'Textverarbeitung
         End If
     End If
 
+    STxFv 1 'Textdokument, dessen Inhalt jetzt in die Ausgabedatei geht, als Kandidat festhalten (Emailanlage: STxFv 2)
     Select Case LiIdx
     Case 0: TxCoN.Save FiNam, 0, 3
     Case 1: TxCoN.Save FiNam, 0, 12 'PDF
@@ -760,6 +768,7 @@ Case 9: 'Textverarbeitung
             Select Case SeUpl
             Case 0:
                 SMaNe GlAdr, EmAdr, , EmBrf & vbCrLf & vbCrLf & EmTex, EmBet, FiNam
+                If WindowLoad("frmDruVo") = False Then STxFv 2 'Emailanlage aus der Textverarbeitung: vormerken, nach dem Versand festschreiben (STxFm)
             Case 1: 'Dokument Downloadlink
                 TmStr = SMCUp(FiNam)
                 If TmStr <> vbNullString Then
@@ -842,6 +851,7 @@ Case 9: 'Textverarbeitung
             Select Case SeUpl
             Case 0:
                 SMaNe ManNr, EmAdr, , EmBrf & vbCrLf & vbCrLf & EmTex, EmBet, FiNam
+                If WindowLoad("frmDruVo") = False Then STxFv 2 'Emailanlage aus der Textverarbeitung: vormerken, nach dem Versand festschreiben (STxFm)
             Case 1: 'Dokument Downloadlink
                 TmStr = SMCUp(DaNam)
                 If TmStr <> vbNullString Then

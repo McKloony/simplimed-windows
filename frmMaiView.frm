@@ -1602,6 +1602,7 @@ Private Sub comBar02_Execute(ByVal Control As XtremeCommandBars.ICommandBarContr
 End Sub
 Private Sub Form_Load()
 
+STxFv 'neues Mailfenster: keine Vormerkung eines Textdokuments (Festschreiben erst nach dem Versand, STxFm)
 Set FrmEx = Me.frmExtde
 
 With FrmEx
