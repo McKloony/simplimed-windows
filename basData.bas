@@ -12883,6 +12883,8 @@ Dim FoWar As Integer
 Dim AktZa As Integer
 Dim Verre As Boolean
 Dim Kasse As Boolean
+Dim BelOf As Boolean 'Kassenbeleg ohne TSE-Signatur angelegt (Rueckgabewert)
+Dim TSEGr As String  'Grund der letzten fehlgeschlagenen Signatur (Option GlTSo)
 Dim ReAbg As Boolean 'Rechnung abgeschlossen
 Dim RpCo1 As XtremeReportControl.ReportControl
 Dim RpCo2 As XtremeReportControl.ReportControl
@@ -13028,24 +13030,10 @@ If Verre = False Then
             If BuBet > 0 Then
                 If GlTSe > 0 Then 'TSE Aktiviert
                     If Kasse = True Then
-                        With GlNeZ
-                            .BeDat = BuDat
-                            .GesBe = BuBet
-                            .GuiID = GuiID
-                            .MaNum = ManNr
-                            .MitNr = MitNr
-                            .PatNr = PatNr
-                            .Steue = ReStu
-                            If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
-                            If ReStu = 0 Then
-                                .BelNr = 12
-                                .KoTex = GlBlV(4)
-                            Else
-                                .BelNr = 17
-                                .KoTex = GlBlV(6)
-                            End If
-                            S_BelNe 'neuer Beleg
-                        End With
+                        If S_BuZaK(BuDat, BuBet, GuiID, ManNr, MitNr, PatNr, ReStu, ReNum, ReStr, BuBel, BuTex, KoTex, FoWar, GeKId, KtoNr, KtoSt, GeKNr, GeKBe, TSENa) = False Then
+                            BelOf = True 'Kassenbeleg offen: Signatur und Kassenbuchung erst beim Belegdruck (S_RzDr)
+                            If GlTSo = True Then TSEGr = GlTSF
+                        End If
                     Else
                         With GlNuB
                             .BuBel = BuBel
@@ -13119,24 +13107,10 @@ If Verre = False Then
             If BetBz > 0 Then
                 If GlTSe > 0 Then 'TSE Aktiviert
                     If Kasse = True Then
-                        With GlNeZ
-                            .BeDat = BuDat
-                            .GesBe = BetBz
-                            .GuiID = GuiID
-                            .MaNum = ManNr
-                            .MitNr = MitNr
-                            .PatNr = PatNr
-                            .Steue = ReStu
-                            If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
-                            If ReStu = 0 Then
-                                .BelNr = 12
-                                .KoTex = GlBlV(4)
-                            Else
-                                .BelNr = 17
-                                .KoTex = GlBlV(6)
-                            End If
-                            S_BelNe 'neuer Beleg
-                        End With
+                        If S_BuZaK(BuDat, BetBz, GuiID, ManNr, MitNr, PatNr, ReStu, ReNum, ReStr, BuBel, BuTex, KoTex, FoWar, GeKId, KtoNr, KtoSt, GeKNr, GeKBe, TSENa) = False Then
+                            BelOf = True 'Kassenbeleg offen: Signatur und Kassenbuchung erst beim Belegdruck (S_RzDr)
+                            If GlTSo = True Then TSEGr = GlTSF
+                        End If
                     Else
                         With GlNuB
                             .BuBel = BuBel
@@ -13212,24 +13186,10 @@ If Verre = False Then
         If BetBz > 0 Then
             If GlTSe > 0 Then 'TSE Aktiviert
                 If Kasse = True Then
-                    With GlNeZ
-                        .BeDat = BuDat
-                        .GesBe = BetBz
-                        .GuiID = GuiID
-                        .MaNum = ManNr
-                        .MitNr = MitNr
-                        .PatNr = PatNr
-                        .Steue = ReStu
-                        If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
-                        If ReStu = 0 Then
-                            .BelNr = 12
-                            .KoTex = GlBlV(4)
-                        Else
-                            .BelNr = 17
-                            .KoTex = GlBlV(6)
-                        End If
-                        S_BelNe 'neuer Beleg
-                    End With
+                    If S_BuZaK(BuDat, BetBz, GuiID, ManNr, MitNr, PatNr, ReStu, ReNum, ReStr, BuBel, BuTex, KoTex, FoWar, GeKId, KtoNr, KtoSt, GeKNr, GeKBe, TSENa) = False Then
+                        BelOf = True 'Kassenbeleg offen: Signatur und Kassenbuchung erst beim Belegdruck (S_RzDr)
+                        If GlTSo = True Then TSEGr = GlTSF
+                    End If
                 Else
                     With GlNuB
                         .BuBel = BuBel
@@ -13299,7 +13259,10 @@ End If
 
 If GlJet = True Then SDBSav
 
-S_BuZal = Kasse
+If BelOf = True Then
+    If GlTSo = True Then GlTSF = TSEGr 'Grund der fehlgeschlagenen Signatur fuer die Meldung in frmAnzahl.FEinf
+End If
+S_BuZal = BelOf 'True = Kassenbeleg ohne TSE-Signatur angelegt: Signatur und Kassenbuchung erst beim Belegdruck
 
 Set RpSel = Nothing
 Set RpCls = Nothing
@@ -13311,6 +13274,110 @@ Exit Function
 
 LiErr:
 If GlDbg = True Then MsgBox Err.Description, 48, "S_BuZal " & Err.Number
+Resume Next
+
+End Function
+
+Private Function S_BuZaK(ByVal BuDat As Date, ByVal BuBet As Double, ByVal GuiID As String, ByVal ManNr As Long, ByVal MitNr As Long, ByVal PatNr As Long, ByVal ReStu As Single, ByVal ReNum As Long, ByVal ReStr As String, ByVal BuBel As Long, ByVal BuTex As String, ByVal KoTex As String, ByVal FoWar As Integer, ByVal GeKId As Long, ByVal KtoNr As Long, ByVal KtoSt As String, ByVal GeKNr As Long, ByVal GeKBe As String, ByVal TSENa As String) As Boolean
+On Error GoTo SuErr
+'Kassenzahlung bei aktiver TSE (aus S_BuZal): legt den Kassenbeleg an.
+'Option GlTSo aus (Standard): Signatur und Kassenbuchung entstehen erst beim Belegdruck (S_RzDr).
+'Option GlTSo an: sofort signieren und im Geldkonto Kasse buchen; der Beleg traegt dann die TSE-Daten und wird
+'beim Druck nur noch ausgegeben. Schlaegt die Signatur fehl, bleibt der Beleg wie ohne Option offen.
+'Rueckgabe: True = signiert und gebucht, False = Beleg offen (Druck noetig)
+
+Dim TSEBu As Boolean
+Dim BuKon As Long 'Kontrolle der Buchung (S_BuKaB)
+
+TSEBu = False
+If GlTSo = True Then
+    Select Case GlTSe
+    Case 1: TSEBu = TSESet(BuBet, ReStu, TSENa)
+    Case 2: TSEBu = TSEGen(BuBet, ReStu, TSENa)
+    End Select
+    If TSEBu = False Then
+        If GlLog = True Then SLogi "S_BuZaK: TSE-Signatur fehlgeschlagen, Kassenbeleg bleibt offen. " & GlTSF
+    End If
+End If
+
+With GlNeZ
+    .BeDat = BuDat
+    .GesBe = BuBet
+    .GuiID = GuiID
+    .MaNum = ManNr
+    .MitNr = MitNr
+    .PatNr = PatNr
+    .Steue = ReStu
+    If ReNum > 0 And Len(ReStr) > 3 Then .ReStr = ReStr 'Rechnungsbezug (B4)
+    If ReStu = 0 Then
+        .BelNr = 12
+        .KoTex = GlBlV(4)
+    Else
+        .BelNr = 17
+        .KoTex = GlBlV(6)
+    End If
+    If TSEBu = True Then 'TSE-Daten im Beleg: S_RzDr signiert und bucht ihn beim Druck nicht erneut
+        .TSETz = GlTSB.TraZe
+        .TSESz = GlTSB.SigZe
+        .TSEQr = GlTSB.SigQr
+        .TSESt = GlTSB.SigSt
+        .TSELg = GlTSB.ZeLog
+    End If
+End With
+S_BelNe 'neuer Beleg
+
+If TSEBu = True Then 'Buchung wie ohne TSE (S_BuZal), zusaetzlich mit den TSE-Daten; GuiID wie der Beleg (Storno)
+    With GlNuB
+        .BuBel = BuBel
+        .BuBet = BuBet
+        .BuDat = BuDat
+        .BuTex = BuTex
+        .BuWär = FoWar
+        .ByTyp = 2 'Einnahme
+        .GlkId = GeKId
+        .GuiID = GuiID
+        If GlBuc = True Then 'einfache Buchhaltung verwenden
+            .KtNrS = KtoNr
+            .KtBeS = KtoSt
+            .KtNrH = GeKNr
+            .KtBeH = GeKBe
+        Else
+            .KtNrS = GeKNr
+            .KtNrH = KtoNr
+            .KtBeS = GeKBe
+            .KtBeH = KtoSt
+        End If
+        .KoTex = KoTex
+        .MaNum = ManNr
+        .MitNr = MitNr
+        .PatNr = PatNr
+        .ReNum = ReNum
+        .ReStr = ReStr
+        .Steue = ReStu
+        .TSEQr = GlTSB.SigQr
+        .TSESt = GlTSB.SigSt
+        .TSETz = GlTSB.TraZe
+        .TSESz = GlTSB.SigZe
+        .TSELg = GlTSB.ZeLog
+    End With
+    S_BuNe 'neue Buchung
+    DoEvents
+    'S_BuNe meldet Schreibfehler nicht: Buchung nachpruefen (Anzahl, 0 = nicht gefunden, -1 = nicht pruefbar)
+    BuKon = -1
+    BuKon = S_BuKaB(GuiID, GlTSB.TraZe)
+    If BuKon <= 0 Then
+        If GlLog = True Then SLogi "S_BuZaK: signiert, Buchung nicht nachgewiesen (" & BuKon & ", GuiID " & GuiID & ", TSE " & GlTSB.TraZe & ")"
+        Screen.MousePointer = vbNormal
+        WindowMess "Die Zahlung wurde TSE-signiert, die Buchung im Geldkonto Kasse konnte aber nicht gespeichert oder nicht geprüft werden." & vbCrLf & vbCrLf & "Bitte die Einnahme im Geldkonto Kasse prüfen und gegebenenfalls von Hand buchen. Der Beleg trägt die TSE-Daten und wird beim Druck nicht erneut signiert.", Dial3, "Kassenbuchung prüfen", frmMain.hwnd
+    End If
+End If
+
+S_BuZaK = TSEBu
+
+Exit Function
+
+SuErr:
+If GlDbg = True Then MsgBox Err.Description, 48, "S_BuZaK " & Err.Number
 Resume Next
 
 End Function

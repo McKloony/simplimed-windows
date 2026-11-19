@@ -2944,6 +2944,13 @@ If GlVar = "PS3" Then
             PrItm.id = 2968
             PrItm.Description = IniGetOpt(KeyNa, PrItm.id)
         End If
+
+        If GlTSe > 0 Then 'nur bei aktiver TSE
+            Set PrBol = PrKat.AddChildItem(PropertyItemBool, "TSE-Signatur und Kassenbuchung ohne Belegdruck*", GlTSo)
+            PrBol.CheckBoxStyle = True
+            PrBol.id = 2997
+            PrBol.Description = IniGetOpt(KeyNa, PrBol.id)
+        End If
     End If
 End If
 
@@ -5366,6 +5373,12 @@ Case 2970: 'TSE Verfahren
         Set PrItm = PrGr1.FindItem(TolId)
         IniSetVal "System", "TSETyp", FKon(PrItm.Value, 2)
         S_SeSe 97, FKon(PrItm.Value, 2)
+Case 2997: 'TSE-Signatur und Kassenbuchung ohne Belegdruck
+        Set PrBol = PrGr1.FindItem(TolId)
+        'nur SetBit der Zeile 97 (TSE Verfahren) schreiben: S_SeSe leert bei Ja/Nein-Werten auch den Text
+        DBCmEx2 "qrySetEd4", "@IdxNr", "@IdSet", CInt(97), CBool(PrBol.Value)
+        GlSet(4, 96) = CBool(PrBol.Value)
+        GlTSo = CBool(PrBol.Value)
 Case 2869: 'Mitarbeiterplan anstelle Mandantenplan
         Set PrBol = PrGr1.FindItem(TolId)
         IniSetVal "TerSys", "MitPla", FKon(PrBol.Value, 2)

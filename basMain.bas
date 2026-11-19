@@ -1281,6 +1281,7 @@ Global GlADx As AdDet  'Adressendetails
 Global GlTSB As TSEDa  'TSE Beleg
 Global GlTSC As TSEDa  'TSE Beleg
 Global GlTSF As String 'Grund des letzten TSE-Fehlschlags (TSEGen/TSESet), leer bei Erfolg
+Global GlTSo As Boolean 'Kassenzahlung sofort TSE-signieren und buchen, ohne Belegdruck (Option 2997, Standard aus)
 Global GlKto As KtDet  'Sachkontendetails
 Global GlKTx As KtDet  'Sachkontendetails
 Global GlSel As SelTe  'Markierter Termin

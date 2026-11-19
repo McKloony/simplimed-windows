@@ -925,14 +925,21 @@ DoEvents
 Screen.MousePointer = vbNormal
 
 If GlTSe > 0 Then 'TSE Aktiviert
-    If Kasse = True Then
-        'Kassenzahlung mit TSE: S_BuZal legt nur den Beleg an, Signatur und Kassenbuchung entstehen erst beim
-        'Belegdruck (S_RzDr). Hinweis statt Sprung in den Reiter "Belege", kein automatischer Druckdialog (B1)
-        TeTit = "Zahlung eintragen"
-        TeMai = "Der Kassenbeleg ist angelegt, aber noch nicht gedruckt."
-        TeInh = "Die TSE-Signatur und die Buchung im Geldkonto Kasse entstehen erst beim Druck des Belegs. Solange der Beleg nicht gedruckt ist, erscheint die Einnahme nicht im Geldkonto Kasse."
-        TeFus = "Der Beleg kann jetzt oder spaeter gedruckt werden: im Krankenblatt des Patienten im Reiter ""Belege"" ueber ""Beleg Drucken""."
-        SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, frmMain.hwnd
+    If Kasse = True Then 'Kassenbeleg ohne Signatur (S_BuZal): Signatur und Kassenbuchung erst beim Belegdruck (S_RzDr)
+        'wie vor B1 in die Dokumentation, Reiter "Belege" wechseln; mit Option GlTSo nur nach fehlgeschlagener Signatur
+        GlBu2 = RibTab_Belegmodul
+        STaSe ShoCut_Kranken, RibTab_Belegmodul
+        DoEvents
+        If GlTSo = True Then
+            TeTit = "Zahlung eintragen"
+            TeMai = "Die TSE-Signatur ist fehlgeschlagen. Die Einnahme wurde nicht oder nicht vollständig gebucht."
+            TeInh = "Der Kassenbeleg ist angelegt, aber nicht signiert. Er wird beim Druck signiert und erst dann im Geldkonto Kasse gebucht."
+            If GlTSF <> vbNullString Then TeInh = TeInh & vbCrLf & vbCrLf & "Grund: " & GlTSF
+            TeFus = "Bitte die TSE-Verbindung prüfen und den Beleg danach in der Dokumentation im Reiter ""Belege"" über ""Beleg Drucken"" drucken."
+            SMeFr TeTit, TeMai, TeInh, TeFus, False, 1, True, frmMain.hwnd
+        Else
+            SPopu "Zahlung eintragen", "Erst mit ""Beleg Drucken"" wird der Kassenbeleg TSE-signiert und im Geldkonto Kasse gebucht.", IC48_Information
+        End If
     End If
 End If
 

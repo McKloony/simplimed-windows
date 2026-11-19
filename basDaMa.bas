@@ -3599,6 +3599,8 @@ End If
 GlTSK = CStr(GlSet(1, 97))              'TSE Organisation Key
 GlTSS = CStr(GlSet(1, 98))              'TSE Organisation Secret
 GlTSI = CStr(GlSet(1, 99))              'TSE Organisation ID
+GlTSo = False                           'TSE-Signatur und Kassenbuchung ohne Belegdruck (SetBit der Zeile TSE Verfahren)
+If GlSet(4, 96) <> vbNullString Then GlTSo = CBool(GlSet(4, 96)) 'GlSet ist String(): SetBit Null bleibt leer
 GlVrw = CInt(GlSet(2, 100))             'Verweildauer der Downloadlinks
 If Len(GlSet(1, 101)) > 0 Then
     GlRVs = Right$(GlSet(1, 101), 1)    'Standard-Rechnungsversandweg

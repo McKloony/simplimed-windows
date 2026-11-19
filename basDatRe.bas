@@ -27031,6 +27031,10 @@ Dim NeuBu As Boolean
 Dim Kasse As Boolean
 Dim Verre As Boolean
 Dim TSEBu As Boolean
+Dim BelSi As Boolean 'Beleg traegt bereits TSE-Daten (bei der Zahlung signiert und gebucht, S_BuZaK)
+Dim BelTz As Long    'TSEZahl des Belegs
+Dim BelLg As String  'TSELog des Belegs
+Dim BelBu As Long    'Anzahl Buchungen des Belegs (S_BuKaB, -1 = nicht pruefbar)
 Dim Gefun As Boolean 'Geldkonto gefunden
 Dim Mld1, Tit1 As String
 Dim RpCo5 As XtremeReportControl.ReportControl
@@ -27143,19 +27147,27 @@ If Verre = False Then
                 Else
                     TSESt = vbNullString
                 End If
+                BelTz = 0
+                Set RpCol = RpCls.Find(Rzp_TSEZahl)
+                BelTz = Val(RpRow.Record(RpCol.ItemIndex).Value & vbNullString)
+                BelLg = vbNullString
+                Set RpCol = RpCls.Find(Rzp_TSELog)
+                BelLg = Trim$(RpRow.Record(RpCol.ItemIndex).Value & vbNullString)
                 BelReN = vbNullString 'kein Wert aus der vorigen Zeile, falls die Spalte fehlt
                 Set RpCol = RpCls.Find(Rzp_RechNr)
                 BelReN = Trim$(RpRow.Record(RpCol.ItemIndex).Value & vbNullString)
                 'je Beleg neu entscheiden: sonst signiert und bucht ein bereits signierter Beleg mit dem Stand der Vorzeile
                 NeuBu = False
                 TSEBu = False
+                'Beleg mit TSE-Daten (bei der Zahlung signiert und gebucht, S_BuZaK): nicht erneut signieren und buchen.
+                'TSEZahl und TSELog speichert S_BelNe auf beiden Backends, TSEString nur unter SQL Server (GlTyp < 2)
+                BelSi = False
+                If TSESt <> vbNullString Then BelSi = True
+                If BelTz > 0 Then BelSi = True
+                If BelLg <> vbNullString Then BelSi = True
                 
                 If Gedru = False Then
-                    If GlTSe > 0 Then 'TSE Aktiviert
-                        If TSESt = vbNullString Then
-                            NeuBu = True
-                        End If
-                    Else
+                    If BelSi = False Then
                         NeuBu = True
                     End If
                 End If
@@ -27176,17 +27188,12 @@ If Verre = False Then
                     End If
 
                     If GlTSe > 0 Then 'TSE Aktiviert
-                        If Kasse = True Then
+                        If Kasse = True And BelSi = False Then 'Belege mit TSE-Daten (BelSi) werden unten nur als gedruckt markiert
                             NeuBu = TSEBu 'WICHTIG!
                             If NeuBu = False Then
                                 If TSENa = vbNullString Then
                                     Mld1 = "Das gewählte Geldkonto ist als Kasse gekennzeichnet, besitzt aber keine TSE Kennung."
                                     Tit1 = "Kasse TSE Kennung"
-                                ElseIf GlTSF = vbNullString And TSESt <> vbNullString Then
-                                    'Beleg schon signiert, aber nicht als gedruckt markiert: kein neuer Signaturversuch (NeuBu)
-                                    Mld1 = "Der Beleg B" & Format$(RezNr, "000000") & " traegt bereits TSE-Daten, ist aber nicht als gedruckt markiert. Er wird nicht erneut signiert, und es wurde keine neue Buchung angelegt."
-                                    Mld1 = Mld1 & vbCrLf & "Bitte im Geldkonto Kasse pruefen, ob die Einnahme bereits gebucht ist."
-                                    Tit1 = "Beleg bereits signiert"
                                 Else
                                     Mld1 = "Die TSE-Signatur ist fehlgeschlagen."
                                     If GlTSF <> vbNullString Then Mld1 = Mld1 & vbCrLf & "Grund: " & GlTSF
@@ -27327,6 +27334,26 @@ If Verre = False Then
                             DBCmEx2 "qrySimRezMa", "@PaSel", "@IdxNr", -1, RezNr '[Drucken] = -1
                         End If
                     End If
+
+                    If BelSi = True Then 'bei der Zahlung signiert und gebucht (S_BuZaK): nur als gedruckt markieren
+                        'eigene Buchung: GuiID + TSEZahl (Teilbelege mehrerer Steuersaetze teilen die GuiID), nicht storniert.
+                        'Kein Rueckfall auf die GuiID allein: eine andere Teilbuchung waere kein Nachweis
+                        BelBu = -1
+                        If TmGui <> vbNullString Then BelBu = S_BuKaB(TmGui, BelTz) '-1 auch ohne TSEZahl
+                        If BelBu > 0 Then
+                            DBCmEx2 "qrySimRezMa", "@PaSel", "@IdxNr", -1, RezNr '[Drucken] = -1
+                        Else
+                            If BelBu = 0 Then
+                                Mld1 = "Der Beleg B" & Format$(RezNr, "000000") & " trägt bereits TSE-Daten, zu ihm wurde aber keine Buchung im Geldkonto Kasse gefunden."
+                            Else
+                                Mld1 = "Der Beleg B" & Format$(RezNr, "000000") & " trägt bereits TSE-Daten. Ob seine Buchung im Geldkonto Kasse vorhanden ist, konnte nicht geprüft werden."
+                            End If
+                            Mld1 = Mld1 & vbCrLf & "Er wird nicht erneut signiert und nicht gebucht. Bitte im Geldkonto Kasse prüfen, ob die Einnahme gebucht ist."
+                            Tit1 = "Beleg bereits signiert"
+                            WindowMess Mld1, Dial3, Tit1, FM.hwnd
+                            If GlLog = True Then SLogi "S_RzDr: Beleg B" & Format$(RezNr, "000000") & " mit TSE-Daten, Buchung nicht nachgewiesen (" & BelBu & ", GuiID " & TmGui & ")"
+                        End If
+                    End If
     
                 End If
             End If
@@ -27350,6 +27377,33 @@ If GlDbg = True Then MsgBox Err.Description, 48, "S_RzDr " & Err.Number
 Resume Next
 
 End Sub
+Public Function S_BuKaB(ByVal TmGui As String, ByVal TSEZa As Long) As Long
+On Error GoTo LiErr
+'Zaehlt die nicht stornierten Buchungen eines Kassenbelegs: gleiche GuiID und TSE-Transaktionsnummer (S_RzDr, S_BuZaK).
+'Die GuiID allein reicht nicht, Teilbelege mehrerer Steuersaetze teilen sie. Rueckgabe -1: nicht pruefbar (Abfragefehler)
+
+Dim SqBuT As String
+Dim RsBuT As ADODB.Recordset
+
+S_BuKaB = -1
+If TmGui = vbNullString Or TSEZa <= 0 Then Exit Function
+
+SqBuT = "SELECT [ID0] FROM [Tabelle_JourBuch] WHERE [GuiID] = '" & SqlStr(TmGui) & "' AND [TSEZahl] = " & SqlNum(TSEZa) & " AND ([Storniert] = 0 OR [Storniert] IS NULL)"
+Set RsBuT = New ADODB.Recordset
+RsBuT.CursorLocation = adUseClient
+RsBuT.Open SqBuT, DB1, adOpenStatic, adLockReadOnly, adCmdText
+S_BuKaB = RsBuT.RecordCount
+RsBuT.Close
+Set RsBuT = Nothing
+
+Exit Function
+
+LiErr:
+If GlLog = True Then SLogi "S_BuKaB Err: " & Err.Description & " #" & Err.Number
+S_BuKaB = -1
+Set RsBuT = Nothing
+
+End Function
 Public Sub S_RzEn()
 On Error GoTo LiErr
 'Löscht den Eintrag
@@ -27611,6 +27665,8 @@ Dim AnTit As Variant
 Dim AnIKN As Variant
 Dim AktPo As Integer
 Dim Gedru As Boolean
+Dim BelTz As Long   'TSEZahl des Belegs
+Dim BelLg As String 'TSELog des Belegs
 Dim CmBrs As XtremeCommandBars.CommandBars
 Dim RpCls As XtremeReportControl.ReportColumns
 Dim TxAb1 As XtremeSuiteControls.FlatEdit
@@ -27859,6 +27915,14 @@ Set RS126 = DBCmRe1("qrySimRzIdx", "@IdxNr", RezNr)
 GesZa = RS126.RecordCount
 If GesZa > 0 Then
     Gedru = CBool(RS126.Fields("Drucken").Value)
+    'Beleg mit TSE-Daten (bei der Zahlung signiert und gebucht, S_BuZaK): Betrag und Datum wie nach dem Druck sperren,
+    'sonst widersprechen sich Ausdruck, Signatur und Buchung. Erst in Variablen lesen (Fehler + Resume Next)
+    BelTz = 0
+    BelTz = Val(RS126.Fields("TSEZahl").Value & vbNullString)
+    BelLg = vbNullString
+    BelLg = Trim$(RS126.Fields("TSELog").Value & vbNullString)
+    If BelTz > 0 Then Gedru = True
+    If BelLg <> vbNullString Then Gedru = True
     TxSum.Enabled = Not Gedru
     TxDat.Enabled = Not Gedru
     TxBtW.Enabled = Not Gedru
