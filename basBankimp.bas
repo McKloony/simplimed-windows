@@ -31,11 +31,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     Dim ImOrd As String
     Dim TmpSt As String
     Dim RS121 As ADODB.Recordset
-    
-    ' Progress Bar References
-    Dim PrBr1 As Object
-    Dim PrBr2 As Object
-    Dim TxDum As Object
+    Dim ErrNum As Long, ErrText As String
     
     ' Initialize Objects
     Set FM = frmMain
@@ -95,6 +91,13 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
 
     If GlLog = True Then SLogi "Imp01: Starting import of file: " & FiNam
 
+    ' Show Status Form: vor dem ersten Datenbankzugriff, damit keine Wartezeit ohne Anzeige entsteht
+    If GlLog = True Then SLogi "Imp01: Showing status form..."
+    frmStatus.Show
+    frmStatus.Caption = "Universal Import... Analysiere"
+    DoEvents
+    If GlLog = True Then SLogi "Imp01: Status form shown"
+
     ' --------------------------------------------------------------------------
     ' 2. Database Setup
     ' --------------------------------------------------------------------------
@@ -111,6 +114,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If GlLog = True Then SLogi "Imp01: Recordset opened successfully"
 
     If Not RS121.Supports(adAddNew) Then
+        BankStatusOff
         SMeFr "Bankimport", "Die Datenbank erlaubt kein Hinzufuegen von Umsaetzen.", vbNullString, vbNullString, False, 2, True, FM.hwnd
         GoTo Cleanup
     End If
@@ -119,16 +123,6 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     ' 3. Read & Analyze
     ' --------------------------------------------------------------------------
     
-    ' Show Status Form
-    If GlLog = True Then SLogi "Imp01: Showing status form..."
-    frmStatus.Show
-    DoEvents
-    Set PrBr1 = frmStatus.prbStat1
-    Set PrBr2 = frmStatus.prbStat2
-    Set TxDum = frmStatus.txtDummy
-    frmStatus.Caption = "Universal Import... Analysiere"
-    If GlLog = True Then SLogi "Imp01: Status form shown"
-
     ' Read File
     If GlLog = True Then SLogi "Imp01: Reading file content..."
     With clFil
@@ -207,9 +201,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     HdrRow = FindHeader(RowsC)
     NewBank = BankCols(RowsC, BankMap, HdrRow)
     If NewBank Then
-        PrBr1.Min = 0
-        PrBr1.Max = RowsC.Count
-        frmStatus.Caption = "Bankumsaetze abgleichen..."
+        'Abschnitte im Statusfenster (lesen, abgleichen, speichern) setzt BankImport
         DidImport = True
         BankImport RowsC, BankMap, HdrRow, RS121, IdBnk, ManNr, MitNr
         GoTo Cleanup
@@ -333,6 +325,7 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
 
     If IdxDa < 0 Or IdxAm < 0 Then
         If GlLog = True Then SLogi "Imp01: Column detection failed! IdxDa=" & IdxDa & " IdxAm=" & IdxAm
+        BankStatusOff
         SMeFr "Bankimport", "Konnte Datum- oder Betragsspalte nicht automatisch erkennen.", vbNullString, vbNullString, False, 2, True, FM.hwnd
         GoTo Cleanup
     End If
@@ -355,9 +348,9 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     ' --------------------------------------------------------------------------
     ' 5. CSV Import Loop
     ' --------------------------------------------------------------------------
-    PrBr1.Min = 0
-    PrBr1.Max = RowsC.Count
-    frmStatus.Caption = "Importiere Daten..."
+    'Statusfenster: Abschnitt lesen hier, abgleichen und speichern in BankStore; Abbrechen (Fenster geschlossen)
+    'vor dem Speichern laesst den Bestand unveraendert
+    If Not BankPhase("Bankumsaetze lesen...", RowsC.Count) Then GoTo Cleanup
     
     Dim i As Long
     Dim RowV As Variant
@@ -377,7 +370,6 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
     If GlLog = True Then SLogi "Import: Starting loop from row " & StartLoop & " to " & RowsC.Count
     If GlLog = True Then SLogi "Import: IdxDa=" & IdxDa & " IdxAm=" & IdxAm
 
-    DidImport = True 'ab hier werden Umsaetze gespeichert: S_List auch nach Abbruch
     Set PlanC = New Collection
     For i = StartLoop To RowsC.Count
         RowV = RowsC(i)
@@ -454,11 +446,10 @@ Public Sub Imp01(ByVal IdBnk As Long, ByVal ManNr As Long, ByVal MitNr As Long, 
              If GlLog = True And i < StartLoop + 10 Then SLogi "DEBUG:   -> SKIPPED"
         End If
 
-        PrBr1.Value = i
-        DoEvents
+        If Not BankStep(i) Then GoTo Cleanup
     Next i
     If PlanC.Count > 0 Then
-        frmStatus.Caption = "Bankumsaetze abgleichen..."
+        DidImport = True 'BankStore speichert: S_List auch nach Abbruch oder Fehler
         BankStore PlanC, RS121, IdBnk, ManNr, MitNr, MinDay, MaxDay
     End If
 
@@ -467,10 +458,6 @@ Cleanup:
     ' 6. Cleanup & Post-Processing
     ' --------------------------------------------------------------------------
     On Error Resume Next
-    Unload frmStatus
-    Set frmStatus = Nothing
-    DoEvents
-    
     If Not RS121 Is Nothing Then
         If RS121.State = adStateOpen Then RS121.Close
         Set RS121 = Nothing
@@ -479,23 +466,38 @@ Cleanup:
     Set CoDia = Nothing
     Set clFil = Nothing
     
-    DoEvents
     'CSV-Importe gleichen vor dem Speichern mit dem Bestand ab (BankStore, BankImport); S_BaDop wuerde dort
-    'auch echte gleiche Buchungen zum Loeschen anbieten
-    If DidImport And ChkDup Then S_BaDop
+    'auch echte gleiche Buchungen zum Loeschen anbieten. S_BaDop zeigt eine Meldung: Statusfenster vorher schliessen
+    If DidImport And ChkDup Then
+        BankStatusOff
+        DoEvents
+        S_BaDop
+    End If
     
+    'Statusfenster bleibt bis nach dem Neuaufbau der Liste offen (sonst Wartezeit ohne Anzeige)
+    If DidImport Then
+        If WindowLoad("frmStatus") Then
+            frmStatus.Caption = "Liste wird aktualisiert..."
+            DoEvents
+        End If
+        S_List
+    End If
+    BankStatusOff
     DoEvents
-    If DidImport Then S_List
     ImportBusy = False
     
     Exit Sub
 
 LiErr:
-    If GlLog = True Then SLogi "Imp01 ERROR: " & Err.Number & " - " & Err.Description
-    If Err.Number = vbObjectError + 2210 Or Err.Number = vbObjectError + 2211 Then
-        SMeFr "Bankimport", "Bankimport abgebrochen", Err.Description, vbNullString, False, 2, True, FM.hwnd
+    'Fehlerdaten vor BankStatusOff sichern (On Error dort setzt Err zurueck); Meldung nicht hinter dem Statusfenster
+    ErrNum = Err.Number
+    ErrText = Err.Description
+    If GlLog = True Then SLogi "Imp01 ERROR: " & ErrNum & " - " & ErrText
+    BankStatusOff
+    If ErrNum = vbObjectError + 2210 Or ErrNum = vbObjectError + 2211 Then
+        SMeFr "Bankimport", "Bankimport abgebrochen", ErrText, vbNullString, False, 2, True, FM.hwnd
     Else
-        SMeFr "Bankimport", "Bankimport abgebrochen", "Fehler " & CStr(Err.Number) & ". Bitte den Import pruefen.", "Bereits gespeicherte Umsaetze bleiben erhalten.", False, 2, True, FM.hwnd
+        SMeFr "Bankimport", "Bankimport abgebrochen", "Fehler " & CStr(ErrNum) & ". Bitte den Import pruefen.", "Bereits gespeicherte Umsaetze bleiben erhalten.", False, 2, True, FM.hwnd
     End If
     Resume Cleanup
 End Sub
@@ -1723,8 +1725,6 @@ Private Function ClnAm(ByVal s As String) As String
     P1 = InStr(Res, ".")
     P2 = InStr(Res, ",")
 
-    If GlLog = True Then SLogi "ClnAm Input: [" & s & "] -> [" & Res & "] P1=" & P1 & " P2=" & P2
-
     If P1 > 0 And P2 > 0 Then
         ' Both separators present: determine which is thousands vs decimal
         If P1 < P2 Then
@@ -1753,7 +1753,6 @@ Private Function ClnAm(ByVal s As String) As String
         End If
     End If
 
-    If GlLog = True Then SLogi "ClnAm Output: [" & Res & "]"
     ClnAm = Res
 End Function
 
@@ -2309,7 +2308,7 @@ Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal H
     Dim SureAt As Long, WeakAt As Long
     Dim StateN() As Byte, SureN() As String, WeakN() As String
     Dim UsedN As Object
-    Dim Fit As Boolean
+    Dim Fit As Boolean, Stopped As Boolean
     Dim ErrNum As Long, ErrText As String
 
     Set Plans = New Collection
@@ -2323,9 +2322,12 @@ Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal H
         Err.Raise vbObjectError + 2211, "BankImport", "Die Bankkennung konnte nicht erstellt werden. Es wurden keine Umsaetze importiert."
     End If
 
-    '1. Datei pruefen und planen: ein Durchlauf, noch kein Schreibzugriff
+    '1. Datei pruefen und planen: ein Durchlauf, noch kein Schreibzugriff. Statusfenster: Abschnitte lesen, abgleichen,
+    '   speichern; Abbrechen (Fenster geschlossen) vor dem Speichern laesst den Bestand unveraendert
+    Stopped = Not BankPhase("Bankumsaetze lesen...", Rows.Count)
     HdrUB = UBound(Rows(HdrRow))
     For Each RowV In Rows
+        If Stopped Then Exit For
         n = n + 1
         If n > HdrRow Then
             'Zusaetzliche Felder hinter der Kopfzeile (z.B. Trennzeichen am Zeilenende) nur, wenn alle leer sind
@@ -2362,8 +2364,10 @@ Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal H
                 End If
             End If
         End If
+        If Not BankStep(n) Then Stopped = True
     Next RowV
-    If Plans.Count > 0 Then
+    If Plans.Count > 0 And Not Stopped Then Stopped = Not BankPhase("Bankumsaetze abgleichen...", Plans.Count)
+    If Plans.Count > 0 And Not Stopped Then
         '2. Bestand des Kontos im Zeitraum einmal lesen, dazu die Tage bisheriger Lesart ausserhalb davon
         For Each Plan In Plans
             For b = 7 To 8
@@ -2440,6 +2444,10 @@ Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal H
                     End If
                 Next b
             End If
+            If Not BankStep(k) Then
+                Stopped = True
+                Exit For
+            End If
         Next Plan
         'Sichere Treffer unter echtem Tag und Tag bisheriger Lesart in einer Stufe: konkurrieren verschiedene Zeilen
         'um einen Altumsatz (z.B. gleicher Saldo bei April- und Maibuchung), ist nicht entscheidbar, welche er ist
@@ -2460,9 +2468,12 @@ Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal H
             If State(k) = 1 And StateN(k) <> 1 Then State(k) = 2
         Next k
 
-        '4. Nur neue Umsaetze speichern
+        '4. Nur neue Umsaetze speichern; Abbrechen endet nach der laufenden Zeile, Gespeichertes bleibt (ein erneuter
+        '   Import ergaenzt den Rest, der Abgleich erkennt die gespeicherten Zeilen an ihrer Kennung)
+        If Not Stopped Then Stopped = Not BankPhase("Bankumsaetze speichern...", Plans.Count)
         k = 0
         For Each Plan In Plans
+            If Stopped Then Exit For
             k = k + 1
             If State(k) = 1 Then
                 Skipped = Skipped + 1
@@ -2470,15 +2481,14 @@ Private Sub BankImport(ByVal Rows As Collection, ByRef ColMap() As Long, ByVal H
                 If State(k) = 2 Then Ambig = Ambig + 1
                 AddRec Target, IdBnk, ManNr, MitNr, CDate(Plan(1)), CDbl(Plan(4)), CStr(Plan(6)), CStr(Plan(5))
                 Added = Added + 1
-                frmStatus.prbStat1.Value = Added
-                DoEvents
             End If
+            If Not BankStep(k) Then Stopped = True
         Next Plan
     End If
 
     BnkRelease Prov, 0
     Prov = 0
-    If GlLog = True Then SLogi "BankImport: Added=" & CStr(Added) & "; Skipped=" & CStr(Skipped) & "; LegacySure=" & CStr(SureCnt) & "; LegacyWeak=" & CStr(WeakCnt) & "; Unklar=" & CStr(Ambig) & "; Invalid=" & CStr(BadRows) & "; ExtraDays=" & CStr(Extra.Count)
+    If GlLog = True Then SLogi "BankImport: Added=" & CStr(Added) & "; Skipped=" & CStr(Skipped) & "; LegacySure=" & CStr(SureCnt) & "; LegacyWeak=" & CStr(WeakCnt) & "; Unklar=" & CStr(Ambig) & "; Invalid=" & CStr(BadRows) & "; ExtraDays=" & CStr(Extra.Count) & "; Abbruch=" & CStr(Stopped)
     Exit Sub
 
 BankErr:
@@ -2674,7 +2684,7 @@ Private Sub BankStore(ByVal Plans As Collection, ByRef Target As ADODB.Recordset
     Dim BucketId As String, OwnText As String, OldText As String, NormOld As String, IdText As String, Cands As String
     Dim k As Long, Kind As Long, Skipped As Long, Added As Long, Ambig As Long
     Dim WeakCnt As Long, IbanHit As Long, CiHit As Long
-    Dim Cut As Boolean, SameTx As Boolean
+    Dim Cut As Boolean, SameTx As Boolean, Stopped As Boolean
     Dim OldDay As Date
     Dim b As Long
     Dim ErrNum As Long, ErrText As String
@@ -2690,7 +2700,9 @@ Private Sub BankStore(ByVal Plans As Collection, ByRef Target As ADODB.Recordset
             If OldDay < DateValue(MinDay) Or OldDay > DateValue(MaxDay) Then Extra(CStr(CLng(OldDay))) = OldDay
         End If
     Next Plan
-    BankRead IdBnk, ManNr, MinDay, MaxDay, Extra, Legacy, Nothing
+    'Statusfenster: Abschnitt abgleichen (Bestand lesen, dann je Zeile); Abbrechen speichert nichts
+    Stopped = Not BankPhase("Bankumsaetze abgleichen...", Plans.Count)
+    If Not Stopped Then BankRead IdBnk, ManNr, MinDay, MaxDay, Extra, Legacy, Nothing
 
     ReDim State(1 To Plans.Count)
     ReDim Weak(1 To Plans.Count)
@@ -2780,6 +2792,10 @@ Private Sub BankStore(ByVal Plans As Collection, ByRef Target As ADODB.Recordset
                 End If
                 If State(k) = 1 Then Exit For
             Next b
+            If Not BankStep(k) Then
+                Stopped = True
+                Exit For
+            End If
         Next Plan
         'Teiltext vor IBAN vor Glaeubiger-ID, je Stufe groesste eins-zu-eins-Zuordnung; Zeilen mit unklarer
         'Zuordnung und verschiedenem Text werden gespeichert (BankAssign)
@@ -2787,10 +2803,15 @@ Private Sub BankStore(ByVal Plans As Collection, ByRef Target As ADODB.Recordset
         IbanHit = BankAssign(ByIban, State, Used, Texts)
         CiHit = BankAssign(ByCi, State, Used, Texts)
     End If
+    'Ohne Altbestand im Zeitraum gibt es nichts abzugleichen: Abschnitt abschliessen
+    If Legacy.Count = 0 And Not Stopped Then Stopped = Not BankStep(Plans.Count)
 
-    '4. Nur neue Umsaetze speichern
+    '4. Nur neue Umsaetze speichern; Abbrechen endet nach der laufenden Zeile, Gespeichertes bleibt (ein erneuter
+    '   Import ergaenzt den Rest, der Abgleich erkennt die gespeicherten Zeilen)
+    If Not Stopped Then Stopped = Not BankPhase("Bankumsaetze speichern...", Plans.Count)
     k = 0
     For Each Plan In Plans
+        If Stopped Then Exit For
         k = k + 1
         If State(k) = 1 Then
             Skipped = Skipped + 1
@@ -2798,10 +2819,10 @@ Private Sub BankStore(ByVal Plans As Collection, ByRef Target As ADODB.Recordset
             If State(k) = 2 Then Ambig = Ambig + 1
             AddRec Target, IdBnk, ManNr, MitNr, CDate(Plan(0)), CDbl(Plan(1)), CStr(Plan(2)), vbNullString
             Added = Added + 1
-            DoEvents
         End If
+        If Not BankStep(k) Then Stopped = True
     Next Plan
-    If GlLog = True Then SLogi "BankStore: Added=" & CStr(Added) & "; Skipped=" & CStr(Skipped) & "; Weak=" & CStr(WeakCnt) & "; Iban=" & CStr(IbanHit) & "; Ci=" & CStr(CiHit) & "; Unklar=" & CStr(Ambig) & "; ExtraDays=" & CStr(Extra.Count)
+    If GlLog = True Then SLogi "BankStore: Added=" & CStr(Added) & "; Skipped=" & CStr(Skipped) & "; Weak=" & CStr(WeakCnt) & "; Iban=" & CStr(IbanHit) & "; Ci=" & CStr(CiHit) & "; Unklar=" & CStr(Ambig) & "; ExtraDays=" & CStr(Extra.Count) & "; Abbruch=" & CStr(Stopped)
     Exit Sub
 
 BankErr:
@@ -2970,4 +2991,50 @@ Private Function BankProof(ByVal Cells As Variant, ByVal OldText As String) As B
             If InStr(1, OldText, " " & Cells(n) & " ", vbBinaryCompare) > 0 Then BankProof = True
         End If
     Next n
+End Function
+
+Private Sub BankStatusOff()
+    'Statusfenster schliessen, falls geladen (frmStatus wuerde ein geschlossenes Fenster neu laden); auch vor
+    'Meldungen, da das Fenster TopMost ist
+    On Error Resume Next
+    If WindowLoad("frmStatus") Then Unload frmStatus
+End Sub
+
+Private Function BankPhase(ByVal Title As String, ByVal Total As Long) As Boolean
+    'Neuer Abschnitt im Statusfenster: Ueberschrift, Balken 0 bis Total. False, wenn der Anwender das Fenster
+    'geschlossen hat (Abbrechen); dann wird nichts mehr angezeigt
+    Dim IsOpen As Boolean
+    If WindowLoad("frmStatus") Then
+        If Total < 1 Then Total = 1
+        With frmStatus
+            .Caption = Title
+            .prbStat1.Value = 0
+            .prbStat1.Min = 0
+            .prbStat1.Max = Total
+        End With
+        DoEvents
+        IsOpen = WindowLoad("frmStatus")
+    End If
+    If Not IsOpen And GlLog = True Then SLogi "Bankimport: Statusfenster geschlossen (" & Title & ")"
+    BankPhase = IsOpen
+End Function
+
+Private Function BankStep(ByVal Pos As Long) As Boolean
+    'Stand im Abschnitt von BankPhase, neu gezeichnet je Prozent und am Ende (nur dann DoEvents); False, wenn das
+    'Statusfenster geschlossen wurde (Abbrechen)
+    Dim IsOpen As Boolean, Draw As Boolean
+    If WindowLoad("frmStatus") Then
+        IsOpen = True
+        With frmStatus.prbStat1
+            If Pos > .Max Then Pos = .Max
+            Draw = (Pos = .Max Or (Pos - .Value) * 100 >= .Max)
+            If Draw Then .Value = Pos
+        End With
+        If Draw Then
+            DoEvents
+            IsOpen = WindowLoad("frmStatus")
+        End If
+    End If
+    If Not IsOpen And GlLog = True Then SLogi "Bankimport: Statusfenster geschlossen (Abbrechen)"
+    BankStep = IsOpen
 End Function
