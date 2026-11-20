@@ -12184,6 +12184,7 @@ Case ME_Banking_Importieren: frmImport.Show vbModal
 Case ME_Banking_Exportieren:
 Case ME_Banking_Bearbeiten: frmBaEdit.Show vbModal
 Case ME_Banking_ZuorAufh: S_BaAuf
+Case ME_Banking_Dublette: SBaDu
 Case ME_Banking_Kennzei: S_BaMar
 Case ME_Banking_Loeschen: SLoHa
 Case ME_Banking_Ableiten: SBuAb

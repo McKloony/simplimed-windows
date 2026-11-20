@@ -4635,6 +4635,335 @@ If GlDbg = True Then MsgBox Err.Description, 48, "SBaGr " & Err.Number
 Resume Next
 
 End Sub
+Public Sub SBaDu()
+On Error GoTo LiErr
+'Dubletten Pruefung im Homebanking: gleicher Suchschluessel [Suche] im selben Konto gilt als Dublette.
+'Behalten wird der zugeordnete, sonst der aelteste Umsatz; entfernt werden nur Kopien ohne Zuordnung,
+'Kennzeichnung, Bearbeitung und abgeleitete Buchung (SBaDuZu, SBaDuBu). Selekt allein zaehlt nicht als
+'Zuordnung: S_BaDop setzt es bei der neuesten Kopie als Dublettenmarke
+
+Dim SQL1 As String
+Dim TeTit As String
+Dim TeMai As String
+Dim TeInh As String
+Dim TeFus As String
+Dim MeTex As String
+Dim LoWhe As String
+Dim ErrTx As String
+Dim ErrNr As Long
+Dim GesZa As Long
+Dim AktZa As Long
+Dim AkGrp As Long
+Dim GrNum As Long
+Dim GrBeg As Long
+Dim LoAnz As Long
+Dim LoPos As Long
+Dim AnzGr As Long
+Dim AnzMe As Long
+Dim AnzFe As Long
+Dim AnzLo As Long
+Dim AnzDe As Long
+Dim AbBru As Boolean
+Dim DuIdx() As Long
+Dim DuIdb() As Long
+Dim DuGui() As String
+Dim DuSta() As Long
+Dim DuDel() As Boolean
+Dim RsDup As ADODB.Recordset
+
+Set FM = frmMain
+TeTit = "Dubletten Prüfung"
+
+If GlRch(0, 19) = 0 Then
+    SPopu TeTit, "Keine Berechtigung für diesen Vorgang.", IC48_Forbidden
+    Exit Sub
+End If
+
+TeMai = "Sollen die Kontoumsätze jetzt auf doppelte Einträge geprüft werden?"
+TeInh = "Wenn sich die Zeiträume importierter Kontoauszüge überschneiden, können Umsätze doppelt vorhanden sein. " & _
+        "Die Prüfung vergleicht in jedem Bankkonto Buchungsdatum, Buchungstext und Betrag. Von gleichen Umsätzen bleibt " & _
+        "jeweils einer erhalten, bevorzugt der bereits zugeordnete, sonst der zuerst importierte. Die übrigen Kopien werden " & _
+        "endgültig entfernt."
+TeFus = "Umsätze mit Buchung, Konto, Rechnung, Posten, Kennzeichnung oder Kommentar werden nie entfernt; eine reine " & _
+        "Markierung als zugeordnet (etwa aus der bisherigen Dublettenprüfung) zählt nicht als Zuordnung. Zwei tatsächlich " & _
+        "gleiche Umsätze am selben Tag mit gleichem Text und Betrag gelten ebenfalls als doppelt. Der Vorgang kann im " & _
+        "Statusfenster abgebrochen werden."
+GlMes = 0 'ohne Dialog (Fehler in SMeFr) gilt nicht als Ja
+SMeFr TeTit, TeMai, TeInh, TeFus, False, 0, False, FM.hwnd
+If GlMes <> 33565 Then Exit Sub 'nur nach Ja
+
+Screen.MousePointer = vbHourglass
+frmStatus.Show
+frmStatus.Caption = TeTit
+frmStatus.prbStat1.Min = 0
+frmStatus.prbStat1.Max = 3
+DoEvents
+
+'1. Umsaetze aller Gruppen lesen und je Gruppe entscheiden. Gruppe = gleiches Konto, gleicher Suchschluessel und noch
+'gleiches Datum und gleicher Betrag (nachtraeglich angepasste Kopien sind keine Dublette mehr; der Buchungstext darf
+'hinter dem Suchschluessel abweichen, je nach Importstand), verglichen von der Datenbank; GrMin (kleinste ID2)
+'kennzeichnet sie, sortiert wird je Gruppe die aelteste zuerst
+SQL1 = "SELECT b.[ID2], b.[IDB], b.[GuiID], b.[Bezahlt], b.[IDZ], b.[IDI], b.[IDK], b.[ID0], " & _
+       "b.[ID1], b.[ID12], b.[ID13], b.[ID14], b.[ID15], b.[IDR], b.[IDR2], b.[IDR3], b.[IDR4], b.[IDR5], " & _
+       "b.[RechNr], b.[Kommentar], b.[Konto], b.[Buchtext], d.[GrMin] FROM [Tabelle_Banking] AS b INNER JOIN " & _
+       "(SELECT [IDB], [Suche], [Datum], [Betrag], MIN([ID2]) AS [GrMin] FROM [Tabelle_Banking] WHERE [Suche] <> '' " & _
+       "GROUP BY [IDB], [Suche], [Datum], [Betrag] HAVING COUNT(*) > 1) AS d ON (b.[IDB] = d.[IDB]) AND " & _
+       "(b.[Suche] = d.[Suche]) AND (b.[Datum] = d.[Datum]) AND (b.[Betrag] = d.[Betrag]) " & _
+       "ORDER BY d.[GrMin], b.[ID2]"
+Set RsDup = New ADODB.Recordset
+With RsDup
+    .CursorLocation = adUseClient
+    .Open SQL1, DB1, adOpenStatic, adLockReadOnly, adCmdText
+End With
+GesZa = RsDup.RecordCount
+If GesZa > 0 Then
+    ReDim DuIdx(1 To GesZa)
+    ReDim DuIdb(1 To GesZa)
+    ReDim DuGui(1 To GesZa)
+    ReDim DuSta(1 To GesZa)
+    ReDim DuDel(1 To GesZa)
+    If Not SBaDuPh("Kontoumsätze werden geprüft...", 0, GesZa) Then GoTo SbAbr
+    GrBeg = 1
+    Do While Not RsDup.EOF
+        AktZa = AktZa + 1
+        AkGrp = RsDup.Fields("GrMin").Value
+        If AktZa > 1 And AkGrp <> GrNum Then
+            If AktZa - GrBeg > 1 Then
+                AnzGr = AnzGr + 1
+                SBaDuGr DuSta, DuDel, GrBeg, AktZa - 1, AnzMe, AnzFe
+            End If
+            GrBeg = AktZa
+        End If
+        GrNum = AkGrp
+        DuIdx(AktZa) = RsDup.Fields("ID2").Value
+        DuIdb(AktZa) = RsDup.Fields("IDB").Value
+        DuGui(AktZa) = vbNullString & RsDup.Fields("GuiID").Value
+        If SBaDuZu(RsDup) Then
+            DuSta(AktZa) = 1
+        Else
+            DuSta(AktZa) = SBaDuBu(DuGui(AktZa))
+        End If
+        RsDup.MoveNext
+        If Not SBaDuSt(AktZa) Then GoTo SbAbr
+    Loop
+    If AktZa - GrBeg > 0 Then
+        AnzGr = AnzGr + 1
+        SBaDuGr DuSta, DuDel, GrBeg, AktZa, AnzMe, AnzFe
+    End If
+End If
+RsDup.Close
+Set RsDup = Nothing
+
+'2. Kopien entfernen. Ein zweiter Arbeitsplatz kann inzwischen gebucht, zugeordnet, bearbeitet oder umgehaengt haben:
+'die Bedingung prueft in derselben Anweisung Konto, Schutzfelder und Journalbuchung erneut und loescht nur, solange ein
+'anderer Umsatz der Gruppe im Konto bleibt
+For AktZa = 1 To GesZa
+    If DuDel(AktZa) Then LoAnz = LoAnz + 1
+Next AktZa
+If LoAnz > 0 Then
+    If Not SBaDuPh("Doppelte Umsätze werden entfernt...", 1, LoAnz) Then GoTo SbAbr
+    LoWhe = SBaDuWh()
+    For AktZa = 1 To GesZa
+        If DuDel(AktZa) Then
+            LoPos = LoPos + 1
+            SQL1 = "DELETE FROM [Tabelle_Banking] WHERE [ID2] = " & SqlNum(DuIdx(AktZa)) & " AND [IDB] = " & SqlNum(DuIdb(AktZa)) & LoWhe & _
+                   " AND NOT EXISTS (SELECT j.[GuiID] FROM [Tabelle_JourBuch] AS j WHERE j.[GuiID] = [Tabelle_Banking].[GuiID])" & _
+                   " AND EXISTS (SELECT k.[ID2] FROM [Tabelle_Banking] AS k WHERE k.[IDB] = [Tabelle_Banking].[IDB]" & _
+                   " AND k.[Suche] = [Tabelle_Banking].[Suche] AND k.[Datum] = [Tabelle_Banking].[Datum]" & _
+                   " AND k.[Betrag] = [Tabelle_Banking].[Betrag]" & _
+                   " AND k.[ID2] <> [Tabelle_Banking].[ID2])"
+            AnzDe = 0
+            DB1.Execute SQL1, AnzDe, adCmdText Or adExecuteNoRecords
+            AnzLo = AnzLo + AnzDe
+            If Not SBaDuSt(LoPos) Then GoTo SbAbr
+        End If
+    Next AktZa
+End If
+GoTo SbEnd
+
+SbAbr:
+AbBru = True
+
+SbEnd:
+On Error Resume Next 'Aufraeumen, Liste und Meldung auch nach Abbruch oder Fehler
+If Not RsDup Is Nothing Then
+    If RsDup.State = adStateOpen Then RsDup.Close
+    Set RsDup = Nothing
+End If
+If AnzLo > 0 Then
+    SBaDuPh "Liste wird aktualisiert...", 2, 1
+    S_List
+End If
+If WindowLoad("frmStatus") Then Unload frmStatus
+Screen.MousePointer = vbNormal
+DoEvents
+
+If GlLog = True Then SLogi "SBaDu: " & GesZa & " Zeilen, " & AnzGr & " Gruppen, " & LoAnz & " geplant, " & AnzLo & " entfernt, " & AnzMe & " mehrfach zugeordnet, " & AnzFe & " Pruefungsfehler" & IIf(AbBru, ", abgebrochen", vbNullString)
+
+'Ergebnis als Popup (Textflaeche fuer etwa drei kurze Zeilen; Abbruch und Fehler im Titel)
+If LoAnz = 0 And AnzMe = 0 And AnzFe = 0 And Not AbBru And ErrNr = 0 Then
+    SPopu TeTit, "Keine doppelten Umsätze gefunden.", IC48_Information
+Else
+    MeTex = "Doppelte Umsätze entfernt: " & AnzLo
+    If AnzMe > 0 Then MeTex = MeTex & vbCrLf & "Von Hand prüfen: " & AnzMe
+    If AnzFe > 0 Then MeTex = MeTex & vbCrLf & "Nicht geprüft: " & AnzFe
+    If ErrNr <> 0 Then
+        SPopu TeTit & ": Fehler", MeTex, IC48_Warning
+    ElseIf AbBru Then
+        SPopu TeTit & " abgebrochen", MeTex, IC48_Warning
+    ElseIf AnzMe > 0 Or AnzFe > 0 Then
+        SPopu TeTit, MeTex, IC48_Warning
+    Else
+        SPopu TeTit, MeTex, IC48_Information
+    End If
+End If
+
+Exit Sub
+
+LiErr:
+ErrNr = Err.Number
+ErrTx = Err.Description
+If GlLog = True Then SLogi "SBaDu Err: " & ErrTx & " #" & ErrNr
+If WindowLoad("frmStatus") Then Unload frmStatus 'Statusfenster ist TopMost: vor der Meldung schliessen
+If GlDbg = True Then MsgBox ErrTx, 48, "SBaDu " & ErrNr
+Resume SbEnd
+
+End Sub
+Private Function SBaDuFe(ByVal FeTex As Boolean) As Variant
+'Felder eines Umsatzes, die Zuordnung, Kennzeichnung oder Bearbeitung tragen (wie S_BaZur): Zahlen- bzw. Textfelder.
+'Selekt fehlt bewusst: S_BaDop setzt es bei der neuesten Kopie als Dublettenmarke
+If FeTex Then
+    SBaDuFe = Array("RechNr", "Kommentar", "Konto", "Buchtext")
+Else
+    SBaDuFe = Array("Bezahlt", "IDZ", "IDI", "IDK", "ID0", "ID1", "ID12", "ID13", "ID14", "ID15", _
+                    "IDR", "IDR2", "IDR3", "IDR4", "IDR5")
+End If
+End Function
+Private Function SBaDuZu(ByVal RsDup As ADODB.Recordset) As Boolean
+'True, wenn eines der Felder aus SBaDuFe belegt ist (Umsatz zugeordnet, gekennzeichnet oder bearbeitet)
+Dim FeNam As Variant
+
+For Each FeNam In SBaDuFe(False)
+    If Not IsNull(RsDup.Fields(FeNam).Value) Then
+        If CDbl(RsDup.Fields(FeNam).Value) <> 0 Then
+            SBaDuZu = True
+            Exit Function
+        End If
+    End If
+Next FeNam
+For Each FeNam In SBaDuFe(True)
+    If Len(Trim$(vbNullString & RsDup.Fields(FeNam).Value)) > 0 Then
+        SBaDuZu = True
+        Exit Function
+    End If
+Next FeNam
+
+End Function
+Private Function SBaDuWh() As String
+'Zusatz zur Loeschbedingung: alle Felder aus SBaDuFe leer, wie in SBaDuZu geprueft
+Dim FeNam As Variant
+
+For Each FeNam In SBaDuFe(False)
+    SBaDuWh = SBaDuWh & " AND ([" & FeNam & "] IS NULL OR [" & FeNam & "] = 0)"
+Next FeNam
+For Each FeNam In SBaDuFe(True)
+    SBaDuWh = SBaDuWh & " AND ([" & FeNam & "] IS NULL OR [" & FeNam & "] = '')"
+Next FeNam
+
+End Function
+Private Function SBaDuBu(ByVal BaGui As String) As Long
+On Error GoTo BuErr
+'1, wenn im Journal eine Buchung zum Umsatz existiert (abgeleitete Buchungen tragen dessen GuiID), sonst 0;
+'2, wenn die Pruefung fehlschlaegt (der Umsatz wird dann nicht entfernt)
+Dim RsBuc As ADODB.Recordset
+
+If Len(BaGui) = 0 Then Exit Function
+Set RsBuc = New ADODB.Recordset
+With RsBuc
+    .CursorLocation = adUseClient
+    .Open "SELECT COUNT(*) AS [AnzBu] FROM [Tabelle_JourBuch] WHERE [GuiID] = '" & SqlStr(BaGui) & "'", DB1, adOpenStatic, adLockReadOnly, adCmdText
+    If CLng(.Fields("AnzBu").Value) > 0 Then SBaDuBu = 1
+    .Close
+End With
+Set RsBuc = Nothing
+
+Exit Function
+
+BuErr:
+If GlLog = True Then SLogi "SBaDuBu Err: " & Err.Description & " #" & Err.Number
+SBaDuBu = 2
+
+End Function
+Private Sub SBaDuGr(ByRef DuSta() As Long, ByRef DuDel() As Boolean, ByVal GrBeg As Long, ByVal GrEnd As Long, ByRef AnzMe As Long, ByRef AnzFe As Long)
+'Eine Gruppe gleicher Umsaetze GrBeg bis GrEnd (aelteste zuerst; DuSta 0 = frei, 1 = zugeordnet, 2 = Pruefung
+'fehlgeschlagen) markiert in DuDel die zu entfernenden Kopien: bei einem zugeordneten alle freien, ohne zugeordneten
+'alle freien ausser dem aeltesten. Mit mehreren zugeordneten oder Pruefungsfehler bleibt die Gruppe unveraendert
+Dim AktZa As Long
+Dim AnzZu As Long
+Dim AnzEr As Long
+Dim ErsBl As Boolean
+
+For AktZa = GrBeg To GrEnd
+    Select Case DuSta(AktZa)
+    Case 1: AnzZu = AnzZu + 1
+    Case 2: AnzEr = AnzEr + 1
+    End Select
+Next AktZa
+If AnzEr > 0 Then
+    AnzFe = AnzFe + 1
+    Exit Sub
+End If
+If AnzZu > 1 Then
+    AnzMe = AnzMe + 1
+    Exit Sub
+End If
+ErsBl = (AnzZu = 0)
+For AktZa = GrBeg To GrEnd
+    If DuSta(AktZa) = 0 Then
+        If ErsBl Then
+            ErsBl = False 'aeltester Umsatz bleibt
+        Else
+            DuDel(AktZa) = True
+        End If
+    End If
+Next AktZa
+
+End Sub
+Private Function SBaDuPh(ByVal LaTex As String, ByVal PhNr As Long, ByVal GesZa As Long) As Boolean
+'Neuer Abschnitt im Statusfenster: Text, Gesamtbalken auf PhNr, Abschnittsbalken 0 bis GesZa. False, wenn der
+'Anwender das Statusfenster geschlossen hat (Abbrechen); ein geschlossenes Fenster wird nicht neu geladen
+If WindowLoad("frmStatus") Then
+    If GesZa < 1 Then GesZa = 1
+    With frmStatus
+        .lblLab01.Caption = LaTex
+        .prbStat1.Value = PhNr
+        .prbStat2.Value = 0
+        .prbStat2.Min = 0
+        .prbStat2.Max = GesZa
+    End With
+    DoEvents
+    SBaDuPh = WindowLoad("frmStatus")
+End If
+End Function
+Private Function SBaDuSt(ByVal AktPo As Long) As Boolean
+'Stand im Abschnitt von SBaDuPh, neu gezeichnet je Prozent und am Ende (nur dann DoEvents); False, wenn das
+'Statusfenster geschlossen wurde (Abbrechen)
+Dim NeuZe As Boolean
+
+If WindowLoad("frmStatus") Then
+    With frmStatus.prbStat2
+        If AktPo > .Max Then AktPo = .Max
+        NeuZe = (AktPo = .Max Or (AktPo - .Value) * 100 >= .Max)
+        If NeuZe Then .Value = AktPo
+    End With
+    If NeuZe Then
+        DoEvents
+        SBaDuSt = WindowLoad("frmStatus")
+    Else
+        SBaDuSt = True
+    End If
+End If
+End Function
 Public Sub SBaNa()
 On Error GoTo LiErr
 'Erstellt eine Email für Banking

@@ -20734,9 +20734,11 @@ Case RibTab_HomeBanki:
         CmCon.IconId = IC16_Safe_Edit
         Set CmCon = .Add(xtpControlButton, ME_Banking_Kennzei, "Umsätze Kennzeichnen")
         CmCon.IconId = IC16_Safe_Check
+        Set CmCon = .Add(xtpControlButton, ME_Banking_Dublette, "Dubletten Prüfung")
+        CmCon.IconId = IC16_DouChk
+        CmCon.BeginGroup = True
         Set CmCon = .Add(xtpControlButton, ME_Banking_ZuorAufh, "Zuordnung Aufheben")
         CmCon.IconId = IC16_Safe_Open
-        CmCon.BeginGroup = True
     End With
 Case RibTab_Ter_Kalend:
     Select Case MeTyp

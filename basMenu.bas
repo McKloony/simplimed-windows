@@ -605,6 +605,7 @@ Public Const ME_Banking_Gutschrift = 1530
 Public Const ME_Banking_Nachricht = 1531
 Public Const ME_Banking_PreBuchung = 1532
 Public Const ME_Banking_SplitBuch = 1533
+Public Const ME_Banking_Dublette = 1534
 
 Public Const ME_KassenBuchung_Hinzufuegen = 2501
 Public Const ME_KassenBuchung_Kopieren = 2502
